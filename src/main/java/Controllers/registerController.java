@@ -1,27 +1,55 @@
 package Controllers;
 
+import java.util.Scanner;
+import java.util.regex.Matcher;
+
+import Models.User;
+import Models.Menu.Menu;
+import veiws.mainMenuVeiw;
 public class registerController {
-    private Boolean doesUsernameExist(String username) {
+    public static Boolean doesUsernameExist(String username) {
+        for(int i = 0; i < Menu.allUsers.length; i++) {
+            if(Menu.allUsers[i].getUsername().equals(username)) {
+                return true;
+            }
+        }
         return false;
     }
 
-    private Boolean doesNicknameExist(String nickName) {
+    public static Boolean doesNicknameExist(String nickName) {
+        for(int i = 0; i < Menu.allUsers.length; i++) {
+            if(Menu.allUsers[i].getNickname().equals(nickName)) {
+                return true;
+            }
+        }
         return false;
     }
 
-    private void createPlayer(String username, String password, String nickname) {
-
+    public static void createPlayer(String username, String password, String nickname) {
+        int length = Menu.allUsers.length;
+        User[] newArr = new User[length + 1];
+        for(int i = 0; i < length; i++) {
+            newArr[i] = Menu.allUsers[i];
+        }
+        newArr[length] = new User(username, nickname, password);
+        Menu.allUsers = newArr;
     }
 
-    private Boolean isPasswordCorrect(String password) {
+    public static Boolean isPasswordCorrect(String username, String password) {
+        for(int i = 0; i < Menu.allUsers.length; i++) {
+            if(Menu.allUsers[i].getUsername().equals(username) 
+                && !Menu.allUsers[i].getPassword().equals(password)) {
+                    return true;
+            }
+        }
         return false;
     }
 
-    private void loginPlayer(String username) {
-
+    public static void loginPlayer(String username, Scanner scanner, Matcher matcher) {
+        mainMenuVeiw.run(scanner, matcher);
     }
 
-    private void logoutPlayer() {
+    public static void logoutPlayer() {
         
     }
 }
