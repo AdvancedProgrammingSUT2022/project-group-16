@@ -10,6 +10,8 @@ public class Tile
 	private BorderType[] borders;
 	private Resource resource;
 	private Improvement improvement;
+	private boolean hasRoad;
+	private boolean hasRailRoad;
 	//	CombatUnit combatUnitInTile; TODO
 	//	NonCombatUnit combatUnitInTile; TODO
 	boolean isPillaged;
