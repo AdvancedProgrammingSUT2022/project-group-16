@@ -49,6 +49,7 @@ public enum BuildingType
 		this.maintenanceCost = maintenanceCost;
 		this.requiredTechnology = requiredTechnology;
 	}
+
 }
 
 
