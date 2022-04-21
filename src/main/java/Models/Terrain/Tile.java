@@ -2,6 +2,7 @@ package Models.Terrain;
 
 import Models.Game.Position;
 import Models.Resources.Resource;
+
 public class Tile
 {
 	private Position position;
