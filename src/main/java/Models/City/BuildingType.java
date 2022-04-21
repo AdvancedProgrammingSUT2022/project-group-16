@@ -42,6 +42,7 @@ public enum BuildingType
 	BuildingType(int turns, int cost, int maintenanceCost, int healthPoints, Technology requiredTechnology)
 	{
 	}
+
 }
 
 
