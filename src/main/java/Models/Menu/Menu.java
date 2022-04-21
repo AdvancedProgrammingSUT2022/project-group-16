@@ -1,6 +1,6 @@
-package models.Menu;
+package Models.Menu;
 
-import models.User;
+import Models.User;
 
 public abstract class Menu {
     public static User[] allUsers = new User[0];
