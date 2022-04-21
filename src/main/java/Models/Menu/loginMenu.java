@@ -1,8 +1,8 @@
-package models.Menu;
+package Models.Menu;
 
 import java.lang.ModuleLayer.Controller;
 
-import models.User;
+import Models.User;
 
 public class loginMenu extends Menu{
     private Controller registerController;
