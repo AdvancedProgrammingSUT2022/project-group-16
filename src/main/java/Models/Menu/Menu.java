@@ -2,6 +2,9 @@ package Models.Menu;
 
 import Models.User;
 
-public abstract class Menu {
-    public static User[] allUsers = new User[0];
+import java.util.ArrayList;
+
+public abstract class Menu
+{
+	public static ArrayList<User> allUsers = new ArrayList<>();
 }

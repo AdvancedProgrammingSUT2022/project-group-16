@@ -1,9 +1,9 @@
-import veiws.registerAndLoginVeiw;
+import Views.registerAndLoginView;
 
 public class Main
 {
 	public static void main(String[] args)
 	{
-		registerAndLoginVeiw.run();
+		registerAndLoginView.run();
 	}
 }
