@@ -1,6 +1,6 @@
 package Controllers;
 
-public class mainMenuController
+public class MainMenuController
 {
 	private void startNewGame(String name)
 	{

@@ -7,7 +7,7 @@ import Views.mainMenuVeiw;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
-public class registerController
+public class RegisterController
 {
 	public static boolean doesUsernameExist(String username)
 	{

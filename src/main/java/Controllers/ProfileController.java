@@ -1,6 +1,6 @@
 package Controllers;
 
-public class profileController
+public class ProfileController
 {
 	private boolean doesUsernameExist(String username)
 	{

@@ -1,6 +1,6 @@
 package Views;
 
-import Controllers.registerController;
+import Controllers.RegisterController;
 import enums.Command;
 
 import java.util.Scanner;
@@ -30,31 +30,31 @@ public class registerAndLoginView
 			}
 			else if((matcher = Command.compareRegex(command, Command.registerUser)) != null)
 			{
-				if(registerController.doesUsernameExist(matcher.group("username")))
+				if(RegisterController.doesUsernameExist(matcher.group("username")))
 				{
 					System.out.println("user with username " + matcher.group("username") + " already exists");
 				}
-				else if(registerController.doesNicknameExist(matcher.group("nickname")))
+				else if(RegisterController.doesNicknameExist(matcher.group("nickname")))
 				{
 					System.out.println("user with nickname " + matcher.group("nickname") + " already exists");
 				}
 				else
 				{
 					System.out.println("user created successfully!");
-					registerController.createUser(matcher.group("username"), matcher.group("password"), matcher.group("nickname"));
+					RegisterController.createUser(matcher.group("username"), matcher.group("password"), matcher.group("nickname"));
 				}
 			}
 			else if((matcher = Command.compareRegex(command, Command.loginUser)) != null)
 			{
-				if(!registerController.doesUsernameExist(matcher.group("username"))
-						|| registerController.isPasswordCorrect(matcher.group("username"), matcher.group("password")))
+				if(!RegisterController.doesUsernameExist(matcher.group("username"))
+						|| RegisterController.isPasswordCorrect(matcher.group("username"), matcher.group("password")))
 				{
 					System.out.println("Username and password didn't match!");
 				}
 				else
 				{
 					System.out.println("user logged in successfully!");
-					registerController.loginPlayer(matcher.group("username"), scanner, matcher);
+					RegisterController.loginPlayer(matcher.group("username"), scanner, matcher);
 				}
 			}
 			else
