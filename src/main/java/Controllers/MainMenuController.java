@@ -1,19 +1,38 @@
 package Controllers;
 
+import Views.profileMenuVeiw;
+import enums.mainMenuEnum;
+import enums.registerEnum;
+
+import java.util.Scanner;
+import java.util.regex.Matcher;
+
 public class MainMenuController
 {
-	private void startNewGame(String name)
+	public static void startNewGame()
 	{
 	
 	}
 	
-	private void enterProfileMenu()
+	public static void enterProfileMenu(Scanner scanner, Matcher matcher)
 	{
-	
+		profileMenuVeiw.run(scanner, matcher);
 	}
 	
 	private Boolean doesPlayerExist(String name)
 	{
 		return false;
+	}
+
+	public static int enterMenu(Scanner scanner, Matcher matcher)
+	{
+		String menuName = matcher.group("menuName");
+		if((matcher = mainMenuEnum.compareRegex(menuName, mainMenuEnum.profileName)) != null)
+			enterProfileMenu(scanner, matcher);
+		else if((matcher = mainMenuEnum.compareRegex(menuName, mainMenuEnum.startNewGame)) != null)
+			startNewGame();
+		else
+			return 1;
+		return 0;
 	}
 }

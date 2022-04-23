@@ -1,20 +1,44 @@
 package Controllers;
 
+import Models.Menu.Menu;
+
 public class ProfileController
 {
 	private boolean doesUsernameExist(String username)
 	{
+		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
+		{
+			if(Menu.allUsers.get(i).getUsername().equals(username))
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 	
-	private boolean doesNicknameExist(String nickName)
+	public static int doesNicknameExist(String nickName)
 	{
-		return false;
+		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
+		{
+			if(Menu.allUsers.get(i).getNickname().equals(nickName))
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 	
-	private void changeNickname(String nickName)
+	public static String changeNickname(String nickName)
 	{
-	
+		if(doesNicknameExist(nickName) != -1)
+		{
+			return "user with nickname " + nickName + " already exists";
+		}
+		else
+		{
+			Menu.loggedInUser.changeNickname(nickName);
+			return "nickname changed successfully!";
+		}
 	}
 	
 	private void changePassword(String password)
