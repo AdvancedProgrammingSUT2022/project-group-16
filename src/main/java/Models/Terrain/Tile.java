@@ -8,8 +8,9 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 public class Tile
 {
 	private final Position position;
-	private TileType tileType;
-	private TileFeature tileFeature;
+	private final TileType tileType;
+	private final TileFeature tileFeature;
+	// 6 borders, starting from the north border from 0. (counterclockwise)
 	private BorderType[] borders;
 	private Resource resource;
 	private Improvement improvement;
@@ -26,10 +27,10 @@ public class Tile
 		this.tileFeature = tileFeature;
 		this.borders = borders;
 		this.resource = resource;
-		combatUnitInTile = null;
-		nonCombatUnitInTile = null;
-		improvement = null;
-		isPillaged = false;
+		this.combatUnitInTile = null;
+		this.nonCombatUnitInTile = null;
+		this.improvement = Improvement.NONE;
+		this.isPillaged = false;
 	}
 	
 	public TileType getTileType()
@@ -87,6 +88,16 @@ public class Tile
 	public boolean isPillaged()
 	{
 		return isPillaged;
+	}
+	public Position getPosition()
+	{
+		return position;
+	}
+	// TODO: override equals???
+	@Override
+	protected Object clone() throws CloneNotSupportedException
+	{
+		return super.clone();
 	}
 }
 
