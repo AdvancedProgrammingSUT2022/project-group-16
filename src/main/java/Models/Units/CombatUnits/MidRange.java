@@ -5,4 +5,9 @@ public class MidRange extends CombatUnit{
     private void pillage(){
 
     }
+
+    @Override
+    protected void move() {
+
+    }
 }

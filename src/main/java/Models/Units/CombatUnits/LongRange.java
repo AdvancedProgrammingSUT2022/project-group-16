@@ -5,4 +5,9 @@ public class LongRange extends CombatUnit{
     private void getReadyToFight(){
 
     }
+
+    @Override
+    protected void move() {
+
+    }
 }

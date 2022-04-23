@@ -1,16 +1,20 @@
 package Models.Units;
 
 import Models.Game.Position;
+import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.Resource;
+import Models.Terrain.Tile;
 
 import java.util.ArrayList;
 
 public abstract class Unit
 {
+
+	private Player rulerPlayer;
 	private int productionCost;
 	private int movementPoints;
-	private Position position;
+	private Tile tile;
 	private int health;
 	private int speed;
 	private int power;
@@ -21,12 +25,20 @@ public abstract class Unit
 	private boolean isActive;
 	private boolean isSleep;
 
-	public Position getPosition() {
-		return position;
+	public Player getRulerPlayer() {
+		return rulerPlayer;
 	}
 
-	public void setPosition(Position position) {
-		this.position = position;
+	public void setRulerPlayer(Player rulerPlayer) {
+		this.rulerPlayer = rulerPlayer;
+	}
+
+	public Tile getTile() {
+		return tile;
+	}
+
+	public void setTile(Tile tile) {
+		this.tile = tile;
 	}
 
 	public int getHealth() {
