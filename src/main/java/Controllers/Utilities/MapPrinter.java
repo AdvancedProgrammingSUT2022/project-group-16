@@ -22,27 +22,23 @@ public class MapPrinter
 		MapPrinter.columns = columns;
 		MapPrinter.rows = rows;
 		
-		for(int i = 0; i <= rows * 8; i++)
+		printFirstLine();
+		for(int i = 1; i <= rows * 8 + 3; i++)
 		{
-			if(i == 0)
-				printLine0();
-			else
+			int x = i % 8;
+			switch(x)
 			{
-				int x = i % 8;
-				switch(x)
-				{
-					case 1 -> printLine1(i);
-					case 2 -> printLine2(i);
-					case 3 -> printLine3(i);
-					case 4 -> printLine4(i);
-					case 5 -> printLine5(i);
-					case 6 -> printLine6(i);
-					case 7 -> printLine7(i);
-					case 0 -> printLine8(i);
-				}
+				case 1 -> printLine1(i);
+				case 2 -> printLine2(i);
+				case 3 -> printLine3(i);
+				case 4 -> printLine4(i);
+				case 5 -> printLine5(i);
+				case 6 -> printLine6(i);
+				case 7 -> printLine7(i);
+				case 0 -> printLine8(i);
 			}
 		}
-		// TODO: print the remaining parts
+		printLastLine();
 		printMapGuide();
 	}
 	private static Tile getTileByXY(int x, int y)
@@ -52,7 +48,7 @@ public class MapPrinter
 				return tile;
 		return null;
 	}
-	private static void printLine0()
+	private static void printFirstLine()
 	{
 		// print the first line (considering rivers)
 		
@@ -78,14 +74,24 @@ public class MapPrinter
 			
 			if(i % 2 == 0)
 			{
-				BorderType[] borders = tile.getBorders();
-				if(i == 0)
+				if(tile == null)
 				{
-					System.out.print("   ");
-					System.out.print(Ansi.colorize("/", borders[1].attribute));
+					if(i == 0)
+						System.out.print("    ");
+					System.out.print("          ");
+					System.out.print(Ansi.colorize("\\", getTileByXY(row - 1, i + 1).getBorders()[2].attribute));
 				}
-				System.out.print(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y), tile.getTileType().attribute));
-				System.out.print(Ansi.colorize("\\", borders[5].attribute));
+				else
+				{
+					BorderType[] borders = tile.getBorders();
+					if(i == 0)
+					{
+						System.out.print("   ");
+						System.out.print(Ansi.colorize("/", borders[1].attribute));
+					}
+					System.out.print(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y), tile.getTileType().attribute));
+					System.out.print(Ansi.colorize("\\", borders[5].attribute));
+				}
 			}
 			else
 			{
@@ -118,15 +124,25 @@ public class MapPrinter
 			
 			if(i % 2 == 0)
 			{
-				BorderType[] borders = tile.getBorders();
-				if(i == 0)
+				if(tile == null)
 				{
-					System.out.print("  ");
-					System.out.print(Ansi.colorize("/", borders[1].attribute));
+					if(i == 0)
+						System.out.print("   ");
+					System.out.print("            ");
+					System.out.print(Ansi.colorize("\\", getTileByXY(row - 1, i + 1).getBorders()[2].attribute));
 				}
-				
-				System.out.print(Ansi.colorize(String.format("     %2s     ", tile.getTileFeature().symbol), tile.getTileType().attribute));
-				System.out.print(Ansi.colorize("\\", borders[5].attribute));
+				else
+				{
+					BorderType[] borders = tile.getBorders();
+					if(i == 0)
+					{
+						System.out.print("  ");
+						System.out.print(Ansi.colorize("/", borders[1].attribute));
+					}
+					
+					System.out.print(Ansi.colorize(String.format("     %2s     ", tile.getTileFeature().symbol), tile.getTileType().attribute));
+					System.out.print(Ansi.colorize("\\", borders[5].attribute));
+				}
 			}
 			else
 			{
@@ -159,17 +175,27 @@ public class MapPrinter
 			
 			if(i % 2 == 0)
 			{
-				BorderType[] borders = tile.getBorders();
-				if(i == 0)
+				if(tile == null)
 				{
-					System.out.print(" ");
-					System.out.print(Ansi.colorize("/", borders[1].attribute));
+					if(i == 0)
+						System.out.print("  ");
+					System.out.print("              ");
+					System.out.print(Ansi.colorize("\\", getTileByXY(row - 1, i + 1).getBorders()[2].attribute));
 				}
-				if(tile.getResource() != null)
-					System.out.print(Ansi.colorize(String.format("      %2s      ", tile.getResource().getRESOURCE_TYPE()), tile.getTileType().attribute));
 				else
-					System.out.print(Ansi.colorize("              ", tile.getTileType().attribute));
-				System.out.print(Ansi.colorize("\\", borders[5].attribute));
+				{
+					BorderType[] borders = tile.getBorders();
+					if(i == 0)
+					{
+						System.out.print(" ");
+						System.out.print(Ansi.colorize("/", borders[1].attribute));
+					}
+					if(tile.getResource() != null)
+						System.out.print(Ansi.colorize(String.format("      %2s      ", tile.getResource().getRESOURCE_TYPE()), tile.getTileType().attribute));
+					else
+						System.out.print(Ansi.colorize("              ", tile.getTileType().attribute));
+					System.out.print(Ansi.colorize("\\", borders[5].attribute));
+				}
 			}
 			else
 			{
@@ -212,7 +238,6 @@ public class MapPrinter
 			else
 			{
 				System.out.print(Ansi.colorize("__________", getTileByXY(row + 1, i).getBorders()[0].attribute));
-				//				if(i + 2 < columns)
 				if(tile == null)
 				{
 					if(i + 2 < columns)
@@ -342,9 +367,22 @@ public class MapPrinter
 		}
 		System.out.println();
 	}
-	private static void printRemainingParts()
+	private static void printLastLine()
 	{
-	
+		System.out.print("                 ");
+		for(int i = 1; i < columns; i += 2)
+		{
+			Tile tile = getTileByXY(rows - 1, i);
+			assert tile != null;
+			BorderType[] bordrs = tile.getBorders();
+			System.out.print(Ansi.colorize("\\", bordrs[2].attribute));
+			System.out.print(Ansi.colorize("__________", bordrs[3].attribute));
+			System.out.print(Ansi.colorize("/", bordrs[4].attribute));
+			if(i < columns)
+				System.out.print("                ");
+			
+		}
+		System.out.println();
 	}
 	
 	private static void printMapGuide()
