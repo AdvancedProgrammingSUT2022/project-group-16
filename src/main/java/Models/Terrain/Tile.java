@@ -20,7 +20,8 @@ public class Tile
 	private NonCombatUnit nonCombatUnitInTile;
 	boolean isPillaged;
 	
-	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource)
+	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource,
+	            Improvement improvement, CombatUnit combatUnitInTile, NonCombatUnit nonCombatUnitInTile)
 	{
 		this.position = position;
 		this.tileType = tileType;
@@ -31,6 +32,9 @@ public class Tile
 		this.nonCombatUnitInTile = null;
 		this.improvement = Improvement.NONE;
 		this.isPillaged = false;
+		this.improvement = improvement;
+		this.combatUnitInTile = combatUnitInTile;
+		this.nonCombatUnitInTile = nonCombatUnitInTile;
 	}
 	
 	public TileType getTileType()
