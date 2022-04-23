@@ -5,7 +5,7 @@ public class Building
 {
 	private BuildingType buildingType;
 	private Position position;
-	private int healthPoints;
+	private int hitPoints;
 	
 	public Building(BuildingType buildingType, Position position)
 	{

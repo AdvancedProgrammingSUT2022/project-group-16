@@ -20,12 +20,12 @@
             <version>5.2.0_1</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.thoughtworks.feature</groupId>
-            <artifactId>override_2.11</artifactId>
-            <version>1.1.0</version>
-            <scope>system</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.thoughtworks.feature</groupId>-->
+<!--            <artifactId>override_2.11</artifactId>-->
+<!--            <version>1.1.0</version>-->
+<!--            <scope>system</scope>-->
+<!--        </dependency>-->
 
     </dependencies>
 

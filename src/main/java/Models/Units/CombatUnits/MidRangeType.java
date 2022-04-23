@@ -17,18 +17,18 @@ public enum MidRangeType {
     LANCER(220, 22, 4, ResourceType.HORSES, Technology.METALLURGY, true),
     MUSKET_MAN(120, 16, 2, null, Technology.GUN_POWDER, false),
     RIFLEMAN(200, 25, 2, null, Technology.RIFLING, false),
-    ANTI_TANK_GUN(300, 32, 2, null, Technology.REPLACEABLE, false),
-    INFANTRY(300, 36, 2, null, Technology.REPLACEABLE, false),
+    ANTI_TANK_GUN(300, 32, 2, null, Technology.REPLACEABLE_PARTS, false),
+    INFANTRY(300, 36, 2, null, Technology.REPLACEABLE_PARTS, false),
     PANZER(450, 60, 5, null, Technology.COMBUSTION, false),
     TANK(450, 50, 4, null, Technology.COMBUSTION, false);
 
-    int cost;
-    int combatStrength;
-    int movement;
-    ResourceType requiredSource;
-    Technology requiredTech;
-    boolean isMounted;
-
+    public final int cost;
+    public final int combatStrength;
+    public final int movement;
+    public final ResourceType requiredSource;
+    public final Technology requiredTech;
+    public final boolean isMounted;
+    
     MidRangeType(int cost, int combatStrength, int movement, ResourceType requiredSource, Technology requiredTech, boolean isMounted){
         this.cost = cost;
         this.combatStrength = combatStrength;

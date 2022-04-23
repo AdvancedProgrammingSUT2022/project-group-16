@@ -2,10 +2,10 @@ package Models.Player;
 
 import Models.City.City;
 import Models.Game.Position;
+import Models.Resources.Resource;
 import Models.Terrain.Tile;
 import Models.Units.Unit;
 import Models.User;
-import com.sun.jna.platform.unix.Resource;
 
 import java.util.ArrayList;
 import java.util.Stack;

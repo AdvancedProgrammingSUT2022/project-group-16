@@ -6,7 +6,14 @@ public class MidRange extends CombatUnit{
     public MidRange(MidRangeType type){
         this.type = type;
     }
+    
     private void pillage(){
 
+    }
+    
+    @Override
+    public String toString()
+    {
+        return type.name();
     }
 }

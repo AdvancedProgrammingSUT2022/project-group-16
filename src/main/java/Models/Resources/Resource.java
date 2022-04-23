@@ -8,4 +8,9 @@ public abstract class Resource
 	{
 		RESOURCE_TYPE = resource_type;
 	}
+	
+	public ResourceType getRESOURCE_TYPE()
+	{
+		return RESOURCE_TYPE;
+	}
 }

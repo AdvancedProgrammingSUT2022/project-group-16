@@ -6,7 +6,14 @@ public class LongRange extends CombatUnit{
     public LongRange(LongRangeType type){
         this.type = type;
     }
+    
     private void getReadyToFight(){
 
+    }
+    
+    @Override
+    public String toString()
+    {
+        return type.name();
     }
 }
