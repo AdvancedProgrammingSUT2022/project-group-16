@@ -1,10 +1,7 @@
 package Controllers.Utilities;
 
 import Models.Resources.ResourceType;
-import Models.Terrain.BorderType;
-import Models.Terrain.Improvement;
-import Models.Terrain.Tile;
-import Models.Terrain.TileFeature;
+import Models.Terrain.*;
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 
@@ -390,6 +387,14 @@ public class MapPrinter
 		System.out.println();
 		
 		System.out.println(Ansi.colorize("Map Guide:", Attribute.WHITE_BACK(), Attribute.BLACK_TEXT()));
+		
+		System.out.printf("%-15s    ", "Tile types:");
+		Arrays.asList(TileType.values()).forEach((tileType)->{
+			System.out.print(tileType + ":");
+			System.out.print(Ansi.colorize("\t", tileType.attribute));
+			System.out.print("\t");
+		});
+		System.out.println();
 		System.out.printf("%-15s    ", "Tile features:");
 		Arrays.asList(TileFeature.values()).forEach((tileFeature)->{
 			if(!tileFeature.equals(TileFeature.NONE))
