@@ -20,7 +20,7 @@ public enum ResourceType
 	COTTON(0, 0, 2, Improvement.PLANTATION, null, "☁"),
 	DYES(0, 0, 2, Improvement.PLANTATION, null, "\uD83E\uDEA3"),
 	FURS(0, 0, 2, Improvement.CAMP, null, "\uD83E\uDDE5"),
-	GEMS(0, 0, 3, Improvement.MINE, null, "\t\uD83D\uDC8E"),
+	GEMS(0, 0, 3, Improvement.MINE, null, "\uD83D\uDC8E"),
 	GOLD(0, 0, 2, Improvement.MINE, null, "\uD83E\uDE99"),
 	INCENSE(0, 0, 2, Improvement.PLANTATION, null, "\uD83E\uDEB5"),
 	IVORY(0, 0, 2, Improvement.CAMP, null, "\uD83E\uDDA3"),

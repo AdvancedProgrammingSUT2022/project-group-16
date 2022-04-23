@@ -102,8 +102,10 @@ public class MapPrinter
 				}
 				else
 				{
-					// TODO: print CUnit in tile
-					System.out.print(Ansi.colorize("                ", tile.getTileType().attribute));
+					if(tile.getCombatUnitInTile() != null)
+						System.out.print(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute));
+					else
+						System.out.print(Ansi.colorize("                ", tile.getTileType().attribute));
 					System.out.print(Ansi.colorize("/", tile.getBorders()[4].attribute));
 				}
 			}
@@ -153,8 +155,10 @@ public class MapPrinter
 				}
 				else
 				{
-					// TODO: print NCUnit in tile
-					System.out.print(Ansi.colorize("              ", tile.getTileType().attribute));
+					if(tile.getNonCombatUnitInTile() != null)
+						System.out.print(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute));
+					else
+						System.out.print(Ansi.colorize("              ", tile.getTileType().attribute));
 					System.out.print(Ansi.colorize("/", tile.getBorders()[4].attribute));
 				}
 			}
@@ -262,8 +266,10 @@ public class MapPrinter
 			{
 				if(i == 0)
 					System.out.print(Ansi.colorize("\\", borders[2].attribute));
-				// TODO: print CUnit
-				System.out.print(Ansi.colorize("                ", tile.getTileType().attribute));
+				if(tile.getCombatUnitInTile() != null)
+					System.out.print(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute));
+				else
+					System.out.print(Ansi.colorize("                ", tile.getTileType().attribute));
 				System.out.print(Ansi.colorize("/", borders[4].attribute));
 			}
 			else
@@ -291,8 +297,10 @@ public class MapPrinter
 					System.out.print(" ");
 					System.out.print(Ansi.colorize("\\", borders[2].attribute));
 				}
-				// TODO: print NCUnits
-				System.out.print(Ansi.colorize("              ", tile.getTileType().attribute));
+				if(tile.getNonCombatUnitInTile() != null)
+					System.out.print(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute));
+				else
+					System.out.print(Ansi.colorize("              ", tile.getTileType().attribute));
 				System.out.print(Ansi.colorize("/", borders[4].attribute));
 			}
 			else
@@ -320,7 +328,7 @@ public class MapPrinter
 					System.out.print("  ");
 					System.out.print(Ansi.colorize("\\", borders[2].attribute));
 				}
-				// TODO: print NCUnits
+				// TODO: print sth
 				System.out.print(Ansi.colorize("            ", tile.getTileType().attribute));
 				System.out.print(Ansi.colorize("/", borders[4].attribute));
 			}
@@ -391,8 +399,8 @@ public class MapPrinter
 		System.out.printf("%-15s    ", "Tile types:");
 		Arrays.asList(TileType.values()).forEach((tileType)->{
 			System.out.print(tileType + ":");
-			System.out.print(Ansi.colorize("\t", tileType.attribute));
-			System.out.print("\t");
+			System.out.print(Ansi.colorize("    ", tileType.attribute));
+			System.out.print("    ");
 		});
 		System.out.println();
 		System.out.printf("%-15s    ", "Tile features:");
@@ -413,7 +421,6 @@ public class MapPrinter
 				System.out.printf("%s:%-6s", improvement, improvement.symbol);
 		}));
 		System.out.println();
-		// TODO: print units symbols
 	}
 }
 
