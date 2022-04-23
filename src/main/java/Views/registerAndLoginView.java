@@ -22,39 +22,26 @@ public class registerAndLoginView
 			{
 				System.out.println("menu navigation is not possible");
 			}
-			else if(command.equals("menu exit"))
+			else if((matcher = Command.compareRegex(command, Command.menuExit)) != null)
 				break;
-			else if(command.equals("menu show-current"))
+			else if((matcher = Command.compareRegex(command, Command.showCurrentMenu)) != null)
 			{
 				System.out.println("Login Menu");
 			}
 			else if((matcher = Command.compareRegex(command, Command.registerUser)) != null)
 			{
-				if(RegisterController.doesUsernameExist(matcher.group("username")))
-				{
-					System.out.println("user with username " + matcher.group("username") + " already exists");
-				}
-				else if(RegisterController.doesNicknameExist(matcher.group("nickname")))
-				{
-					System.out.println("user with nickname " + matcher.group("nickname") + " already exists");
-				}
-				else
-				{
-					System.out.println("user created successfully!");
-					RegisterController.createUser(matcher.group("username"), matcher.group("password"), matcher.group("nickname"));
-				}
+				System.out.println(RegisterController.createUser(matcher.group("username"), matcher.group("password"), matcher.group("nickname")));
 			}
 			else if((matcher = Command.compareRegex(command, Command.loginUser)) != null)
 			{
-				if(!RegisterController.doesUsernameExist(matcher.group("username"))
-						|| RegisterController.isPasswordCorrect(matcher.group("username"), matcher.group("password")))
+				if(RegisterController.loginPlayer(matcher.group("username"), scanner, matcher) != null)
 				{
-					System.out.println("Username and password didn't match!");
+					System.out.println(RegisterController.loginPlayer(matcher.group("username"), scanner, matcher));
 				}
 				else
 				{
 					System.out.println("user logged in successfully!");
-					RegisterController.loginPlayer(matcher.group("username"), scanner, matcher);
+					mainMenuVeiw.run(scanner, matcher);
 				}
 			}
 			else
