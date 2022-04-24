@@ -18,9 +18,9 @@ public class GameController
 {
 	private static GameController instance = null;
 	private final ArrayList<Position> grid = new ArrayList<>();
-	private final int MAX_GRID_LENGTH = 30;
+	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
-	private final int MAX_MAP_SIZE = 10;
+	public final int MAX_MAP_SIZE = 10;
 	
 	private GameController()
 	{
