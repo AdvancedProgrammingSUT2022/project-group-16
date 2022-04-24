@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public enum profileEnum
 {
     changeNickname("^\\s*profile\\s+change\\s+--nickname\\s+(?<newNickname>\\S+)$"),
-    enterMenu("^\\s*menu\\s+enter\\s+(?<menuName>.+)\\s*$"),
+    changePassword("^\\s*profile\\s+change\\s+--password\\s+--current\\s+(?<currentPassword>.+)\\s+--new\\s+(?<newPassword>.+)\\s*$"),
     menuExit("^\\s*menu\\s+exit\\s*$"),
     showCurrentMenu("^\\s*menu\\s+show-current\\s*$");
 

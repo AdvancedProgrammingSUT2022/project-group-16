@@ -2,6 +2,8 @@ package Controllers;
 
 import Models.Menu.Menu;
 
+import java.util.regex.Matcher;
+
 public class ProfileController
 {
 	private boolean doesUsernameExist(String username)
@@ -36,14 +38,26 @@ public class ProfileController
 		}
 		else
 		{
-			Menu.loggedInUser.changeNickname(nickName);
+			Menu.loggedInUser.setNickname(nickName);
 			return "nickname changed successfully!";
 		}
 	}
 	
-	private void changePassword(String password)
+	public static String changePassword(Matcher matcher)
 	{
-	
+		if(!Menu.loggedInUser.getPassword().equals(matcher.group("currentPassword")))
+		{
+			return "current password is invalid";
+		}
+		else if(matcher.group("currentPassword").equals(matcher.group("newPassword")))
+		{
+			return "please enter a new password";
+		}
+		else
+		{
+			Menu.loggedInUser.setPassword(matcher.group("newPassword"));
+			return "password changed successfully!";
+		}
 	}
 	
 	private boolean isPasswordCorrect(String password)

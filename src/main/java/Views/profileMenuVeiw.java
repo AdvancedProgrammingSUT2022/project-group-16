@@ -23,6 +23,10 @@ public class profileMenuVeiw
             {
                 System.out.println(ProfileController.changeNickname(matcher.group("newNickname")));
             }
+            else if((matcher = profileEnum.compareRegex(command, profileEnum.changePassword)) != null)
+            {
+                System.out.println(ProfileController.changePassword(matcher));
+            }
             else if((matcher = profileEnum.compareRegex(command, profileEnum.showCurrentMenu)) != null)
             {
                 System.out.println("Profile Menu");
