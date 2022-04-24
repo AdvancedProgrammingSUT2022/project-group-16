@@ -63,6 +63,33 @@ public class RegisterController {
 		return null;
 	}
 
+	public static String checkLineForRegister(Matcher usernameMatcher, Matcher nicknameMatcher,
+											   Matcher passwordMatcher, String command)
+	{
+		usernameMatcher = null;
+		passwordMatcher = null;
+		nicknameMatcher = null;
+		for(int i = 0; i < command.length(); i++)
+		{
+			String sub = command.substring(i, command.length());
+			if(usernameMatcher == null && (usernameMatcher = mainCommands.compareRegex(sub, mainCommands.getUsername)) != null)
+				usernameMatcher = mainCommands.compareRegex(sub, mainCommands.getUsername);
+
+			else if(nicknameMatcher == null && (nicknameMatcher = mainCommands.compareRegex(sub, mainCommands.getNickname)) != null)
+				nicknameMatcher = mainCommands.compareRegex(sub, mainCommands.getNickname);
+
+			else if(passwordMatcher == null && (passwordMatcher = mainCommands.compareRegex(sub, mainCommands.getPassword)) != null)
+				passwordMatcher = mainCommands.compareRegex(sub, mainCommands.getPassword);
+		}
+		if(usernameMatcher != null && nicknameMatcher != null && passwordMatcher != null)
+		{
+			return RegisterController.createUser(usernameMatcher.group("username"),
+					passwordMatcher.group("password"), nicknameMatcher.group("nickname"));
+		}
+		else
+			return mainCommands.invalidCommand.regex;
+	}
+
 	public static String createUser(String username, String password, String nickname)
 	{
 		if (getUserByUsername(username) != null)
@@ -85,17 +112,33 @@ public class RegisterController {
 		return false;
 	}
 
-	public static String loginPlayer(Matcher matcher)
+	public static String loginPlayer(Matcher usernameMatcher, Matcher passwordMatcher, String command)
 	{
-		String username = matcher.group("username");
-		String password = matcher.group("password");
-		if (RegisterController.getUserByUsername(username) == null
-				|| RegisterController.isPasswordCorrect(username, password))
-			return registerEnum.doesNotMatchuserAndPass.regex;
-		else
+		usernameMatcher = null;
+		passwordMatcher = null;
+
+		for(int i = 0; i < command.length(); i++)
 		{
-			Menu.loggedInUser = getUserByUsername(username);
-			return null;
+			String sub = command.substring(i, command.length());
+			if(usernameMatcher == null && (usernameMatcher = mainCommands.compareRegex(sub, mainCommands.getUsername)) != null)
+				usernameMatcher = mainCommands.compareRegex(sub, mainCommands.getUsername);
+			else if(passwordMatcher == null && (passwordMatcher = mainCommands.compareRegex(sub, mainCommands.getPassword)) != null)
+				passwordMatcher = mainCommands.compareRegex(sub, mainCommands.getPassword);
 		}
+		if (usernameMatcher != null && passwordMatcher != null)
+		{
+			String username = usernameMatcher.group("username");
+			String password = passwordMatcher.group("password");
+			if(RegisterController.getUserByUsername(username) == null
+					|| RegisterController.isPasswordCorrect(username, password))
+				return registerEnum.doesNotMatchuserAndPass.regex;
+			else
+			{
+				Menu.loggedInUser = getUserByUsername(username);
+				return null;
+			}
+		}
+		else
+			return mainCommands.invalidCommand.regex;
 	}
 }

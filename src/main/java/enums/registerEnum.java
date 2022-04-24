@@ -7,8 +7,8 @@ public enum registerEnum
 {
 	//commands
 	enterMenu("^menu\\s+enter\\s+(?<menuName>.+)$"),
-	registerUser("^user\\s+create\\s+--username\\s+(?<username>\\S+)\\s+--nickname\\s+(?<nickname>\\S+)\\s+--password\\s+(?<password>\\S+)$"),
-	loginUser("^user\\s+login\\s+--username\\s+(?<username>\\S+)\\s+--password\\s+(?<password>\\S+)$"),
+	registerUser("^user\\s+create.+$"),
+	loginUser("^user\\s+login.+$"),
 
 	//messages
 	loginFirst("please login first"),

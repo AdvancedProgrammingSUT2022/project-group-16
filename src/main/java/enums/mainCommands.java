@@ -7,6 +7,9 @@ public enum mainCommands
 {
     menuExit("^\\s*menu\\s+exit\\s*$"),
     showCurrentMenu("^\\s*menu\\s+show-current\\s*$"),
+    getUsername("^--username\\s+(?<username>\\S+).*$"),
+    getNickname("^--nickname\\s+(?<nickname>\\S+).*$"),
+    getPassword("^--password\\s+(?<password>\\S+).*$"),
 
     //messsages
     invalidCommand("invalid command"),
