@@ -13,15 +13,14 @@ import java.util.Stack;
 
 public class Player extends User
 {
-	GameController gameController;
+	private GameController gameController;
 	private Civilization civilization;
 	private int food;
 	private int gold;
 	private int happiness;
 	private ArrayList<Technology> technologies;
 	private Technology researchingTechnology;
-	private ArrayList<Resource> resources;
-	private ArrayList<Tile> map;
+	private ArrayList<Resource> resources; // TODO: do we need it???
 	private ArrayList<Tile> visibleTiles;
 	private ArrayList<Tile> revealedTiles;
 	private ArrayList<Tile> fogTiles;
@@ -35,7 +34,6 @@ public class Player extends User
 	
 	public Player(Civilization civilization, String username, String nickname, String password, GameController gameController)
 	{
-		
 		super(username, nickname, password);
 		this.civilization = civilization;
 		food = 0;
@@ -43,7 +41,6 @@ public class Player extends User
 		happiness = 0;
 		technologies = new ArrayList<>();
 		resources = new ArrayList<>();
-		map = gameController.getMap();
 //		visiblePositions = new ArrayList<>();
 //		revealedPositions = new ArrayList<>();
 //		fogPositions = new ArrayList<>();
@@ -110,11 +107,11 @@ public class Player extends User
 	}
 	public ArrayList<Tile> getMap()
 	{
-		return map;
+		return null;
 	}
 	public void setMap(ArrayList<Tile> map)
 	{
-		this.map = map;
+//		this.map = map;
 	}
 	public ArrayList<Position> getVisiblePositions()
 	{
