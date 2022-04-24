@@ -2,21 +2,25 @@ package Controllers;
 
 import Controllers.Utilities.MapPrinter;
 import Models.Game.Position;
-import Models.Terrain.BorderType;
-import Models.Terrain.Tile;
-import Models.Terrain.TileFeature;
-import Models.Terrain.TileType;
+import Models.Resources.BonusResource;
+import Models.Resources.Resource;
+import Models.Resources.ResourceType;
+import Models.Terrain.*;
+import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.NonCombatUnits.Worker;
 
-import javax.swing.text.Utilities;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameController
 {
 	private static GameController instance = null;
 	private final ArrayList<Position> grid = new ArrayList<>();
-	private final int MAX_GRID_LENGTH = 30;
+	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
-	private final int MAX_MAP_SIZE = 10;
+	public final int MAX_MAP_SIZE = 10;
 	
 	private GameController()
 	{
@@ -60,11 +64,26 @@ public class GameController
 	private void initMap()
 	{
 		// create sample maps
+		Random borderRandom = new Random();
+		Random tileTypeRandom = new Random();
+		Random tileFeatureRandom = new Random();
+		Random improvementRandom = new Random();
+		Random resourceRandom = new Random();
+		Random CUnitRandom = new Random();
+		
 		for(int i = 0; i < MAX_MAP_SIZE; i++)
 			for(int j = 0; j < MAX_MAP_SIZE; j++)
 			{
-				BorderType[] borders = {BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER};
-				map.add(new Tile(getPositionByXY(i, j), TileType.GRASSLAND, TileFeature.OASIS, borders, null));
+				BorderType[] borders = new BorderType[6];
+				for(int k = 0; k < 6; k++)
+					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
+				// TODO: bug with the resource and unit. fix it!!!
+				map.add(new Tile(getPositionByXY(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
+						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
+						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
+						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
+						new MidRange(MidRangeType.values()[CUnitRandom.nextInt(MidRangeType.values().length)]),
+						new Worker()));
 			}
 	}
 	public Tile getTileByXY(int x, int y)
@@ -74,10 +93,13 @@ public class GameController
 				return tile;
 		return null;
 	}
-	// TODO: make this private
-	public void printMap()
+	public String getMapString()
 	{
-		MapPrinter.printMap(map, MAX_MAP_SIZE, MAX_MAP_SIZE);
+//		return MapPrinter.getMapString(map, MAX_MAP_SIZE, MAX_MAP_SIZE);
+		System.out.println(MapPrinter.getMapString(map, MAX_MAP_SIZE, MAX_MAP_SIZE));
+		
+		System.out.println();
+		return null;
 	}
 	// TODO: create overloaded printMap which takes a map as an argument
 	

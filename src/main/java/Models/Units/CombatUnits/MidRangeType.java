@@ -22,13 +22,13 @@ public enum MidRangeType {
     PANZER(450, 60, 5, null, Technology.COMBUSTION, false),
     TANK(450, 50, 4, null, Technology.COMBUSTION, false);
 
-    int cost;
-    int combatStrength;
-    int movement;
-    ResourceType requiredSource;
-    Technology requiredTech;
-    boolean isMounted;
-
+    public final int cost;
+    public final int combatStrength;
+    public final int movement;
+    public final ResourceType requiredSource;
+    public final Technology requiredTech;
+    public final boolean isMounted;
+    
     MidRangeType(int cost, int combatStrength, int movement, ResourceType requiredSource, Technology requiredTech, boolean isMounted){
         this.cost = cost;
         this.combatStrength = combatStrength;

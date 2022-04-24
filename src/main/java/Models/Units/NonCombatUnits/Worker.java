@@ -18,4 +18,10 @@ public class Worker extends NonCombatUnit{
     private void removeDevelopment(){
 
     }
+    
+    @Override
+    public String toString()
+    {
+        return "WORKER";
+    }
 }

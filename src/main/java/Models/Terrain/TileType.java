@@ -1,6 +1,7 @@
 package Models.Terrain;
 
 import com.diogonunes.jcolor.Attribute;
+
 public enum TileType
 {
 	DESERT(0, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(180, 180, 80)),

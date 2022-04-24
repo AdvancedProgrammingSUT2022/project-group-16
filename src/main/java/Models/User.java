@@ -47,4 +47,8 @@ public class User
 	{
 		this.score = score;
 	}
+	public void changeNickname(String nickname)
+	{
+		this.nickname = nickname;
+	}
 }
