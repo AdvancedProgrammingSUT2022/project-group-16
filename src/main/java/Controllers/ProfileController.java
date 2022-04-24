@@ -1,31 +1,30 @@
 package Controllers;
 
 import Models.Menu.Menu;
+import enums.profileEnum;
+import enums.mainCommands;
+
 
 import java.util.regex.Matcher;
 
 public class ProfileController
 {
-	private boolean doesUsernameExist(String username)
+	private static int doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
 		{
 			if(Menu.allUsers.get(i).getUsername().equals(username))
-			{
-				return true;
-			}
+				return i;
 		}
-		return false;
+		return -1;
 	}
 
-	public static int doesNicknameExist(String nickName)
+	private static int doesNicknameExist(String nickName)
 	{
 		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
 		{
 			if(Menu.allUsers.get(i).getNickname().equals(nickName))
-			{
 				return i;
-			}
 		}
 		return -1;
 	}
@@ -33,36 +32,30 @@ public class ProfileController
 	public static String changeNickname(String nickName)
 	{
 		if(doesNicknameExist(nickName) != -1)
-		{
-			return "user with nickname " + nickName + " already exists";
-		}
+			return (mainCommands.specificNickname.regex + nickName + mainCommands.alreadyExist.regex);
 		else
 		{
 			Menu.loggedInUser.setNickname(nickName);
-			return "nickname changed successfully!";
+			Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setNickname(nickName);
+			RegisterController.writeDataOnJson();
+			return profileEnum.successfulNicknameChange.regex;
 		}
 	}
 
 	public static String changePassword(Matcher matcher)
 	{
-		if(!Menu.loggedInUser.getPassword().equals(matcher.group("currentPassword")))
-		{
-			return "current password is invalid";
-		}
-		else if(matcher.group("currentPassword").equals(matcher.group("newPassword")))
-		{
-			return "please enter a new password";
-		}
+		String currPass = matcher.group("currentPassword");
+		String newPass = matcher.group("newPassword");
+		if(!Menu.loggedInUser.getPassword().equals(currPass))
+			return profileEnum.invalidOldPass.regex;
+		else if(currPass.equals(newPass))
+			return profileEnum.commonPasswords.regex;
 		else
 		{
-			Menu.loggedInUser.setPassword(matcher.group("newPassword"));
-			return "password changed successfully!";
+			Menu.loggedInUser.setPassword(newPass);
+			Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setPassword(newPass);
+			RegisterController.writeDataOnJson();
+			return profileEnum.successfulPassChange.regex;
 		}
 	}
-
-	private boolean isPasswordCorrect(String password)
-	{
-		return false;
-	}
-
 }

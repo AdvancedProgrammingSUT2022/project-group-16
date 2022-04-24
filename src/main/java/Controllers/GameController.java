@@ -12,6 +12,8 @@ import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Worker;
 import enums.gameEnum;
+import enums.mainCommands;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,7 +123,7 @@ public class GameController
 		return true;
 	}
 
-	public static boolean usernameCheck(String username)
+	public static boolean doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.size(); i++)
 		{
@@ -138,33 +140,36 @@ public class GameController
 		{
 			Object value = players.get(key);
 			index++;
-			if(!usernameCheck(value.toString()))
+			if(!doesUsernameExist(value.toString()))
 				return false;
 		}
 		return true;
-	}
+	}//check the input usernames with arrayList
 
-	public static String startNewGame(String command)
+	public static String startNewGame(String command, HashMap<String, String> players)
 	{
-		HashMap<String, String> players = new HashMap<String, String>();
 		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
-			Matcher matcher;
-			if ((matcher = gameEnum.compareRegex(command.substring(i, command.length()), gameEnum.newPlayer)) != null)
+			Matcher matcher = gameEnum.compareRegex(command.substring(i, command.length()), gameEnum.newPlayer);
+			if (matcher != null && !matcher.group("username").equals(Menu.loggedInUser.getUsername()))
 			{
 				players.put(matcher.group("number"), matcher.group("username"));
 				flag = 1;
 			}
+			else if(matcher != null && matcher.group("username").equals(Menu.loggedInUser.getUsername()))
+			{
+				return gameEnum.loggedInPlayerInCandidates.regex;
+			}
 		}
 		if(flag == 0)
-			return "invalid command";
+			return mainCommands.invalidCommand.regex;
 		else if(!numberOfPlayers(players))
-			return "invalid number of players";
+			return gameEnum.numberOfPlayers.regex;
 		else if(!existingPlayers(players))
-			return "player doesn't exist";
+			return gameEnum.playerExist.regex;
 		else
-			return "game started";
+			return gameEnum.successfulStartGame.regex;
 	}
 }
 

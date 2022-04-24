@@ -5,10 +5,15 @@ import java.util.regex.Pattern;
 
 public enum gameEnum
 {
-    startGame("\\s*play\\s+game.+$"),
+    startGame("^\\s*play\\s+game\\s+--player.*$"),
     newPlayer("^--player(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
-    menuExit("^\\s*menu\\s+exit\\s*$"),
-    showCurrentMenu("^\\s*menu\\s+show-current\\s*$");
+
+    //messages
+    numberOfPlayers("invalid number of players"),
+    playerExist("player doesn't exist"),
+    successfulStartGame("game started"),
+    currentMenu("Game Menu"),
+    loggedInPlayerInCandidates("you can not play with yourself!");
 
     public final String regex;
 

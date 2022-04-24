@@ -3,6 +3,8 @@ package Controllers;
 import Models.Menu.Menu;
 import Models.User;
 import com.google.gson.*;
+import enums.mainCommands;
+import enums.registerEnum;
 
 import java.io.*;
 import java.util.Scanner;
@@ -14,7 +16,7 @@ public class RegisterController {
 	{
 		try {
 			Gson gson = new Gson();
-			String arr = (new BufferedReader(new FileReader("src/main/java/Database/usersDatabase.json"))).readLine();
+			String arr = (new BufferedReader(new FileReader(registerEnum.filePath.regex))).readLine();
 			if(arr != null)
 			{
 				arr = arr.substring(1,arr.length() - 1);
@@ -27,8 +29,6 @@ public class RegisterController {
 					Menu.allUsers.add(gson.fromJson(splitedArr[i], User.class));
 				}
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -37,20 +37,12 @@ public class RegisterController {
 	public static void writeDataOnJson()
 	{
 		try {
-			Writer writer = new FileWriter("src/main/java/Database/usersDatabase.json");
+			Writer writer = new FileWriter(registerEnum.filePath.regex);
 			new Gson().toJson(Menu.allUsers, writer);
 			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static boolean doesUsernameExist(String username)
-	{
-		for (int i = 0; i < Menu.allUsers.size(); i++)
-			if (Menu.allUsers.get(i).getUsername().equals(username))
-				return true;
-		return false;
 	}
 
 	public static boolean doesNicknameExist(String nickName)
@@ -66,24 +58,22 @@ public class RegisterController {
 		for (int i = 0; i < Menu.allUsers.toArray().length; i++)
 		{
 			if (Menu.allUsers.get(i).getUsername().equals(username))
-			{
 				return Menu.allUsers.get(i);
-			}
 		}
 		return null;
 	}
 
 	public static String createUser(String username, String password, String nickname)
 	{
-		if (doesUsernameExist(username))
-			return "user with username " + username + " already exists";
+		if (getUserByUsername(username) != null)
+			return (mainCommands.specificUsername.regex + username + mainCommands.alreadyExist.regex);
 		else if (RegisterController.doesNicknameExist(nickname))
-			return "user with nickname " + nickname + " already exists";
+			return (mainCommands.specificNickname.regex + nickname + mainCommands.alreadyExist.regex);
 		else
 		{
 			Menu.allUsers.add(new User(username, nickname, password));
 			writeDataOnJson();
-			return "user created successfully!";
+			return registerEnum.successfulCreate.regex;
 		}
 	}
 
@@ -95,14 +85,16 @@ public class RegisterController {
 		return false;
 	}
 
-	public static String loginPlayer(String username, Scanner scanner, Matcher matcher)
+	public static String loginPlayer(Matcher matcher)
 	{
-		if (!RegisterController.doesUsernameExist(matcher.group("username"))
-				|| RegisterController.isPasswordCorrect(matcher.group("username"), matcher.group("password")))
-			return "Username and password didn't match!";
+		String username = matcher.group("username");
+		String password = matcher.group("password");
+		if (RegisterController.getUserByUsername(username) == null
+				|| RegisterController.isPasswordCorrect(username, password))
+			return registerEnum.doesNotMatchuserAndPass.regex;
 		else
 		{
-			Menu.loggedInUser = getUserByUsername(matcher.group("username"));
+			Menu.loggedInUser = getUserByUsername(username);
 			return null;
 		}
 	}

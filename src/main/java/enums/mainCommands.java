@@ -3,29 +3,25 @@ package enums;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum mainMenuEnum
+public enum mainCommands
 {
-    //commands
-    enterMenu("^\\s*menu\\s+enter\\s+(?<menuName>.+)\\s*$"),
-    profileName("^\\s*Profile\\s+Menu\\s*$"),
-    startNewGame("^\\s*start\\s+new\\s+game\\s*$"),
     menuExit("^\\s*menu\\s+exit\\s*$"),
     showCurrentMenu("^\\s*menu\\s+show-current\\s*$"),
-    logoutUser("^\\s*user\\s+logout\\s*$"),
 
-    //messages
-    currentMenu("Main Menu"),
+    //messsages
     invalidCommand("invalid command"),
-    successfulLogout("user logged out successfully!");
+    alreadyExist(" already exists"),
+    specificNickname("user with nickname "),
+    specificUsername("user with username ");
 
     public final String regex;
 
-    mainMenuEnum(String regex)
+    mainCommands(String regex)
     {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, mainMenuEnum regex)
+    public static Matcher compareRegex(String command, mainCommands regex)
     {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
         if(matcher.matches())

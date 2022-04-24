@@ -5,10 +5,16 @@ import java.util.regex.Pattern;
 
 public enum profileEnum
 {
+    //commands
     changeNickname("^\\s*profile\\s+change\\s+--nickname\\s+(?<newNickname>\\S+)$"),
     changePassword("^\\s*profile\\s+change\\s+--password\\s+--current\\s+(?<currentPassword>.+)\\s+--new\\s+(?<newPassword>.+)\\s*$"),
-    menuExit("^\\s*menu\\s+exit\\s*$"),
-    showCurrentMenu("^\\s*menu\\s+show-current\\s*$");
+
+    //messages
+    successfulPassChange("password changed successfully!"),
+    successfulNicknameChange("nickname changed successfully!"),
+    invalidOldPass("current password is invalid"),
+    commonPasswords("please enter a new password"),
+    currentMenu("Profile Menu");
 
     public final String regex;
 
