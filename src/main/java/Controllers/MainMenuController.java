@@ -1,5 +1,6 @@
 package Controllers;
 
+import Models.Menu.Menu;
 import Views.profileMenuVeiw;
 import enums.mainMenuEnum;
 import enums.registerEnum;
@@ -34,5 +35,11 @@ public class MainMenuController
 		else
 			return 1;
 		return 0;
+	}
+
+	public static String logoutUser()
+	{
+		Menu.loggedInUser = null;
+		return "user logged out successfully!";
 	}
 }

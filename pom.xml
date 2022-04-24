@@ -32,6 +32,11 @@
             <version>0.0.17</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>{version}</version>
+        </dependency>
         <!--        <dependency>-->
 <!--            <groupId>com.thoughtworks.feature</groupId>-->
 <!--            <artifactId>override_2.11</artifactId>-->
