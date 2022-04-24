@@ -2,11 +2,27 @@ package Controllers;
 
 import Models.Menu.Menu;
 import Models.User;
+import com.google.gson.Gson;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class RegisterController {
+
+	private static void writeDataOnJson()
+	{
+		Gson gson = new Gson();
+		try {
+			Writer writer = new FileWriter("users.json");
+			gson.toJson(Menu.allUsers, writer);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static boolean doesUsernameExist(String username) {
 		for (int i = 0; i < Menu.allUsers.size(); i++)
 			if (Menu.allUsers.get(i).getUsername().equals(username))
@@ -38,6 +54,7 @@ public class RegisterController {
 		} else {
 			User newUser = new User(username, nickname, password);
 			Menu.allUsers.add(newUser);
+			writeDataOnJson();
 			return "user created successfully!";
 		}
 	}

@@ -11,14 +11,14 @@ public class MainMenuController
 {
 	public static void startNewGame()
 	{
-	
+
 	}
-	
+
 	public static void enterProfileMenu(Scanner scanner, Matcher matcher)
 	{
 		profileMenuVeiw.run(scanner, matcher);
 	}
-	
+
 	private Boolean doesPlayerExist(String name)
 	{
 		return false;

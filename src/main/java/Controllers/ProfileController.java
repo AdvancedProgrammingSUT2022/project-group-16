@@ -17,7 +17,7 @@ public class ProfileController
 		}
 		return false;
 	}
-	
+
 	public static int doesNicknameExist(String nickName)
 	{
 		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
@@ -29,7 +29,7 @@ public class ProfileController
 		}
 		return -1;
 	}
-	
+
 	public static String changeNickname(String nickName)
 	{
 		if(doesNicknameExist(nickName) != -1)
@@ -42,7 +42,7 @@ public class ProfileController
 			return "nickname changed successfully!";
 		}
 	}
-	
+
 	public static String changePassword(Matcher matcher)
 	{
 		if(!Menu.loggedInUser.getPassword().equals(matcher.group("currentPassword")))
@@ -59,10 +59,10 @@ public class ProfileController
 			return "password changed successfully!";
 		}
 	}
-	
+
 	private boolean isPasswordCorrect(String password)
 	{
 		return false;
 	}
-	
+
 }

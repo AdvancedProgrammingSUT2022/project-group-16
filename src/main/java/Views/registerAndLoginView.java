@@ -9,13 +9,14 @@ import java.util.regex.Matcher;
 
 public class registerAndLoginView
 {
-	
+
 	public static void run()
 	{
+		//amir.write();
 		Scanner scanner = new Scanner(System.in);
 		String command;
 		Matcher matcher;
-		
+
 		while(true)
 		{
 			command = scanner.nextLine().trim();
