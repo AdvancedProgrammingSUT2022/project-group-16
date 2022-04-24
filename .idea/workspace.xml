@@ -5,18 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ad932d10-6a38-4637-bfbf-871b63506010" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_diogonunes_JColor_5_2_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__hu_blackbelt_bundles_jcolor_com_diogonunes_jcolor_5_2_0_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__net_java_dev_jna_jna_5_8_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__net_java_dev_jna_jna_platform_5_8_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Views/profileMenuVeiw.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/enums/mainMenuEnum.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/enums/profileEnum.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controllers/GameController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controllers/GameController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controllers/MainMenuController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controllers/MainMenuController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controllers/ProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controllers/ProfileController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controllers/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controllers/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controllers/Utilities/MapPrinter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controllers/Utilities/MapPrinter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Menu/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Menu/Menu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Player/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Player/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Resources/ResourceType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Resources/ResourceType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Terrain/Tile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Terrain/Tile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Terrain/TileType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Terrain/TileType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Units/CombatUnits/LongRange.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Units/CombatUnits/LongRange.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Units/CombatUnits/MidRange.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Units/CombatUnits/MidRange.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Units/CombatUnits/MidRangeType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Units/CombatUnits/MidRangeType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Units/NonCombatUnits/Settler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Units/NonCombatUnits/Settler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/Units/NonCombatUnits/Worker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/Units/NonCombatUnits/Worker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Models/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Models/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Views/mainMenuVeiw.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Views/mainMenuVeiw.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Views/registerAndLoginView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Views/registerAndLoginView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/enums/Command.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/enums/registerEnum.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

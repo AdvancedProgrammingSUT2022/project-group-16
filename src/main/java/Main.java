@@ -1,4 +1,3 @@
-import Controllers.GameController;
 import Views.registerAndLoginView;
 
 public class Main
