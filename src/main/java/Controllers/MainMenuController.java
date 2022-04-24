@@ -1,6 +1,7 @@
 package Controllers;
 
 import Models.Menu.Menu;
+import Views.gameMenuView;
 import Views.profileMenuVeiw;
 import enums.mainMenuEnum;
 import enums.registerEnum;
@@ -12,7 +13,7 @@ public class MainMenuController
 {
 	public static void startNewGame()
 	{
-
+		gameMenuView.run();
 	}
 
 	public static void enterProfileMenu(Scanner scanner, Matcher matcher)

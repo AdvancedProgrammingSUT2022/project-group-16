@@ -2,6 +2,7 @@ package Controllers;
 
 import Controllers.Utilities.MapPrinter;
 import Models.Game.Position;
+import Models.Menu.Menu;
 import Models.Resources.BonusResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
@@ -10,9 +11,12 @@ import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Worker;
+import enums.gameEnum;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.regex.Matcher;
 
 public class GameController
 {
@@ -86,6 +90,7 @@ public class GameController
 						new Worker()));
 			}
 	}
+
 	public Tile getTileByXY(int x, int y)
 	{
 		for(Tile tile : map)
@@ -93,6 +98,7 @@ public class GameController
 				return tile;
 		return null;
 	}
+
 	public String getMapString()
 	{
 //		return MapPrinter.getMapString(map, MAX_MAP_SIZE, MAX_MAP_SIZE);
@@ -102,7 +108,64 @@ public class GameController
 		return null;
 	}
 	// TODO: create overloaded printMap which takes a map as an argument
-	
+
+	///////////////////////////
+	//menu methods
+	public static boolean numberOfPlayers(HashMap<String,String> players)
+	{
+		for(int i = 0; i < players.size(); i++)
+		{
+			if(!players.containsKey(String.valueOf(i + 1)))
+				return false;
+		}
+		return true;
+	}
+
+	public static boolean usernameCheck(String username)
+	{
+		for(int i = 0; i < Menu.allUsers.size(); i++)
+		{
+			if(Menu.allUsers.get(i).getUsername().equals(username))
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean existingPlayers(HashMap<String,String> players)
+	{
+		int index = 0;
+		for (Object key : players.keySet())
+		{
+			Object value = players.get(key);
+			index++;
+			if(!usernameCheck(value.toString()))
+				return false;
+		}
+		return true;
+	}
+
+	public static String startNewGame(String command)
+	{
+		HashMap<String, String> players = new HashMap<String, String>();
+		int flag = 0;
+		for(int i = 0; i < command.length(); i++)
+		{
+			Matcher matcher;
+			if ((matcher = gameEnum.compareRegex(command.substring(i, command.length()), gameEnum.newPlayer)) != null)
+			{
+				players.put(matcher.group("number"), matcher.group("username"));
+				flag = 1;
+			}
+		}
+		if(flag == 0)
+			return "invalid command";
+		else if(!numberOfPlayers(players))
+			return "invalid number of players";
+		else if(!existingPlayers(players))
+			return "player doesn't exist";
+		else
+			return "game started";
+	}
 }
 
 

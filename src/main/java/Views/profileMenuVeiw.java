@@ -20,23 +20,15 @@ public class profileMenuVeiw
             command = scanner.nextLine();
 
             if((matcher = profileEnum.compareRegex(command, profileEnum.changeNickname)) != null)
-            {
                 System.out.println(ProfileController.changeNickname(matcher.group("newNickname")));
-            }
             else if((matcher = profileEnum.compareRegex(command, profileEnum.changePassword)) != null)
-            {
                 System.out.println(ProfileController.changePassword(matcher));
-            }
             else if((matcher = profileEnum.compareRegex(command, profileEnum.showCurrentMenu)) != null)
-            {
                 System.out.println("Profile Menu");
-            }
             else if((matcher = profileEnum.compareRegex(command, profileEnum.menuExit)) != null)
                 break;
             else
-            {
                 System.out.println("invalid command");
-            }
         }
     }
 }
