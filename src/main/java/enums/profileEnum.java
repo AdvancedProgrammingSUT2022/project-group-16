@@ -7,7 +7,7 @@ public enum profileEnum
 {
     //commands
     changeNickname("^\\s*profile\\s+change\\s+--nickname\\s+(?<newNickname>\\S+)$"),
-    changePassword("^\\s*profile\\s+change\\s+--password\\s+--current\\s+(?<currentPassword>.+)\\s+--new\\s+(?<newPassword>.+)\\s*$"),
+    changePassword("^\\s*profile\\s+change\\s+--password.+$"),
 
     //messages
     successfulPassChange("password changed successfully!"),

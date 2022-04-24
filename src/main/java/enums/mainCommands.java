@@ -10,6 +10,8 @@ public enum mainCommands
     getUsername("^--username\\s+(?<username>\\S+).*$"),
     getNickname("^--nickname\\s+(?<nickname>\\S+).*$"),
     getPassword("^--password\\s+(?<password>\\S+).*$"),
+    getOldPassword("^--current\\s+(?<password>\\S+).*$"),
+    getNewPassword("^--new\\s+(?<password>\\S+).*$"),
 
     //messsages
     invalidCommand("invalid command"),

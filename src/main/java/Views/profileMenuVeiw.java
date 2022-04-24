@@ -15,7 +15,7 @@ public class profileMenuVeiw
     public static void run(Scanner scanner, Matcher matcher)
     {
         String command;
-
+        Matcher newPasswordMatcher = null, oldPasswordMatcher = null;
         while(true)
         {
             command = scanner.nextLine();
@@ -23,7 +23,7 @@ public class profileMenuVeiw
             if((matcher = profileEnum.compareRegex(command, profileEnum.changeNickname)) != null)
                 System.out.println(ProfileController.changeNickname(matcher.group("newNickname")));
             else if((matcher = profileEnum.compareRegex(command, profileEnum.changePassword)) != null)
-                System.out.println(ProfileController.changePassword(matcher));
+                System.out.println(ProfileController.changePassword(oldPasswordMatcher, newPasswordMatcher, command));
             else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
                 System.out.println(profileEnum.currentMenu.regex);
             else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)

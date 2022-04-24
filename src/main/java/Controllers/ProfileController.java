@@ -42,20 +42,37 @@ public class ProfileController
 		}
 	}
 
-	public static String changePassword(Matcher matcher)
+	public static String changePassword(Matcher oldPassword, Matcher newPassword, String command)
 	{
-		String currPass = matcher.group("currentPassword");
-		String newPass = matcher.group("newPassword");
-		if(!Menu.loggedInUser.getPassword().equals(currPass))
-			return profileEnum.invalidOldPass.regex;
-		else if(currPass.equals(newPass))
-			return profileEnum.commonPasswords.regex;
-		else
+		oldPassword = null;
+		newPassword = null;
+
+		for(int i = 0; i < command.length(); i++)
 		{
-			Menu.loggedInUser.setPassword(newPass);
-			Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setPassword(newPass);
-			RegisterController.writeDataOnJson();
-			return profileEnum.successfulPassChange.regex;
+			String sub = command.substring(i, command.length());
+			if(newPassword == null && (newPassword = mainCommands.compareRegex(sub, mainCommands.getNewPassword)) != null)
+				newPassword = mainCommands.compareRegex(sub, mainCommands.getNewPassword);
+			else if(oldPassword == null && (oldPassword = mainCommands.compareRegex(sub, mainCommands.getOldPassword)) != null)
+				oldPassword = mainCommands.compareRegex(sub, mainCommands.getOldPassword);
 		}
+		if (newPassword != null && oldPassword != null)
+		{
+			String currPass = oldPassword.group("password");
+			String newPass = newPassword.group("password");
+
+			if(!Menu.loggedInUser.getPassword().equals(currPass))
+				return profileEnum.invalidOldPass.regex;
+			else if(currPass.equals(newPass))
+				return profileEnum.commonPasswords.regex;
+			else
+			{
+				Menu.loggedInUser.setPassword(newPass);
+				Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setPassword(newPass);
+				RegisterController.writeDataOnJson();
+				return profileEnum.successfulPassChange.regex;
+			}
+		}
+		else
+			return mainCommands.invalidCommand.regex;
 	}
 }
