@@ -1,5 +1,6 @@
 package Models.Player;
 
+import Controllers.GameController;
 import Models.City.City;
 import Models.Game.Position;
 import Models.Resources.Resource;
@@ -12,6 +13,7 @@ import java.util.Stack;
 
 public class Player extends User
 {
+	GameController gameController;
 	private Civilization civilization;
 	private int food;
 	private int gold;
@@ -20,9 +22,6 @@ public class Player extends User
 	private Technology researchingTechnology;
 	private ArrayList<Resource> resources;
 	private ArrayList<Tile> map;
-//	private ArrayList<Position> visiblePositions;
-//	private ArrayList<Position> revealedPositions;
-//	private ArrayList<Position> fogPositions;
 	private ArrayList<Tile> visibleTiles;
 	private ArrayList<Tile> revealedTiles;
 	private ArrayList<Tile> fogTiles;
@@ -34,8 +33,9 @@ public class Player extends User
 //	Unit selectedUnit;  //??TODO probably unnecessary
 	
 	
-	public Player(Civilization civilization, String username, String nickname, String password)
+	public Player(Civilization civilization, String username, String nickname, String password, GameController gameController)
 	{
+		
 		super(username, nickname, password);
 		this.civilization = civilization;
 		food = 0;
@@ -43,7 +43,7 @@ public class Player extends User
 		happiness = 0;
 		technologies = new ArrayList<>();
 		resources = new ArrayList<>();
-//		map = GameController.getMap(); TODO
+		map = gameController.getMap();
 //		visiblePositions = new ArrayList<>();
 //		revealedPositions = new ArrayList<>();
 //		fogPositions = new ArrayList<>();
