@@ -17,13 +17,16 @@ public class registerAndLoginView
 		String command;
 		Matcher matcher;
 
-		while(true)
+		while(scanner.hasNextLine())
 		{
 			command = scanner.nextLine().trim();
 			if((matcher = registerEnum.compareRegex(command, registerEnum.enterMenu)) != null)
 				System.out.println(registerEnum.loginFirst.regex);
 			else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
+			{
+				scanner.close();
 				break;
+			}
 			else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
 				System.out.println(registerEnum.currnetMenu.regex);
 			else if((matcher = registerEnum.compareRegex(command, registerEnum.registerUser)) != null)

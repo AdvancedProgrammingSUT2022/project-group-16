@@ -16,7 +16,7 @@ public class profileMenuVeiw
     {
         String command;
         Matcher newPasswordMatcher = null, oldPasswordMatcher = null;
-        while(true)
+        while(scanner.hasNextLine())
         {
             command = scanner.nextLine();
 

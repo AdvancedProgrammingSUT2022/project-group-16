@@ -12,7 +12,7 @@ public class mainMenuVeiw
     public static void run(Scanner scanner, Matcher matcher) {
         String command;
 
-        while(true) {
+        while(scanner.hasNextLine()) {
             command = scanner.nextLine().trim();
 
             if((matcher = mainMenuEnum.compareRegex(command, mainMenuEnum.logoutUser)) != null) {

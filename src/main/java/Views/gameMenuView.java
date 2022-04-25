@@ -15,6 +15,7 @@ public class gameMenuView
 {
     public static void startGame(HashMap<String,String> players)
     {
+        GameController gameController = GameController.getInstance();
         //TODO:start new game with players and loggedIn player
     }
 
@@ -24,7 +25,7 @@ public class gameMenuView
         Scanner scanner = new Scanner(System.in);
         Matcher matcher;
 
-        while(true)
+        while(scanner.hasNextLine())
         {
             command = scanner.nextLine();
             if((matcher = gameEnum.compareRegex(command, gameEnum.startGame)) != null)
