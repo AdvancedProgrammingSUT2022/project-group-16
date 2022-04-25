@@ -104,20 +104,65 @@ public class GameController
 		return null;
 	}
 	// TODO: create overloaded printMap which takes a map as an argument
+	///////////////////////////
+	//menu methods
+	public static boolean numberOfPlayers(HashMap<String,String> players)
+	{
+		for(int i = 0; i < players.size(); i++)
+		{
+			if(!players.containsKey(String.valueOf(i + 1)))
+				return false;
+		}
+		return true;
+	}
+
+	public static boolean doesUsernameExist(String username)
+	{
+		for(int i = 0; i < Menu.allUsers.size(); i++)
+		{
+			if(Menu.allUsers.get(i).getUsername().equals(username))
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean existingPlayers(HashMap<String,String> players)
+	{
+		int index = 0;
+		for (Object key : players.keySet())
+		{
+			Object value = players.get(key);
+			index++;
+			if(!doesUsernameExist(value.toString()))
+				return false;
+		}
+		return true;
+	}//check the input usernames with arrayList
+
+	public static String startNewGame(String command, HashMap<String, String> players)
+	{
+		int flag = 0;
+		for(int i = 0; i < command.length(); i++)
+		{
+			Matcher matcher = gameEnum.compareRegex(command.substring(i, command.length()), gameEnum.newPlayer);
+			if (matcher != null && !matcher.group("username").equals(Menu.loggedInUser.getUsername()))
+			{
+				players.put(matcher.group("number"), matcher.group("username"));
+				flag = 1;
+			}
+			else if(matcher != null && matcher.group("username").equals(Menu.loggedInUser.getUsername()))
+			{
+				return gameEnum.loggedInPlayerInCandidates.regex;
+			}
+		}
+		if(flag == 0)
+			return mainCommands.invalidCommand.regex;
+		else if(!numberOfPlayers(players))
+			return gameEnum.numberOfPlayers.regex;
+		else if(!existingPlayers(players))
+			return gameEnum.playerExist.regex;
+		else
+			return gameEnum.successfulStartGame.regex;
+	}
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
