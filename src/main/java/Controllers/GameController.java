@@ -5,6 +5,7 @@ import Models.Game.Position;
 import Models.Player.Player;
 import Models.Menu.Menu;
 import Models.Player.Player;
+import Models.Player.Technology;
 import Models.Resources.BonusResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
@@ -14,12 +15,14 @@ import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Worker;
 import Views.gameMenuView;
+import enums.cheatCode;
 import enums.gameEnum;
 import enums.mainCommands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class GameController
@@ -169,12 +172,43 @@ public class GameController
 			return gameEnum.successfulStartGame.regex;
 	}
 
-	public static String runStartGame(String command)
+	//cheat codes
+	public static String increaseGold(Matcher matcher)
 	{
-		HashMap<String, String> players = new HashMap<>();
-		if(startNewGame(command, players).equals(gameEnum.successfulStartGame.regex))
-			gameMenuView.startGame(players);
-		return startNewGame(command, players);
+		int amount = Integer.parseInt(matcher.group("amount"));
+		return cheatCode.successful.regex;
 	}
+	public static String increaseFood(Matcher matcher)
+	{
+		int amount = Integer.parseInt(matcher.group("amount"));
+		return cheatCode.successful.regex;
+	}
+	public static String increaseTurns(Matcher matcher)
+	{
+		int amount = Integer.parseInt(matcher.group("amount"));
+		return cheatCode.successful.regex;
+	}
+	public static String addTechnology(Matcher matcher)
+	{
+		String technology = matcher.group("name");
+		return cheatCode.successful.regex;
+	}
+	public static String winBattle(Matcher matcher)
+	{
+		int x = Integer.parseInt(matcher.group("positionX"));
+		int y = Integer.parseInt(matcher.group("positionY"));
+		//TODO:win battle
+		return cheatCode.successful.regex;
+	}
+	public static String moveUnit(Matcher matcher)
+	{
+		int x = Integer.parseInt(matcher.group("positionX"));
+		int y = Integer.parseInt(matcher.group("positionY"));
+		int newX = Integer.parseInt(matcher.group("newPositionX"));
+		int newY = Integer.parseInt(matcher.group("newPositionY"));
+		//TODO:move unit
+		return cheatCode.successful.regex;
+	}
+
 	
 }
