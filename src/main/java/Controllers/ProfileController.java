@@ -29,17 +29,39 @@ public class ProfileController
 		return -1;
 	}
 
-	public static String changeNickname(String nickName)
+	private static Matcher matchRegex(Matcher matcher, String line, mainCommands regex)
 	{
-		if(doesNicknameExist(nickName) != -1)
-			return (mainCommands.specificNickname.regex + nickName + mainCommands.alreadyExist.regex);
-		else
+		if(matcher == null && (matcher = mainCommands.compareRegex(line, regex)) != null)
+			matcher = mainCommands.compareRegex(line, regex);
+		return matcher;
+	}
+
+	public static String changeNickname(String command)
+	{
+		Matcher nicknameMatcher = null;
+
+		for(int i = 0; i < command.length(); i++)
 		{
-			Menu.loggedInUser.setNickname(nickName);
-			Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setNickname(nickName);
-			RegisterController.writeDataOnJson();
-			return profileEnum.successfulNicknameChange.regex;
+			String sub = command.substring(i);
+			nicknameMatcher = matchRegex(nicknameMatcher, sub, mainCommands.getNickname);
+			nicknameMatcher = matchRegex(nicknameMatcher, sub, mainCommands.shortFormNickname);
 		}
+		if(nicknameMatcher != null)
+		{
+			String nickname = nicknameMatcher.group("nickname");
+
+			if(doesNicknameExist(nickname) != -1)
+				return (mainCommands.specificNickname.regex + nickname + mainCommands.alreadyExist.regex);
+			else
+			{
+				Menu.loggedInUser.setNickname(nickname);
+				Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setNickname(nickname);
+				RegisterController.writeDataOnJson();
+				return profileEnum.successfulNicknameChange.regex;
+			}
+		}
+		else
+			return mainCommands.invalidCommand.regex;
 	}
 
 	public static String changePassword(Matcher oldPassword, Matcher newPassword, String command)

@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public enum profileEnum
 {
     //commands
-    changeNickname("^\\s*profile\\s+change\\s+--nickname\\s+(?<newNickname>\\S+)$"),
+    changeNickname("^\\s*profile\\s+change.+$"),
     changePassword("^\\s*profile\\s+change\\s+--password.+$"),
 
     //messages
