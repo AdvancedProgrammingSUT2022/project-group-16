@@ -13,10 +13,14 @@ import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Worker;
+import Views.gameMenuView;
+import enums.gameEnum;
+import enums.mainCommands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.regex.Matcher;
 
 public class GameController
 {
@@ -163,6 +167,14 @@ public class GameController
 			return gameEnum.playerExist.regex;
 		else
 			return gameEnum.successfulStartGame.regex;
+	}
+
+	public static String runStartGame(String command)
+	{
+		HashMap<String, String> players = new HashMap<>();
+		if(startNewGame(command, players).equals(gameEnum.successfulStartGame.regex))
+			gameMenuView.startGame(players);
+		return startNewGame(command, players);
 	}
 	
 }

@@ -53,7 +53,7 @@ public class RegisterController {
 		return false;
 	}
 
-	private static User getUserByUsername(String username)
+	public static User getUserByUsername(String username)
 	{
 		for (int i = 0; i < Menu.allUsers.toArray().length; i++)
 		{

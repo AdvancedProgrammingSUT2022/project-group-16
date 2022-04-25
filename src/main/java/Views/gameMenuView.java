@@ -1,9 +1,12 @@
 package Views;
 
 import Controllers.GameController;
+import Controllers.RegisterController;
+import Models.User;
 import enums.gameEnum;
 import enums.mainCommands;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -12,7 +15,7 @@ public class gameMenuView
 {
     public static void startGame(HashMap<String,String> players)
     {
-        //TODO: start and pick Civilizations
+        //TODO:start new game with players and loggedIn player
     }
 
     public static void run()
@@ -25,12 +28,7 @@ public class gameMenuView
         {
             command = scanner.nextLine();
             if((matcher = gameEnum.compareRegex(command, gameEnum.startGame)) != null)
-            {
-                HashMap<String, String> players = new HashMap<String, String>();
-                System.out.println(GameController.startNewGame(command, players));
-                if(GameController.startNewGame(command, players).equals(gameEnum.successfulStartGame.regex))
-                    startGame(players);//game started
-            }
+                System.out.println(GameController.runStartGame(command));
             else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
                 break;
             else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
@@ -40,5 +38,4 @@ public class gameMenuView
 
         }
     }
-
 }

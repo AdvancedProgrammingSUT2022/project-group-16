@@ -2,10 +2,10 @@ package Models;
 
 public class User
 {
-	String username;
-	String nickname;
-	String password;
-	int score;
+	private String username;
+	private String nickname;
+	private String password;
+	private int score;
 	
 	public User(String username, String nickname, String password)
 	{
