@@ -76,7 +76,10 @@ public class MapPrinter
 			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
 				printFog(10);
 			else
-				mapString.append(Ansi.colorize("__________", borders[borderIndex].attribute));
+			{
+				Attribute attribute = (borders[borderIndex].equals(BorderType.RIVER)) ? BorderType.RIVER.attribute : tile.getTileType().attribute;
+				mapString.append(Ansi.colorize("__________", attribute));
+			}
 		}
 		else if(borderIndex == 1 || borderIndex == 2 || borderIndex == 5 || borderIndex == 4)
 		{
