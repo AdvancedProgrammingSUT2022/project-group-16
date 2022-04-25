@@ -166,4 +166,3 @@ public class GameController
 			return gameEnum.successfulStartGame.regex;
 	}
 }
-}
