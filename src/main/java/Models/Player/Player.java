@@ -8,10 +8,7 @@ import Models.Terrain.Tile;
 import Models.Units.Unit;
 import Models.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class Player extends User
 {
@@ -29,7 +26,7 @@ public class Player extends User
 	private City currentCapitalCity;    //??TODO
 	private Stack<Notification> notifications;
 	private ArrayList<Unit> units;
-//	Unit selectedUnit;  //??TODO probably unnecessary
+	//	Unit selectedUnit;  //??TODO probably unnecessary
 	
 	
 	public Player(Civilization civilization, String username, String nickname, String password, GameController gameController)
@@ -117,30 +114,30 @@ public class Player extends User
 	}
 	public ArrayList<Position> getVisiblePositions()
 	{
-//		return visiblePositions;
+		//		return visiblePositions;
 		return null;
 	}
 	public void setVisiblePositions(ArrayList<Position> visiblePositions)
 	{
-//		this.visiblePositions = visiblePositions;
+		//		this.visiblePositions = visiblePositions;
 	}
 	public ArrayList<Position> getRevealedPositions()
 	{
-//		return revealedPositions;
+		//		return revealedPositions;
 		return null;
 	}
 	public void setRevealedPositions(ArrayList<Position> revealedPositions)
 	{
-//		this.revealedPositions = revealedPositions;
+		//		this.revealedPositions = revealedPositions;
 	}
 	public ArrayList<Position> getFogPositions()
 	{
-//		return fogPositions;
+		//		return fogPositions;
 		return null;
 	}
 	public void setFogPositions(ArrayList<Position> fogPositions)
 	{
-//		this.fogPositions = fogPositions;
+		//		this.fogPositions = fogPositions;
 	}
 	public ArrayList<City> getCities()
 	{
@@ -185,8 +182,11 @@ public class Player extends User
 	
 	public void setTileStates()
 	{
-		for(Map.Entry<Tile, TileState> entry: map.entrySet())
-			map.replace(entry.getKey(), TileState.FOG_OF_WAR);
+		Random tileStateRandom = new Random();
+		for(Map.Entry<Tile, TileState> entry : map.entrySet())
+			map.replace(entry.getKey(), TileState.values()[tileStateRandom.nextInt(TileState.values().length)]);
+		//		for(Map.Entry<Tile, TileState> entry : map.entrySet())
+		//			map.replace(entry.getKey(), TileState.FOG_OF_WAR);
 	}
 }
 
