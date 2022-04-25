@@ -1,32 +1,34 @@
 package Controllers.Utilities;
 
+import Models.Player.TileState;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapPrinter
 {
-	private static ArrayList<Tile> tiles;
+	private static HashMap<Tile, TileState> map;
 	private static int columns;
 	private static int rows;
 	private static StringBuilder mapString;
+	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.BACK_COLOR(255, 255, 255);
+	private final static String REVEALED_SYMBOL = "*REVEALED*";
 	
-	public static String getMapString(ArrayList<Tile> map, int columns, int rows)
+	public static String getMapString(HashMap<Tile, TileState> map, int columns, int rows)
 	{
 		mapString = new StringBuilder();
-		tiles = map;
+		MapPrinter.map = map;
 		MapPrinter.columns = columns;
 		MapPrinter.rows = rows;
 		
 		printFirstLine();
 		for(int i = 1; i <= rows * 8 + 3; i++)
-		{
-			int x = i % 8;
-			switch(x)
+			switch(i % 8)
 			{
 				case 1 -> printLine1(i);
 				case 2 -> printLine2(i);
@@ -37,363 +39,68 @@ public class MapPrinter
 				case 7 -> printLine7(i);
 				case 0 -> printLine8(i);
 			}
-		}
 		printLastLine();
 		printMapGuide();
 		return mapString.toString();
 	}
 	private static Tile getTileByXY(int x, int y)
 	{
-		for(Tile tile : tiles)
-			if(tile.getPosition().X == x && tile.getPosition().Y == y)
-				return tile;
+		for(Map.Entry<Tile, TileState> entry : map.entrySet())
+			if(entry.getKey().getPosition().X == x && entry.getKey().getPosition().Y == y)
+				return entry.getKey();
 		return null;
 	}
-	private static void printFirstLine()
+	private static Tile getTileByQRS(int q, int r, int s)
 	{
-		// print the first line (considering rivers)
-		
-		mapString.append("    ");
-		for(int i = 0; i < columns; i += 2)
-		{
-			Tile tile = getTileByXY(0, i);
-			assert tile != null;
-			mapString.append(Ansi.colorize("__________", tile.getBorders()[0].attribute));
-			if(i != columns - 1)
-				mapString.append("                  ");
-		}
-		mapString.append("\n");
+		for(Map.Entry<Tile, TileState> entry : map.entrySet())
+			if(entry.getKey().getPosition().Q == q && entry.getKey().getPosition().R == r && entry.getKey().getPosition().S == s)
+				return entry.getKey();
+		return null;
 	}
-	private static void printLine1(int line)
+	private static void printFog(int number)
 	{
-		// print position and CUnit
-		
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < number; i++)
+			mapString.append(Ansi.colorize(" ", FOG_OF_WAR_ATTRIBUTE));
+	}
+	private static void printBorder(Tile tile, int borderIndex)
+	{
+		BorderType[] borders = tile.getBorders();
+		if(borderIndex == 0 || borderIndex == 3)
 		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile neighborTile;
+			if(borderIndex == 0)
+				neighborTile = getTileByXY(tile.getPosition().X - 1, tile.getPosition().Y);
+			else
+				neighborTile = getTileByXY(tile.getPosition().X + 1, tile.getPosition().Y);
 			
-			if(i % 2 == 0)
-			{
-				if(tile == null)
-				{
-					if(i == 0)
-						mapString.append("    ");
-					mapString.append("          ");
-					mapString.append(Ansi.colorize("\\", getTileByXY(row - 1, i + 1).getBorders()[2].attribute));
-				}
-				else
-				{
-					BorderType[] borders = tile.getBorders();
-					if(i == 0)
-					{
-						mapString.append("   ");
-						mapString.append(Ansi.colorize("/", borders[1].attribute));
-					}
-					mapString.append(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y), tile.getTileType().attribute));
-					mapString.append(Ansi.colorize("\\", borders[5].attribute));
-				}
-			}
+			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
+				printFog(10);
+			else
+				mapString.append(Ansi.colorize("__________", borders[borderIndex].attribute));
+		}
+		else if(borderIndex == 1 || borderIndex == 2 || borderIndex == 5 || borderIndex == 4)
+		{
+			Tile neighborTile = null;
+			if(borderIndex == 1)
+				neighborTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1);
+			else if(borderIndex == 2)
+				neighborTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S);
+			else if(borderIndex == 4)
+				neighborTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1);
+			else if(borderIndex == 5)
+				neighborTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S);
+			
+			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
+				printFog(1);
 			else
 			{
-				if(tile == null)
-				{
-					if(i + 1 < columns)
-					{
-						mapString.append("                ");
-						mapString.append(Ansi.colorize("/", getTileByXY(row + 1, i + 1).getBorders()[1].attribute));
-					}
-				}
-				else
-				{
-					if(tile.getCombatUnitInTile() != null)
-						mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute));
-					else
-						mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
-					mapString.append(Ansi.colorize("/", tile.getBorders()[4].attribute));
-				}
+				if(borderIndex == 1 || borderIndex == 4)
+					mapString.append(Ansi.colorize("/", borders[borderIndex].attribute));
+				else if(borderIndex == 2 || borderIndex == 5)
+					mapString.append(Ansi.colorize("\\", borders[borderIndex].attribute));
 			}
 		}
-		mapString.append("\n");
 	}
-	private static void printLine2(int line)
-	{
-		// printing tileFeature and NCUnit
-		
-		for(int i = 0; i < columns; i++)
-		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
-			
-			if(i % 2 == 0)
-			{
-				if(tile == null)
-				{
-					if(i == 0)
-						mapString.append("   ");
-					mapString.append("            ");
-					mapString.append(Ansi.colorize("\\", getTileByXY(row - 1, i + 1).getBorders()[2].attribute));
-				}
-				else
-				{
-					BorderType[] borders = tile.getBorders();
-					if(i == 0)
-					{
-						mapString.append("  ");
-						mapString.append(Ansi.colorize("/", borders[1].attribute));
-					}
-					
-					mapString.append(Ansi.colorize(String.format("     %2s     ", tile.getTileFeature().symbol), tile.getTileType().attribute));
-					mapString.append(Ansi.colorize("\\", borders[5].attribute));
-				}
-			}
-			else
-			{
-				if(tile == null)
-				{
-					if(i + 1 < columns)
-					{
-						mapString.append("              ");
-						mapString.append(Ansi.colorize("/", getTileByXY(row + 1, i + 1).getBorders()[1].attribute));
-					}
-				}
-				else
-				{
-					if(tile.getNonCombatUnitInTile() != null)
-						mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute));
-					else
-						mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
-					mapString.append(Ansi.colorize("/", tile.getBorders()[4].attribute));
-				}
-			}
-		}
-		mapString.append("\n");
-	}
-	private static void printLine3(int line)
-	{
-		// printing resource and empty
-		
-		for(int i = 0; i < columns; i++)
-		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
-			
-			if(i % 2 == 0)
-			{
-				if(tile == null)
-				{
-					if(i == 0)
-						mapString.append("  ");
-					mapString.append("              ");
-					mapString.append(Ansi.colorize("\\", getTileByXY(row - 1, i + 1).getBorders()[2].attribute));
-				}
-				else
-				{
-					BorderType[] borders = tile.getBorders();
-					if(i == 0)
-					{
-						mapString.append(" ");
-						mapString.append(Ansi.colorize("/", borders[1].attribute));
-					}
-					if(tile.getResource() != null)
-						mapString.append(Ansi.colorize(String.format("      %2s      ", tile.getResource().getRESOURCE_TYPE().symbol), tile.getTileType().attribute));
-					else
-						mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
-					mapString.append(Ansi.colorize("\\", borders[5].attribute));
-				}
-			}
-			else
-			{
-				if(tile == null)
-				{
-					if(i + 1 < columns)
-					{
-						mapString.append("            ");
-						mapString.append(Ansi.colorize("/", getTileByXY(row + 1, i + 1).getBorders()[1].attribute));
-					}
-				}
-				else
-				{
-					// print something (empty or something about building)
-					mapString.append(Ansi.colorize("            ", tile.getTileType().attribute));
-					mapString.append(Ansi.colorize("/", tile.getBorders()[4].attribute));
-				}
-			}
-		}
-		mapString.append("\n");
-	}
-	private static void printLine4(int line)
-	{
-		// printing improvement and border
-		
-		for(int i = 0; i < columns; i++)
-		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
-			//			assert tile != null;
-			
-			if(i % 2 == 0)
-			{
-				BorderType[] borders = tile.getBorders();
-				if(i == 0)
-					mapString.append(Ansi.colorize("/", borders[1].attribute));
-				mapString.append(Ansi.colorize(String.format("       %2s       ", tile.getImprovement().symbol), tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("\\", borders[5].attribute));
-			}
-			else
-			{
-				mapString.append(Ansi.colorize("__________", getTileByXY(row + 1, i).getBorders()[0].attribute));
-				if(tile == null)
-				{
-					if(i + 2 < columns)
-						mapString.append(Ansi.colorize("/", getTileByXY(row + 1, i + 1).getBorders()[1].attribute));
-				}
-				else
-				{
-					mapString.append(Ansi.colorize("/", getTileByXY(row, i).getBorders()[4].attribute));
-				}
-			}
-		}
-		mapString.append("\n");
-	}
-	private static void printLine5(int line)
-	{
-		// printing CUnit and position
-		
-		for(int i = 0; i < columns; i++)
-		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
-			BorderType[] borders = tile.getBorders();
-			
-			if(i % 2 == 0)
-			{
-				if(i == 0)
-					mapString.append(Ansi.colorize("\\", borders[2].attribute));
-				if(tile.getCombatUnitInTile() != null)
-					mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute));
-				else
-					mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("/", borders[4].attribute));
-			}
-			else
-			{
-				mapString.append(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y), tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("\\", borders[5].attribute));
-			}
-		}
-		mapString.append("\n");
-	}
-	private static void printLine6(int line)
-	{
-		// printing NCUnit and tileFeature
-		
-		for(int i = 0; i < columns; i++)
-		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
-			BorderType[] borders = tile.getBorders();
-			
-			if(i % 2 == 0)
-			{
-				if(i == 0)
-				{
-					mapString.append(" ");
-					mapString.append(Ansi.colorize("\\", borders[2].attribute));
-				}
-				if(tile.getNonCombatUnitInTile() != null)
-					mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute));
-				else
-					mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("/", borders[4].attribute));
-			}
-			else
-			{
-				mapString.append(Ansi.colorize(String.format("     %2s     ", tile.getTileFeature().symbol), tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("\\", borders[5].attribute));
-			}
-		}
-		mapString.append("\n");
-	}
-	private static void printLine7(int line)
-	{
-		// printing empty and resource
-		
-		for(int i = 0; i < columns; i++)
-		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
-			BorderType[] borders = tile.getBorders();
-			
-			if(i % 2 == 0)
-			{
-				if(i == 0)
-				{
-					mapString.append("  ");
-					mapString.append(Ansi.colorize("\\", borders[2].attribute));
-				}
-				// TODO: print sth
-				mapString.append(Ansi.colorize("            ", tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("/", borders[4].attribute));
-			}
-			else
-			{
-				// print resource
-				if(tile.getResource() != null)
-					mapString.append(Ansi.colorize(String.format("      %2s      ", tile.getResource().getRESOURCE_TYPE().symbol), tile.getTileType().attribute));
-				else
-					mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("\\", borders[5].attribute));
-			}
-		}
-		mapString.append("\n");
-	}
-	private static void printLine8(int line)
-	{
-		// printing border and improvement
-		
-		for(int i = 0; i < columns; i++)
-		{
-			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
-			BorderType[] borders = tile.getBorders();
-			
-			if(i % 2 == 0)
-			{
-				if(i == 0)
-				{
-					mapString.append("   ");
-					mapString.append(Ansi.colorize("\\", borders[2].attribute));
-				}
-				mapString.append(Ansi.colorize("__________", borders[3].attribute));
-				mapString.append(Ansi.colorize("/", borders[4].attribute));
-			}
-			else
-			{
-				mapString.append(Ansi.colorize(String.format("       %2s       ", tile.getImprovement().symbol), tile.getTileType().attribute));
-				mapString.append(Ansi.colorize("\\", borders[5].attribute));
-			}
-		}
-		mapString.append("\n");
-	}
-	private static void printLastLine()
-	{
-		mapString.append("                 ");
-		for(int i = 1; i < columns; i += 2)
-		{
-			Tile tile = getTileByXY(rows - 1, i);
-			assert tile != null;
-			BorderType[] bordrs = tile.getBorders();
-			mapString.append(Ansi.colorize("\\", bordrs[2].attribute));
-			mapString.append(Ansi.colorize("__________", bordrs[3].attribute));
-			mapString.append(Ansi.colorize("/", bordrs[4].attribute));
-			if(i < columns)
-				mapString.append("                ");
-			
-		}
-		mapString.append("\n");
-	}
-	
 	private static void printMapGuide()
 	{
 		mapString.append("\n");
@@ -425,6 +132,379 @@ public class MapPrinter
 				mapString.append(String.format("%s:%-6s", improvement, improvement.symbol));
 		}));
 		mapString.append("\n");
+	}
+	private static void printFirstLine()
+	{
+		// print the first line (considering rivers)
+		mapString.append("    ");
+		for(int i = 0; i < columns; i += 2)
+		{
+			printBorder(getTileByXY(0, i), 0);
+			if(i != columns - 1)
+				mapString.append("                  ");
+		}
+		mapString.append("\n");
+	}
+	private static void printLine1(int line)
+	{
+		// print position and CUnit
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+				if(tile == null)
+				{
+					if(i == 0)
+						mapString.append("    ");
+					mapString.append("          ");
+					printBorder(getTileByXY(row - 1, i + 1), 2);
+				}
+				else
+				{
+					if(i == 0)
+					{
+						mapString.append("   ");
+						printBorder(tile, 1);
+					}
+					printPosition(tile);
+					printBorder(tile, 5);
+				}
+			else if(tile == null)
+			{
+				if(i + 1 < columns)
+				{
+					mapString.append("                ");
+					printBorder(getTileByXY(row + 1, i + 1), 1);
+				}
+			}
+			else
+			{
+				printCUnit(tile);
+				printBorder(tile, 4);
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLine2(int line)
+	{
+		// printing tileFeature and NCUnit
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+			{
+				if(tile == null)
+				{
+					if(i == 0)
+						mapString.append("   ");
+					mapString.append("            ");
+					printBorder(getTileByXY(row - 1, i + 1), 2);
+				}
+				else
+				{
+					if(i == 0)
+					{
+						mapString.append("  ");
+						printBorder(tile, 1);
+					}
+					printTileFeature(tile);
+					printBorder(tile, 5);
+				}
+			}
+			else
+			{
+				if(tile == null)
+				{
+					if(i + 1 < columns)
+					{
+						mapString.append("              ");
+						printBorder(getTileByXY(row + 1, i + 1), 1);
+					}
+				}
+				else
+				{
+					printNCUnit(tile);
+					printBorder(tile, 4);
+				}
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLine3(int line)
+	{
+		// printing resource and empty
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+			{
+				if(tile == null)
+				{
+					if(i == 0)
+						mapString.append("  ");
+					mapString.append("              ");
+					printBorder(getTileByXY(row - 1, i + 1), 2);
+				}
+				else
+				{
+					if(i == 0)
+					{
+						mapString.append(" ");
+						printBorder(tile, 1);
+					}
+					printResource(tile);
+					printBorder(tile, 5);
+				}
+			}
+			else
+			{
+				if(tile == null)
+				{
+					if(i + 1 < columns)
+					{
+						mapString.append("            ");
+						printBorder(getTileByXY(row + 1, i + 1), 1);
+					}
+				}
+				else
+				{
+					printTemp(tile);
+					printBorder(tile, 4);
+				}
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLine4(int line)
+	{
+		// printing improvement and border
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+			{
+				if(i == 0)
+					printBorder(tile, 1);
+				printImprovement(tile);
+				printBorder(tile, 5);
+			}
+			else
+			{
+				printBorder(getTileByXY(row + 1, i), 0);
+				if(tile == null)
+				{
+					if(i + 2 < columns)
+						printBorder(getTileByXY(row + 1, i + 1), 1);
+				}
+				else
+					printBorder(getTileByXY(row, i), 4);
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLine5(int line)
+	{
+		// printing CUnit and position
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+			{
+				if(i == 0)
+					printBorder(tile, 2);
+				printCUnit(tile);
+				printBorder(tile, 4);
+			}
+			else
+			{
+				printPosition(tile);
+				printBorder(tile, 5);
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLine6(int line)
+	{
+		// printing NCUnit and tileFeature
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+			{
+				if(i == 0)
+				{
+					mapString.append(" ");
+					printBorder(tile, 2);
+				}
+				printNCUnit(tile);
+				printBorder(tile, 4);
+			}
+			else
+			{
+				printTileFeature(tile);
+				printBorder(tile, 5);
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLine7(int line)
+	{
+		// printing temp and resource
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+			{
+				if(i == 0)
+				{
+					mapString.append("  ");
+					printBorder(tile, 2);
+				}
+				printTemp(tile);
+				printBorder(tile, 4);
+			}
+			else
+			{
+				// print resource
+				printResource(tile);
+				printBorder(tile, 5);
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLine8(int line)
+	{
+		// printing border and improvement
+		for(int i = 0; i < columns; i++)
+		{
+			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
+			Tile tile = getTileByXY(row, i);
+			
+			if(i % 2 == 0)
+			{
+				if(i == 0)
+				{
+					mapString.append("   ");
+					printBorder(tile, 2);
+				}
+				printBorder(tile, 3);
+				printBorder(tile, 4);
+			}
+			else
+			{
+				printImprovement(tile);
+				printBorder(tile, 5);
+			}
+		}
+		mapString.append("\n");
+	}
+	private static void printLastLine()
+	{
+		mapString.append("                 ");
+		for(int i = 1; i < columns; i += 2)
+		{
+			Tile tile = getTileByXY(rows - 1, i);
+			assert tile != null;
+			printBorder(tile, 2);
+			printBorder(tile, 3);
+			printBorder(tile, 4);
+			if(i < columns)
+				mapString.append("                ");
+		}
+		mapString.append("\n");
+	}
+	private static void printPosition(Tile tile)
+	{
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(10);
+		else
+			mapString.append(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y),
+					tile.getTileType().attribute, Attribute.BLACK_TEXT()));
+	}
+	private static void printTileFeature(Tile tile)
+	{
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(12);
+		else
+		{
+			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+			mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+		}
+	}
+	private static void printResource(Tile tile)
+	{
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(14);
+		else
+		{
+			mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
+			if(tile.getResource() == null)
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			else
+				mapString.append(String.format("%2s", tile.getResource().getRESOURCE_TYPE().symbol));
+			mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
+		}
+	}
+	private static void printImprovement(Tile tile)
+	{
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(16);
+		else
+		{
+			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
+			mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
+			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
+		}
+	}
+	private static void printCUnit(Tile tile)
+	{
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(16);
+		else
+		{
+			if(tile.getCombatUnitInTile() == null)
+				mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
+			else
+				mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute,
+						Attribute.BLACK_TEXT()));
+		}
+	}
+	private static void printNCUnit(Tile tile)
+	{
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(14);
+		else
+		{
+			if(tile.getNonCombatUnitInTile() == null)
+				mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
+			else
+				mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute,
+						Attribute.BLACK_TEXT()));
+		}
+	}
+	private static void printTemp(Tile tile) // TODO:
+	{
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(12);
+		else if(map.get(tile).equals(TileState.REVEALED))
+			mapString.append(Ansi.colorize("<<REVEALED>>", tile.getTileType().attribute, Attribute.BLACK_TEXT()));
+		else
+			mapString.append(Ansi.colorize("            ", tile.getTileType().attribute));
 	}
 }
 

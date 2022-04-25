@@ -17,7 +17,7 @@ public enum ResourceType
 	HORSES(0, 1, 0, Improvement.PASTURE, Technology.ANIMAL_HUSBANDRY, "\uD83D\uDC34"),
 	IRON(0, 1, 0, Improvement.MINE, Technology.IRON_WORKING, "\uD83E\uDDF2"),
 	
-	COTTON(0, 0, 2, Improvement.PLANTATION, null, "☁"),
+	COTTON(0, 0, 2, Improvement.PLANTATION, null, "\uD83C\uDF2B️"),
 	DYES(0, 0, 2, Improvement.PLANTATION, null, "\uD83E\uDEA3"),
 	FURS(0, 0, 2, Improvement.CAMP, null, "\uD83E\uDDE5"),
 	GEMS(0, 0, 3, Improvement.MINE, null, "\uD83D\uDC8E"),
