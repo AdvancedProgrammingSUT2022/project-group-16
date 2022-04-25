@@ -105,7 +105,6 @@ public class GameController
 		return null;
 	}
 	// TODO: create overloaded printMap which takes a map as an argument
-
 	///////////////////////////
 	//menu methods
 	public static boolean numberOfPlayers(HashMap<String,String> players)
