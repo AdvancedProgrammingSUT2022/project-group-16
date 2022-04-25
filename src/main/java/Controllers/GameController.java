@@ -81,12 +81,12 @@ public class GameController
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
 				// TODO: bug with the resource and unit. fix it!!!
-				map.add(new Tile(getPositionByXY(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
-						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
-						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
-						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
-						new MidRange(MidRangeType.values()[CUnitRandom.nextInt(MidRangeType.values().length)]),
-						new Worker()));
+//				map.add(new Tile(getPositionByXY(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
+//						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
+//						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
+//						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
+//						new MidRange(MidRangeType.values()[CUnitRandom.nextInt(MidRangeType.values().length)]),
+//						new Worker()));
 			}
 	}
 	public Tile getTileByXY(int x, int y)

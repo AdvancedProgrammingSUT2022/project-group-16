@@ -64,6 +64,8 @@ public class ProfileController
 				return profileEnum.invalidOldPass.regex;
 			else if(currPass.equals(newPass))
 				return profileEnum.commonPasswords.regex;
+			else if(RegisterController.checkWeaknessOfPassword(newPass) != null)
+				return mainCommands.weakNewPass.regex;
 			else
 			{
 				Menu.loggedInUser.setPassword(newPass);

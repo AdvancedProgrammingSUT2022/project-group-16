@@ -71,6 +71,31 @@ public class RegisterController {
 		return false;
 	}
 
+	public static String checkWeaknessOfPassword(String password) {
+		//check length
+		if(password.length() < 5)
+			return mainCommands.weakPass.regex;
+		//checking weak
+		int flag = 0, flag1 = 0, flag2 = 0, flag3 = 0;
+		for(int i = 0; i < password.length(); i++) {
+			char tmp = password.charAt(i);
+			if(flag1 == 0 && (tmp > 64 && tmp < 91)) {
+				flag1 = 1;
+				flag++;
+			}
+			if(flag2 == 0 && (tmp > 96 && tmp < 123)) {
+				flag2 = 1;
+				flag++;
+			}
+			if(flag3 == 0 && (tmp > 47 && tmp < 58)) {
+				flag3 = 1;
+				flag++;
+			}
+		}
+		if(flag == 3) return null;
+		return mainCommands.weakPass.regex;
+	}
+
 	private static Matcher matchRegex(Matcher matcher, String line, mainCommands regex)
 	{
 		if(matcher == null && (matcher = mainCommands.compareRegex(line, regex)) != null)
@@ -108,6 +133,8 @@ public class RegisterController {
 			return (mainCommands.specificUsername.regex + username + mainCommands.alreadyExist.regex);
 		else if (RegisterController.doesNicknameExist(nickname))
 			return (mainCommands.specificNickname.regex + nickname + mainCommands.alreadyExist.regex);
+		else if(checkWeaknessOfPassword(password) != null)
+			return mainCommands.weakPass.regex;
 		else
 		{
 			Menu.allUsers.add(new User(username, nickname, password));

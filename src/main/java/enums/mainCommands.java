@@ -20,7 +20,9 @@ public enum mainCommands
     invalidCommand("invalid command"),
     alreadyExist(" already exists"),
     specificNickname("user with nickname "),
-    specificUsername("user with username ");
+    specificUsername("user with username "),
+    weakPass("password is weak"),
+    weakNewPass("new password is weak");
 
     public final String regex;
 
