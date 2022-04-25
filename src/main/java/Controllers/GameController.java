@@ -2,8 +2,8 @@ package Controllers;
 
 import Controllers.Utilities.MapPrinter;
 import Models.Game.Position;
-import Model.Player.Player;
-import Model.Menu.Menu;
+import Models.Player.Player;
+import Models.Menu.Menu;
 import Models.Player.Player;
 import Models.Resources.BonusResource;
 import Models.Resources.Resource;
@@ -87,8 +87,8 @@ public class GameController
 						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
 						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
 						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
-						new MidRange(MidRangeType.values()[CUnitRandom.nextInt(MidRangeType.values().length)]),
-						new Worker()));
+						null,
+						null));
 			}
 	}
 	public Tile getTileByXY(int x, int y)
