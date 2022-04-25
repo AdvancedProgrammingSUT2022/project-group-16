@@ -12,6 +12,9 @@ public enum mainCommands
     getPassword("^--password\\s+(?<password>\\S+).*$"),
     getOldPassword("^--current\\s+(?<password>\\S+).*$"),
     getNewPassword("^--new\\s+(?<password>\\S+).*$"),
+    shortFormPassword("^-p\\s+(?<password>\\S+).*$"),
+    shortFormUsername("^-u\\s+(?<username>\\S+).*$"),
+    shortFormNickname("^-n\\s+(?<nickname>\\S+).*$"),
 
     //messsages
     invalidCommand("invalid command"),

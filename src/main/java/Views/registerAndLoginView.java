@@ -15,7 +15,7 @@ public class registerAndLoginView
 		RegisterController.updateDatabase(); //update arraylist of users and get old users
 		Scanner scanner = new Scanner(System.in);
 		String command;
-		Matcher matcher = null, usernameMatcher = null, nicknameMatcher = null, passwordMatcher = null;
+		Matcher matcher;
 
 		while(true)
 		{
@@ -27,11 +27,11 @@ public class registerAndLoginView
 			else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
 				System.out.println(registerEnum.currnetMenu.regex);
 			else if((matcher = registerEnum.compareRegex(command, registerEnum.registerUser)) != null)
-				System.out.println(RegisterController.checkLineForRegister(usernameMatcher, nicknameMatcher, passwordMatcher, command));
+				System.out.println(RegisterController.checkLineForRegister(command));
 			else if((matcher = registerEnum.compareRegex(command, registerEnum.loginUser)) != null)
 			{
-				if(RegisterController.loginPlayer(usernameMatcher, passwordMatcher, command) != null)
-					System.out.println(RegisterController.loginPlayer(usernameMatcher, passwordMatcher, command));
+				if(RegisterController.loginPlayer(command) != null)
+					System.out.println(RegisterController.loginPlayer(command));
 				else
 				{
 					System.out.println(registerEnum.successfulLogin.regex);
