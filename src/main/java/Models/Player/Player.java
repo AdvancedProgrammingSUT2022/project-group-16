@@ -9,6 +9,8 @@ import Models.Units.Unit;
 import Models.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 public class Player extends User
@@ -21,9 +23,7 @@ public class Player extends User
 	private ArrayList<Technology> technologies;
 	private Technology researchingTechnology;
 	private ArrayList<Resource> resources; // TODO: do we need it???
-	private ArrayList<Tile> visibleTiles;
-	private ArrayList<Tile> revealedTiles;
-	private ArrayList<Tile> fogTiles;
+	private final HashMap<Tile, TileState> map;
 	private ArrayList<City> cities;
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
@@ -41,12 +41,13 @@ public class Player extends User
 		happiness = 0;
 		technologies = new ArrayList<>();
 		resources = new ArrayList<>();
-//		visiblePositions = new ArrayList<>();
-//		revealedPositions = new ArrayList<>();
-//		fogPositions = new ArrayList<>();
 		cities = new ArrayList<>();
 		notifications = new Stack<>();
 		units = new ArrayList<Unit>();
+		map = new HashMap<>();
+		for(Tile tile : gameController.getMap())
+			map.put(tile, TileState.FOG_OF_WAR);
+		setTileStates();
 	}
 	
 	public Civilization getCivilization()
@@ -179,6 +180,12 @@ public class Player extends User
 	public void setUnits(ArrayList<Unit> units)
 	{
 		this.units = units;
+	}
+	
+	public void setTileStates()
+	{
+		for(Map.Entry<Tile, TileState> entry: map.entrySet())
+			map.replace(entry.getKey(), TileState.FOG_OF_WAR);
 	}
 }
 

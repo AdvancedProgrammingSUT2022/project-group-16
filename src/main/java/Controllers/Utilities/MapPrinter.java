@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 public class MapPrinter
 {
-	private static ArrayList<Tile> tiles;
+	private static ArrayList<Tile> map;
 	private static int columns;
 	private static int rows;
 	private static StringBuilder mapString;
@@ -20,15 +20,13 @@ public class MapPrinter
 	public static String getMapString(ArrayList<Tile> map, int columns, int rows)
 	{
 		mapString = new StringBuilder();
-		tiles = map;
+		MapPrinter.map = map;
 		MapPrinter.columns = columns;
 		MapPrinter.rows = rows;
 		
 		printFirstLine();
 		for(int i = 1; i <= rows * 8 + 3; i++)
-		{
-			int x = i % 8;
-			switch(x)
+			switch(i % 8)
 			{
 				case 1 -> printLine1(i);
 				case 2 -> printLine2(i);
@@ -39,14 +37,13 @@ public class MapPrinter
 				case 7 -> printLine7(i);
 				case 0 -> printLine8(i);
 			}
-		}
 		printLastLine();
 		printMapGuide();
 		return mapString.toString();
 	}
 	private static Tile getTileByXY(int x, int y)
 	{
-		for(Tile tile : tiles)
+		for(Tile tile : map)
 			if(tile.getPosition().X == x && tile.getPosition().Y == y)
 				return tile;
 		return null;
@@ -422,14 +419,16 @@ public class MapPrinter
 		if(tile.getCombatUnitInTile() == null)
 			mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
 		else
-			mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute));
+			mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute,
+					Attribute.BLACK_TEXT()));
 	}
 	private static void printNCUnit(Tile tile)
 	{
 		if(tile.getNonCombatUnitInTile() == null)
 			mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
 		else
-			mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute));
+			mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute,
+					Attribute.BLACK_TEXT()));
 	}
 	private static void printTemp(Tile tile) // TODO:
 	{
