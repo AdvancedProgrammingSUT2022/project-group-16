@@ -3,6 +3,7 @@ package Controllers;
 import Models.Menu.Menu;
 import Views.gameMenuView;
 import Views.profileMenuVeiw;
+import enums.mainCommands;
 import enums.mainMenuEnum;
 
 import java.util.Scanner;
@@ -20,16 +21,23 @@ public class MainMenuController
 		profileMenuVeiw.run(scanner, matcher);
 	}
 
-	public static int enterMenu(Scanner scanner, Matcher matcher)
+	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{
 		String menuName = matcher.group("menuName");
-		if((matcher = mainMenuEnum.compareRegex(menuName, mainMenuEnum.profileName)) != null)
+		if((matcher = mainCommands.compareRegex(menuName, mainCommands.profileName)) != null)
+		{
 			enterProfileMenu(scanner, matcher);
-		else if((matcher = mainMenuEnum.compareRegex(menuName, mainMenuEnum.startNewGame)) != null)
+			return "1";
+		}
+		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.startNewGame)) != null)
+		{
 			startNewGame();
+			return "1";
+		}
+		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.loginMenu)) != null)
+			return mainCommands.navigationError.regex;
 		else
-			return 1;
-		return 0;
+			return mainCommands.invalidCommand.regex;
 	}
 
 	public static String logoutUser()

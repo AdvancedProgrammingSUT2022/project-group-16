@@ -1,5 +1,6 @@
 package Views;
 
+import Controllers.GameController;
 import Controllers.MainMenuController;
 import Controllers.ProfileController;
 import enums.mainCommands;
@@ -26,6 +27,13 @@ public class profileMenuVeiw
                 System.out.println(ProfileController.changePassword(oldPasswordMatcher, newPasswordMatcher, command));
             else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
                 System.out.println(profileEnum.currentMenu.regex);
+            else if((matcher = mainCommands.compareRegex(command, mainCommands.enterMenu)) != null)
+            {
+                if(ProfileController.enterMenu(scanner, matcher).equals("1"))
+                    break;
+                else
+                    System.out.println(ProfileController.enterMenu(scanner, matcher));
+            }
             else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
                 break;
             else

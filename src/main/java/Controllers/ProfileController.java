@@ -5,6 +5,7 @@ import enums.profileEnum;
 import enums.mainCommands;
 
 
+import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class ProfileController
@@ -98,5 +99,18 @@ public class ProfileController
 		}
 		else
 			return mainCommands.invalidCommand.regex;
+	}
+
+	public static String enterMenu(Scanner scanner, Matcher matcher)
+	{
+		String menuName = matcher.group("menuName");
+
+		if((matcher = mainCommands.compareRegex(menuName, mainCommands.startNewGame)) != null)
+			return mainCommands.navigationError.regex;
+		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.loginMenu)) != null)
+			return mainCommands.navigationError.regex;
+		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.mainMenu)) != null)
+			return "1";
+		return mainCommands.invalidCommand.regex;
 	}
 }

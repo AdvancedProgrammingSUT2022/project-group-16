@@ -1,6 +1,7 @@
 package Views;
 
 import Controllers.MainMenuController;
+import enums.mainCommands;
 import enums.mainMenuEnum;
 
 import java.util.Scanner;
@@ -23,10 +24,10 @@ public class mainMenuVeiw
                 System.out.println(mainMenuEnum.currentMenu.regex);
             else if((matcher = mainMenuEnum.compareRegex(command, mainMenuEnum.menuExit)) != null)
                 break;
-            else if((matcher = mainMenuEnum.compareRegex(command, mainMenuEnum.enterMenu)) != null)
+            else if((matcher = mainCommands.compareRegex(command, mainCommands.enterMenu)) != null)
             {
-                if(MainMenuController.enterMenu(scanner, matcher) == 1)
-                    System.out.println(mainMenuEnum.invalidCommand.regex);
+                if(!MainMenuController.enterMenu(scanner, matcher).equals("1"))
+                    System.out.println(MainMenuController.enterMenu(scanner, matcher));
             }
             else
                 System.out.println(mainMenuEnum.invalidCommand.regex);

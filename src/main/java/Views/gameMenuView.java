@@ -1,11 +1,13 @@
 package Views;
 
 import Controllers.GameController;
+import Controllers.MainMenuController;
 import Controllers.RegisterController;
 import Models.User;
 import enums.cheatCode;
 import enums.gameEnum;
 import enums.mainCommands;
+import enums.mainMenuEnum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +63,13 @@ public class gameMenuView
             }
             else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
                 break;
+            else if((matcher = mainCommands.compareRegex(command, mainCommands.enterMenu)) != null)
+            {
+                if(GameController.enterMenu(scanner, matcher).equals("1"))
+                    break;
+                else
+                    System.out.println(GameController.enterMenu(scanner, matcher));
+            }
             else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
                 System.out.println(gameEnum.currentMenu.regex);
             else

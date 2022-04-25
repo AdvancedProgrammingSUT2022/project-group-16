@@ -210,5 +210,18 @@ public class GameController
 		return cheatCode.successful.regex;
 	}
 
+	public static String enterMenu(Scanner scanner, Matcher matcher)
+	{
+		String menuName = matcher.group("menuName");
+
+		if((matcher = mainCommands.compareRegex(menuName, mainCommands.profileName)) != null)
+			return mainCommands.navigationError.regex;
+		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.loginMenu)) != null)
+			return mainCommands.navigationError.regex;
+		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.mainMenu)) != null)
+			return "1";
+		return mainCommands.invalidCommand.regex;
+	}
+
 	
 }
