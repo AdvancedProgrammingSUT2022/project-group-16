@@ -1,23 +1,25 @@
 package Controllers.Utilities;
 
+import Models.Player.TileState;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapPrinter
 {
-	private static ArrayList<Tile> map;
+	private static HashMap<Tile, TileState> map;
 	private static int columns;
 	private static int rows;
 	private static StringBuilder mapString;
-	private final static Attribute FOG_OF_WAR = Attribute.WHITE_BACK();
+	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.WHITE_BACK();
 	private final static String REVEALED_SYMBOL = "*REVEALED*";
 	
-	public static String getMapString(ArrayList<Tile> map, int columns, int rows)
+	public static String getMapString(HashMap<Tile, TileState> map, int columns, int rows)
 	{
 		mapString = new StringBuilder();
 		MapPrinter.map = map;
@@ -43,10 +45,15 @@ public class MapPrinter
 	}
 	private static Tile getTileByXY(int x, int y)
 	{
-		for(Tile tile : map)
-			if(tile.getPosition().X == x && tile.getPosition().Y == y)
-				return tile;
+		for(Map.Entry<Tile, TileState> entry : map.entrySet())
+			if(entry.getKey().getPosition().X == x && entry.getKey().getPosition().Y == y)
+				return entry.getKey();
 		return null;
+	}
+	private static void printFog(int number)
+	{
+		for(int i = 0; i < number; i++)
+			mapString.append(Ansi.colorize(" ", FOG_OF_WAR_ATTRIBUTE));
 	}
 	private static void printMapGuide()
 	{
@@ -390,49 +397,80 @@ public class MapPrinter
 	}
 	private static void printPosition(Tile tile)
 	{
-		mapString.append(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y),
-				tile.getTileType().attribute, Attribute.BLACK_TEXT()));
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(10);
+		else
+			mapString.append(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y),
+					tile.getTileType().attribute, Attribute.BLACK_TEXT()));
 	}
 	private static void printTileFeature(Tile tile)
 	{
-		mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
-		mapString.append(String.format("%2s", tile.getTileFeature().symbol));
-		mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(12);
+		else
+		{
+			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+			mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+		}
 	}
 	private static void printResource(Tile tile)
 	{
-		mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
-		if(tile.getResource() == null)
-			mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(14);
 		else
-			mapString.append(String.format("%2s", tile.getResource().getRESOURCE_TYPE().symbol));
-		mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
+		{
+			mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
+			if(tile.getResource() == null)
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			else
+				mapString.append(String.format("%2s", tile.getResource().getRESOURCE_TYPE().symbol));
+			mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
+		}
 	}
 	private static void printImprovement(Tile tile)
 	{
-		mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
-		mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
-		mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(16);
+		else
+		{
+			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
+			mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
+			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
+		}
 	}
 	private static void printCUnit(Tile tile)
 	{
-		if(tile.getCombatUnitInTile() == null)
-			mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(16);
 		else
-			mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute,
-					Attribute.BLACK_TEXT()));
+		{
+			if(tile.getCombatUnitInTile() == null)
+				mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
+			else
+				mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute,
+						Attribute.BLACK_TEXT()));
+		}
 	}
 	private static void printNCUnit(Tile tile)
 	{
-		if(tile.getNonCombatUnitInTile() == null)
-			mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(14);
 		else
-			mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute,
-					Attribute.BLACK_TEXT()));
+		{
+			if(tile.getNonCombatUnitInTile() == null)
+				mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
+			else
+				mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute,
+						Attribute.BLACK_TEXT()));
+		}
 	}
 	private static void printTemp(Tile tile) // TODO:
 	{
-		mapString.append(Ansi.colorize("            ", tile.getTileType().attribute));
+		if(map.get(tile).equals(TileState.FOG_OF_WAR))
+			printFog(12);
+		else
+			mapString.append(Ansi.colorize("            ", tile.getTileType().attribute));
 	}
 }
 

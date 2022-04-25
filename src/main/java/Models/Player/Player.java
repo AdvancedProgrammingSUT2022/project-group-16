@@ -15,7 +15,7 @@ import java.util.Stack;
 
 public class Player extends User
 {
-	private GameController gameController;
+	private final GameController gameController;
 	private Civilization civilization;
 	private int food;
 	private int gold;
@@ -44,6 +44,7 @@ public class Player extends User
 		cities = new ArrayList<>();
 		notifications = new Stack<>();
 		units = new ArrayList<Unit>();
+		this.gameController = gameController;
 		map = new HashMap<>();
 		for(Tile tile : gameController.getMap())
 			map.put(tile, TileState.FOG_OF_WAR);
@@ -106,13 +107,13 @@ public class Player extends User
 	{
 		this.resources = resources;
 	}
-	public ArrayList<Tile> getMap()
+	public HashMap<Tile, TileState> getMap()
 	{
-		return null;
+		return map;
 	}
 	public void setMap(ArrayList<Tile> map)
 	{
-//		this.map = map;
+		// TODO
 	}
 	public ArrayList<Position> getVisiblePositions()
 	{

@@ -2,6 +2,7 @@ package Controllers;
 
 import Controllers.Utilities.MapPrinter;
 import Models.Game.Position;
+import Models.Player.Player;
 import Models.Resources.BonusResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
@@ -21,6 +22,8 @@ public class GameController
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public final int MAX_MAP_SIZE = 10;
+	private ArrayList<Player> players;
+	
 	
 	private GameController()
 	{
@@ -93,12 +96,8 @@ public class GameController
 				return tile;
 		return null;
 	}
-	public String getMapString()
+	public String getMapString() // TODO:
 	{
-//		return MapPrinter.getMapString(map, MAX_MAP_SIZE, MAX_MAP_SIZE);
-		System.out.println(MapPrinter.getMapString(map, MAX_MAP_SIZE, MAX_MAP_SIZE));
-		
-		System.out.println();
 		return null;
 	}
 	// TODO: create overloaded printMap which takes a map as an argument
