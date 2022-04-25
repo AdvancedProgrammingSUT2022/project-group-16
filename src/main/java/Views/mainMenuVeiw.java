@@ -16,26 +16,20 @@ public class mainMenuVeiw
             command = scanner.nextLine().trim();
 
             if((matcher = mainMenuEnum.compareRegex(command, mainMenuEnum.logoutUser)) != null) {
-                System.out.println("user logged out successfully!");
+                System.out.println(MainMenuController.logoutUser());
                 break;
             }
             else if((matcher = mainMenuEnum.compareRegex(command, mainMenuEnum.showCurrentMenu)) != null)
-            {
-                System.out.println("Main Menu");
-            }
+                System.out.println(mainMenuEnum.currentMenu.regex);
             else if((matcher = mainMenuEnum.compareRegex(command, mainMenuEnum.menuExit)) != null)
                 break;
             else if((matcher = mainMenuEnum.compareRegex(command, mainMenuEnum.enterMenu)) != null)
             {
                 if(MainMenuController.enterMenu(scanner, matcher) == 1)
-                {
-                    System.out.println("invalid command");
-                }
+                    System.out.println(mainMenuEnum.invalidCommand.regex);
             }
             else
-            {
-                System.out.println("invalid command");
-            }
+                System.out.println(mainMenuEnum.invalidCommand.regex);
         }
     }
 }

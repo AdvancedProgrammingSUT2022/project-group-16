@@ -5,12 +5,18 @@ import java.util.regex.Pattern;
 
 public enum mainMenuEnum
 {
+    //commands
     enterMenu("^\\s*menu\\s+enter\\s+(?<menuName>.+)\\s*$"),
     profileName("^\\s*Profile\\s+Menu\\s*$"),
     startNewGame("^\\s*start\\s+new\\s+game\\s*$"),
     menuExit("^\\s*menu\\s+exit\\s*$"),
     showCurrentMenu("^\\s*menu\\s+show-current\\s*$"),
-    logoutUser("^\\s*user\\s+logout\\s*$");
+    logoutUser("^\\s*user\\s+logout\\s*$"),
+
+    //messages
+    currentMenu("Main Menu"),
+    invalidCommand("invalid command"),
+    successfulLogout("user logged out successfully!");
 
     public final String regex;
 

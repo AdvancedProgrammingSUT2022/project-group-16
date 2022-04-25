@@ -2,6 +2,7 @@ package Views;
 
 import Controllers.MainMenuController;
 import Controllers.ProfileController;
+import enums.mainCommands;
 import enums.mainMenuEnum;
 import enums.profileEnum;
 import enums.registerEnum;
@@ -14,25 +15,21 @@ public class profileMenuVeiw
     public static void run(Scanner scanner, Matcher matcher)
     {
         String command;
-
+        Matcher newPasswordMatcher = null, oldPasswordMatcher = null;
         while(true)
         {
             command = scanner.nextLine();
 
             if((matcher = profileEnum.compareRegex(command, profileEnum.changeNickname)) != null)
-            {
                 System.out.println(ProfileController.changeNickname(matcher.group("newNickname")));
-            }
-            else if((matcher = profileEnum.compareRegex(command, profileEnum.showCurrentMenu)) != null)
-            {
-                System.out.println("Profile Menu");
-            }
-            else if((matcher = profileEnum.compareRegex(command, profileEnum.menuExit)) != null)
+            else if((matcher = profileEnum.compareRegex(command, profileEnum.changePassword)) != null)
+                System.out.println(ProfileController.changePassword(oldPasswordMatcher, newPasswordMatcher, command));
+            else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
+                System.out.println(profileEnum.currentMenu.regex);
+            else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
                 break;
             else
-            {
-                System.out.println("invalid command");
-            }
+                System.out.println(mainCommands.invalidCommand.regex);
         }
     }
 }

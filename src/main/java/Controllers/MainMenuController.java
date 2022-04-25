@@ -1,8 +1,9 @@
 package Controllers;
 
+import Models.Menu.Menu;
+import Views.gameMenuView;
 import Views.profileMenuVeiw;
 import enums.mainMenuEnum;
-import enums.registerEnum;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -11,17 +12,12 @@ public class MainMenuController
 {
 	public static void startNewGame()
 	{
-	
+		gameMenuView.run();
 	}
-	
+
 	public static void enterProfileMenu(Scanner scanner, Matcher matcher)
 	{
 		profileMenuVeiw.run(scanner, matcher);
-	}
-	
-	private Boolean doesPlayerExist(String name)
-	{
-		return false;
 	}
 
 	public static int enterMenu(Scanner scanner, Matcher matcher)
@@ -34,5 +30,11 @@ public class MainMenuController
 		else
 			return 1;
 		return 0;
+	}
+
+	public static String logoutUser()
+	{
+		Menu.loggedInUser = null;
+		return mainMenuEnum.successfulLogout.regex;
 	}
 }
