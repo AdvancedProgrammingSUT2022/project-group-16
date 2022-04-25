@@ -4,16 +4,13 @@ import Controllers.Utilities.MapPrinter;
 import Models.Game.Position;
 import Models.Menu.Menu;
 import Models.Resources.BonusResource;
-import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
-import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Worker;
 import enums.gameEnum;
 import enums.mainCommands;
-
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,28 +21,28 @@ public class GameController
 {
 	private static GameController instance = null;
 	private final ArrayList<Position> grid = new ArrayList<>();
-	private final int MAX_GRID_LENGTH = 30;
+	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
-	private final int MAX_MAP_SIZE = 10;
-	
+	public final int MAX_MAP_SIZE = 10;
+
 	private GameController()
 	{
 		initGrid();
 		initMap(); // TODO: customization for the arbitrary map
 	}
-	
+
 	public static GameController getInstance()
 	{
 		if(instance == null)
 			instance = new GameController();
 		return instance;
 	}
-	
+
 	public ArrayList<Tile> getMap()
 	{
 		return map;
 	}
-	
+
 	private void initGrid()
 	{
 		for(int i = 0; i < MAX_GRID_LENGTH; i++)
@@ -56,11 +53,11 @@ public class GameController
 	{
 		if(x < 0 || y < 0 || x >= MAX_GRID_LENGTH || y >= MAX_GRID_LENGTH)
 			return null;
-		
+
 		for(Position position : grid)
 			if(position.X == x && position.Y == y)
 				return position;
-		
+
 		return null;
 	}
 	public Position getPositionByQRS(int q, int r)
@@ -76,7 +73,7 @@ public class GameController
 		Random improvementRandom = new Random();
 		Random resourceRandom = new Random();
 		Random CUnitRandom = new Random();
-		
+
 		for(int i = 0; i < MAX_MAP_SIZE; i++)
 			for(int j = 0; j < MAX_MAP_SIZE; j++)
 			{
@@ -92,7 +89,6 @@ public class GameController
 						new Worker()));
 			}
 	}
-
 	public Tile getTileByXY(int x, int y)
 	{
 		for(Tile tile : map)
@@ -100,12 +96,11 @@ public class GameController
 				return tile;
 		return null;
 	}
-
 	public String getMapString()
 	{
 //		return MapPrinter.getMapString(map, MAX_MAP_SIZE, MAX_MAP_SIZE);
 		System.out.println(MapPrinter.getMapString(map, MAX_MAP_SIZE, MAX_MAP_SIZE));
-		
+
 		System.out.println();
 		return null;
 	}
