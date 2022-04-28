@@ -10,17 +10,20 @@ import enums.mainCommands;
 import enums.mainMenuEnum;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class gameMenuView
 {
-    public static void startGame(Scanner scanner, HashMap<String,String> players)
+    public static void startGame(Scanner scanner, HashMap<String,String> Map)
     {
         GameController gameController = GameController.getInstance();
         String command;
         Matcher matcher;
+
+        User[] players = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
 
         while (scanner.hasNextLine())
         {
@@ -39,6 +42,11 @@ public class gameMenuView
                 System.out.println(GameController.winBattle(matcher));
             else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
                 System.out.println(GameController.moveUnit(matcher));
+            else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
+            {
+                System.out.println(mainCommands.endGame.regex);
+                break;
+            }
             else
                 System.out.println(mainCommands.invalidCommand.regex);
         }

@@ -5,11 +5,13 @@ import java.util.regex.Pattern;
 
 public enum gameEnum
 {
-    startGame("^\\s*play\\s+game\\s+--player.*$"),
-    newPlayer("^--player(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
+    startGame("^\\s*play\\s+game.*$"),
+    newPlayer("^ --player(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
+    shortNewPlayer("^ -p(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
 
     //messages
     numberOfPlayers("invalid number of players"),
+    lessThanFour("please pick less than 4 players:)"),
     playerExist("player doesn't exist"),
     successfulStartGame("game started"),
     currentMenu("Game Menu"),

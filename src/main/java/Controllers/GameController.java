@@ -14,6 +14,7 @@ import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Worker;
+import Models.User;
 import Views.gameMenuView;
 import enums.cheatCode;
 import enums.gameEnum;
@@ -113,7 +114,7 @@ public class GameController
 	// TODO: create overloaded printMap which takes a map as an argument
 	///////////////////////////
 	//menu methods
-	public static boolean numberOfPlayers(HashMap<String,String> players)
+	private static boolean numberOfPlayers(HashMap<String,String> players)
 	{
 		for(int i = 0; i < players.size(); i++)
 		{
@@ -123,7 +124,7 @@ public class GameController
 		return true;
 	}
 
-	public static boolean doesUsernameExist(String username)
+	private static boolean doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.size(); i++)
 		{
@@ -133,7 +134,7 @@ public class GameController
 		return false;
 	}
 
-	public static boolean existingPlayers(HashMap<String,String> players)
+	private static boolean existingPlayers(HashMap<String,String> players)
 	{
 		int index = 0;
 		for (Object key : players.keySet())
@@ -151,16 +152,23 @@ public class GameController
 		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
-			Matcher matcher = gameEnum.compareRegex(command.substring(i, command.length()), gameEnum.newPlayer);
-			if (matcher != null && !matcher.group("username").equals(Menu.loggedInUser.getUsername()))
+			Matcher matcher1 = gameEnum.compareRegex(command.substring(i), gameEnum.newPlayer);
+			Matcher matcher2 = gameEnum.compareRegex(command.substring(i), gameEnum.shortNewPlayer);
+
+			if (matcher1 != null && !matcher1.group("username").equals(Menu.loggedInUser.getUsername()))
 			{
-				players.put(matcher.group("number"), matcher.group("username"));
+				players.put(matcher1.group("number"), matcher1.group("username"));
 				flag = 1;
 			}
-			else if(matcher != null && matcher.group("username").equals(Menu.loggedInUser.getUsername()))
+			else if (matcher2 != null && !matcher2.group("username").equals(Menu.loggedInUser.getUsername()))
 			{
-				return gameEnum.loggedInPlayerInCandidates.regex;
+				players.put(matcher2.group("number"), matcher2.group("username"));
+				flag = 1;
 			}
+			else if(matcher1 != null && matcher1.group("username").equals(Menu.loggedInUser.getUsername()))
+				return gameEnum.loggedInPlayerInCandidates.regex;
+			else if(matcher2 != null && matcher2.group("username").equals(Menu.loggedInUser.getUsername()))
+				return gameEnum.loggedInPlayerInCandidates.regex;
 		}
 		if(flag == 0)
 			return mainCommands.invalidCommand.regex;
@@ -168,6 +176,8 @@ public class GameController
 			return gameEnum.numberOfPlayers.regex;
 		else if(!existingPlayers(players))
 			return gameEnum.playerExist.regex;
+		else if(players.size()  > 3)
+			return gameEnum.lessThanFour.regex;
 		else
 			return gameEnum.successfulStartGame.regex;
 	}
@@ -221,6 +231,16 @@ public class GameController
 		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.mainMenu)) != null)
 			return "1";
 		return mainCommands.invalidCommand.regex;
+	}
+
+	public static User[] convertMapToArr(HashMap<String, String> players)
+	{
+		User[] newArr = new User[players.size() + 1];
+		newArr[0] = Menu.loggedInUser;
+
+		for(int i = 1; i < players.size() + 1; i++)
+			newArr[i] = RegisterController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
+		return newArr;
 	}
 
 	

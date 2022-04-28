@@ -23,6 +23,7 @@ public enum mainCommands
 
     //messsages
     invalidCommand("invalid command"),
+    endGame("game has ended!"),
     alreadyExist(" already exists"),
     specificNickname("user with nickname "),
     specificUsername("user with username "),
