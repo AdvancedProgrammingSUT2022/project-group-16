@@ -40,7 +40,9 @@ public enum gameEnum
     OTTOMAN("9: OTTOMAN," + Civilization.OTTOMAN.leaderName),
     RUSSIAN("10: RUSSIAN," + Civilization.RUSSIAN.leaderName),
     pickCivilization(", please pick your Civilization!\n"),
-    chooseCivilization("you chose ");
+    chooseCivilization("you chose "),
+    between1And10("please pick a number between 1 and 10"),
+    alreadyPicked("already picked, please choose another one");
 
     public final String regex;
 

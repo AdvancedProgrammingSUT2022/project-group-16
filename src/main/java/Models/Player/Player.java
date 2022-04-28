@@ -5,6 +5,7 @@ import Models.City.City;
 import Models.Game.Position;
 import Models.Resources.Resource;
 import Models.Terrain.Tile;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.Unit;
 import Models.User;
 
@@ -28,7 +29,7 @@ public class Player extends User
 	private ArrayList<Unit> units;
 	//	Unit selectedUnit;  //??TODO probably unnecessary
 	
-	
+
 	public Player(Civilization civilization, String username, String nickname, String password, GameController gameController)
 	{
 		super(username, nickname, password);

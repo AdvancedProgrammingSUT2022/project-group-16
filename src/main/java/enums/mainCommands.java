@@ -29,7 +29,8 @@ public enum mainCommands
     specificUsername("user with username "),
     weakPass("password is weak"),
     weakNewPass("new password is weak"),
-    navigationError("menu navigation is not possible");
+    navigationError("menu navigation is not possible"),
+    nothing("nothing");
 
     public final String regex;
 

@@ -27,7 +27,7 @@ public class gameMenuView
 
         User[] tmpUsers = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
 
-        Player[] players = new Player[tmpUsers.length];
+        ArrayList<Player> players = new ArrayList<>();
 
         for(int i = 0; i < tmpUsers.length; i++)
         {
@@ -42,15 +42,21 @@ public class gameMenuView
             System.out.println(gameEnum.PERSIAN.regex);
             System.out.println(gameEnum.OTTOMAN.regex);
             System.out.println(gameEnum.RUSSIAN.regex);
-            int number = scanner.nextInt();
-            players[i] = GameController.pickCivilization(tmpUsers[i], scanner, gameController, number);
-            System.out.println(gameEnum.chooseCivilization.regex + Civilization.values()[number - 1]);
+            int number;
+            do
+            {
+                number = scanner.nextInt();
+                System.out.println(GameController.pickCivilization(players, tmpUsers, scanner, gameController, number, i));
+            } while (number > 10 || number < 1 || GameController.inArr(players, GameController.findCivilByNumber(number)));
+            players.add(new Player(GameController.findCivilByNumber(number), tmpUsers[i].getUsername(),
+                    tmpUsers[i].getNickname(), tmpUsers[i].getPassword(), gameController));
         }
 
         int num = 0;
+
         while (true)
         {
-            turn = players[num];
+            turn = players.get(num);
 
             while (scanner.hasNextLine()) {
                 String command = scanner.nextLine();
@@ -68,20 +74,37 @@ public class gameMenuView
                     System.out.println(GameController.winBattle(matcher, turn));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null) //TODO
                     System.out.println(GameController.moveUnit(matcher, turn));
-                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showResearch)) != null) //TODO
-                    System.out.println(turn.getResearchingTechnology());
-                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showUnits)) != null) //TODO
-                    System.out.println(turn.getResearchingTechnology());
-                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showCities)) != null) //TODO
-                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showResearch)) != null) //done
+                    System.out.println(GameController.showResearch(turn));
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showUnits)) != null) //done
+                {
+                    if(turn.getUnits().size() == 0) System.out.println(mainCommands.nothing.regex);
+                    else
+                    {
+                        for(int i = 0; i < turn.getUnits().size(); i++)
+                            System.out.println(i + ": " + turn.getUnits().get(i).getTile().getPosition().X + ", " + turn.getUnits().get(i).getTile().getPosition().Y);
+                    }
+                }
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showCities)) != null) //done
+                    if(turn.getCities().size() == 0) System.out.println(mainCommands.nothing.regex);
+                    else
+                    {
+                        for(int i = 0; i < turn.getCities().size(); i++)
+                            System.out.println(i + ": " + turn.getCities().get(i).getCapitalTile().getPosition().X +", " + turn.getCities().get(i).getCapitalTile().getPosition().Y);
+                    }
                 else if ((matcher = gameEnum.compareRegex(command, gameEnum.showDiplomacy)) != null) //TODO
                     System.out.println(turn.getResearchingTechnology());
                 else if ((matcher = gameEnum.compareRegex(command, gameEnum.showVictory)) != null) //TODO
                     System.out.println(turn.getResearchingTechnology());
                 else if ((matcher = gameEnum.compareRegex(command, gameEnum.showDEMOGRAPHICS)) != null) //TODO
                     System.out.println(turn.getResearchingTechnology());
-                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showNOTIFICATIONS)) != null) //TODO
-                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showNOTIFICATIONS)) != null) //done
+                    if(turn.getNotifications().size() == 0) System.out.println(mainCommands.nothing.regex);
+                    else
+                    {
+                        for(int i = 0; i < turn.getNotifications().size(); i++)
+                            System.out.println(i + ": " + turn.getNotifications().get(i).getMessage());
+                    }
                 else if ((matcher = gameEnum.compareRegex(command, gameEnum.showMILITARY)) != null) //TODO
                     System.out.println(turn.getResearchingTechnology());
                 else if ((matcher = gameEnum.compareRegex(command, gameEnum.showECONOMIC)) != null) //TODO
@@ -94,8 +117,9 @@ public class gameMenuView
                 else
                     System.out.println(mainCommands.invalidCommand.regex);
             }
-            num = (num + 1) % players.length;
-            System.out.println(turn.getTechnologies());
+
+            //next turn
+            num = (num + 1) % players.size();
         }
     }
 

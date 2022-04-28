@@ -13,8 +13,6 @@ public enum Civilization
 	OTTOMAN("Suleiman"),
 	RUSSIAN("Catherine");
 
-
-	
 	public final String leaderName;
 	
 	Civilization(String leaderName)

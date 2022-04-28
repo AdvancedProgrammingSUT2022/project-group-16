@@ -15,6 +15,7 @@ import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Worker;
+import Models.Units.Unit;
 import Models.User;
 import Views.gameMenuView;
 import enums.cheatCode;
@@ -246,7 +247,7 @@ public class GameController
 		return newArr;
 	}
 
-	private static Civilization findCivilByNumber(int number)
+	public static Civilization findCivilByNumber(int number)
 	{
 		if(number == 1) return Civilization.AMERICAN;
 		if(number == 2) return Civilization.ARABIAN;
@@ -261,10 +262,33 @@ public class GameController
 		return null;
 	}
 
-	public static Player pickCivilization(User user, Scanner scanner, GameController gameController, int number)
+	//DOC commands
+	public static String showResearch(Player player)
 	{
-		return new Player(findCivilByNumber(number), user.getUsername(), user.getNickname(), user.getPassword(), gameController);
+		if(player.getResearchingTechnology() == null)
+			return mainCommands.nothing.regex;
+		return player.getResearchingTechnology().toString();
 	}
 
-	
+	public static String pickCivilization(ArrayList<Player> players, User[] users, Scanner scanner, GameController gameController, int num, int i)
+	{
+		if(num > 10 || num < 1)
+			return gameEnum.between1And10.regex;
+		else if(inArr(players, findCivilByNumber(num)))
+			return gameEnum.alreadyPicked.regex;
+		else
+			return gameEnum.chooseCivilization.regex + Civilization.values()[num - 1];
+
+	}
+
+	public static boolean inArr(ArrayList<Player> player, Civilization n)
+	{
+		for(int i = 0; i < player.size(); i++)
+		{
+			if(player.get(i).getCivilization() == n)
+				return true;
+		}
+		return false;
+	}
+
 }

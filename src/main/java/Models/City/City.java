@@ -37,6 +37,10 @@ public class City
 	{
 	
 	}
+
+	public Tile getCapitalTile() {
+		return capitalTile;
+	}
 }
 
 
