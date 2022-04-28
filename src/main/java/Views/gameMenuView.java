@@ -3,6 +3,8 @@ package Views;
 import Controllers.GameController;
 import Controllers.MainMenuController;
 import Controllers.RegisterController;
+import Models.Player.Civilization;
+import Models.Player.Player;
 import Models.User;
 import enums.cheatCode;
 import enums.gameEnum;
@@ -20,37 +22,81 @@ public class gameMenuView
     public static void startGame(Scanner scanner, HashMap<String,String> Map)
     {
         GameController gameController = GameController.getInstance();
-        String command;
         Matcher matcher;
+        Player turn;
 
-        User[] players = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
+        User[] tmpUsers = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
 
-        while (scanner.hasNextLine())
+        Player[] players = new Player[tmpUsers.length];
+
+        for(int i = 0; i < tmpUsers.length; i++)
         {
-            command = scanner.nextLine();
-
-            //cheat codes
-            if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
-                System.out.println(GameController.increaseGold(matcher));
-            else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null)
-                System.out.println(GameController.increaseTurns(matcher));
-            else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
-                System.out.println(GameController.increaseFood(matcher));
-            else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
-                System.out.println(GameController.addTechnology(matcher));
-            else if ((matcher = cheatCode.compareRegex(command, cheatCode.winBattle)) != null)
-                System.out.println(GameController.winBattle(matcher));
-            else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
-                System.out.println(GameController.moveUnit(matcher));
-            else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
-            {
-                System.out.println(mainCommands.endGame.regex);
-                break;
-            }
-            else
-                System.out.println(mainCommands.invalidCommand.regex);
+            System.out.println(tmpUsers[i].getUsername() + gameEnum.pickCivilization.regex);
+            System.out.println(gameEnum.AMERICAN.regex);
+            System.out.println(gameEnum.ARABIAN.regex);
+            System.out.println(gameEnum.ASSYRIAN.regex);
+            System.out.println(gameEnum.CHINESE.regex);
+            System.out.println(gameEnum.GERMAN.regex);
+            System.out.println(gameEnum.GREEK.regex);
+            System.out.println(gameEnum.MAYAN.regex);
+            System.out.println(gameEnum.PERSIAN.regex);
+            System.out.println(gameEnum.OTTOMAN.regex);
+            System.out.println(gameEnum.RUSSIAN.regex);
+            int number = scanner.nextInt();
+            players[i] = GameController.pickCivilization(tmpUsers[i], scanner, gameController, number);
+            System.out.println(gameEnum.chooseCivilization.regex + Civilization.values()[number - 1]);
         }
-        //TODO:start new game with players and loggedIn player
+
+        int num = 0;
+        while (true)
+        {
+            turn = players[num];
+
+            while (scanner.hasNextLine()) {
+                String command = scanner.nextLine();
+
+                //cheat codes
+                if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //done
+                    System.out.println(GameController.increaseGold(matcher, turn));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //TODO
+                    System.out.println(GameController.increaseTurns(matcher, turn));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null) //done
+                    System.out.println(GameController.increaseFood(matcher, turn));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null) //done
+                    System.out.println(GameController.addTechnology(matcher, turn));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.winBattle)) != null) //TODO
+                    System.out.println(GameController.winBattle(matcher, turn));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null) //TODO
+                    System.out.println(GameController.moveUnit(matcher, turn));
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showResearch)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showUnits)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showCities)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showDiplomacy)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showVictory)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showDEMOGRAPHICS)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showNOTIFICATIONS)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showMILITARY)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showECONOMIC)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showDIPLOMATIC)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if ((matcher = gameEnum.compareRegex(command, gameEnum.showDEALS)) != null) //TODO
+                    System.out.println(turn.getResearchingTechnology());
+                else if(command.equals("end")) break;
+                else
+                    System.out.println(mainCommands.invalidCommand.regex);
+            }
+            num = (num + 1) % players.length;
+            System.out.println(turn.getTechnologies());
+        }
     }
 
     public static void run()

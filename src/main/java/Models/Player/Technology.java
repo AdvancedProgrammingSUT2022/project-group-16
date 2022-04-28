@@ -1,6 +1,7 @@
 package Models.Player;
 
 import java.util.ArrayList;
+
 public enum Technology
 {
 	AGRICULTURE(20),

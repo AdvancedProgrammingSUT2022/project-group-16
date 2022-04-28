@@ -2,6 +2,7 @@ package Controllers;
 
 import Controllers.Utilities.MapPrinter;
 import Models.Game.Position;
+import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Menu.Menu;
 import Models.Player.Player;
@@ -183,40 +184,42 @@ public class GameController
 	}
 
 	//cheat codes
-	public static String increaseGold(Matcher matcher)
+	public static String increaseGold(Matcher matcher, Player player)
+	{
+		int amount = Integer.parseInt(matcher.group("amount"));
+		player.setGold(player.getGold() + amount);
+		return cheatCode.successful.regex;
+	}
+	public static String increaseFood(Matcher matcher, Player player)
+	{
+		int amount = Integer.parseInt(matcher.group("amount"));
+		player.setFood(player.getFood() + amount);
+		return cheatCode.successful.regex;
+	}
+	public static String increaseTurns(Matcher matcher, Player player)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		return cheatCode.successful.regex;
 	}
-	public static String increaseFood(Matcher matcher)
+	public static String addTechnology(Matcher matcher, Player player)
 	{
-		int amount = Integer.parseInt(matcher.group("amount"));
+		player.getTechnologies().add(Technology.valueOf(matcher.group("name")));
+		player.setTechnologies(player.getTechnologies());
 		return cheatCode.successful.regex;
 	}
-	public static String increaseTurns(Matcher matcher)
-	{
-		int amount = Integer.parseInt(matcher.group("amount"));
-		return cheatCode.successful.regex;
-	}
-	public static String addTechnology(Matcher matcher)
-	{
-		String technology = matcher.group("name");
-		return cheatCode.successful.regex;
-	}
-	public static String winBattle(Matcher matcher)
+	public static String winBattle(Matcher matcher, Player player)
 	{
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		//TODO:win battle
 		return cheatCode.successful.regex;
 	}
-	public static String moveUnit(Matcher matcher)
+	public static String moveUnit(Matcher matcher, Player player)
 	{
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
-		//TODO:move unit
 		return cheatCode.successful.regex;
 	}
 
@@ -241,6 +244,26 @@ public class GameController
 		for(int i = 1; i < players.size() + 1; i++)
 			newArr[i] = RegisterController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
 		return newArr;
+	}
+
+	private static Civilization findCivilByNumber(int number)
+	{
+		if(number == 1) return Civilization.AMERICAN;
+		if(number == 2) return Civilization.ARABIAN;
+		if(number == 3) return Civilization.ASSYRIAN;
+		if(number == 4) return Civilization.CHINESE;
+		if(number == 5) return Civilization.GERMAN;
+		if(number == 6) return Civilization.GREEK;
+		if(number == 7) return Civilization.MAYAN;
+		if(number == 8) return Civilization.PERSIAN;
+		if(number == 9) return Civilization.OTTOMAN;
+		if(number == 10) return Civilization.RUSSIAN;
+		return null;
+	}
+
+	public static Player pickCivilization(User user, Scanner scanner, GameController gameController, int number)
+	{
+		return new Player(findCivilByNumber(number), user.getUsername(), user.getNickname(), user.getPassword(), gameController);
 	}
 
 	
