@@ -30,7 +30,8 @@ public enum mainCommands
     weakPass("password is weak"),
     weakNewPass("new password is weak"),
     navigationError("menu navigation is not possible"),
-    nothing("nothing");
+    nothing("nothing"),
+    pickBetween("please pick a number between ");
 
     public final String regex;
 

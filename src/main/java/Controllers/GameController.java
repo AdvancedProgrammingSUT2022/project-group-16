@@ -291,4 +291,144 @@ public class GameController
 		return false;
 	}
 
+	public static void selectUnitCombat(Position position)
+	{
+
+	}
+	public static void selectUnitNonCombat(Position position)
+	{
+
+	}
+	public static void selectCityName(String name)
+	{
+
+	}
+	public static void selectCityPosition(Position position)
+	{
+
+	}
+	public static void moveUnit(Position position)
+	{
+
+	}
+	public static void sleep()
+	{
+
+	}
+	public static void alert()
+	{
+
+	}
+	public static void fortify()
+	{
+
+	}
+	public static void fortifyTilHeal()
+	{
+
+	}
+	public static void garrison()
+	{
+
+	}
+	public static void setup()
+	{
+
+	}
+	public static void attack(Position position)
+	{
+
+	}
+	public static void found()
+	{
+
+	}
+	public static void cancel()
+	{
+
+	}
+	public static void wake()
+	{
+
+	}
+	public static void delete()
+	{
+
+	}
+	public static void road()
+	{
+
+	}
+	public static void railRoad()
+	{
+
+	}
+	public static void farm()
+	{
+
+	}
+	public static void mine()
+	{
+
+	}
+	public static void tradingPost()
+	{
+
+	}
+	public static void lumberMill()
+	{
+
+	}
+	public static void pasture()
+	{
+
+	}
+	public static void camp()
+	{
+
+	}
+	public static void plantation()
+	{
+
+	}
+	public static void quarry()
+	{
+
+	}
+	public static void removeJungle()
+	{
+
+	}
+	public static void removeRoute()
+	{
+
+	}
+	public static void repair()
+	{
+
+	}
+	public static void mapShowPosition()
+	{
+
+	}
+	public static void mapShowCityName()
+	{
+
+	}
+	public static void mapMoveRight(int moves)
+	{
+
+	}
+	public static void mapMoveLeft(int moves)
+	{
+
+	}
+	public static void mapMoveUp(int moves)
+	{
+
+	}
+	public static void mapMoveDown(int moves)
+	{
+
+	}
 }

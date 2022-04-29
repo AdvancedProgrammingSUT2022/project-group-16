@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 public abstract class Unit
 {
-
 	private Player rulerPlayer;
 	private int productionCost;
 	private int movementPoints;

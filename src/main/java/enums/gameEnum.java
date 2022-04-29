@@ -10,17 +10,6 @@ public enum gameEnum
     startGame("^\\s*play\\s+game.*$"),
     newPlayer("^ --player(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
     shortNewPlayer("^ -p(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
-    showResearch("^\\s*[sS]how\\s+[rR]esearch\\s*"),
-    showUnits("^\\s*[sS]how\\s+[uU]nits\\s*"),
-    showCities("^\\s*[sS]how\\s+[cC]ities\\s*"),
-    showDiplomacy("^\\s*[sS]how\\s+[dD]iplomacy\\s*"),
-    showVictory("^\\s*[sS]how\\s+[vV]ictory\\s*"),
-    showDEMOGRAPHICS("^\\s*[sS]how\\s+[dD]emographics\\s*"),
-    showNOTIFICATIONS("^\\s*[sS]how\\s+[nN]otifications\\s*"),
-    showMILITARY("^\\s*[sS]how\\s+[mM]ilitary\\s*"),
-    showECONOMIC("^\\s*[sS]how\\s+[eE]conomic\\s*"),
-    showDIPLOMATIC("^\\s*[sS]how\\s+[dD]iplomatic\\s*"),
-    showDEALS("^\\s*[sS]how\\s+[dD]eals\\s*"),
 
     //messages
     numberOfPlayers("invalid number of players"),
@@ -42,7 +31,11 @@ public enum gameEnum
     pickCivilization(", please pick your Civilization!\n"),
     chooseCivilization("you chose "),
     between1And10("please pick a number between 1 and 10"),
-    alreadyPicked("already picked, please choose another one");
+    alreadyPicked("already picked, please choose another one"),
+    info("^\\s*[iI]nfo\\s*"),
+    select("^\\s*[sS]elect\\s*"),
+    unit("^\\s*[uU]nit\\s*"),
+    map("^\\s*[mM]ap\\s*");
 
     public final String regex;
 
