@@ -61,6 +61,7 @@ public class gameMenuView
         while (true)
         {
             playerTurn = players.get(num);
+            System.out.println(playerTurn.getUsername() + gameEnum.turn.regex);
 
             while (scanner.hasNextLine()) {
                 String command = scanner.nextLine();
@@ -95,10 +96,10 @@ public class gameMenuView
                     System.out.println(infoCommands.showDEALS.regex);
 
                     int number = scanner.nextInt();
-                    if(number > 11 || number < 1)
+                    while (number > 11 || number < 1)
                     {
                         System.out.println(mainCommands.pickBetween.regex + "1 and 11");
-                        break;
+                        number = scanner.nextInt();
                     }
                     switch (number % 11)
                     {
@@ -145,11 +146,12 @@ public class gameMenuView
                     System.out.println(selectCommands.city.regex);
 
                     int number = scanner.nextInt();
-                    if(number > 2 || number < 1)
+                    while (number > 2 || number < 1)
                     {
                         System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                        break;
+                        number = scanner.nextInt();
                     }
+
                     switch (number % 2)
                     {
                         case 1 ->
@@ -158,11 +160,12 @@ public class gameMenuView
                                     System.out.println(selectCommands.nonCombat.regex);
 
                                     int tmp = scanner.nextInt();
-                                    if(tmp > 2 || tmp < 1)
+                                    while (tmp > 2 || tmp < 1)
                                     {
                                         System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                                        break;
+                                        tmp = scanner.nextInt();
                                     }
+
                                     System.out.println(unitCommands.position.regex);
                                     System.out.println(unitCommands.x.regex);
                                     int x = scanner.nextInt();
@@ -182,10 +185,10 @@ public class gameMenuView
 
                                     int tmp = scanner.nextInt();
 
-                                    if(tmp > 2 || tmp < 1)
+                                    while (tmp > 2 || tmp < 1)
                                     {
                                         System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                                        break;
+                                        tmp = scanner.nextInt();
                                     }
 
                                     switch (tmp % 2)
@@ -230,10 +233,10 @@ public class gameMenuView
                     System.out.println(unitCommands.repair.regex);
 
                     int number = scanner.nextInt();
-                    if(number > 15 || number < 1)
+                    while (number > 15 || number < 1)
                     {
                         System.out.println(mainCommands.pickBetween.regex + "1 and 15");
-                        break;
+                        number = scanner.nextInt();
                     }
                     switch(number % 15)
                     {
@@ -279,11 +282,12 @@ public class gameMenuView
                                     System.out.println(unitCommands.quarry.regex);
 
                                     int tmp = scanner.nextInt();
-                                    if(tmp > 10 || tmp < 1)
+                                    while (tmp > 10 || tmp < 1)
                                     {
                                         System.out.println(mainCommands.pickBetween.regex + "1 and 10");
-                                        break;
+                                        tmp = scanner.nextInt();
                                     }
+
                                     switch (tmp % 10)
                                     {
                                         case 1 -> GameController.road();
@@ -304,7 +308,11 @@ public class gameMenuView
                                     System.out.println(unitCommands.route.regex);
 
                                     int tmp = scanner.nextInt();
-
+                                    while (tmp > 2 || tmp < 1)
+                                    {
+                                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
+                                        tmp = scanner.nextInt();
+                                    }
                                     switch (tmp % 2)
                                     {
                                         case 1 -> GameController.removeJungle();
@@ -323,6 +331,11 @@ public class gameMenuView
                     System.out.println(mapCommands.move.regex);
 
                     int number = scanner.nextInt();
+                    while (number > 2 || number < 1)
+                    {
+                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
+                        number = scanner.nextInt();
+                    }
 
                     switch (number % 2)
                     {
@@ -332,11 +345,29 @@ public class gameMenuView
                                     System.out.println(mapCommands.byCityName.regex);
 
                                     int tmp = scanner.nextInt();
+                                    while (tmp > 2 || tmp < 1)
+                                    {
+                                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
+                                        tmp = scanner.nextInt();
+                                    }
 
                                     switch (tmp % 2)
                                     {
-                                        case 1 -> GameController.mapShowPosition();
-                                        case 0 -> GameController.mapShowCityName();
+                                        case 1 ->
+                                                {
+                                                    System.out.println(unitCommands.position.regex);
+                                                    System.out.println(unitCommands.x.regex);
+                                                    int x = scanner.nextInt();
+                                                    System.out.println(unitCommands.y.regex);
+                                                    int y = scanner.nextInt();
+                                                    GameController.mapShowPosition(new Position(x, y));
+                                                }
+                                        case 0 ->
+                                                {
+                                                    System.out.println(selectCommands.cityName.regex);
+                                                    String name = scanner.nextLine();
+                                                    GameController.mapShowCityName(name);
+                                                }
                                     }
                                 }
                         case 0 ->
@@ -347,6 +378,12 @@ public class gameMenuView
                                     System.out.println(mapCommands.Down.regex);
 
                                     int tmp = scanner.nextInt();
+
+                                    while (tmp > 4 || tmp < 1)
+                                    {
+                                        System.out.println(mainCommands.pickBetween.regex + "1 and 4");
+                                        tmp = scanner.nextInt();
+                                    }
 
                                     System.out.println(mapCommands.numberOfMoves.regex);
                                     int moves = scanner.nextInt();

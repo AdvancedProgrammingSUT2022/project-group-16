@@ -407,11 +407,11 @@ public class GameController
 	{
 
 	}
-	public static void mapShowPosition()
+	public static void mapShowPosition(Position position)
 	{
 
 	}
-	public static void mapShowCityName()
+	public static void mapShowCityName(String name)
 	{
 
 	}

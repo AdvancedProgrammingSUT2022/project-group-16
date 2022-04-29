@@ -35,7 +35,8 @@ public enum gameEnum
     info("^\\s*[iI]nfo\\s*"),
     select("^\\s*[sS]elect\\s*"),
     unit("^\\s*[uU]nit\\s*"),
-    map("^\\s*[mM]ap\\s*");
+    map("^\\s*[mM]ap\\s*"),
+    turn("'s turn");
 
     public final String regex;
 
