@@ -46,12 +46,19 @@ public class gameMenuView
             System.out.println(gameEnum.PERSIAN.regex);
             System.out.println(gameEnum.OTTOMAN.regex);
             System.out.println(gameEnum.RUSSIAN.regex);
-            int number;
+            int number = 0;
             do
             {
-                number = scanner.nextInt();
+                number = 0;
+                while (number == 0)
+                {
+                    number = GameController.getNum(scanner, 1, 10);
+                    if(number == 0)
+                        System.out.println(mainCommands.pickBetween.regex + "1 and 10");
+                }
                 System.out.println(GameController.pickCivilization(players, tmpUsers, scanner, gameController, number, i));
             } while (number > 10 || number < 1 || GameController.inArr(players, GameController.findCivilByNumber(number)));
+
             players.add(new Player(GameController.findCivilByNumber(number), tmpUsers[i].getUsername(),
                     tmpUsers[i].getNickname(), tmpUsers[i].getPassword(), gameController));
         }
@@ -410,6 +417,8 @@ public class gameMenuView
                     }
                 }
                 else if(command.equals("end")) break;
+                else
+                    System.out.println(mainCommands.invalidCommand.regex);
             }
 
             //next turn
