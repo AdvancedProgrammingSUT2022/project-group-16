@@ -27,7 +27,7 @@ public class gameMenuView
         Matcher matcher;
         Player playerTurn;
         Tile selectedTile;
-        Unit selectedUnit;
+        Unit selectedUnit = null;
 
         User[] tmpUsers = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
 
@@ -95,12 +95,14 @@ public class gameMenuView
                     System.out.println(infoCommands.showDIPLOMATIC.regex);
                     System.out.println(infoCommands.showDEALS.regex);
 
-                    int number = scanner.nextInt();
-                    while (number > 11 || number < 1)
+                    int number = 0;
+                    while (number == 0)
                     {
-                        System.out.println(mainCommands.pickBetween.regex + "1 and 11");
-                        number = scanner.nextInt();
+                        number = GameController.getNum(scanner, 1, 11);
+                        if(number == 0)
+                            System.out.println(mainCommands.pickBetween.regex + "1 and 11");
                     }
+
                     switch (number % 11)
                     {
                         case 1 -> System.out.println(GameController.showResearch(playerTurn)); //done (show research)
@@ -145,11 +147,12 @@ public class gameMenuView
                     System.out.println(selectCommands.unit.regex);
                     System.out.println(selectCommands.city.regex);
 
-                    int number = scanner.nextInt();
-                    while (number > 2 || number < 1)
+                    int number = 0;
+                    while (number == 0)
                     {
-                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                        number = scanner.nextInt();
+                        number = GameController.getNum(scanner,1, 2);
+                        if(number == 0)
+                            System.out.println(mainCommands.pickBetween.regex + "1 and 2");
                     }
 
                     switch (number % 2)
@@ -159,11 +162,12 @@ public class gameMenuView
                                     System.out.println(selectCommands.combat.regex);
                                     System.out.println(selectCommands.nonCombat.regex);
 
-                                    int tmp = scanner.nextInt();
-                                    while (tmp > 2 || tmp < 1)
+                                    int tmp = 0;
+                                    while (tmp == 0)
                                     {
-                                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                                        tmp = scanner.nextInt();
+                                        tmp = GameController.getNum(scanner,1, 2);
+                                        if(tmp == 0)
+                                            System.out.println(mainCommands.pickBetween.regex + "1 and 2");
                                     }
 
                                     System.out.println(unitCommands.position.regex);
@@ -183,12 +187,12 @@ public class gameMenuView
                                     System.out.println(selectCommands.name.regex);
                                     System.out.println(selectCommands.position.regex);
 
-                                    int tmp = scanner.nextInt();
-
-                                    while (tmp > 2 || tmp < 1)
+                                    int tmp = 0;
+                                    while (tmp == 0)
                                     {
-                                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                                        tmp = scanner.nextInt();
+                                        tmp = GameController.getNum(scanner,1, 2);
+                                        if(tmp == 0)
+                                            System.out.println(mainCommands.pickBetween.regex + "1 and 2");
                                     }
 
                                     switch (tmp % 2)
@@ -232,12 +236,14 @@ public class gameMenuView
                     System.out.println(unitCommands.remove.regex);
                     System.out.println(unitCommands.repair.regex);
 
-                    int number = scanner.nextInt();
-                    while (number > 15 || number < 1)
+                    int number = 0;
+                    while (number == 0)
                     {
-                        System.out.println(mainCommands.pickBetween.regex + "1 and 15");
-                        number = scanner.nextInt();
+                        number = GameController.getNum(scanner,1, 15);
+                        if(number == 0)
+                            System.out.println(mainCommands.pickBetween.regex + "1 and 15");
                     }
+
                     switch(number % 15)
                     {
                         case 1 ->
@@ -249,7 +255,7 @@ public class gameMenuView
                                     int y = scanner.nextInt();
                                     GameController.moveUnit(new Position(x, y));
                                 }
-                        case 2 -> GameController.sleep();
+                        case 2 -> GameController.sleep(playerTurn, selectedUnit);
                         case 3 -> GameController.alert();
                         case 4 -> GameController.fortify();
                         case 5 -> GameController.fortifyTilHeal();
@@ -281,11 +287,12 @@ public class gameMenuView
                                     System.out.println(unitCommands.plantation.regex);
                                     System.out.println(unitCommands.quarry.regex);
 
-                                    int tmp = scanner.nextInt();
-                                    while (tmp > 10 || tmp < 1)
+                                    int tmp = 0;
+                                    while (tmp == 0)
                                     {
-                                        System.out.println(mainCommands.pickBetween.regex + "1 and 10");
-                                        tmp = scanner.nextInt();
+                                        tmp = GameController.getNum(scanner,1, 10);
+                                        if(tmp == 0)
+                                            System.out.println(mainCommands.pickBetween.regex + "1 and 10");
                                     }
 
                                     switch (tmp % 10)
@@ -307,12 +314,14 @@ public class gameMenuView
                                     System.out.println(unitCommands.jungle.regex);
                                     System.out.println(unitCommands.route.regex);
 
-                                    int tmp = scanner.nextInt();
-                                    while (tmp > 2 || tmp < 1)
+                                    int tmp = 0;
+                                    while (tmp == 0)
                                     {
-                                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                                        tmp = scanner.nextInt();
+                                        tmp = GameController.getNum(scanner,1, 2);
+                                        if(tmp == 0)
+                                            System.out.println(mainCommands.pickBetween.regex + "1 and 2");
                                     }
+
                                     switch (tmp % 2)
                                     {
                                         case 1 -> GameController.removeJungle();
@@ -330,11 +339,12 @@ public class gameMenuView
                     System.out.println(mapCommands.show.regex);
                     System.out.println(mapCommands.move.regex);
 
-                    int number = scanner.nextInt();
-                    while (number > 2 || number < 1)
+                    int number = 0;
+                    while (number == 0)
                     {
-                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                        number = scanner.nextInt();
+                        number = GameController.getNum(scanner,1, 2);
+                        if(number == 0)
+                            System.out.println(mainCommands.pickBetween.regex + "1 and 2");
                     }
 
                     switch (number % 2)
@@ -344,11 +354,12 @@ public class gameMenuView
                                     System.out.println(mapCommands.byPosition.regex);
                                     System.out.println(mapCommands.byCityName.regex);
 
-                                    int tmp = scanner.nextInt();
-                                    while (tmp > 2 || tmp < 1)
+                                    int tmp = 0;
+                                    while (tmp == 0)
                                     {
-                                        System.out.println(mainCommands.pickBetween.regex + "1 and 2");
-                                        tmp = scanner.nextInt();
+                                        tmp = GameController.getNum(scanner,1, 2);
+                                        if(tmp == 0)
+                                            System.out.println(mainCommands.pickBetween.regex + "1 and 2");
                                     }
 
                                     switch (tmp % 2)
@@ -377,12 +388,12 @@ public class gameMenuView
                                     System.out.println(mapCommands.Up.regex);
                                     System.out.println(mapCommands.Down.regex);
 
-                                    int tmp = scanner.nextInt();
-
-                                    while (tmp > 4 || tmp < 1)
+                                    int tmp = 0;
+                                    while (tmp == 0)
                                     {
-                                        System.out.println(mainCommands.pickBetween.regex + "1 and 4");
-                                        tmp = scanner.nextInt();
+                                        tmp = GameController.getNum(scanner,1, 4);
+                                        if(tmp == 0)
+                                            System.out.println(mainCommands.pickBetween.regex + "1 and 4");
                                     }
 
                                     System.out.println(mapCommands.numberOfMoves.regex);

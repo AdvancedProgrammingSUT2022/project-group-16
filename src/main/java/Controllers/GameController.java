@@ -291,6 +291,27 @@ public class GameController
 		return false;
 	}
 
+	public static int getNum(Scanner scanner, int min, int max)
+	{
+		int number = 0;
+		String tmpNumber = scanner.nextLine();
+		if(GameController.isValid(tmpNumber))
+			number = Integer.parseInt(tmpNumber);
+		if(number > max || number < min)
+			number = 0;
+		return number;
+	}
+
+	public static boolean isValid(String n)
+	{
+		for(int i = 0; i < n.length(); i++)
+		{
+			if(n.charAt(i) > 57 || n.charAt(i) < 48)
+				return false;
+		}
+		return true;
+	}
+
 	public static void selectUnitCombat(Position position)
 	{
 
@@ -311,7 +332,7 @@ public class GameController
 	{
 
 	}
-	public static void sleep()
+	public static void sleep(Player player, Unit unit)
 	{
 
 	}
