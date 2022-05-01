@@ -53,7 +53,7 @@ public class gameMenuView
                 System.out.println(GameController.pickCivilization(players, tmpUsers, scanner, gameController, number, i));
             } while (number > 10 || number < 1 || GameController.inArr(players, GameController.findCivilByNumber(number)));
             players.add(new Player(GameController.findCivilByNumber(number), tmpUsers[i].getUsername(),
-                    tmpUsers[i].getNickname(), tmpUsers[i].getPassword(), gameController));
+                    tmpUsers[i].getNickname(), tmpUsers[i].getPassword()));
         }
 
         int num = 0;
