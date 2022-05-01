@@ -1,2 +1,4 @@
-package Models.City;public interface Constructable {
+package Models.City;
+
+public interface Constructable {
 }

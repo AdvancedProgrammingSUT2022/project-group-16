@@ -1,7 +1,7 @@
 package Models.City;
 
 import Models.Game.Position;
-public class Building
+public class Building implements Constructable
 {
 	private BuildingType buildingType;
 	private Position position;
