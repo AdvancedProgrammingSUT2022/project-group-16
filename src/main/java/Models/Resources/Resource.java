@@ -1,6 +1,8 @@
 package Models.Resources;
 
-public abstract class Resource
+import Models.City.Product;
+
+public abstract class Resource implements Product
 {
 	protected final ResourceType RESOURCE_TYPE;
 	

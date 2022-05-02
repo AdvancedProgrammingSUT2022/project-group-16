@@ -13,7 +13,7 @@ class MapPrinterTest
 	public MapPrinterTest()
 	{
 		gameController = GameController.getInstance();
-		player = new Player(Civilization.PERSIAN, "DashReza7", "Reza", "Password1@", gameController);
+		player = new Player(Civilization.PERSIAN, "DashReza7", "Reza", "Password1@");
 	}
 	
 	@Test

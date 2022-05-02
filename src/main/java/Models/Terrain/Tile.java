@@ -19,6 +19,7 @@ public class Tile
 	private CombatUnit combatUnitInTile;
 	private NonCombatUnit nonCombatUnitInTile;
 	boolean isPillaged;
+	boolean isRuined; //not sure if it should be boolean
 	
 	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource,
 	            Improvement improvement, CombatUnit combatUnitInTile, NonCombatUnit nonCombatUnitInTile)
@@ -96,6 +97,9 @@ public class Tile
 	public Position getPosition()
 	{
 		return position;
+	}
+	public void improveTile(){
+
 	}
 	// TODO: override equals???
 	@Override
