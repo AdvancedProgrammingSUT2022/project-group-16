@@ -13,7 +13,6 @@ import java.util.*;
 
 public class Player extends User
 {
-	private final GameController gameController;
 	private Civilization civilization;
 	private int food;
 	private int gold;
@@ -30,7 +29,7 @@ public class Player extends User
 	//	Unit selectedUnit;  //??TODO probably unnecessary
 	
 
-	public Player(Civilization civilization, String username, String nickname, String password, GameController gameController)
+	public Player(Civilization civilization, String username, String nickname, String password)
 	{
 		super(username, nickname, password);
 		this.civilization = civilization;
@@ -42,9 +41,8 @@ public class Player extends User
 		cities = new ArrayList<>();
 		notifications = new Stack<>();
 		units = new ArrayList<Unit>();
-		this.gameController = gameController;
 		map = new HashMap<>();
-		for(Tile tile : gameController.getMap())
+		for(Tile tile : GameController.getInstance().getMap())
 			map.put(tile, TileState.FOG_OF_WAR);
 		setTileStates();
 	}

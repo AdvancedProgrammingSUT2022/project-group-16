@@ -14,6 +14,7 @@ public class City
 	int goldYield;
 	ArrayList<Building> buildings;
 	ArrayList<Citizen> citizens;
+	Constructable currentConstruction = null;
 	Player rulerPlayer;
 	
 	public City(Tile capitalTile, Player rulerPlayer)
