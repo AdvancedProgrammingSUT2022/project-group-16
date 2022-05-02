@@ -107,6 +107,9 @@ public class Player extends User
 	{
 		return map;
 	}
+	public void addCity(City newCity) {
+		cities.add(newCity);
+	}
 	public void setMap(ArrayList<Tile> map)
 	{
 		// TODO
@@ -187,6 +190,9 @@ public class Player extends User
 		//		for(Map.Entry<Tile, TileState> entry : map.entrySet())
 		//			map.replace(entry.getKey(), TileState.FOG_OF_WAR);
 	}
+
+
+
 }
 
 

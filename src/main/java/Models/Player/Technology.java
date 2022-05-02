@@ -1,8 +1,10 @@
 package Models.Player;
 
+import Models.City.Product;
+
 import java.util.ArrayList;
 
-public enum Technology
+public enum Technology implements Product
 {
 	AGRICULTURE(20),
 	ANIMAL_HUSBANDRY(35),
