@@ -16,4 +16,9 @@ public class MidRange extends CombatUnit{
     {
         return type.name();
     }
+
+    @Override
+    protected void move() {
+
+    }
 }

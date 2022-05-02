@@ -16,4 +16,9 @@ public class LongRange extends CombatUnit{
     {
         return type.name();
     }
+
+    @Override
+    protected void move() {
+
+    }
 }
