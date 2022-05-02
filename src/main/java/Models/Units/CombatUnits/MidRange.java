@@ -2,12 +2,18 @@ package Models.Units.CombatUnits;
 
 public class MidRange extends CombatUnit{
     private MidRangeType type;
+
+    public MidRange(MidRangeType type){
+        this.type = type;
+    }
+    
     private void pillage(){
 
     }
-
+    
     @Override
-    protected void move() {
-
+    public String toString()
+    {
+        return type.name();
     }
 }

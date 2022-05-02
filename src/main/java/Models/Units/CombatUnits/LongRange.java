@@ -2,12 +2,18 @@ package Models.Units.CombatUnits;
 
 public class LongRange extends CombatUnit{
     private LongRangeType type;
+
+    public LongRange(LongRangeType type){
+        this.type = type;
+    }
+    
     private void getReadyToFight(){
 
     }
-
+    
     @Override
-    protected void move() {
-
+    public String toString()
+    {
+        return type.name();
     }
 }
