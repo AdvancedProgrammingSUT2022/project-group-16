@@ -17,10 +17,12 @@ public class City
 	int goldYield;
 	ArrayList<Building> buildings;
 	ArrayList<Citizen> citizens;
+	ArrayList<Tile> workingTiles;
 	Constructable currentConstruction = null;
 	Product currentProduct = null; //what the city is producing
 	CombatUnit garrison = null ;
 	NonCombatUnit nonCombatUnit = null;
+	int combatStrength;
 	Player rulerPlayer;
 	
 	public City(Tile capitalTile, Player rulerPlayer)

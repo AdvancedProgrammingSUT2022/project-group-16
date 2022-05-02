@@ -98,6 +98,9 @@ public class Tile
 	{
 		return position;
 	}
+	public void improveTile(){
+
+	}
 	// TODO: override equals???
 	@Override
 	protected Object clone() throws CloneNotSupportedException
