@@ -25,6 +25,7 @@ public abstract class Unit implements Constructable
 	private boolean isActive;
 	private boolean isSleep;
 
+
 	public Player getRulerPlayer() {
 		return rulerPlayer;
 	}

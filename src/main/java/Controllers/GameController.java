@@ -19,6 +19,8 @@ import Models.Units.Unit;
 import Models.User;
 import Views.gameMenuView;
 import enums.cheatCode;
+import enums.gameCommands.mapCommands;
+import enums.gameCommands.selectCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 
@@ -262,14 +264,6 @@ public class GameController
 		return null;
 	}
 
-	//DOC commands
-	public static String showResearch(Player player)
-	{
-		if(player.getResearchingTechnology() == null)
-			return mainCommands.nothing.regex;
-		return player.getResearchingTechnology().toString();
-	}
-
 	public static String pickCivilization(ArrayList<Player> players, User[] users, Scanner scanner, GameController gameController, int num, int i)
 	{
 		if(num > 10 || num < 1)
@@ -312,27 +306,76 @@ public class GameController
 		return true;
 	}
 
-	public static void selectUnitCombat(Position position)
+	private static boolean validPos(int x, int y)
+	{
+		return x < getInstance().MAX_MAP_SIZE && y < getInstance().MAX_MAP_SIZE && x >= 0 && y >= 0;
+	}
+
+	//DOC commands
+	public static String showResearch(Player player)
+	{
+		if(player.getResearchingTechnology() == null)
+			return mainCommands.nothing.regex;
+		return player.getResearchingTechnology().toString();
+	}
+
+	public static void showUnits(Player player)
 	{
 
 	}
-	public static void selectUnitNonCombat(Position position)
+	public static void showCities(Player player)
 	{
 
 	}
-	public static void selectCityName(String name)
+	public static void showDiplomacy(Player player)
 	{
 
 	}
-	public static void selectCityPosition(Position position)
+	public static void showVictory(Player player)
 	{
 
 	}
-	public static void moveUnit(Position position)
+	public static void showDemographics(Player player)
 	{
 
 	}
-	public static void sleep(Player player, Unit unit)
+	public static void showNotifications(Player player)
+	{
+
+	}
+	public static void showMilitary(Player player)
+	{
+
+	}
+	public static void showEconomic(Player player)
+	{
+
+	}
+	public static void showDiplomatic(Player player)
+	{
+
+	}
+	public static void showDeals(Player player)
+	{
+
+	}
+	public static void selectUnitCombat()
+	{
+
+	}
+	public static void selectUnitNonCombat()
+	{
+
+	}
+	public static void selectCity()
+	{
+
+	}
+	public static void moveUnit()
+	{
+
+	}
+	public static void sleep()
 	{
 
 	}
@@ -356,7 +399,7 @@ public class GameController
 	{
 
 	}
-	public static void attack(Position position)
+	public static void attack()
 	{
 
 	}
@@ -428,28 +471,40 @@ public class GameController
 	{
 
 	}
-	public static void mapShowPosition(Position position)
+
+	public static void mapShow()
 	{
 
 	}
-	public static void mapShowCityName(String name)
+	public static void mapMoveRight(String command)
 	{
-
+		int number = getMoves(command);
+		//TODO
 	}
-	public static void mapMoveRight(int moves)
+	public static void mapMoveLeft(String command)
 	{
-
+		int number = getMoves(command);
+		//TODO
 	}
-	public static void mapMoveLeft(int moves)
+	public static void mapMoveUp(String command)
 	{
-
+		int number = getMoves(command);
+		//TODO
 	}
-	public static void mapMoveUp(int moves)
+	public static void mapMoveDown(String command)
 	{
-
+		int number = getMoves(command);
+		//TODO
 	}
-	public static void mapMoveDown(int moves)
-	{
 
+	private static int getMoves(String command)
+	{
+		int number = 0;
+		Matcher matcher;
+		if ((matcher = mapCommands.compareRegex(command, mapCommands.newNumber)) != null)
+			number = Integer.parseInt(matcher.group("c"));
+		else if ((matcher = mapCommands.compareRegex(command, mapCommands.shortNewNumber)) != null)
+			number = Integer.parseInt(matcher.group("c"));
+		return number;
 	}
 }

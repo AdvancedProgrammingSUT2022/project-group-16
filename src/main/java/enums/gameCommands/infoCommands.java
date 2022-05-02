@@ -8,19 +8,19 @@ import java.util.regex.Pattern;
 public enum infoCommands
 {
     //commands
-
+    infoResearch("^\\s*[iI]nfo\\s+[rR]esearch\\s*$"),
+    infoUnits("^\\s*[iI]nfo\\s+[uU]nits\\s*$"),
+    infoCities("^\\s*[iI]nfo\\s+[cC]ities\\s*$"),
+    infoDiplomacy("^\\s*[iI]nfo\\s+[dD]iplomacy\\s*$"),
+    infoVictory("^\\s*[iI]nfo\\s+[vV]ictory\\s*$"),
+    infoDemographics("^\\s*[iI]nfo\\s+[dD]emographics\\s*$"),
+    infoNotifications("^\\s*[iI]nfo\\s+[nN]otifications\\s*$"),
+    infoMilitary("^\\s*[iI]nfo\\s+[mM]ilitary\\s*$"),
+    infoEconomic("^\\s*[iI]nfo\\s+[eE]conomic\\s*$"),
+    infoDiplomatic("^\\s*[iI]nfo\\s+[dD]iplomatic\\s*$"),
+    infoDeals("^\\s*[iI]nfo\\s+[dD]eals\\s*$");
     //messages
-    showResearch("1: research"),
-    showUnits("2: units"),
-    showCities("3: cities"),
-    showDiplomacy("4: diplomacy"),
-    showVictory("5: victory"),
-    showDEMOGRAPHICS("6: demographics"),
-    showNOTIFICATIONS("7: notifications"),
-    showMILITARY("8: military"),
-    showECONOMIC("9: economic"),
-    showDIPLOMATIC("10: diplomatic"),
-    showDEALS("11: deals");
+
 
     public final String regex;
 

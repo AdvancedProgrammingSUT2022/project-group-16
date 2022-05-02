@@ -8,13 +8,13 @@ public enum selectCommands
     //commands
 
     //messages
-    unit("1: unit"),
-    city("2: city"),
-    combat("1: combat"),
-    nonCombat("2: non combat"),
-    name("1: name"),
-    position("2: position"),
-    cityName("city name: ");
+    selectCombat("^\\s*[sS]elect\\s+[uU]nit\\s+[cC]ombat.*$"),
+    selectNonCombat("^\\s*[sS]elect\\s+[uU]nit\\s+[nN]on[cC]ombat.*$"),
+    selectCity("^\\s*[sS]elect\\s+[cC]ity.*$"),
+    newName("^ --name\\s+(?<name>\\S+)\\s*$"),
+    shortNewName("^ -n\\s+(?<name>\\S+)\\s*$"),
+    newPos("^ --coordinates\\s+(?<x>-[0,1][0-9]+)\\s+,\\s+(?<y>-[0,1][0-9]+)\\s*$"),
+    showrNewPos("^ -c\\s+(?<x>-[0,1][0-9]+)\\s+,\\s+(?<y>-[0,1][0-9]+)\\s*$");
 
     public final String regex;
 

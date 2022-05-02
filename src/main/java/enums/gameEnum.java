@@ -32,11 +32,9 @@ public enum gameEnum
     chooseCivilization("you chose "),
     between1And10("please pick a number between 1 and 10"),
     alreadyPicked("already picked, please choose another one"),
-    info("^\\s*[iI]nfo\\s*"),
-    select("^\\s*[sS]elect\\s*"),
     unit("^\\s*[uU]nit\\s*"),
-    map("^\\s*[mM]ap\\s*"),
-    turn("'s turn");
+    turn("'s turn"),
+    invalidPos("invalid coordinate");
 
     public final String regex;
 
