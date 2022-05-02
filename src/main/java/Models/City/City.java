@@ -16,6 +16,7 @@ public class City
 	ArrayList<Citizen> citizens;
 	Constructable currentConstruction = null;
 	Player rulerPlayer;
+	String name;
 	
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
@@ -29,7 +30,11 @@ public class City
 		buildings = new ArrayList<>();
 		citizens = new ArrayList<>();
 	}
-	
+
+	public String getName() {
+		return name;
+	}
+
 	public void createBuilding() //TODO
 	{
 	

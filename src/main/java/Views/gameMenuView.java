@@ -92,7 +92,7 @@ public class gameMenuView
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoResearch)) != null)
                     System.out.println(GameController.showResearch(playerTurn)); //done
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoUnits)) != null)
-                    GameController.showUnits(playerTurn); //TODO
+                    System.out.println(GameController.showUnits(playerTurn));
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoCities)) != null)
                     GameController.showCities(playerTurn); //TODO
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoDiplomacy)) != null)

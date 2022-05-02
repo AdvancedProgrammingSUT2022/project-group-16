@@ -319,9 +319,11 @@ public class GameController
 		return player.getResearchingTechnology().toString();
 	}
 
-	public static void showUnits(Player player)
+	public static String showUnits(Player player)
 	{
-
+		if(player.getUnits() == null)
+			return mainCommands.nothing.regex;
+		return player.getUnits().toString();
 	}
 	public static void showCities(Player player)
 	{

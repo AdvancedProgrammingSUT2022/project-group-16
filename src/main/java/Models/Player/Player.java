@@ -27,7 +27,6 @@ public class Player extends User
 	private Stack<Notification> notifications;
 	private ArrayList<Unit> units;
 	//	Unit selectedUnit;  //??TODO probably unnecessary
-	
 
 	public Player(Civilization civilization, String username, String nickname, String password)
 	{
