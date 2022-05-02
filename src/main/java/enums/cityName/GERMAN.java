@@ -2,6 +2,7 @@ package enums.cityName;
 
 public enum GERMAN
 {
+    WINDEN("Winden"),
     BERLIN("Berlin"),
     MUNICH("Munich"),
     FRANKFURT("Frankfurt"),
