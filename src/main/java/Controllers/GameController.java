@@ -37,17 +37,25 @@ public class GameController
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public final int MAX_MAP_SIZE = 10;
-	private final ArrayList<Player> players = new ArrayList<>();
-	private Player playerTurn;
-	
-	public void addPlayer(Player player)
-	{
-		this.players.add(player);
+	private static final ArrayList<Player> players = new ArrayList<>();
+	private static Player playerTurn;
+
+	public static Player getPlayerTurn() {
+		return playerTurn;
 	}
-	public void changeTurn()
+	public static void addPlayer(Player player)
+	{
+		players.add(player);
+	}
+	public static void changeTurn()
 	{
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 	}
+	public static void setFirstPlayer()
+	{
+		playerTurn = players.get(0);
+	}
+
 	public static GameController getInstance()
 	{
 		if(instance == null)
@@ -335,11 +343,6 @@ public class GameController
 		return true;
 	}
 
-	private static boolean validPos(int x, int y)
-	{
-		return x < getInstance().MAX_MAP_SIZE && y < getInstance().MAX_MAP_SIZE && x >= 0 && y >= 0;
-	}
-
 	//DOC commands
 	public static void showResearch(Player player)
 	{
@@ -393,52 +396,70 @@ public class GameController
 	{
 
 	}
-	public static City selectCity(String command, Player player)
+	public static String selectCity(String command, Player player)
 	{
+		int flag = -1, doesMatch = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
-			Matcher matcher1 = selectCommands.compareRegex(command, selectCommands.newPos);
-			Matcher matcher2 = selectCommands.compareRegex(command, selectCommands.shortNewPos);
-			Matcher matcher3 = selectCommands.compareRegex(command, selectCommands.newName);
-			Matcher matcher4 = selectCommands.compareRegex(command, selectCommands.shortNewName);
-
+			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
+			Matcher matcher2 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewPos);
+			Matcher matcher3 = selectCommands.compareRegex(command.substring(i), selectCommands.newName);
+			Matcher matcher4 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewName);
 			if(matcher1 != null)
 			{
+				doesMatch = 1;
 				int x = Integer.parseInt(matcher1.group("x"));
 				int y = Integer.parseInt(matcher1.group("y"));
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < player.getCities().size(); j++)
 					if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
 							player.getCities().get(j).getCapitalTile().getPosition().Y == y)
-						return player.getCities().get(j);
+						flag = j;
+				if(flag == -1)
+					return selectCommands.coordinatesDoesntExist.regex+ x + selectCommands.and.regex + y;
 
 			}
-			if(matcher2 != null)
+			else if(matcher2 != null)
 			{
+				doesMatch = 1;
 				int x = Integer.parseInt(matcher2.group("x"));
 				int y = Integer.parseInt(matcher2.group("y"));
-				System.out.println(x + " " +  y);
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < player.getCities().size(); j++)
 					if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
 							player.getCities().get(j).getCapitalTile().getPosition().Y == y)
-						return player.getCities().get(j);
+						flag = j;
+				if(flag == -1)
+					return selectCommands.coordinatesDoesntExist.regex+ x + selectCommands.and.regex + y;
 			}
-			if(matcher3 != null)
+			else if(matcher3 != null)
 			{
+				doesMatch = 1;
 				String cityName = matcher3.group("name");
 				for(int j = 0; j < player.getCities().size(); j++)
 					if(player.getCities().get(j).getName().equals(cityName))
-						return player.getCities().get(j);
-
+						flag = j;
+				if(flag == -1)
+					return selectCommands.nameDoesntExist.regex + cityName;
 			}
-			if(matcher4 != null)
+			else if(matcher4 != null)
 			{
+				doesMatch = 1;
 				String cityName = matcher4.group("name");
 				for(int j = 0; j < player.getCities().size(); j++)
 					if(player.getCities().get(j).getName().equals(cityName))
-						return player.getCities().get(j);
+						flag = j;
+				if(flag == -1)
+					return selectCommands.nameDoesntExist.regex + cityName;
 			}
 		}
-		return null;
+		if(doesMatch == 0)
+			return mainCommands.invalidCommand.regex;
+		return String.valueOf(flag);
 	}
 	public static void moveUnit()
 	{

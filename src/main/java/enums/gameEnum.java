@@ -10,6 +10,7 @@ public enum gameEnum
     startGame("^\\s*play\\s+game.*$"),
     newPlayer("^ --player(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
     shortNewPlayer("^ -p(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
+    next("^\\s*[nN]ext\\s*$"),
 
     //messages
     numberOfPlayers("invalid number of players"),

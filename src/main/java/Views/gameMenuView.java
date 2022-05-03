@@ -6,6 +6,7 @@ import Models.City.City;
 import Models.Game.Position;
 import Models.Player.Player;
 import Models.Terrain.Tile;
+import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.User;
 import enums.cheatCode;
@@ -26,6 +27,14 @@ public class gameMenuView
     public static Tile selectedTile;
     public static Unit selectedUnit = null;
 
+    private static void showCity(int number)
+    {
+        System.out.println(GameController.getPlayerTurn().getCities().get(number).getFoodYield());
+        System.out.println(GameController.getPlayerTurn().getCities().get(number).getProductionYield());
+        System.out.println(GameController.getPlayerTurn().getCities().get(number).getGoldYield());
+        //TODO: print sience
+        //TODO: turns til repopulation
+    }
     private static void pickCivilizations(Scanner scanner, User[] tmpUsers, ArrayList<Player> players, GameController gameController)
     {
         for(int i = 0; i < tmpUsers.length; i++)
@@ -59,7 +68,7 @@ public class gameMenuView
         }
     }
 
-    public static void startGame(Scanner scanner, HashMap<String,String> Map)
+    public static void startGame(Scanner scanner, HashMap<String, String> Map)
     {
         GameController gameController = GameController.getInstance();
         Matcher matcher;
@@ -67,6 +76,7 @@ public class gameMenuView
         ArrayList<Player> players = new ArrayList<>();
         pickCivilizations(scanner, tmpUsers, players, gameController);
 
+        GameController.setFirstPlayer();
         while (true)
         {
             System.out.println(GameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
@@ -119,16 +129,16 @@ public class gameMenuView
                     GameController.selectUnitNonCombat(); //TODO
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCity)) != null)
                 {
-                    if(GameController.selectCity(command, GameController.getPlayerTurn()) == null)
-                        System.out.println(selectCommands.invalidCoordinates.regex);
-                    else
+                    String tmp = GameController.selectCity(command, GameController.getPlayerTurn());
+                    if(GameController.isValid(tmp))
                     {
-                        System.out.println(GameController.selectCity(command, GameController.getPlayerTurn()).getFoodYield());
-                        System.out.println(GameController.selectCity(command, GameController.getPlayerTurn()).getProductionYield());
-                        System.out.println(GameController.selectCity(command, GameController.getPlayerTurn()).getGoldYield());
-                        //TODO: print sience
-                        //TODO: turns til population
+                        if(Integer.parseInt(tmp) == -1)
+                            System.out.println(mainCommands.invalidCommand);
+                        else
+                            showCity(Integer.parseInt(tmp));
                     }
+                    else
+                        System.out.println(tmp);
                 }
 
                 /*unit*/
@@ -196,11 +206,11 @@ public class gameMenuView
                     GameController.mapMoveDown(command); //TODO
 
                 /*others*/
-                else if(command.equals("end"))
-                 {
+                else if(gameEnum.compareRegex(command, gameEnum.next) != null)
+                {
                      GameController.changeTurn();
                      break;
-                 }
+                }
                 else
                     System.out.println(mainCommands.invalidCommand.regex);
             }
@@ -221,7 +231,7 @@ public class gameMenuView
                 HashMap<String, String> players = new HashMap<>();
                 System.out.println(GameController.startNewGame(command, players));
                 if(GameController.startNewGame(command, players).equals(gameEnum.successfulStartGame.regex))
-                    gameMenuView.startGame(scanner, players);
+                    startGame(scanner, players);
             }
             else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
                 break;
