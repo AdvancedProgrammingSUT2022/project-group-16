@@ -66,7 +66,6 @@ public class gameMenuView
         User[] tmpUsers = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
         ArrayList<Player> players = new ArrayList<>();
         pickCivilizations(scanner, tmpUsers, players, gameController);
-        GameController.setFirstPlayer();
 
         while (true)
         {
