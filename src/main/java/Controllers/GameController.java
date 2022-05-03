@@ -60,6 +60,7 @@ public class GameController
 		initGrid();
 		initMap();
 		this.players.addAll(players);
+		playerTurn = players.get(0);
 	}
 	public ArrayList<Tile> getMap()
 	{
