@@ -47,6 +47,18 @@ public class City
 	{
 	
 	}
+
+	public int getFoodYield() {
+		return foodYield;
+	}
+	public int getGoldYield() {
+		return goldYield;
+	}
+	public int getProductionYield() {
+		return productionYield;
+	}
+
+
 	public void growCity() //TODO
 	{
 	

@@ -1,16 +1,26 @@
 package Controllers;
 
+import Models.City.City;
 import Models.Game.Position;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Menu.Menu;
+import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.BonusResource;
+import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.NonCombatUnits.Worker;
+import Models.Units.Unit;
 import Models.User;
+import Views.gameMenuView;
 import enums.cheatCode;
 import enums.gameCommands.mapCommands;
+import enums.gameCommands.selectCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 
@@ -28,8 +38,16 @@ public class GameController
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public final int MAX_MAP_SIZE = 10;
 	private final ArrayList<Player> players = new ArrayList<>();
+	private Player playerTurn;
 	
-	
+	public void addPlayer(Player player)
+	{
+		this.players.add(player);
+	}
+	public void changeTurn()
+	{
+		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+	}
 	public static GameController getInstance()
 	{
 		if(instance == null)
@@ -301,18 +319,13 @@ public class GameController
 	}
 
 	//DOC commands
-	public static String showResearch(Player player)
+	public static void showResearch(Player player)
 	{
-		if(player.getResearchingTechnology() == null)
-			return mainCommands.nothing.regex;
-		return player.getResearchingTechnology().toString();
-	}
 
-	public static String showUnits(Player player)
+	}
+	public static void showUnits(Player player)
 	{
-		if(player.getUnits() == null)
-			return mainCommands.nothing.regex;
-		return player.getUnits().toString();
+
 	}
 	public static void showCities(Player player)
 	{
@@ -358,9 +371,52 @@ public class GameController
 	{
 
 	}
-	public static void selectCity()
+	public static City selectCity(String command, Player player)
 	{
+		for(int i = 0; i < command.length(); i++)
+		{
+			Matcher matcher1 = selectCommands.compareRegex(command, selectCommands.newPos);
+			Matcher matcher2 = selectCommands.compareRegex(command, selectCommands.shortNewPos);
+			Matcher matcher3 = selectCommands.compareRegex(command, selectCommands.newName);
+			Matcher matcher4 = selectCommands.compareRegex(command, selectCommands.shortNewName);
 
+			if(matcher1 != null)
+			{
+				int x = Integer.parseInt(matcher1.group("x"));
+				int y = Integer.parseInt(matcher1.group("y"));
+				for(int j = 0; j < player.getCities().size(); j++)
+					if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
+							player.getCities().get(j).getCapitalTile().getPosition().Y == y)
+						return player.getCities().get(j);
+
+			}
+			if(matcher2 != null)
+			{
+				int x = Integer.parseInt(matcher2.group("x"));
+				int y = Integer.parseInt(matcher2.group("y"));
+				System.out.println(x + " " +  y);
+				for(int j = 0; j < player.getCities().size(); j++)
+					if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
+							player.getCities().get(j).getCapitalTile().getPosition().Y == y)
+						return player.getCities().get(j);
+			}
+			if(matcher3 != null)
+			{
+				String cityName = matcher3.group("name");
+				for(int j = 0; j < player.getCities().size(); j++)
+					if(player.getCities().get(j).getName().equals(cityName))
+						return player.getCities().get(j);
+
+			}
+			if(matcher4 != null)
+			{
+				String cityName = matcher4.group("name");
+				for(int j = 0; j < player.getCities().size(); j++)
+					if(player.getCities().get(j).getName().equals(cityName))
+						return player.getCities().get(j);
+			}
+		}
+		return null;
 	}
 	public static void moveUnit()
 	{
