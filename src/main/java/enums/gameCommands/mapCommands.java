@@ -7,14 +7,17 @@ public enum mapCommands
 {
     //comamnds
     mapShow("^\\s*[mM]ap\\s+[sS]how\\s*$"),
-    mapMoveRight("^\\s*[mM]ap\\s+[mM]ove\\s+[rR]ight\\s*$"),
-    mapMoveLeft("^\\s*[mM]ap\\s+[mM]ove\\s+[lL]eft\\s*$"),
-    mapMoveUp("^\\s*[mM]ap\\s+[mM]ove\\s+[uU]p\\s*$"),
-    mapMoveDown("^\\s*[mM]ap\\s+[mM]ove\\s+[dD]own\\s*$"),
-    newNumber("^ --cells\\s+(?<c>[0-9]+)\\s*$"),
-    shortNewNumber("^ -c\\s+(?<c>-[0,1][0-9]+)\\s*$"),
+    mapMoveRight("^\\s*[mM]ap\\s+[mM]ove\\s+[rR]ight.*$"),
+    mapMoveLeft("^\\s*[mM]ap\\s+[mM]ove\\s+[lL]eft.*$"),
+    mapMoveUp("^\\s*[mM]ap\\s+[mM]ove\\s+[uU]p.*$"),
+    mapMoveDown("^\\s*[mM]ap\\s+[mM]ove\\s+[dD]own.*$"),
+    shortNewNumber("^ -c\\s+(?<c>-{0,1}[0-9]+).*$"),
+    newName("^ --name\\s+(?<name>\\S+)\\s*$"),
+    shortNewName("^ -n\\s+(?<name>\\S+)\\s*$"),
+    newPos("^ --coordinates\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+).*$"),
+    shortNewPos("^ -c\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+).*$"),
     //messages
-    ;
+    invalidRange("please pick numbers between 0 and "),;
 
     public final String regex;
 

@@ -24,12 +24,19 @@ import java.util.regex.Matcher;
 
 public class gameMenuView
 {
-    private static void showCity(int number, GameController gameController)
+    private static void showUnit(GameController gameController)
     {
-        System.out.println(gameEnum.food.regex + gameController.getPlayerTurn().getCities().get(number).getFoodYield());
-        System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getCities().get(number).getProductionYield());
-        System.out.println(gameEnum.gold.regex + gameController.getPlayerTurn().getCities().get(number).getGoldYield());
-        System.out.println(gameEnum.cup.regex + gameController.getPlayerTurn().getCities().get(number).getCupYield());
+        System.out.println(gameEnum.speed.regex + gameController.getPlayerTurn().getSelectedUnit().getSpeed());
+        System.out.println(gameEnum.power.regex + gameController.getPlayerTurn().getSelectedUnit().getPower());
+        System.out.println(gameEnum.health.regex + gameController.getPlayerTurn().getSelectedUnit().getHealth());
+        //TODO: maybe need edit
+    }
+    private static void showCity(GameController gameController)
+    {
+        System.out.println(gameEnum.food.regex + gameController.getPlayerTurn().getSelectedCity().getFoodYield());
+        System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getSelectedCity().getProductionYield());
+        System.out.println(gameEnum.gold.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
+        System.out.println(gameEnum.cup.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
     }
 
     private static void pickCivilizations(Scanner scanner, User[] tmpUsers, ArrayList<Player> players, GameController gameController)
@@ -121,51 +128,21 @@ public class gameMenuView
                 /*Select*/
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCombat)) != null)
                 {
-                    String tmp = gameController.selectCUnit(command);
-                    if(gameController.isValid(tmp))
-                    {
-                        if(Integer.parseInt(tmp) == -1)
-                            System.out.println(mainCommands.invalidCommand);
-                        else
-                        {
-                            //TODO: show combat unit information
-                            gameController.getPlayerTurn().setSelectedUnit(gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp)));
-                        }
-                    }
-                    else
-                        System.out.println(tmp);
+                    System.out.println(gameController.selectCUnit(command));
+                    if(gameController.getPlayerTurn().getSelectedUnit() != null)
+                        showUnit(gameController);
                 }
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectNonCombat)) != null)
                 {
-                    String tmp = gameController.selectNUnit(command);
-                    if(gameController.isValid(tmp))
-                    {
-                        if(Integer.parseInt(tmp) == -1)
-                            System.out.println(mainCommands.invalidCommand);
-                        else
-                        {
-                            //TODO: show nonCombat unit information
-                            gameController.getPlayerTurn().setSelectedUnit(gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp)));
-                        }
-                    }
-                    else
-                        System.out.println(tmp);
+                    System.out.println(gameController.selectNUnit(command));
+                    if(gameController.getPlayerTurn().getSelectedUnit() != null)
+                        showUnit(gameController);
                 }
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCity)) != null)
                 {
-                    String tmp = gameController.selectCity(command);
-                    if(gameController.isValid(tmp))
-                    {
-                        if(Integer.parseInt(tmp) == -1)
-                            System.out.println(mainCommands.invalidCommand);
-                        else
-                        {
-                            showCity(Integer.parseInt(tmp), gameController);
-                            gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(Integer.parseInt(tmp)));
-                        }
-                    }
-                    else
-                        System.out.println(tmp);
+                    System.out.println(gameController.selectCity(command));
+                    if(gameController.getPlayerTurn().getSelectedCity() != null)
+                        showCity(gameController);
                 }
 
                 /*unit*/
@@ -222,7 +199,7 @@ public class gameMenuView
 
                 /*map*/
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapShow)) != null)
-                    gameController.mapShow(); //TODO
+                    gameController.mapShow(command); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveRight)) != null)
                     gameController.mapMoveRight(command); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveLeft)) != null)

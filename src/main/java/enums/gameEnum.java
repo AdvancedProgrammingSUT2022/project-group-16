@@ -39,7 +39,10 @@ public enum gameEnum
     gold("gold: "),
     production("production: "),
     food("food: "),
-    cup("cup: ");
+    cup("cup: "),
+    health("health: "),
+    power("power: "),
+    speed("speed: ");
 
     public final String regex;
 
