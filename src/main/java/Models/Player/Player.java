@@ -2,11 +2,10 @@ package Models.Player;
 
 import Controllers.GameController;
 import Models.City.City;
-import Models.Game.Position;
+import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Terrain.Improvement;
 import Models.Terrain.Tile;
-import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.Unit;
 import Models.User;
 
@@ -20,7 +19,8 @@ public class Player extends User
 	private int happiness = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private Technology researchingTechnology;
-	private ArrayList<Resource> resources; // TODO: do we need it???
+	private ArrayList<Resource> resources;
+	private final ArrayList<LuxuryResource> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private ArrayList<Improvement> improvements = new ArrayList<>();
 	private final HashMap<Tile, TileState> map;
 	private ArrayList<City> cities = new ArrayList<>();

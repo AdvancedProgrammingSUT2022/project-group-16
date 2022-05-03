@@ -109,12 +109,37 @@ public class GameController
 						null));
 			}
 	}
-	public Tile getTileByXY(int x, int y)
+	public Tile getTileByXY(int X, int Y)
 	{
 		for(Tile tile : map)
-			if(tile.getPosition().X == x && tile.getPosition().Y == y)
+			if(tile.getPosition().X == X && tile.getPosition().Y == Y)
 				return tile;
 		return null;
+	}
+	public Tile getTileByQRS(int Q, int R, int S)
+	{
+		for(Tile tile : map)
+			if(tile.getPosition().Q == Q && tile.getPosition().R == R && tile.getPosition().S == S)
+				return tile;
+		return null;
+	}
+	public ArrayList<Tile> getAdjacentTiles(Tile tile)
+	{
+		ArrayList<Tile> adjacentTiles = new ArrayList<>();
+		int Q = tile.getPosition().Q;
+		int R = tile.getPosition().R;
+		int S = tile.getPosition().S;
+		
+		int[][] distances = {{0, 1, -1}, {0, -1, 1}, {1, 0, -1}, {-1, 0, 1}, {1, -1, 0}, {-1, 1, 0}};
+		Tile adjacentTile;
+		for(int i = 0; i < 6; i++)
+		{
+			adjacentTile = getTileByQRS(Q + distances[i][0], R + distances[i][1], S + distances[i][2]);
+			if(adjacentTile != null)
+				adjacentTiles.add(adjacentTile);
+		}
+		
+		return adjacentTiles;
 	}
 	public String getMapString()
 	{

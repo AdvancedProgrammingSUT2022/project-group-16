@@ -1,34 +1,56 @@
 package Models.City;
 
 import Models.Game.Position;
+import Models.Terrain.Tile;
+
 public class Building implements Constructable
 {
-	private BuildingType buildingType;
-	private Position position;
+	private final BuildingType buildingType;
+	private final Tile tile;
 	private int hitPoints;
 	
-	public Building(BuildingType buildingType, Position position)
+	public Building(BuildingType buildingType, Tile tile)
 	{
 		this.buildingType = buildingType;
-		this.position = position;
+		this.tile = tile;
 	}
 	
 	public BuildingType getBuildingType()
 	{
 		return buildingType;
 	}
-	public void setBuildingType(BuildingType buildingType)
+	public Tile getTile()
 	{
-		this.buildingType = buildingType;
+		return tile;
 	}
-	public Position getPosition()
+	public int getHitPoints()
 	{
-		return position;
+		return hitPoints;
 	}
-	public void setPosition(Position position)
+	public void setHitPoints(int hitPoints)
 	{
-		this.position = position;
+		this.hitPoints = hitPoints;
 	}
-	
-	//TODO do special things for each type of building
+	//TODO: do special things for each type of building
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
