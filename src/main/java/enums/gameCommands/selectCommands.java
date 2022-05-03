@@ -11,8 +11,8 @@ public enum selectCommands
     selectCity("^\\s*[sS]elect\\s+[cC]ity.*$"),
     newName("^ --name\\s+(?<name>\\S+)\\s*$"),
     shortNewName("^ -n\\s+(?<name>\\S+)\\s*$"),
-    newPos("^ --coordinates\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+).*$"),
-    shortNewPos("^ -c\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+).*$"),
+    newPos("^ --coordinates\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
+    shortNewPos("^ -c\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
 
     //messages
     invalidRange("please pick numbers between 0 and "),

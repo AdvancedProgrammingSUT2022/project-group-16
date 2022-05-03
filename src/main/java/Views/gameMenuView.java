@@ -24,22 +24,23 @@ import java.util.regex.Matcher;
 
 public class gameMenuView
 {
-    private static void showUnit(GameController gameController)
+    private static final GameController gameController = GameController.getInstance();
+
+    private static void showUnit()
     {
         System.out.println(gameEnum.speed.regex + gameController.getPlayerTurn().getSelectedUnit().getSpeed());
         System.out.println(gameEnum.power.regex + gameController.getPlayerTurn().getSelectedUnit().getPower());
         System.out.println(gameEnum.health.regex + gameController.getPlayerTurn().getSelectedUnit().getHealth());
         //TODO: maybe need edit
     }
-    private static void showCity(GameController gameController)
+    private static void showCity()
     {
         System.out.println(gameEnum.food.regex + gameController.getPlayerTurn().getSelectedCity().getFoodYield());
         System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getSelectedCity().getProductionYield());
         System.out.println(gameEnum.gold.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
         System.out.println(gameEnum.cup.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
     }
-
-    private static void pickCivilizations(Scanner scanner, User[] tmpUsers, ArrayList<Player> players, GameController gameController)
+    private static void pickCivilizations(Scanner scanner, User[] tmpUsers, ArrayList<Player> players)
     {
         for (User tmpUser : tmpUsers)
         {
@@ -70,17 +71,14 @@ public class gameMenuView
                     tmpUser.getNickname(), tmpUser.getPassword()));
         }
     }
-
     public static void startGame(Scanner scanner, HashMap<String, String> Map)
     {
-        GameController gameController = GameController.getInstance();
         Matcher matcher;
         User[] tmpUsers = gameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
         ArrayList<Player> players = new ArrayList<>();
-        pickCivilizations(scanner, tmpUsers, players, gameController);
-        gameController.setFirstPlayer();
+        pickCivilizations(scanner, tmpUsers, players);
 
-        while (true)
+        while (scanner.hasNextLine()) //TODO: edit later
         {
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
 
@@ -130,19 +128,19 @@ public class gameMenuView
                 {
                     System.out.println(gameController.selectCUnit(command));
                     if(gameController.getPlayerTurn().getSelectedUnit() != null)
-                        showUnit(gameController);
+                        showUnit();
                 }
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectNonCombat)) != null)
                 {
                     System.out.println(gameController.selectNUnit(command));
                     if(gameController.getPlayerTurn().getSelectedUnit() != null)
-                        showUnit(gameController);
+                        showUnit();
                 }
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCity)) != null)
                 {
                     System.out.println(gameController.selectCity(command));
                     if(gameController.getPlayerTurn().getSelectedCity() != null)
-                        showCity(gameController);
+                        showCity();
                 }
 
                 /*unit*/
@@ -199,15 +197,15 @@ public class gameMenuView
 
                 /*map*/
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapShow)) != null)
-                    gameController.mapShow(command); //TODO
+                    System.out.println(gameController.mapShow(command)); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveRight)) != null)
-                    gameController.mapMoveRight(command); //TODO
+                    System.out.println(gameController.mapMoveRight(command)); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveLeft)) != null)
-                    gameController.mapMoveLeft(command); //TODO
+                    System.out.println(gameController.mapMoveLeft(command)); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveUp)) != null)
-                    gameController.mapMoveUp(command); //TODO
+                    System.out.println(gameController.mapMoveUp(command)); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveDown)) != null)
-                    gameController.mapMoveDown(command); //TODO
+                    System.out.println(gameController.mapMoveDown(command)); //TODO
 
                 /*others*/
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
@@ -221,7 +219,6 @@ public class gameMenuView
             }
         }
     }
-
     public static void run()
     {
         String command;

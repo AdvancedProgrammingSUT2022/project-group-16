@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class MapPrinter
 {
+	public static Tile selectedTile = null;
 	private static HashMap<Tile, TileState> map;
 	private static int columns;
 	private static int rows;

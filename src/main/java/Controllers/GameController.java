@@ -1,5 +1,6 @@
 package Controllers;
 
+import Controllers.Utilities.MapPrinter;
 import Models.City.City;
 import Models.Game.Position;
 import Models.Player.*;
@@ -49,10 +50,15 @@ public class GameController
 	public void addPlayer(Player player)
 	{
 		players.add(player);
+		playerTurn = players.get(0);
 	}
 	public void setFirstPlayer()
 	{
 		playerTurn = players.get(0);
+	}
+	public void deletePlayer(Player player)
+	{
+		players.remove(player);
 	}
 	public void changeTurn()
 	{
@@ -682,7 +688,8 @@ public class GameController
 
 	public String mapShow(String command)
 	{
-		int flag = -1, doesMatch = 0;
+		int x = 0, y = 0;
+		playerTurn.setSelectedCity(null);
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = mapCommands.compareRegex(command.substring(i), mapCommands.newPos);
@@ -691,71 +698,90 @@ public class GameController
 			Matcher matcher4 = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewName);
 			if(matcher1 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher1.group("x"));
-				int y = Integer.parseInt(matcher1.group("y"));
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-
+				x = Integer.parseInt(matcher1.group("x"));
+				y = Integer.parseInt(matcher1.group("y"));
 			}
 			else if(matcher2 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher2.group("x"));
-				int y = Integer.parseInt(matcher2.group("y"));
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				x = Integer.parseInt(matcher2.group("x"));
+				y = Integer.parseInt(matcher2.group("y"));
 			}
 			else if(matcher3 != null)
 			{
-				doesMatch = 1;
 				String cityName = matcher3.group("name");
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getName().equals(cityName))
-						flag = j;
-				if(flag == -1)
+				for(int k = 0; k < players.size(); k++)
+					for(int j = 0; j < players.get(k).getCities().size(); j++)
+						if(players.get(k).getCities().get(j).getName().equals(cityName))
+						{
+							//TODO: tile of player(k) and city index(j)
+							return mapCommands.selected.regex;
+						}
+				if(MapPrinter.selectedTile == null)
 					return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			else if(matcher4 != null)
 			{
-				doesMatch = 1;
 				String cityName = matcher4.group("name");
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getName().equals(cityName))
-						flag = j;
-				if(flag == -1)
+				for(int k = 0; k < players.size(); k++)
+					for(int j = 0; j < players.get(k).getCities().size(); j++)
+						if(players.get(k).getCities().get(j).getName().equals(cityName))
+						{
+							//TODO: tile of player(k) and city index(j)
+							return mapCommands.selected.regex;
+						}
+				if(MapPrinter.selectedTile == null)
 					return selectCommands.nameDoesntExist.regex + cityName;
 			}
+			if(matcher1 != null || matcher2 != null)
+			{
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				//TODO: Tile with x and y
+				return mapCommands.selected.regex;
+			}
 		}
-		if(doesMatch == 0)
-			return mainCommands.invalidCommand.regex;
-		return String.valueOf(flag);
+		return mapCommands.invalidCommand.regex;
 	}
-	public void mapMoveRight(String command)
+	public String mapMoveRight(String command)
 	{
 		int number = getMoves(command);
-		System.out.println(number);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
-	public void mapMoveLeft(String command)
+	public String mapMoveLeft(String command)
 	{
 		int number = getMoves(command);
-		System.out.println(number);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
-	public void mapMoveUp(String command)
+	public String mapMoveUp(String command)
 	{
 		int number = getMoves(command);
-		System.out.println(number);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
-	public void mapMoveDown(String command)
+	public String mapMoveDown(String command)
 	{
 		int number = getMoves(command);
-		System.out.println(number);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
 
 	private int getMoves(String command)
@@ -763,7 +789,11 @@ public class GameController
 		Matcher matcher;
 		for(int i = 0; i < command.length(); i++)
 			if ((matcher = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewNumber)) != null)
+			{
+				if(Integer.parseInt(matcher.group("c")) < 0)
+					return -1;
 				return Integer.parseInt(matcher.group("c"));
-		return 0;
+			}
+		return -2;
 	}
 }
