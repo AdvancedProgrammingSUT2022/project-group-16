@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 
 public class gameMenuView
 {
-    public static Tile selectedTile;
+    public static City selectedCity = null;
     public static Unit selectedUnit = null;
 
     private static void showCity(int number)
@@ -124,18 +124,49 @@ public class gameMenuView
 
                 /*Select*/
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCombat)) != null)
-                    GameController.selectUnitCombat(); //TODO
-                else if((matcher = selectCommands.compareRegex(command, selectCommands.selectNonCombat)) != null)
-                    GameController.selectUnitNonCombat(); //TODO
-                else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCity)) != null)
                 {
-                    String tmp = GameController.selectCity(command, GameController.getPlayerTurn());
+                    String tmp = GameController.selectCUnit(command);
                     if(GameController.isValid(tmp))
                     {
                         if(Integer.parseInt(tmp) == -1)
                             System.out.println(mainCommands.invalidCommand);
                         else
+                        {
+                            //TODO: show combat unit information
+                            selectedUnit = GameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
+                        }
+                    }
+                    else
+                        System.out.println(tmp);
+                }
+                else if((matcher = selectCommands.compareRegex(command, selectCommands.selectNonCombat)) != null)
+                {
+                    String tmp = GameController.selectNUnit(command);
+                    if(GameController.isValid(tmp))
+                    {
+                        if(Integer.parseInt(tmp) == -1)
+                            System.out.println(mainCommands.invalidCommand);
+                        else
+                        {
+                            //TODO: show nonCombat unit information
+                            selectedUnit = GameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
+                        }
+                    }
+                    else
+                        System.out.println(tmp);
+                }
+                else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCity)) != null)
+                {
+                    String tmp = GameController.selectCity(command);
+                    if(GameController.isValid(tmp))
+                    {
+                        if(Integer.parseInt(tmp) == -1)
+                            System.out.println(mainCommands.invalidCommand);
+                        else
+                        {
                             showCity(Integer.parseInt(tmp));
+                            selectedCity = GameController.getPlayerTurn().getCities().get(Integer.parseInt(tmp));
+                        }
                     }
                     else
                         System.out.println(tmp);

@@ -388,15 +388,93 @@ public class GameController
 	{
 
 	}
-	public static void selectUnitCombat()
+	public static String selectCUnit(String command)
 	{
+		int flag = -1, doesMatch = 0;
+		for(int i = 0; i < command.length(); i++)
+		{
+			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
+			Matcher matcher2 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewPos);
+			if(matcher1 != null)
+			{
+				doesMatch = 1;
+				int x = Integer.parseInt(matcher1.group("x"));
+				int y = Integer.parseInt(matcher1.group("y"));
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				for(int j = 0; j < playerTurn.getUnits().size(); j++)
+					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+						flag = j;
+				if(flag == -1)
+					return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
 
+			}
+			else if(matcher2 != null)
+			{
+				doesMatch = 1;
+				int x = Integer.parseInt(matcher2.group("x"));
+				int y = Integer.parseInt(matcher2.group("y"));
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				for(int j = 0; j < playerTurn.getUnits().size(); j++)
+					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+						flag = j;
+				if(flag == -1)
+					return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
+			}
+		}
+		if(doesMatch == 0)
+			return mainCommands.invalidCommand.regex;
+		return String.valueOf(flag);
 	}
-	public static void selectUnitNonCombat()
+	public static String selectNUnit(String command)
 	{
+		int flag = -1, doesMatch = 0;
+		for(int i = 0; i < command.length(); i++)
+		{
+			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
+			Matcher matcher2 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewPos);
+			if(matcher1 != null)
+			{
+				doesMatch = 1;
+				int x = Integer.parseInt(matcher1.group("x"));
+				int y = Integer.parseInt(matcher1.group("y"));
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				for(int j = 0; j < playerTurn.getUnits().size(); j++)
+					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+						flag = j;
+				if(flag == -1)
+					return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
 
+			}
+			else if(matcher2 != null)
+			{
+				doesMatch = 1;
+				int x = Integer.parseInt(matcher2.group("x"));
+				int y = Integer.parseInt(matcher2.group("y"));
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				for(int j = 0; j < playerTurn.getUnits().size(); j++)
+					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+						flag = j;
+				if(flag == -1)
+					return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
+			}
+		}
+		if(doesMatch == 0)
+			return mainCommands.invalidCommand.regex;
+		return String.valueOf(flag);
 	}
-	public static String selectCity(String command, Player player)
+	public static String selectCity(String command)
 	{
 		int flag = -1, doesMatch = 0;
 		for(int i = 0; i < command.length(); i++)
@@ -413,12 +491,12 @@ public class GameController
 				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
 						y >= getInstance().MAX_MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				for(int j = 0; j < player.getCities().size(); j++)
-					if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
-							player.getCities().get(j).getCapitalTile().getPosition().Y == y)
+				for(int j = 0; j < playerTurn.getCities().size(); j++)
+					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
+							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
 						flag = j;
 				if(flag == -1)
-					return selectCommands.coordinatesDoesntExist.regex+ x + selectCommands.and.regex + y;
+					return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
 
 			}
 			else if(matcher2 != null)
@@ -429,19 +507,19 @@ public class GameController
 				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
 						y >= getInstance().MAX_MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				for(int j = 0; j < player.getCities().size(); j++)
-					if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
-							player.getCities().get(j).getCapitalTile().getPosition().Y == y)
+				for(int j = 0; j < playerTurn.getCities().size(); j++)
+					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
+							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
 						flag = j;
 				if(flag == -1)
-					return selectCommands.coordinatesDoesntExist.regex+ x + selectCommands.and.regex + y;
+					return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
 			}
 			else if(matcher3 != null)
 			{
 				doesMatch = 1;
 				String cityName = matcher3.group("name");
-				for(int j = 0; j < player.getCities().size(); j++)
-					if(player.getCities().get(j).getName().equals(cityName))
+				for(int j = 0; j < playerTurn.getCities().size(); j++)
+					if(playerTurn.getCities().get(j).getName().equals(cityName))
 						flag = j;
 				if(flag == -1)
 					return selectCommands.nameDoesntExist.regex + cityName;
@@ -450,8 +528,8 @@ public class GameController
 			{
 				doesMatch = 1;
 				String cityName = matcher4.group("name");
-				for(int j = 0; j < player.getCities().size(); j++)
-					if(player.getCities().get(j).getName().equals(cityName))
+				for(int j = 0; j < playerTurn.getCities().size(); j++)
+					if(playerTurn.getCities().get(j).getName().equals(cityName))
 						flag = j;
 				if(flag == -1)
 					return selectCommands.nameDoesntExist.regex + cityName;
