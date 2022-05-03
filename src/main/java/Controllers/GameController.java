@@ -1,26 +1,16 @@
 package Controllers;
 
-import Controllers.Utilities.MapPrinter;
 import Models.Game.Position;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Menu.Menu;
-import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.BonusResource;
-import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
-import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
-import Models.Units.NonCombatUnits.Worker;
-import Models.Units.Unit;
 import Models.User;
-import Views.gameMenuView;
 import enums.cheatCode;
 import enums.gameCommands.mapCommands;
-import enums.gameCommands.selectCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 
@@ -37,13 +27,8 @@ public class GameController
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public final int MAX_MAP_SIZE = 10;
-	private ArrayList<Player> players;
+	private final ArrayList<Player> players = new ArrayList<>();
 	
-	private GameController()
-	{
-		initGrid();
-		initMap(); // TODO: customization for the arbitrary map
-	}
 	
 	public static GameController getInstance()
 	{
@@ -51,7 +36,13 @@ public class GameController
 			instance = new GameController();
 		return instance;
 	}
-	
+	public void initGame(ArrayList<Player> players)
+	{
+		// TODO: sync with gameMenu
+		initGrid();
+		initMap();
+		this.players.addAll(players);
+	}
 	public ArrayList<Tile> getMap()
 	{
 		return map;
@@ -63,7 +54,7 @@ public class GameController
 			for(int j = 0; j < MAX_GRID_LENGTH; j++)
 				grid.add(new Position(i, j));
 	}
-	public Position getPositionByXY(int x, int y)
+	public Position getPosition(int x, int y)
 	{
 		if(x < 0 || y < 0 || x >= MAX_GRID_LENGTH || y >= MAX_GRID_LENGTH)
 			return null;
@@ -74,12 +65,10 @@ public class GameController
 		
 		return null;
 	}
-	public Position getPositionByQRS(int q, int r)
-	{
-		return getPositionByXY(r + (q - (q & 1)) / 2, q);
-	}
 	private void initMap()
 	{
+		// TODO: select from a list of maps
+		
 		// create sample maps
 		Random borderRandom = new Random();
 		Random tileTypeRandom = new Random();
@@ -95,7 +84,7 @@ public class GameController
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
 				// TODO: bug with the resource and unit. fix it!!!
-				map.add(new Tile(getPositionByXY(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
+				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
 						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
 						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
 						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
