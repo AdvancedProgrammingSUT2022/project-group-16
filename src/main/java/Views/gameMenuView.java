@@ -24,23 +24,19 @@ import java.util.regex.Matcher;
 
 public class gameMenuView
 {
-    private static GameController gameController;
-    public static City selectedCity = null;
-    public static Unit selectedUnit = null;
-
-    private static void showCity(int number)
+    private static void showCity(int number, GameController gameController)
     {
-        System.out.println(gameController.getPlayerTurn().getCities().get(number).getFoodYield());
-        System.out.println(gameController.getPlayerTurn().getCities().get(number).getProductionYield());
-        System.out.println(gameController.getPlayerTurn().getCities().get(number).getGoldYield());
-        //TODO: print sience
-        //TODO: turns til repopulation
+        System.out.println(gameEnum.food.regex + gameController.getPlayerTurn().getCities().get(number).getFoodYield());
+        System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getCities().get(number).getProductionYield());
+        System.out.println(gameEnum.gold.regex + gameController.getPlayerTurn().getCities().get(number).getGoldYield());
+        System.out.println(gameEnum.cup.regex + gameController.getPlayerTurn().getCities().get(number).getCupYield());
     }
+
     private static void pickCivilizations(Scanner scanner, User[] tmpUsers, ArrayList<Player> players, GameController gameController)
     {
-        for(int i = 0; i < tmpUsers.length; i++)
+        for (User tmpUser : tmpUsers)
         {
-            System.out.println(tmpUsers[i].getUsername() + gameEnum.pickCivilization.regex);
+            System.out.println(tmpUser.getUsername() + gameEnum.pickCivilization.regex);
             System.out.println(gameEnum.AMERICAN.regex);
             System.out.println(gameEnum.ARABIAN.regex);
             System.out.println(gameEnum.ASSYRIAN.regex);
@@ -52,32 +48,31 @@ public class gameMenuView
             System.out.println(gameEnum.OTTOMAN.regex);
             System.out.println(gameEnum.RUSSIAN.regex);
             int number;
-            do
-            {
+            do {
                 number = 0;
                 while (number == 0)
                 {
-                    number = GameController.getNum(scanner, 1, 10);
-                    if(number == 0)
+                    number = gameController.getNum(scanner, 1, 10);
+                    if (number == 0)
                         System.out.println(mainCommands.pickBetween.regex + "1 and 10");
                 }
-                System.out.println(GameController.pickCivilization(players, tmpUsers, scanner, gameController, number, i));
-            } while (number > 10 || number < 1 || GameController.inArr(players, GameController.findCivilByNumber(number)));
+                System.out.println(gameController.pickCivilization(players, number));
+            } while (number > 10 || number < 1 || gameController.inArr(gameController.findCivilByNumber(number)));
 
-            gameController.addPlayer(new Player(GameController.findCivilByNumber(number), tmpUsers[i].getUsername(),
-                    tmpUsers[i].getNickname(), tmpUsers[i].getPassword()));
+            gameController.addPlayer(new Player(gameController.findCivilByNumber(number), tmpUser.getUsername(),
+                    tmpUser.getNickname(), tmpUser.getPassword()));
         }
     }
 
     public static void startGame(Scanner scanner, HashMap<String, String> Map)
     {
-        gameController = GameController.getInstance();
+        GameController gameController = GameController.getInstance();
         Matcher matcher;
-        User[] tmpUsers = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
+        User[] tmpUsers = gameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
         ArrayList<Player> players = new ArrayList<>();
         pickCivilizations(scanner, tmpUsers, players, gameController);
+        gameController.setFirstPlayer();
 
-        // NOTE: no need to set the playerTurn, it is set in the gameController
         while (true)
         {
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
@@ -127,14 +122,14 @@ public class gameMenuView
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCombat)) != null)
                 {
                     String tmp = gameController.selectCUnit(command);
-                    if(GameController.isValid(tmp))
+                    if(gameController.isValid(tmp))
                     {
                         if(Integer.parseInt(tmp) == -1)
                             System.out.println(mainCommands.invalidCommand);
                         else
                         {
                             //TODO: show combat unit information
-                            selectedUnit = gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
+                            gameController.getPlayerTurn().setSelectedUnit(gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp)));
                         }
                     }
                     else
@@ -143,14 +138,14 @@ public class gameMenuView
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectNonCombat)) != null)
                 {
                     String tmp = gameController.selectNUnit(command);
-                    if(GameController.isValid(tmp))
+                    if(gameController.isValid(tmp))
                     {
                         if(Integer.parseInt(tmp) == -1)
                             System.out.println(mainCommands.invalidCommand);
                         else
                         {
                             //TODO: show nonCombat unit information
-                            selectedUnit = gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
+                            gameController.getPlayerTurn().setSelectedUnit(gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp)));
                         }
                     }
                     else
@@ -159,14 +154,14 @@ public class gameMenuView
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCity)) != null)
                 {
                     String tmp = gameController.selectCity(command);
-                    if(GameController.isValid(tmp))
+                    if(gameController.isValid(tmp))
                     {
                         if(Integer.parseInt(tmp) == -1)
                             System.out.println(mainCommands.invalidCommand);
                         else
                         {
-                            showCity(Integer.parseInt(tmp));
-                            selectedCity = gameController.getPlayerTurn().getCities().get(Integer.parseInt(tmp));
+                            showCity(Integer.parseInt(tmp), gameController);
+                            gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(Integer.parseInt(tmp)));
                         }
                     }
                     else

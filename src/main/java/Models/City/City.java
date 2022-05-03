@@ -16,6 +16,8 @@ public class City
 	private int foodYield = 0;
 	private int productionYield = 0;
 	private int goldYield = 0;
+	private int cupYield = 3;
+	private int population = 0;
 	private final ArrayList<Building> buildings = new ArrayList<>();
 	private final ArrayList<Citizen> citizens = new ArrayList<>();
 	private final ArrayList<Tile> workingTiles = new ArrayList<>();
@@ -53,7 +55,20 @@ public class City
 	public int getProductionYield() {
 		return productionYield;
 	}
-
+	public int getCupYield() {
+		return cupYield;
+	}
+	public void addCup(int amount)
+	{
+		this.cupYield += amount;
+	}
+	public int getPopulation() {
+		return population;
+	}
+	public void addPopulation(int amount)
+	{
+		this.population += amount;
+	}
 
 	public void growCity() //TODO: this should increase the number of citizens of the city
 	{

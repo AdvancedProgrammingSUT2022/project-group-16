@@ -33,8 +33,8 @@ public class GameController
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public final int MAX_MAP_SIZE = 10;
-	private final ArrayList<Player> players = new ArrayList<>();
-	private Player playerTurn;
+	private static final ArrayList<Player> players = new ArrayList<>();
+	private static Player playerTurn;
 	
 	public static GameController getInstance()
 	{
@@ -42,9 +42,17 @@ public class GameController
 			instance = new GameController();
 		return instance;
 	}
+
+	public static ArrayList<Player> getPlayers() {
+		return players;
+	}
 	public void addPlayer(Player player)
 	{
-		this.players.add(player);
+		players.add(player);
+	}
+	public void setFirstPlayer()
+	{
+		playerTurn = players.get(0);
 	}
 	public void changeTurn()
 	{
@@ -158,7 +166,6 @@ public class GameController
 		}
 		return true;
 	}
-
 	private static boolean doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.size(); i++)
@@ -173,6 +180,7 @@ public class GameController
 	{
 		return playerTurn;
 	}
+
 	private static boolean existingPlayers(HashMap<String,String> players)
 	{
 		int index = 0;
@@ -275,7 +283,7 @@ public class GameController
 		return mainCommands.invalidCommand.regex;
 	}
 
-	public static User[] convertMapToArr(HashMap<String, String> players)
+	public User[] convertMapToArr(HashMap<String, String> players)
 	{
 		User[] newArr = new User[players.size() + 1];
 		newArr[0] = Menu.loggedInUser;
@@ -285,7 +293,7 @@ public class GameController
 		return newArr;
 	}
 
-	public static Civilization findCivilByNumber(int number)
+	public Civilization findCivilByNumber(int number)
 	{
 		switch (number % 10)
 		{
@@ -323,38 +331,37 @@ public class GameController
 		return null;
 	}
 
-	public static String pickCivilization(ArrayList<Player> players, User[] users, Scanner scanner, GameController gameController, int num, int i)
+	public String pickCivilization(ArrayList<Player> players,int num)
 	{
 		if(num > 10 || num < 1)
 			return gameEnum.between1And10.regex;
-		else if(inArr(players, findCivilByNumber(num)))
+		else if(inArr(findCivilByNumber(num)))
 			return gameEnum.alreadyPicked.regex;
 		else
 			return gameEnum.chooseCivilization.regex + Civilization.values()[num - 1];
-
 	}
 
-	public static boolean inArr(ArrayList<Player> player, Civilization n)
+	public boolean inArr(Civilization n)
 	{
-		for (Player value : player) {
+		for (Player value : players) {
 			if (value.getCivilization() == n)
 				return true;
 		}
 		return false;
 	}
 
-	public static int getNum(Scanner scanner, int min, int max)
+	public int getNum(Scanner scanner, int min, int max)
 	{
 		int number = 0;
 		String tmpNumber = scanner.nextLine();
-		if(GameController.isValid(tmpNumber))
+		if(isValid(tmpNumber))
 			number = Integer.parseInt(tmpNumber);
 		if(number > max || number < min)
 			number = 0;
 		return number;
 	}
 
-	public static boolean isValid(String n)
+	public boolean isValid(String n)
 	{
 		for(int i = 0; i < n.length(); i++)
 		{
@@ -363,12 +370,6 @@ public class GameController
 		}
 		return true;
 	}
-
-	private static boolean validPos(int x, int y)
-	{
-		return x < getInstance().MAX_MAP_SIZE && y < getInstance().MAX_MAP_SIZE && x >= 0 && y >= 0;
-	}
-
 	//DOC commands
 	public String showResearch()
 	{
