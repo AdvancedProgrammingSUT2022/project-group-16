@@ -24,14 +24,15 @@ import java.util.regex.Matcher;
 
 public class gameMenuView
 {
+    private static GameController gameController;
     public static City selectedCity = null;
     public static Unit selectedUnit = null;
 
     private static void showCity(int number)
     {
-        System.out.println(GameController.getPlayerTurn().getCities().get(number).getFoodYield());
-        System.out.println(GameController.getPlayerTurn().getCities().get(number).getProductionYield());
-        System.out.println(GameController.getPlayerTurn().getCities().get(number).getGoldYield());
+        System.out.println(gameController.getPlayerTurn().getCities().get(number).getFoodYield());
+        System.out.println(gameController.getPlayerTurn().getCities().get(number).getProductionYield());
+        System.out.println(gameController.getPlayerTurn().getCities().get(number).getGoldYield());
         //TODO: print sience
         //TODO: turns til repopulation
     }
@@ -63,40 +64,40 @@ public class gameMenuView
                 System.out.println(GameController.pickCivilization(players, tmpUsers, scanner, gameController, number, i));
             } while (number > 10 || number < 1 || GameController.inArr(players, GameController.findCivilByNumber(number)));
 
-            GameController.addPlayer(new Player(GameController.findCivilByNumber(number), tmpUsers[i].getUsername(),
+            gameController.addPlayer(new Player(GameController.findCivilByNumber(number), tmpUsers[i].getUsername(),
                     tmpUsers[i].getNickname(), tmpUsers[i].getPassword()));
         }
     }
 
     public static void startGame(Scanner scanner, HashMap<String, String> Map)
     {
-        GameController gameController = GameController.getInstance();
+        gameController = GameController.getInstance();
         Matcher matcher;
         User[] tmpUsers = GameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
         ArrayList<Player> players = new ArrayList<>();
         pickCivilizations(scanner, tmpUsers, players, gameController);
 
-        GameController.setFirstPlayer();
+        // NOTE: no need to set the playerTurn, it is set in the gameController
         while (true)
         {
-            System.out.println(GameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
+            System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
 
             while (scanner.hasNextLine()) {
                 String command = scanner.nextLine();
 
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //TODO
-                    System.out.println(GameController.increaseGold(matcher, GameController.getPlayerTurn()));
+                    System.out.println(gameController.increaseGold(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //TODO
-                    System.out.println(GameController.increaseTurns(matcher, GameController.getPlayerTurn()));
+                    System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null) //done
-                    System.out.println(GameController.increaseFood(matcher, GameController.getPlayerTurn()));
+                    System.out.println(gameController.increaseFood(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null) //done
-                    System.out.println(GameController.addTechnology(matcher, GameController.getPlayerTurn()));
+                    System.out.println(gameController.addTechnology(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.winBattle)) != null) //TODO
-                    System.out.println(GameController.winBattle(matcher, GameController.getPlayerTurn()));
+                    System.out.println(gameController.winBattle(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null) //TODO
-                    System.out.println(GameController.moveUnit(matcher, GameController.getPlayerTurn()));
+                    System.out.println(gameController.moveUnit(matcher));
 
                 /*Info*/ //TODO
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoResearch)) != null)
@@ -125,7 +126,7 @@ public class gameMenuView
                 /*Select*/
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCombat)) != null)
                 {
-                    String tmp = GameController.selectCUnit(command);
+                    String tmp = gameController.selectCUnit(command);
                     if(GameController.isValid(tmp))
                     {
                         if(Integer.parseInt(tmp) == -1)
@@ -133,7 +134,7 @@ public class gameMenuView
                         else
                         {
                             //TODO: show combat unit information
-                            selectedUnit = GameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
+                            selectedUnit = gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
                         }
                     }
                     else
@@ -141,7 +142,7 @@ public class gameMenuView
                 }
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectNonCombat)) != null)
                 {
-                    String tmp = GameController.selectNUnit(command);
+                    String tmp = gameController.selectNUnit(command);
                     if(GameController.isValid(tmp))
                     {
                         if(Integer.parseInt(tmp) == -1)
@@ -149,7 +150,7 @@ public class gameMenuView
                         else
                         {
                             //TODO: show nonCombat unit information
-                            selectedUnit = GameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
+                            selectedUnit = gameController.getPlayerTurn().getUnits().get(Integer.parseInt(tmp));
                         }
                     }
                     else
@@ -157,7 +158,7 @@ public class gameMenuView
                 }
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCity)) != null)
                 {
-                    String tmp = GameController.selectCity(command);
+                    String tmp = gameController.selectCity(command);
                     if(GameController.isValid(tmp))
                     {
                         if(Integer.parseInt(tmp) == -1)
@@ -165,7 +166,7 @@ public class gameMenuView
                         else
                         {
                             showCity(Integer.parseInt(tmp));
-                            selectedCity = GameController.getPlayerTurn().getCities().get(Integer.parseInt(tmp));
+                            selectedCity = gameController.getPlayerTurn().getCities().get(Integer.parseInt(tmp));
                         }
                     }
                     else
@@ -174,73 +175,74 @@ public class gameMenuView
 
                 /*unit*/
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.moveTo)) != null)
-                    GameController.moveUnit(); //TODO
+                    gameController.moveUnit(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.sleep)) != null)
-                    GameController.sleep(); //TODO
+                    gameController.sleep(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.alert)) != null)
-                    GameController.alert(); //TODO
+                    gameController.alert(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.fortify)) != null)
-                    GameController.fortify(); //TODO
+                    gameController.fortify(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.fortifyHeal)) != null)
-                    GameController.fortifyTilHeal(); //TODO
+                    gameController.fortifyTilHeal(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.garrison)) != null)
-                    GameController.garrison(); //TODO
+                    gameController.garrison(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.setup)) != null)
-                    GameController.setup(); //TODO
+                    gameController.setup(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.attack)) != null)
-                    GameController.attack(); //TODO
+                    gameController.attack(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.foundCity)) != null)
-                    GameController.found(); //TODO
+                    gameController.found(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.cancelMission)) != null)
-                    GameController.cancel(); //TODO
+                    gameController.cancel(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.wake)) != null)
-                    GameController.wake(); //TODO
+                    gameController.wake(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.delete)) != null)
-                    GameController.delete(); //TODO
+                    gameController.delete(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildRoad)) != null)
-                    GameController.road(); //TODO
+                    gameController.road(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildRailRoad)) != null)
-                    GameController.railRoad(); //TODO
+                    gameController.railRoad(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildFarm)) != null)
-                    GameController.farm(); //TODO
+                    gameController.farm(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildMine)) != null)
-                    GameController.mine(); //TODO
+                    gameController.mine(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildTradingPost)) != null)
-                    GameController.tradingPost(); //TODO
+                    gameController.tradingPost(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildLumbermill)) != null)
-                    GameController.lumberMill(); //TODO
+                    gameController.lumberMill(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildPasture)) != null)
-                    GameController.pasture(); //TODO
+                    gameController.pasture(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildCamp)) != null)
-                    GameController.camp(); //TODO
+                    gameController.camp(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildPlantation)) != null)
-                    GameController.plantation(); //TODO
+                    gameController.plantation(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.buildQuarry)) != null)
-                    GameController.quarry(); //TODO
+                    gameController.quarry(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.removeJungle)) != null)
-                    GameController.removeJungle(); //TODO
+                    gameController.removeJungle(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.removeRoute)) != null)
-                    GameController.removeRoute(); //TODO
+                    gameController.removeRoute(); //TODO
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.repair)) != null)
-                    GameController.repair(); //TODO
+                    gameController.repair(); //TODO
 
                 /*map*/
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapShow)) != null)
-                    GameController.mapShow(); //TODO
+                    gameController.mapShow(); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveRight)) != null)
-                    GameController.mapMoveRight(command); //TODO
+                    gameController.mapMoveRight(command); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveLeft)) != null)
-                    GameController.mapMoveLeft(command); //TODO
+                    gameController.mapMoveLeft(command); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveUp)) != null)
-                    GameController.mapMoveUp(command); //TODO
+                    gameController.mapMoveUp(command); //TODO
                 else if((matcher = mapCommands.compareRegex(command, mapCommands.mapMoveDown)) != null)
-                    GameController.mapMoveDown(command); //TODO
+                    gameController.mapMoveDown(command); //TODO
 
                 /*others*/
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
-                     GameController.changeTurn();
-                     break;
+                    // TODO: check for the error and print it
+                    gameController.changeTurn();
+                    break;
                 }
                 else
                     System.out.println(mainCommands.invalidCommand.regex);

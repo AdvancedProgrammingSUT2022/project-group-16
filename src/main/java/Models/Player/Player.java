@@ -43,10 +43,6 @@ public class Player extends User
 	{
 		return civilization;
 	}
-	public void setCivilization(Civilization civilization)
-	{
-		this.civilization = civilization;
-	}
 	public int getFood()
 	{
 		return food;
@@ -75,9 +71,9 @@ public class Player extends User
 	{
 		return technologies;
 	}
-	public void setTechnologies(ArrayList<Technology> technologies)
+	public void addTechnology(Technology technology)
 	{
-		this.technologies = technologies;
+		technologies.add(technology);
 	}
 	public Technology getResearchingTechnology()
 	{

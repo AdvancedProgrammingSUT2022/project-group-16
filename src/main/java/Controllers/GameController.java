@@ -143,7 +143,11 @@ public class GameController
 		}
 		return false;
 	}
-
+	
+	public Player getPlayerTurn()
+	{
+		return playerTurn;
+	}
 	private static boolean existingPlayers(HashMap<String,String> players)
 	{
 		int index = 0;
@@ -193,38 +197,39 @@ public class GameController
 	}
 
 	//cheat codes
-	public static String increaseGold(Matcher matcher, Player player)
+	public String increaseGold(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		player.setGold(player.getGold() + amount);
+		playerTurn.setGold(playerTurn.getGold() + amount);
 		return cheatCode.successful.regex;
 	}
-	public static String increaseFood(Matcher matcher, Player player)
+	public String increaseFood(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		player.setFood(player.getFood() + amount);
+		playerTurn.setFood(playerTurn.getFood() + amount);
 		return cheatCode.successful.regex;
 	}
-	public static String increaseTurns(Matcher matcher, Player player)
+	public String increaseTurns(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		return cheatCode.successful.regex;
 	}
-	public static String addTechnology(Matcher matcher, Player player)
+	public String addTechnology(Matcher matcher)
 	{
-		player.getTechnologies().add(Technology.valueOf(matcher.group("name")));
-		player.setTechnologies(player.getTechnologies());
+		// TODO: check if we have access to this technology
+		playerTurn.addTechnology(Technology.valueOf(matcher.group("name")));
 		return cheatCode.successful.regex;
 	}
-	public static String winBattle(Matcher matcher, Player player)
+	public String winBattle(Matcher matcher)
 	{
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		//TODO:win battle
 		return cheatCode.successful.regex;
 	}
-	public static String moveUnit(Matcher matcher, Player player)
+	public String moveUnit(Matcher matcher)
 	{
+		//TODO: move unit
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
@@ -413,7 +418,7 @@ public class GameController
 		//TODO
 		return null;
 	}
-	public static String selectCUnit(String command)
+	public String selectCUnit(String command)
 	{
 		int flag = -1, doesMatch = 0;
 		for(int i = 0; i < command.length(); i++)
@@ -456,7 +461,7 @@ public class GameController
 			return mainCommands.invalidCommand.regex;
 		return String.valueOf(flag);
 	}
-	public static String selectNUnit(String command)
+	public String selectNUnit(String command)
 	{
 		int flag = -1, doesMatch = 0;
 		for(int i = 0; i < command.length(); i++)
@@ -499,7 +504,7 @@ public class GameController
 			return mainCommands.invalidCommand.regex;
 		return String.valueOf(flag);
 	}
-	public static String selectCity(String command)
+	public String selectCity(String command)
 	{
 		int flag = -1, doesMatch = 0;
 		for(int i = 0; i < command.length(); i++)
@@ -564,133 +569,133 @@ public class GameController
 			return mainCommands.invalidCommand.regex;
 		return String.valueOf(flag);
 	}
-	public static void moveUnit()
+	public void moveUnit()
 	{
 
 	}
-	public static void sleep()
+	public void sleep()
 	{
 
 	}
-	public static void alert()
+	public void alert()
 	{
 
 	}
-	public static void fortify()
+	public void fortify()
 	{
 
 	}
-	public static void fortifyTilHeal()
+	public void fortifyTilHeal()
 	{
 
 	}
-	public static void garrison()
+	public void garrison()
 	{
 
 	}
-	public static void setup()
+	public void setup()
 	{
 
 	}
-	public static void attack()
+	public void attack()
 	{
 
 	}
-	public static void found()
+	public void found()
 	{
 
 	}
-	public static void cancel()
+	public void cancel()
 	{
 
 	}
-	public static void wake()
+	public void wake()
 	{
 
 	}
-	public static void delete()
+	public void delete()
 	{
 
 	}
-	public static void road()
+	public void road()
 	{
 
 	}
-	public static void railRoad()
+	public void railRoad()
 	{
 
 	}
-	public static void farm()
+	public void farm()
 	{
 
 	}
-	public static void mine()
+	public void mine()
 	{
 
 	}
-	public static void tradingPost()
+	public void tradingPost()
 	{
 
 	}
-	public static void lumberMill()
+	public void lumberMill()
 	{
 
 	}
-	public static void pasture()
+	public void pasture()
 	{
 
 	}
-	public static void camp()
+	public void camp()
 	{
 
 	}
-	public static void plantation()
+	public void plantation()
 	{
 
 	}
-	public static void quarry()
+	public void quarry()
 	{
 
 	}
-	public static void removeJungle()
+	public void removeJungle()
 	{
 
 	}
-	public static void removeRoute()
+	public void removeRoute()
 	{
 
 	}
-	public static void repair()
+	public void repair()
 	{
 
 	}
 
-	public static void mapShow()
+	public void mapShow()
 	{
 
 	}
-	public static void mapMoveRight(String command)
+	public void mapMoveRight(String command)
 	{
 		int number = getMoves(command);
 		//TODO
 	}
-	public static void mapMoveLeft(String command)
+	public void mapMoveLeft(String command)
 	{
 		int number = getMoves(command);
 		//TODO
 	}
-	public static void mapMoveUp(String command)
+	public void mapMoveUp(String command)
 	{
 		int number = getMoves(command);
 		//TODO
 	}
-	public static void mapMoveDown(String command)
+	public void mapMoveDown(String command)
 	{
 		int number = getMoves(command);
 		//TODO
 	}
 
-	private static int getMoves(String command)
+	private int getMoves(String command)
 	{
 		int number = 0;
 		Matcher matcher;
