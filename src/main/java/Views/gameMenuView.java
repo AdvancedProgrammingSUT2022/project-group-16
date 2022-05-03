@@ -88,30 +88,30 @@ public class gameMenuView
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null) //TODO
                     System.out.println(GameController.moveUnit(matcher, GameController.getPlayerTurn()));
 
-                /*Info*/
+                /*Info*/ //TODO
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoResearch)) != null)
-                    GameController.showResearch(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showResearch());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoUnits)) != null)
-                    GameController.showUnits(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showUnits());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoCities)) != null)
-                    GameController.showCities(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showCities());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoDiplomacy)) != null)
-                    GameController.showDiplomacy(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showDiplomacy());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoVictory)) != null)
-                    GameController.showVictory(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showVictory());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoDemographics)) != null)
-                    GameController.showDemographics(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showDemographics());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoNotifications)) != null)
-                    GameController.showNotifications(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showNotifications());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoMilitary)) != null)
-                    GameController.showMilitary(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showMilitary());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoEconomic)) != null)
-                    GameController.showEconomic(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showEconomics());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoDiplomatic)) != null)
-                    GameController.showDiplomatic(GameController.getPlayerTurn()); //TODO
+                    System.out.println(gameController.showDiplomatic());
                 else if((matcher = infoCommands.compareRegex(command, infoCommands.infoDeals)) != null)
-                    GameController.showDeals(GameController.getPlayerTurn()); //TODO
-
+                    System.out.println(gameController.showDeals());
+                    
                 /*Select*/
                 else if((matcher = selectCommands.compareRegex(command, selectCommands.selectCombat)) != null)
                     GameController.selectUnitCombat(); //TODO

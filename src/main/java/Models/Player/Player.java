@@ -4,6 +4,7 @@ import Controllers.GameController;
 import Models.City.City;
 import Models.Game.Position;
 import Models.Resources.Resource;
+import Models.Terrain.Improvement;
 import Models.Terrain.Tile;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.Unit;
@@ -13,33 +14,25 @@ import java.util.*;
 
 public class Player extends User
 {
-	private Civilization civilization;
-	private int food;
-	private int gold;
-	private int happiness;
-	private ArrayList<Technology> technologies;
+	private final Civilization civilization;
+	private int food = 0;
+	private int gold = 0;
+	private int happiness = 0;
+	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private Technology researchingTechnology;
 	private ArrayList<Resource> resources; // TODO: do we need it???
+	private ArrayList<Improvement> improvements = new ArrayList<>();
 	private final HashMap<Tile, TileState> map;
-	private ArrayList<City> cities;
+	private ArrayList<City> cities = new ArrayList<>();
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
-	private Stack<Notification> notifications;
-	private ArrayList<Unit> units;
-	//	Unit selectedUnit;  //??TODO probably unnecessary
+	private final Stack<Notification> notifications = new Stack<>();
+	private ArrayList<Unit> units = new ArrayList<>();
 
 	public Player(Civilization civilization, String username, String nickname, String password)
 	{
 		super(username, nickname, password);
 		this.civilization = civilization;
-		food = 0;
-		gold = 0;
-		happiness = 0;
-		technologies = new ArrayList<>();
-		resources = new ArrayList<>();
-		cities = new ArrayList<>();
-		notifications = new Stack<>();
-		units = new ArrayList<Unit>();
 		map = new HashMap<>();
 		for(Tile tile : GameController.getInstance().getMap())
 			map.put(tile, TileState.FOG_OF_WAR);
@@ -113,33 +106,7 @@ public class Player extends User
 	{
 		// TODO
 	}
-	public ArrayList<Position> getVisiblePositions()
-	{
-		//		return visiblePositions;
-		return null;
-	}
-	public void setVisiblePositions(ArrayList<Position> visiblePositions)
-	{
-		//		this.visiblePositions = visiblePositions;
-	}
-	public ArrayList<Position> getRevealedPositions()
-	{
-		//		return revealedPositions;
-		return null;
-	}
-	public void setRevealedPositions(ArrayList<Position> revealedPositions)
-	{
-		//		this.revealedPositions = revealedPositions;
-	}
-	public ArrayList<Position> getFogPositions()
-	{
-		//		return fogPositions;
-		return null;
-	}
-	public void setFogPositions(ArrayList<Position> fogPositions)
-	{
-		//		this.fogPositions = fogPositions;
-	}
+	//TODO: set tile states maybe????!!!
 	public ArrayList<City> getCities()
 	{
 		return cities;
@@ -168,10 +135,6 @@ public class Player extends User
 	{
 		return notifications;
 	}
-	public void setNotifications(Stack<Notification> notifications)
-	{
-		this.notifications = notifications;
-	}
 	public ArrayList<Unit> getUnits()
 	{
 		return units;
@@ -186,12 +149,7 @@ public class Player extends User
 		Random tileStateRandom = new Random();
 		for(Map.Entry<Tile, TileState> entry : map.entrySet())
 			map.replace(entry.getKey(), TileState.values()[tileStateRandom.nextInt(TileState.values().length)]);
-		//		for(Map.Entry<Tile, TileState> entry : map.entrySet())
-		//			map.replace(entry.getKey(), TileState.FOG_OF_WAR);
 	}
-
-
-
 }
 
 

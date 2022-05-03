@@ -2,11 +2,9 @@ package Controllers;
 
 import Models.City.City;
 import Models.Game.Position;
-import Models.Player.Civilization;
-import Models.Player.Player;
+import Models.Player.*;
 import Models.Menu.Menu;
 import Models.Player.Player;
-import Models.Player.Technology;
 import Models.Resources.BonusResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
@@ -24,10 +22,7 @@ import enums.gameCommands.selectCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 
 public class GameController
@@ -40,19 +35,20 @@ public class GameController
 	private final ArrayList<Player> players = new ArrayList<>();
 	private Player playerTurn;
 	
+	public static GameController getInstance()
+	{
+		if(instance == null)
+			instance = new GameController();
+		return instance;
+	}
 	public void addPlayer(Player player)
 	{
 		this.players.add(player);
 	}
 	public void changeTurn()
 	{
+		// TODO: do everything needed to change turns
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
-	}
-	public static GameController getInstance()
-	{
-		if(instance == null)
-			instance = new GameController();
-		return instance;
 	}
 	public void initGame(ArrayList<Player> players)
 	{
@@ -60,6 +56,7 @@ public class GameController
 		initGrid();
 		initMap();
 		this.players.addAll(players);
+		// TODO: set tileStates for each player
 		playerTurn = players.get(0);
 	}
 	public ArrayList<Tile> getMap()
@@ -320,51 +317,80 @@ public class GameController
 	}
 
 	//DOC commands
-	public static void showResearch(Player player)
+	public String showResearch()
 	{
-
+		// TODO: calculate the remaining turns of the research
+		// TODO: find everything that unlocks after the research
+		return "Reseach info:\n"+"Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
+			"Remaining turns: " + " " + "\n"+
+			"everything which will be unlocked" + " ";
 	}
-	public static void showUnits(Player player)
+	public String showUnits()
 	{
-
+		// TODO: player should be able to active some units
+		// TODO: show units in the right order
+		StringBuilder allUnitsString = new StringBuilder("Units info:\n");
+		ArrayList<Unit> units = playerTurn.getUnits();
+		for(int i = 0; i < units.size(); i++)
+			allUnitsString.append(units.get(i).toString() + ", ");
+		
+		return allUnitsString.toString();
 	}
-	public static void showCities(Player player)
+	public String showCities()
 	{
-
+		// TODO: player should be able to go to some cities and see their info
+		StringBuilder allCitiesString = new StringBuilder("Cities info:\n");
+		for(City city : playerTurn.getCities())
+			allCitiesString.append(city.getName() + ", ");
+		
+		return allCitiesString.toString();
 	}
-	public static void showDiplomacy(Player player)
+	public String showDiplomacy()
 	{
-
+		// TODO: player should be able to negotiate with other players
+		return "Diplomacy info:\n"+ "Score of " + playerTurn.getCivilization() + ": " + playerTurn.getScore();
 	}
-	public static void showVictory(Player player)
+	public String showVictory()
 	{
-
+		// TODO: show victory info
+		return "Victory info:\n";
 	}
-	public static void showDemographics(Player player)
+	public String showDemographics()
 	{
-
+		// TODO: show demographics info
+		
+		return "Demographics info:\n";
 	}
-	public static void showNotifications(Player player)
+	public String showNotifications()
 	{
-
+		StringBuilder allNotificationsString = new StringBuilder("Notifications info:\n");
+		Stack<Notification> notifications = playerTurn.getNotifications();
+		for(int i = notifications.size() - 1; i >= 0; i--)
+			allNotificationsString.append(notifications.get(i).toString()).append(", ");
+		
+		return allNotificationsString.toString();
 	}
-	public static void showMilitary(Player player)
+	public String showMilitary()
 	{
-
+		// TODO ??
+		return showUnits();
 	}
-	public static void showEconomic(Player player)
+	public String showEconomics()
 	{
-
+		//TODO
+		return null;
 	}
-	public static void showDiplomatic(Player player)
+	public String showDiplomatic()
 	{
-
+		//TODO
+		return null;
 	}
-	public static void showDeals(Player player)
+	public String showDeals()
 	{
-
+		//TODO
+		return null;
 	}
-	public static void selectUnitCombat()
+	public String selectUnitCombat()
 	{
 
 	}
