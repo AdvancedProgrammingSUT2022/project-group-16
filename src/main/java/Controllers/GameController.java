@@ -260,16 +260,39 @@ public class GameController
 
 	public static Civilization findCivilByNumber(int number)
 	{
-		if(number == 1) return Civilization.AMERICAN;
-		if(number == 2) return Civilization.ARABIAN;
-		if(number == 3) return Civilization.ASSYRIAN;
-		if(number == 4) return Civilization.CHINESE;
-		if(number == 5) return Civilization.GERMAN;
-		if(number == 6) return Civilization.GREEK;
-		if(number == 7) return Civilization.MAYAN;
-		if(number == 8) return Civilization.PERSIAN;
-		if(number == 9) return Civilization.OTTOMAN;
-		if(number == 10) return Civilization.RUSSIAN;
+		switch (number % 10)
+		{
+			case 1 -> {
+				return Civilization.AMERICAN;
+			}
+			case 2 -> {
+				return Civilization.ARABIAN;
+			}
+			case 3 -> {
+				return Civilization.ASSYRIAN;
+			}
+			case 4 -> {
+				return Civilization.CHINESE;
+			}
+			case 5 -> {
+				return Civilization.GERMAN;
+			}
+			case 6 -> {
+				return Civilization.GREEK;
+			}
+			case 7 -> {
+				return Civilization.MAYAN;
+			}
+			case 8 -> {
+				return Civilization.PERSIAN;
+			}
+			case 9 -> {
+				return Civilization.OTTOMAN;
+			}
+			case 0 -> {
+				return Civilization.RUSSIAN;
+			}
+		}
 		return null;
 	}
 
@@ -281,14 +304,12 @@ public class GameController
 			return gameEnum.alreadyPicked.regex;
 		else
 			return gameEnum.chooseCivilization.regex + Civilization.values()[num - 1];
-
 	}
 
 	public static boolean inArr(ArrayList<Player> player, Civilization n)
 	{
-		for(int i = 0; i < player.size(); i++)
-		{
-			if(player.get(i).getCivilization() == n)
+		for (Player value : player) {
+			if (value.getCivilization() == n)
 				return true;
 		}
 		return false;

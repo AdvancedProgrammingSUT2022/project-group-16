@@ -76,7 +76,7 @@ public class gameMenuView
                 String command = scanner.nextLine();
 
                 /*cheat codes*/
-                if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //done
+                if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //TODO
                     System.out.println(GameController.increaseGold(matcher, GameController.getPlayerTurn()));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //TODO
                     System.out.println(GameController.increaseTurns(matcher, GameController.getPlayerTurn()));
