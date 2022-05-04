@@ -22,7 +22,8 @@ public enum mapCommands
     selected("selected"),
     invalidCommand("invalid command"),
     successful("successful"),
-    positiveNum("please enter positive number");
+    positiveNum("please enter positive number"),
+    visible("you can not see this tile/city");
 
     public final String regex;
 

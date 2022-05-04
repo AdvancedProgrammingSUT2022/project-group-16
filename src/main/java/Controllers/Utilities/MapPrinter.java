@@ -1,5 +1,6 @@
 package Controllers.Utilities;
 
+import Models.City.City;
 import Models.Player.TileState;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class MapPrinter
 {
 	public static Tile selectedTile = null;
+	public static City selectedCity = null;
 	private static HashMap<Tile, TileState> map;
 	private static int columns;
 	private static int rows;
