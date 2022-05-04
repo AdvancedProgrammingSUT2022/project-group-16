@@ -715,7 +715,7 @@ public class GameController
 						{
 							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
 								return mapCommands.visible.regex;
-							//TODO: select tile for player(k) and city(j)
+							MapPrinter.selectedCity = players.get(k).getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)
@@ -730,7 +730,7 @@ public class GameController
 						{
 							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
 								return mapCommands.visible.regex;
-							//TODO: select tile for player(k) and city(j)
+							MapPrinter.selectedCity = players.get(k).getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)
@@ -741,8 +741,8 @@ public class GameController
 				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
 						y >= getInstance().MAX_MAP_SIZE || y < 0)
 					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				//TODO: error for fog-of-war tileState
-				//TODO: Tile with x and y
+				//TODO: fog-of-war error
+				//TODO: select Tile with x and y
 				return mapCommands.selected.regex;
 			}
 		}
