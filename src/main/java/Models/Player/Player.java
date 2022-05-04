@@ -120,6 +120,13 @@ public class Player extends User
 	{
 		return map;
 	}
+	public Tile getTileByXY(int x, int y)
+	{
+		for(Tile tile : map.keySet())
+			if(tile.getPosition().X == x && tile.getPosition().Y == y)
+				return tile;
+		return null;
+	}
 	public void addCity(City newCity) {
 		cities.add(newCity);
 	}
