@@ -78,7 +78,7 @@ public class gameMenuView
         ArrayList<Player> players = new ArrayList<>();
         pickCivilizations(scanner, tmpUsers, players);
 
-        while (scanner.hasNextLine()) //TODO: edit later
+        while (true)
         {
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
 

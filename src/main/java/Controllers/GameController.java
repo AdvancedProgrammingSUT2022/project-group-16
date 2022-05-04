@@ -713,7 +713,9 @@ public class GameController
 					for(int j = 0; j < players.get(k).getCities().size(); j++)
 						if(players.get(k).getCities().get(j).getName().equals(cityName))
 						{
-							//TODO: tile of player(k) and city index(j)
+							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
+								return mapCommands.visible.regex;
+							MapPrinter.selectedCity = players.get(k).getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)
@@ -726,7 +728,9 @@ public class GameController
 					for(int j = 0; j < players.get(k).getCities().size(); j++)
 						if(players.get(k).getCities().get(j).getName().equals(cityName))
 						{
-							//TODO: tile of player(k) and city index(j)
+							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
+								return mapCommands.visible.regex;
+							MapPrinter.selectedCity = players.get(k).getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)
@@ -737,7 +741,9 @@ public class GameController
 				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
 						y >= getInstance().MAX_MAP_SIZE || y < 0)
 					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				//TODO: Tile with x and y
+				if (playerTurn.getMap().get(playerTurn.getTileByXY(x, y)).equals(TileState.FOG_OF_WAR))
+					return mapCommands.visible.regex;
+				MapPrinter.selectedTile = getTileByXY(x, y);
 				return mapCommands.selected.regex;
 			}
 		}
