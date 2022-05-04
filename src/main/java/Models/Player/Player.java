@@ -13,8 +13,11 @@ import java.util.*;
 
 public class Player extends User
 {
+	private Unit selectedUnit = null;
+	private City selectedCity = null;
 	private final Civilization civilization;
 	private int food = 0;
+	private int cup = 0;
 	private int gold = 0;
 	private int happiness = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
@@ -38,7 +41,21 @@ public class Player extends User
 			map.put(tile, TileState.FOG_OF_WAR);
 		setTileStates();
 	}
-	
+
+	public City getSelectedCity() {
+		return selectedCity;
+	}
+	public Unit getSelectedUnit() {
+		return selectedUnit;
+	}
+	public void setSelectedUnit(Unit unit)
+	{
+		this.selectedUnit = unit;
+	}
+	public void setSelectedCity(City city)
+	{
+		this.selectedCity = city;
+	}
 	public Civilization getCivilization()
 	{
 		return civilization;
@@ -79,6 +96,14 @@ public class Player extends User
 	{
 		return researchingTechnology;
 	}
+	public int getCup() {
+		return cup;
+	}
+	public void updateCup()
+	{
+		for (City city : this.cities) this.cup += city.getCupYield();
+	}
+
 	public void setResearchingTechnology(Technology researchingTechnology)
 	{
 		this.researchingTechnology = researchingTechnology;
