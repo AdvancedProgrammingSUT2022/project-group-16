@@ -90,14 +90,6 @@ public class City
 		this.population += amount;
 	}
 
-	public int getInLineConstructionTurn() {
-		return inLineConstructionTurn;
-	}
-
-	public void setInLineConstructionTurn(int inLineConstructionTurn) {
-		this.inLineConstructionTurn = inLineConstructionTurn;
-	}
-
 	public void growCity() //TODO: this should increase the number of citizens of the city
 	{
 	
@@ -136,16 +128,6 @@ public class City
 	public void buyProduct(Product product){
 		//TODO
 	}
-
-	public void changeConstruction(Constructable construction){
-		//TODO probably check for some conditions
-		this.currentConstruction = construction;
-	}
-
-	public void buildUnit(){
-		//TODO build unit
-	}
-
 }
 
 
