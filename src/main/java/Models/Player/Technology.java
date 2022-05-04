@@ -56,7 +56,8 @@ public enum Technology implements Product
 	
 	public final int cost;
 	public final ArrayList<Technology> requiredTechnologies = new ArrayList<>();
-	
+	public int inLineTurn;
+
 	static
 	{
 		ANIMAL_HUSBANDRY.requiredTechnologies.add(AGRICULTURE);

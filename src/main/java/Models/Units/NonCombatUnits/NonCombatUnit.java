@@ -4,5 +4,5 @@ import Models.Units.Unit;
 
 public abstract class NonCombatUnit extends Unit
 {
-    protected abstract void move();
+
 }
