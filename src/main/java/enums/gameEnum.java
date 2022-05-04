@@ -35,7 +35,14 @@ public enum gameEnum
     alreadyPicked("already picked, please choose another one"),
     unit("^\\s*[uU]nit\\s*"),
     turn("'s turn"),
-    invalidPos("invalid coordinate");
+    invalidPos("invalid coordinate"),
+    gold("gold: "),
+    production("production: "),
+    food("food: "),
+    cup("cup: "),
+    health("health: "),
+    power("power: "),
+    speed("speed: ");
 
     public final String regex;
 

@@ -1,5 +1,6 @@
 package Controllers;
 
+import Controllers.Utilities.MapPrinter;
 import Models.City.City;
 import Models.Game.Position;
 import Models.Player.*;
@@ -33,8 +34,8 @@ public class GameController
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public final int MAX_MAP_SIZE = 10;
-	private final ArrayList<Player> players = new ArrayList<>();
-	private Player playerTurn;
+	private static final ArrayList<Player> players = new ArrayList<>();
+	private static Player playerTurn;
 	
 	public static GameController getInstance()
 	{
@@ -42,9 +43,22 @@ public class GameController
 			instance = new GameController();
 		return instance;
 	}
+
+	public static ArrayList<Player> getPlayers() {
+		return players;
+	}
 	public void addPlayer(Player player)
 	{
-		this.players.add(player);
+		players.add(player);
+		playerTurn = players.get(0);
+	}
+	public void setFirstPlayer()
+	{
+		playerTurn = players.get(0);
+	}
+	public void deletePlayer(Player player)
+	{
+		players.remove(player);
 	}
 	public void changeTurn()
 	{
@@ -158,7 +172,6 @@ public class GameController
 		}
 		return true;
 	}
-
 	private static boolean doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.size(); i++)
@@ -173,6 +186,7 @@ public class GameController
 	{
 		return playerTurn;
 	}
+
 	private static boolean existingPlayers(HashMap<String,String> players)
 	{
 		int index = 0;
@@ -275,7 +289,7 @@ public class GameController
 		return mainCommands.invalidCommand.regex;
 	}
 
-	public static User[] convertMapToArr(HashMap<String, String> players)
+	public User[] convertMapToArr(HashMap<String, String> players)
 	{
 		User[] newArr = new User[players.size() + 1];
 		newArr[0] = Menu.loggedInUser;
@@ -285,7 +299,7 @@ public class GameController
 		return newArr;
 	}
 
-	public static Civilization findCivilByNumber(int number)
+	public Civilization findCivilByNumber(int number)
 	{
 		switch (number % 10)
 		{
@@ -323,38 +337,37 @@ public class GameController
 		return null;
 	}
 
-	public static String pickCivilization(ArrayList<Player> players, User[] users, Scanner scanner, GameController gameController, int num, int i)
+	public String pickCivilization(ArrayList<Player> players,int num)
 	{
 		if(num > 10 || num < 1)
 			return gameEnum.between1And10.regex;
-		else if(inArr(players, findCivilByNumber(num)))
+		else if(inArr(findCivilByNumber(num)))
 			return gameEnum.alreadyPicked.regex;
 		else
 			return gameEnum.chooseCivilization.regex + Civilization.values()[num - 1];
-
 	}
 
-	public static boolean inArr(ArrayList<Player> player, Civilization n)
+	public boolean inArr(Civilization n)
 	{
-		for (Player value : player) {
+		for (Player value : players) {
 			if (value.getCivilization() == n)
 				return true;
 		}
 		return false;
 	}
 
-	public static int getNum(Scanner scanner, int min, int max)
+	public int getNum(Scanner scanner, int min, int max)
 	{
 		int number = 0;
 		String tmpNumber = scanner.nextLine();
-		if(GameController.isValid(tmpNumber))
+		if(isValid(tmpNumber))
 			number = Integer.parseInt(tmpNumber);
 		if(number > max || number < min)
 			number = 0;
 		return number;
 	}
 
-	public static boolean isValid(String n)
+	public boolean isValid(String n)
 	{
 		for(int i = 0; i < n.length(); i++)
 		{
@@ -363,12 +376,6 @@ public class GameController
 		}
 		return true;
 	}
-
-	private static boolean validPos(int x, int y)
-	{
-		return x < getInstance().MAX_MAP_SIZE && y < getInstance().MAX_MAP_SIZE && x >= 0 && y >= 0;
-	}
-
 	//DOC commands
 	public String showResearch()
 	{
@@ -445,93 +452,81 @@ public class GameController
 	}
 	public String selectCUnit(String command)
 	{
-		int flag = -1, doesMatch = 0;
+		playerTurn.setSelectedUnit(null);
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
 			Matcher matcher2 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewPos);
+			int x = 0, y = 0;
 			if(matcher1 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher1.group("x"));
-				int y = Integer.parseInt(matcher1.group("y"));
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getUnits().size(); j++)
-					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
-						flag = j;
-				if(flag == -1)
-					return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
-
+				x = Integer.parseInt(matcher1.group("x"));
+				y = Integer.parseInt(matcher1.group("y"));
 			}
 			else if(matcher2 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher2.group("x"));
-				int y = Integer.parseInt(matcher2.group("y"));
+				x = Integer.parseInt(matcher2.group("x"));
+				y = Integer.parseInt(matcher2.group("y"));
+			}
+			if(matcher1 != null || matcher2 != null)
+			{
 				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
 						y >= getInstance().MAX_MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
 							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
-						flag = j;
-				if(flag == -1)
+					{
+						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
+						return selectCommands.selected.regex;
+					}
+				if(playerTurn.getSelectedUnit() == null)
 					return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
-		if(doesMatch == 0)
-			return mainCommands.invalidCommand.regex;
-		return String.valueOf(flag);
+		return selectCommands.invalidCommand.regex;
 	}
 	public String selectNUnit(String command)
 	{
-		int flag = -1, doesMatch = 0;
+		playerTurn.setSelectedUnit(null);
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
 			Matcher matcher2 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewPos);
+			int x = 0, y = 0;
 			if(matcher1 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher1.group("x"));
-				int y = Integer.parseInt(matcher1.group("y"));
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getUnits().size(); j++)
-					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
-						flag = j;
-				if(flag == -1)
-					return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
-
+				x = Integer.parseInt(matcher1.group("x"));
+				y = Integer.parseInt(matcher1.group("y"));
 			}
 			else if(matcher2 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher2.group("x"));
-				int y = Integer.parseInt(matcher2.group("y"));
+				x = Integer.parseInt(matcher2.group("x"));
+				y = Integer.parseInt(matcher2.group("y"));
+			}
+			if(matcher1 != null || matcher2 != null)
+			{
 				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
 						y >= getInstance().MAX_MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
 							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
-						flag = j;
-				if(flag == -1)
+					{
+						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
+						return selectCommands.selected.regex;
+					}
+				if(playerTurn.getSelectedUnit() == null)
 					return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
-		if(doesMatch == 0)
-			return mainCommands.invalidCommand.regex;
-		return String.valueOf(flag);
+		return selectCommands.invalidCommand.regex;
 	}
+
 	public String selectCity(String command)
 	{
-		int flag = -1, doesMatch = 0;
+		int x = 0, y = 0;
+		playerTurn.setSelectedCity(null);
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -540,59 +535,55 @@ public class GameController
 			Matcher matcher4 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewName);
 			if(matcher1 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher1.group("x"));
-				int y = Integer.parseInt(matcher1.group("y"));
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
-							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
-						flag = j;
-				if(flag == -1)
-					return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
-
+				x = Integer.parseInt(matcher1.group("x"));
+				y = Integer.parseInt(matcher1.group("y"));
 			}
 			else if(matcher2 != null)
 			{
-				doesMatch = 1;
-				int x = Integer.parseInt(matcher2.group("x"));
-				int y = Integer.parseInt(matcher2.group("y"));
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
-							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
-						flag = j;
-				if(flag == -1)
-					return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
+				x = Integer.parseInt(matcher2.group("x"));
+				y = Integer.parseInt(matcher2.group("y"));
 			}
 			else if(matcher3 != null)
 			{
-				doesMatch = 1;
 				String cityName = matcher3.group("name");
 				for(int j = 0; j < playerTurn.getCities().size(); j++)
 					if(playerTurn.getCities().get(j).getName().equals(cityName))
-						flag = j;
-				if(flag == -1)
+					{
+						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
+						return selectCommands.selected.regex;
+					}
+				if(playerTurn.getSelectedCity() == null)
 					return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			else if(matcher4 != null)
 			{
-				doesMatch = 1;
 				String cityName = matcher4.group("name");
 				for(int j = 0; j < playerTurn.getCities().size(); j++)
 					if(playerTurn.getCities().get(j).getName().equals(cityName))
-						flag = j;
-				if(flag == -1)
+					{
+						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
+						return selectCommands.selected.regex;
+					}
+				if(playerTurn.getSelectedCity() == null)
 					return selectCommands.nameDoesntExist.regex + cityName;
 			}
+			if(matcher1 != null || matcher2 != null)
+			{
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				for(int j = 0; j < playerTurn.getCities().size(); j++)
+					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
+							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
+					{
+						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
+						return selectCommands.selected.regex;
+					}
+				if(playerTurn.getSelectedCity() == null)
+					return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
+			}
 		}
-		if(doesMatch == 0)
-			return mainCommands.invalidCommand.regex;
-		return String.valueOf(flag);
+		return selectCommands.invalidCommand.regex;
 	}
 	public void moveUnit()
 	{
@@ -695,39 +686,114 @@ public class GameController
 
 	}
 
-	public void mapShow()
+	public String mapShow(String command)
 	{
-
+		int x = 0, y = 0;
+		playerTurn.setSelectedCity(null);
+		for(int i = 0; i < command.length(); i++)
+		{
+			Matcher matcher1 = mapCommands.compareRegex(command.substring(i), mapCommands.newPos);
+			Matcher matcher2 = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewPos);
+			Matcher matcher3 = mapCommands.compareRegex(command.substring(i), mapCommands.newName);
+			Matcher matcher4 = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewName);
+			if(matcher1 != null)
+			{
+				x = Integer.parseInt(matcher1.group("x"));
+				y = Integer.parseInt(matcher1.group("y"));
+			}
+			else if(matcher2 != null)
+			{
+				x = Integer.parseInt(matcher2.group("x"));
+				y = Integer.parseInt(matcher2.group("y"));
+			}
+			else if(matcher3 != null)
+			{
+				String cityName = matcher3.group("name");
+				for(int k = 0; k < players.size(); k++)
+					for(int j = 0; j < players.get(k).getCities().size(); j++)
+						if(players.get(k).getCities().get(j).getName().equals(cityName))
+						{
+							//TODO: tile of player(k) and city index(j)
+							return mapCommands.selected.regex;
+						}
+				if(MapPrinter.selectedTile == null)
+					return selectCommands.nameDoesntExist.regex + cityName;
+			}
+			else if(matcher4 != null)
+			{
+				String cityName = matcher4.group("name");
+				for(int k = 0; k < players.size(); k++)
+					for(int j = 0; j < players.get(k).getCities().size(); j++)
+						if(players.get(k).getCities().get(j).getName().equals(cityName))
+						{
+							//TODO: tile of player(k) and city index(j)
+							return mapCommands.selected.regex;
+						}
+				if(MapPrinter.selectedTile == null)
+					return selectCommands.nameDoesntExist.regex + cityName;
+			}
+			if(matcher1 != null || matcher2 != null)
+			{
+				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
+						y >= getInstance().MAX_MAP_SIZE || y < 0)
+					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				//TODO: Tile with x and y
+				return mapCommands.selected.regex;
+			}
+		}
+		return mapCommands.invalidCommand.regex;
 	}
-	public void mapMoveRight(String command)
+	public String mapMoveRight(String command)
 	{
 		int number = getMoves(command);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
-	public void mapMoveLeft(String command)
+	public String mapMoveLeft(String command)
 	{
 		int number = getMoves(command);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
-	public void mapMoveUp(String command)
+	public String mapMoveUp(String command)
 	{
 		int number = getMoves(command);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
-	public void mapMoveDown(String command)
+	public String mapMoveDown(String command)
 	{
 		int number = getMoves(command);
+		if(number == -1)
+			return mapCommands.positiveNum.regex;
+		if(number == -2)
+			return mapCommands.invalidCommand.regex;
 		//TODO
+		return mapCommands.successful.regex;
 	}
 
 	private int getMoves(String command)
 	{
-		int number = 0;
 		Matcher matcher;
-		if ((matcher = mapCommands.compareRegex(command, mapCommands.newNumber)) != null)
-			number = Integer.parseInt(matcher.group("c"));
-		else if ((matcher = mapCommands.compareRegex(command, mapCommands.shortNewNumber)) != null)
-			number = Integer.parseInt(matcher.group("c"));
-		return number;
+		for(int i = 0; i < command.length(); i++)
+			if ((matcher = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewNumber)) != null)
+			{
+				if(Integer.parseInt(matcher.group("c")) < 0)
+					return -1;
+				return Integer.parseInt(matcher.group("c"));
+			}
+		return -2;
 	}
 }
