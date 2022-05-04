@@ -741,8 +741,9 @@ public class GameController
 				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
 						y >= getInstance().MAX_MAP_SIZE || y < 0)
 					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
-				//TODO: fog-of-war error
-				//TODO: select Tile with x and y
+				if (playerTurn.getMap().get(playerTurn.getTileByXY(x, y)).equals(TileState.FOG_OF_WAR))
+					return mapCommands.visible.regex;
+				MapPrinter.selectedTile = getTileByXY(x, y);
 				return mapCommands.selected.regex;
 			}
 		}
