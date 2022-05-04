@@ -1,6 +1,7 @@
 package Controllers.Utilities;
 
 import Models.City.City;
+import Models.Player.Player;
 import Models.Player.TileState;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
@@ -16,18 +17,20 @@ public class MapPrinter
 	public static Tile selectedTile = null;
 	public static City selectedCity = null;
 	private static HashMap<Tile, TileState> map;
+	private static Player player;
 	private static int columns;
 	private static int rows;
 	private static StringBuilder mapString;
 	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.BACK_COLOR(255, 255, 255);
 	private final static String REVEALED_SYMBOL = "*REVEALED*";
 	
-	public static String getMapString(HashMap<Tile, TileState> map, int columns, int rows)
+	public static String getMapString(Player player, int columns, int rows)
 	{
-		mapString = new StringBuilder();
-		MapPrinter.map = map;
+		MapPrinter.player = player;
+		MapPrinter.map = player.getMap();
 		MapPrinter.columns = columns;
 		MapPrinter.rows = rows;
+		mapString = new StringBuilder();
 		
 		printFirstLine();
 		for(int i = 1; i <= rows * 8 + 3; i++)
@@ -486,8 +489,12 @@ public class MapPrinter
 			if(tile.getCombatUnitInTile() == null)
 				mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
 			else
+			{
+				//TODO: print highlited text if unit is selected
 				mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute,
 						Attribute.BLACK_TEXT()));
+			}
+			
 		}
 	}
 	private static void printNCUnit(Tile tile)
