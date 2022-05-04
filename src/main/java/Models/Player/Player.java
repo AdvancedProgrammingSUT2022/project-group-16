@@ -6,6 +6,7 @@ import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Terrain.Improvement;
 import Models.Terrain.Tile;
+import Models.Units.CombatUnits.LongRange;
 import Models.Units.Unit;
 import Models.User;
 
@@ -107,10 +108,6 @@ public class Player extends User
 	{
 		return cities;
 	}
-	public void setCities(ArrayList<City> cities)
-	{
-		this.cities = cities;
-	}
 	public City getInitialCapitalCity()
 	{
 		return initialCapitalCity;
@@ -135,9 +132,8 @@ public class Player extends User
 	{
 		return units;
 	}
-	public void setUnits(ArrayList<Unit> units)
-	{
-		this.units = units;
+	public void addUnit(Unit unit) {
+		units.add(unit);
 	}
 	
 	public void setTileStates()
@@ -146,6 +142,7 @@ public class Player extends User
 		for(Map.Entry<Tile, TileState> entry : map.entrySet())
 			map.replace(entry.getKey(), TileState.values()[tileStateRandom.nextInt(TileState.values().length)]);
 	}
+
 }
 
 

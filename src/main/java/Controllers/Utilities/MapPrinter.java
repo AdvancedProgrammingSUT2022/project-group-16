@@ -27,7 +27,7 @@ public class MapPrinter
 		MapPrinter.rows = rows;
 		
 		printFirstLine();
-		for(int i = 1; i <= rows * 8 + 3; i++)
+		for(int i = 1; i <= rows * 8 + 3; i++) {
 			switch(i % 8)
 			{
 				case 1 -> printLine1(i);
@@ -39,6 +39,7 @@ public class MapPrinter
 				case 7 -> printLine7(i);
 				case 0 -> printLine8(i);
 			}
+		}
 		printLastLine();
 		printMapGuide();
 		return mapString.toString();
