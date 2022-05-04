@@ -20,6 +20,8 @@ public class City
 	private final ArrayList<Citizen> citizens = new ArrayList<>();
 	private final ArrayList<Tile> workingTiles = new ArrayList<>();
 	private Constructable currentConstruction = null;
+	private int inLineConstructionTurn; //how many turns are left till the construction is ready
+
 	private Product currentProduct = null; //what the city is producing
 	private CombatUnit garrison = null;
 	private NonCombatUnit nonCombatUnit = null;
@@ -33,7 +35,25 @@ public class City
 		this.rulerPlayer = rulerPlayer;
 		territory.add(capitalTile);
 		territory.addAll(GameController.getInstance().getAdjacentTiles(capitalTile));
+		this.name = setCityName();
+		rulerPlayer.addCity(this);
 	}
+	private String setCityName() {
+		for (String cityName : rulerPlayer.getCivilization().cities) {
+			int flg = 0;
+			for (City city : rulerPlayer.getCities()) {
+				if(city.getName().equals(cityName)){
+					flg = 1;
+					break;
+				}
+			}
+			if(flg == 0){
+				return cityName;
+			}
+		}
+		return null; // there is no more city
+	}
+
 
 	public String getName() {
 		return name;
@@ -54,6 +74,13 @@ public class City
 		return productionYield;
 	}
 
+	public int getInLineConstructionTurn() {
+		return inLineConstructionTurn;
+	}
+
+	public void setInLineConstructionTurn(int inLineConstructionTurn) {
+		this.inLineConstructionTurn = inLineConstructionTurn;
+	}
 
 	public void growCity() //TODO: this should increase the number of citizens of the city
 	{
@@ -93,6 +120,16 @@ public class City
 	public void buyProduct(Product product){
 		//TODO
 	}
+
+	public void changeConstruction(Constructable construction){
+		//TODO probably check for some conditions
+		this.currentConstruction = construction;
+	}
+
+	public void buildUnit(){
+		//TODO build unit
+	}
+
 }
 
 

@@ -9,10 +9,6 @@ public class Settler extends NonCombatUnit{
         // TODO: delete settler from tile
     }
 
-    @Override
-    protected void move() {
-
-    }
     
     @Override
     public String toString()

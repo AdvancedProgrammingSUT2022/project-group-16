@@ -24,6 +24,7 @@ public abstract class Unit implements Constructable
 	private ArrayList commands;
 	private boolean isActive;
 	private boolean isSleep;
+	private boolean hasArrived = false;
 
 
 	public Player getRulerPlayer() {
@@ -105,6 +106,13 @@ public abstract class Unit implements Constructable
 	public void setMoves(ArrayList<Position> moves) {
 		this.moves = moves;
 	}
+	public boolean isHasArrived() {
+		return hasArrived;
+	}
+
+	public void setHasArrived(boolean hasArrived) {
+		this.hasArrived = hasArrived;
+	}
 
 	public ArrayList getCommands() {
 		return commands;
@@ -130,29 +138,40 @@ public abstract class Unit implements Constructable
 		isSleep = sleep;
 	}
 
-	private void sleep(){
+	public void sleep(){
+		this.isActive = false;
+	}
+	public void getReady(){
 
 	}
-	private void getReady(){
+	public void reinforce(){
 
 	}
-	private void reinforce(){
+	public void reinforceTillRecovery(){
 
 	}
-	private void reinforceTillRecovery(){
+	public void getSet(){
 
 	}
-	private void getSet(){
-
+	public void cancelCommand(int i){
+		commands.remove(i);
 	}
-	private void cancelCommand(){
-
+	public void awaken(){
+		isSleep = false;
 	}
-	private void awaken(){
-
+	public void removeUnit(){
+		rulerPlayer.setGold((int) (rulerPlayer.getGold() + (this.productionCost * 0.1)));
+		rulerPlayer.getUnits().remove(this);
 	}
-	private void removeUnit(){
 
+	public void move(Tile destination){
+		this.tile = destination;
+		this.movementPoints -= destination.getTileType().movementCost;
+		if(this.movementPoints < 0) this.movementPoints = 0;
+		//TODO include railroad movement points
+		//TODO write a unit test for findWay
+		moves = FindWay.getInstance(destination).getMoves();
+		//TODO check if unit can go to destination
 	}
 	
 }
