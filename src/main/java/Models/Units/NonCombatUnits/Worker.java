@@ -1,13 +1,25 @@
 package Models.Units.NonCombatUnits;
 
+import Models.Player.Player;
+import Models.Terrain.Tile;
+
 public class Worker extends NonCombatUnit{
 
     private int TurnsTillRepairment = 3;
 
-
-    public Worker(){
-
+    public Worker(Player rulerPlayer, int cost, int movement, Tile tile, int speed, int power){
+        this.setRulerPlayer(rulerPlayer);
+        this.setProductionCost(cost);
+        this.setRequiredTechnology(null);
+        this.setMovementPoints(movement);
+        this.setTile(tile);
+        this.setHealth(100); //TODO what is the max health,speed,power?
+        this.setSpeed(speed);
+        this.setPower(power);
+        this.setRequiredResource(null);
+        rulerPlayer.addUnit(this);
     }
+
     public int getTurnsTillRepairment() {
         return TurnsTillRepairment;
     }

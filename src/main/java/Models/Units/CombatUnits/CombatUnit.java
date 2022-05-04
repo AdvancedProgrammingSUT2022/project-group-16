@@ -4,7 +4,7 @@ import Models.Units.Unit;
 
 public abstract class CombatUnit extends Unit
 {
-    private void attack(){
+    public void attack(){
 
     }
 }

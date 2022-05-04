@@ -1,12 +1,33 @@
 package Models.Units.CombatUnits;
 
+import Models.Player.Player;
+import Models.Terrain.Tile;
+
 public class MidRange extends CombatUnit{
     private MidRangeType type;
 
     public MidRange(MidRangeType type){
         this.type = type;
     }
-    
+
+    public MidRange(Player rulerPlayer, MidRangeType midRangeType, Tile tile, int speed, int power){
+        this.setRulerPlayer(rulerPlayer);
+        this.setType(midRangeType);
+        this.setProductionCost(type.cost);
+        this.setRequiredTechnology(type.requiredTech);
+        this.setMovementPoints(type.movement);
+        this.setTile(tile);
+        this.setHealth(100); //TODO what is the max health,speed,power?
+        this.setSpeed(speed);
+        this.setPower(power);
+        //this.setRequiredResource();
+        rulerPlayer.addUnit(this);
+    }
+
+    private void setType(MidRangeType midRangeType) {
+        this.type = midRangeType;
+    }
+
     private void pillage(){
 
     }

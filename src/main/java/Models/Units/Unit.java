@@ -20,10 +20,10 @@ public abstract class Unit implements Constructable
 	private int power;
 	private Technology requiredTechnology; //TODO
 	private Resource requiredResource;
-	private ArrayList<Position> moves;
-	private ArrayList commands;
-	private boolean isActive;
-	private boolean isSleep;
+	private ArrayList<Position> moves = new ArrayList<>();
+	private ArrayList commands = new ArrayList<>();
+	private boolean isActive = true;
+	private boolean isSleep = false;
 	private boolean hasArrived = false;
 
 
@@ -118,9 +118,9 @@ public abstract class Unit implements Constructable
 		return commands;
 	}
 
-	public void setCommands(ArrayList commands) {
-		this.commands = commands;
-	}
+	public void addCommands(String command) {
+		commands.add(command);
+	}    //TODO what is the command Type?
 
 	public boolean isActive() {
 		return isActive;
