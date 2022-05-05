@@ -1,7 +1,6 @@
 package Controllers;
 
 import Controllers.Utilities.MapPrinter;
-import Models.City.City;
 import Models.Game.Position;
 import Models.Player.*;
 import Models.Menu.Menu;
@@ -31,6 +30,7 @@ public class GameController
 	private static final ArrayList<Player> players = new ArrayList<>();
 	private static Player playerTurn;
 	private final RegisterController registerController = new RegisterController();
+	private int turnCounter = 0;
 
 	public static GameController getInstance()
 	{
@@ -63,7 +63,6 @@ public class GameController
 	{
 		return map;
 	}
-	
 	private void initGrid()
 	{
 		for(int i = 0; i < MAX_GRID_LENGTH; i++)
@@ -81,7 +80,6 @@ public class GameController
 		
 		return null;
 	}
-
 	private void initMap()
 	{
 		// TODO: select from a list of maps
@@ -172,6 +170,12 @@ public class GameController
 	{
 		return playerTurn;
 	}
+	public int getTurnCounter() {
+		return turnCounter;
+	}
+	public void addToTurnCounter(int amount) {
+		turnCounter += amount;
+	}
 	public void removeAllPlayers()
 	{
 		if (players.size() > 0)
@@ -240,6 +244,7 @@ public class GameController
 	public String increaseTurns(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
+		turnCounter += amount;
 		return cheatCode.successful.regex;
 	}
 	public String addTechnology(Matcher matcher)
@@ -264,7 +269,6 @@ public class GameController
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
 		return cheatCode.successful.regex;
 	}
-
 	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{
 		String menuName = matcher.group("menuName");
@@ -277,7 +281,6 @@ public class GameController
 			return "1";
 		return mainCommands.invalidCommand.regex;
 	}
-
 	public User[] convertMapToArr(HashMap<String, String> players)
 	{
 		User[] newArr = new User[players.size() + 1];
@@ -287,7 +290,6 @@ public class GameController
 			newArr[i] = registerController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
 		return newArr;
 	}
-
 	public Civilization findCivilByNumber(int number)
 	{
 		switch (number % 10)
@@ -325,7 +327,6 @@ public class GameController
 		}
 		return null;
 	}
-
 	public String pickCivilization(int num)
 	{
 		if(num > 10 || num < 1)
@@ -335,7 +336,6 @@ public class GameController
 		else
 			return gameEnum.chooseCivilization.regex + Civilization.values()[num - 1];
 	}
-
 	public boolean inArr(Civilization n)
 	{
 		for (Player value : players) {
@@ -344,7 +344,6 @@ public class GameController
 		}
 		return false;
 	}
-
 	public int getNum(Scanner scanner, int min, int max)
 	{
 		int number = 0;
@@ -355,7 +354,6 @@ public class GameController
 			number = 0;
 		return number;
 	}
-
 	public boolean isValid(String n)
 	{
 		for(int i = 0; i < n.length(); i++)

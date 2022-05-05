@@ -18,6 +18,7 @@ public class City
 	private int goldYield = 0;
 	private int cupYield = 3;
 	private int population = 0;
+	private int power = 0;
 	private final ArrayList<Building> buildings = new ArrayList<>();
 	private final ArrayList<Citizen> citizens = new ArrayList<>();
 	private final ArrayList<Tile> workingTiles = new ArrayList<>();
@@ -61,6 +62,22 @@ public class City
 		return name;
 	}
 
+	public int getPower() {
+		return power;
+	}
+	public void addPower(int amount) {
+		power += amount;
+	}
+	public void addProduction(int amount) {
+		productionYield += amount;
+	}
+	public void addGold(int amount) {
+		goldYield += amount;
+	}
+	public void addFood(int amount) {
+		foodYield += amount;
+	}
+
 	public void createBuilding() //TODO
 	{
 	
@@ -78,7 +95,7 @@ public class City
 	public int getCupYield() {
 		return cupYield;
 	}
-	public void addCup(int amount)
+	public void addCupYield(int amount)
 	{
 		this.cupYield += amount;
 	}

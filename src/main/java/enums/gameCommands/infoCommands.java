@@ -21,8 +21,9 @@ public enum infoCommands
     infoDeals("^\\s*[iI]nfo\\s+[dD]eals\\s*$"),
 
     //messages
-    noCity("you don't have any cities"),
-    searchEconomic(": Info Economics");
+    searchEconomic(": go to economics!"),
+    searchCity(": back to cities!"),
+    backToGame(": back to game!");
 
 
     public final String regex;
