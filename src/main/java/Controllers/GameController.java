@@ -385,15 +385,6 @@ public class GameController
 		
 		return allUnitsString.toString();
 	}
-	public String showCities()
-	{
-		// TODO: player should be able to go to some cities and see their info
-		StringBuilder allCitiesString = new StringBuilder("Cities info:\n");
-		for(City city : playerTurn.getCities())
-			allCitiesString.append(city.getName() + ", ");
-		
-		return allCitiesString.toString();
-	}
 	public String showDiplomacy()
 	{
 		// TODO: player should be able to negotiate with other players
