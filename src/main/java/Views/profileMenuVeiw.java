@@ -1,40 +1,39 @@
 package Views;
 
-import Controllers.GameController;
-import Controllers.MainMenuController;
 import Controllers.ProfileController;
 import enums.mainCommands;
-import enums.mainMenuEnum;
 import enums.profileEnum;
-import enums.registerEnum;
 
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class profileMenuVeiw
 {
-    public static void run(Scanner scanner, Matcher matcher)
+    public static void run(Scanner scanner)
     {
         String command;
-        Matcher newPasswordMatcher = null, oldPasswordMatcher = null;
+        Matcher matcher;
+        ProfileController profileController = new ProfileController();
         while(scanner.hasNextLine())
         {
             command = scanner.nextLine();
 
             if((matcher = profileEnum.compareRegex(command, profileEnum.changeNickname)) != null)
-                System.out.println(ProfileController.changeNickname(command));
-            else if((matcher = profileEnum.compareRegex(command, profileEnum.changePassword)) != null)
-                System.out.println(ProfileController.changePassword(oldPasswordMatcher, newPasswordMatcher, command));
-            else if((matcher = mainCommands.compareRegex(command, mainCommands.showCurrentMenu)) != null)
+                System.out.println(profileController.changeNickname(matcher));
+            else if((matcher = profileEnum.compareRegex(command, profileEnum.shortChangeNickname)) != null)
+                System.out.println(profileController.changeNickname(matcher));
+            else if(profileEnum.compareRegex(command, profileEnum.changePassword) != null)
+                    System.out.println(profileController.changePassword(command));
+            else if(mainCommands.compareRegex(command, mainCommands.showCurrentMenu) != null)
                 System.out.println(profileEnum.currentMenu.regex);
             else if((matcher = mainCommands.compareRegex(command, mainCommands.enterMenu)) != null)
             {
-                if(ProfileController.enterMenu(scanner, matcher).equals("1"))
+                if(profileController.enterMenu(matcher).equals("1"))
                     break;
                 else
-                    System.out.println(ProfileController.enterMenu(scanner, matcher));
+                    System.out.println(profileController.enterMenu(matcher));
             }
-            else if((matcher = mainCommands.compareRegex(command, mainCommands.menuExit)) != null)
+            else if(mainCommands.compareRegex(command, mainCommands.menuExit) != null)
                 break;
             else
                 System.out.println(mainCommands.invalidCommand.regex);

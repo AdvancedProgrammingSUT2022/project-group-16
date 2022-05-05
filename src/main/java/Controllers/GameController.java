@@ -8,16 +8,10 @@ import Models.Menu.Menu;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.BonusResource;
-import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
-import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
-import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import Models.User;
-import Views.gameMenuView;
 import enums.cheatCode;
 import enums.gameCommands.mapCommands;
 import enums.gameCommands.selectCommands;
@@ -36,7 +30,8 @@ public class GameController
 	public final int MAX_MAP_SIZE = 10;
 	private static final ArrayList<Player> players = new ArrayList<>();
 	private static Player playerTurn;
-	
+	private final RegisterController registerController = new RegisterController();
+
 	public static GameController getInstance()
 	{
 		if(instance == null)
@@ -44,16 +39,9 @@ public class GameController
 		return instance;
 	}
 
-	public static ArrayList<Player> getPlayers() {
-		return players;
-	}
 	public void addPlayer(Player player)
 	{
 		players.add(player);
-		playerTurn = players.get(0);
-	}
-	public void setFirstPlayer()
-	{
 		playerTurn = players.get(0);
 	}
 	public void deletePlayer(Player player)
@@ -62,17 +50,14 @@ public class GameController
 	}
 	public void changeTurn()
 	{
-		// TODO: do everything needed to change turns
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 	}
-	public void initGame(ArrayList<Player> players)
+	public void initGame()
 	{
 		// TODO: sync with gameMenu
 		initGrid();
 		initMap();
-		this.players.addAll(players);
 		// TODO: set tileStates for each player
-		playerTurn = players.get(0);
 	}
 	public ArrayList<Tile> getMap()
 	{
@@ -96,6 +81,7 @@ public class GameController
 		
 		return null;
 	}
+
 	private void initMap()
 	{
 		// TODO: select from a list of maps
@@ -186,21 +172,24 @@ public class GameController
 	{
 		return playerTurn;
 	}
-
-	private static boolean existingPlayers(HashMap<String,String> players)
+	public void removeAllPlayers()
 	{
-		int index = 0;
+		if (players.size() > 0)
+			players.subList(0, players.size()).clear();
+	}
+
+	private boolean existingPlayers(HashMap<String,String> players)
+	{
 		for (Object key : players.keySet())
 		{
 			Object value = players.get(key);
-			index++;
 			if(!doesUsernameExist(value.toString()))
 				return false;
 		}
 		return true;
 	}//check the input usernames with arrayList
 
-	public static String startNewGame(String command, HashMap<String, String> players)
+	public String startNewGame(String command, HashMap<String, String> players)
 	{
 		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
@@ -295,7 +284,7 @@ public class GameController
 		newArr[0] = Menu.loggedInUser;
 
 		for(int i = 1; i < players.size() + 1; i++)
-			newArr[i] = RegisterController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
+			newArr[i] = registerController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
 		return newArr;
 	}
 
@@ -475,7 +464,7 @@ public class GameController
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y) //TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
 						return selectCommands.selected.regex;
@@ -511,7 +500,7 @@ public class GameController
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y) //TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
 						return selectCommands.selected.regex;
@@ -709,13 +698,12 @@ public class GameController
 			else if(matcher3 != null)
 			{
 				String cityName = matcher3.group("name");
-				for(int k = 0; k < players.size(); k++)
-					for(int j = 0; j < players.get(k).getCities().size(); j++)
-						if(players.get(k).getCities().get(j).getName().equals(cityName))
-						{
-							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
+				for (Player player : players)
+					for (int j = 0; j < player.getCities().size(); j++)
+						if (player.getCities().get(j).getName().equals(cityName)) {
+							if (playerTurn.getMap().get(player.getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
 								return mapCommands.visible.regex;
-							MapPrinter.selectedCity = players.get(k).getCities().get(j);
+							MapPrinter.selectedCity = player.getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)
@@ -724,13 +712,12 @@ public class GameController
 			else if(matcher4 != null)
 			{
 				String cityName = matcher4.group("name");
-				for(int k = 0; k < players.size(); k++)
-					for(int j = 0; j < players.get(k).getCities().size(); j++)
-						if(players.get(k).getCities().get(j).getName().equals(cityName))
-						{
-							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
+				for (Player player : players)
+					for (int j = 0; j < player.getCities().size(); j++)
+						if (player.getCities().get(j).getName().equals(cityName)) {
+							if (playerTurn.getMap().get(player.getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
 								return mapCommands.visible.regex;
-							MapPrinter.selectedCity = players.get(k).getCities().get(j);
+							MapPrinter.selectedCity = player.getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)

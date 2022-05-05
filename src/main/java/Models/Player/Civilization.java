@@ -9,8 +9,8 @@ public enum Civilization
 	GERMAN("Bismarck", new String[]{"Winden", "Berlin", "Munich", "Frankfurt", "Hamburg", "Nuremberg"}),
 	GREEK("Alexander", new String[]{"Athens", "Thessaloniki", "Chania", "Rhodes", "Patras"}),
 	MAYAN("Pacal", new String[]{"Tikal", "Palenque", "Copan", "Banampak", "Yaxchilan"}),
-	PERSIAN("Darius I", new String[]{"Istanbul", "Bursa", "Gelibolu", "Edirne", "Izmir", "Aleppo"}),
-	OTTOMAN("Suleiman", new String[]{"Tehran", "Tabriz", "Mashhad", "Kordestan", "Kerman", "Ardebil"}),
+	PERSIAN("Darius I", new String[]{"Tehran", "Tabriz", "Mashhad", "Kordestan", "Kerman", "Ardebil"}),
+	OTTOMAN("Suleiman", new String[]{"Istanbul", "Bursa", "Gelibolu", "Edirne", "Izmir", "Aleppo"}),
 	RUSSIAN("Catherine", new String[]{"Moscow", "Saint Petersburg", "Samara", "Kazan", "Omsk", "Ozersk"});
 
 	public final String leaderName;
