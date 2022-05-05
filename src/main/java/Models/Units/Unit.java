@@ -138,8 +138,11 @@ public abstract class Unit implements Constructable
 		isSleep = sleep;
 	}
 
-	public void sleep(){
-		this.isActive = false;
+	public void sleepOrWakeup()
+	{
+		if(this.isSleep)
+			this.isSleep = false;
+		this.isSleep = true;
 	}
 	public void getReady(){
 

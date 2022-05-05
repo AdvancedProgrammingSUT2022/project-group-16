@@ -44,7 +44,12 @@ public enum gameEnum
     cup("cup: "),
     health("health: "),
     power("power: "),
-    speed("speed: ");
+    speed("speed: "),
+    slept("unit slept"),
+    wokeUp("unit woke up"),
+    isSleep("unit already slept"),
+    awaken("unit is awake"),
+    nonSelect("nothing has been selected");
 
     public final String regex;
 

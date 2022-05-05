@@ -83,6 +83,7 @@ public class gameMenuView
         else
             for (int i = 0; i < tmp.size(); i++)
                 System.out.println((i + 1) + ": " + tmp.get(i).toString());
+        System.out.println();
     }
     private static void showTechnologies(Scanner scanner)
     {
@@ -248,7 +249,10 @@ public class gameMenuView
                 else if(unitCommands.compareRegex(command, unitCommands.moveTo) != null)
                     gameController.moveUnit(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.sleep) != null)
-                    gameController.sleep(); //TODO
+                {
+                    System.out.println(gameController.sleep());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.alert) != null)
                     gameController.alert(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.fortify) != null)
@@ -266,7 +270,10 @@ public class gameMenuView
                 else if(unitCommands.compareRegex(command, unitCommands.cancelMission) != null)
                     gameController.cancel(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.wake) != null)
-                    gameController.wake(); //TODO
+                {
+                    System.out.println(gameController.wake());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.delete) != null)
                     gameController.delete(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.buildRoad) != null)
@@ -315,9 +322,18 @@ public class gameMenuView
                     System.out.println(gameEnum.endGame.regex);
                     break;
                 } //end game
+//                else if(command.equals("s"))
+//                {
+//                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,10);
+//                    Settler m = new Settler(gameController.getPlayerTurn(), 20,30,gameController.getMap().get(1),12,34);
+//                    n.createCity();
+//                    m.createCity();
+//                }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
                     // TODO: check for the error and print it
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                    gameController.getPlayerTurn().setSelectedCity(null);
                     gameController.changeTurn();
                     break;
                 }

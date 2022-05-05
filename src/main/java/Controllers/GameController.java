@@ -9,6 +9,9 @@ import Models.Player.Technology;
 import Models.Resources.BonusResource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.User;
 import enums.cheatCode;
@@ -409,7 +412,7 @@ public class GameController
 
 	public String selectCUnit(String command)
 	{
-		playerTurn.setSelectedUnit(null);
+		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -435,9 +438,10 @@ public class GameController
 							playerTurn.getUnits().get(j).getTile().getPosition().Y == y) //TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
+						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedUnit() == null)
+				if(playerTurn.getSelectedUnit()  != playerTurn.getUnits().get(flag))
 					return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -445,7 +449,7 @@ public class GameController
 	}
 	public String selectNUnit(String command)
 	{
-		playerTurn.setSelectedUnit(null);
+		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -468,12 +472,13 @@ public class GameController
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y) //TODO: c/n unit
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)//TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
+						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedUnit() == null)
+				if(playerTurn.getSelectedUnit() != playerTurn.getUnits().get(flag))
 					return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -483,7 +488,7 @@ public class GameController
 	public String selectCity(String command)
 	{
 		int x = 0, y = 0;
-		playerTurn.setSelectedCity(null);
+		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -507,9 +512,10 @@ public class GameController
 					if(playerTurn.getCities().get(j).getName().equals(cityName))
 					{
 						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
+						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedCity() == null)
+				if(playerTurn.getSelectedCity() != playerTurn.getCities().get(flag))
 					return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			else if(matcher4 != null)
@@ -546,9 +552,19 @@ public class GameController
 	{
 
 	}
-	public void sleep()
+	public String sleep()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(playerTurn.getSelectedUnit().isSleep())
+				return gameEnum.isSleep.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().sleepOrWakeup();
+				return gameEnum.slept.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	public void alert()
 	{
@@ -582,9 +598,20 @@ public class GameController
 	{
 
 	}
-	public void wake()
+	public String wake()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getSelectedUnit().isSleep())
+				return gameEnum.awaken.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().sleepOrWakeup();
+				return gameEnum.wokeUp.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
 	public void delete()
 	{
@@ -756,5 +783,11 @@ public class GameController
 				return Integer.parseInt(matcher.group("c"));
 			}
 		return -2;
+	}
+
+	public void resetSelectedObjects()
+	{
+		getPlayerTurn().setSelectedUnit(null);
+		getPlayerTurn().setSelectedCity(null);
 	}
 }
