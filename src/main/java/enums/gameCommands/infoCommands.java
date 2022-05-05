@@ -9,21 +9,21 @@ public enum infoCommands
 {
     //commands
     infoResearch("^\\s*[iI]nfo\\s+[rR]esearch\\s*$"),
+    infoTechnologies("^\\s*[iI]nfo\\s+[tT]echnology\\s*$"),
     infoUnits("^\\s*[iI]nfo\\s+[uU]nits\\s*$"),
     infoCities("^\\s*[iI]nfo\\s+[cC]ities\\s*$"),
-    infoDiplomacy("^\\s*[iI]nfo\\s+[dD]iplomacy\\s*$"),
-    infoVictory("^\\s*[iI]nfo\\s+[vV]ictory\\s*$"),
     infoDemographics("^\\s*[iI]nfo\\s+[dD]emographics\\s*$"),
     infoNotifications("^\\s*[iI]nfo\\s+[nN]otifications\\s*$"),
     infoMilitary("^\\s*[iI]nfo\\s+[mM]ilitary\\s*$"),
     infoEconomic("^\\s*[iI]nfo\\s+[eE]conomic\\s*$"),
-    infoDiplomatic("^\\s*[iI]nfo\\s+[dD]iplomatic\\s*$"),
-    infoDeals("^\\s*[iI]nfo\\s+[dD]eals\\s*$"),
 
     //messages
     searchEconomic(": go to economics!"),
     searchCity(": go to cities!"),
-    backToGame(": back to game!");
+    backToGame(": back to game!"),
+    gained("gained technologies"),
+    choose("choose a technology to start researching!"),
+    nothing("nothing");
 
 
     public final String regex;

@@ -97,17 +97,13 @@ public class Player extends User
 	{
 		return researchingTechnology;
 	}
+
 	public int getCup() {
 		return cup;
 	}
 	public void updateCup()
 	{
 		for (City city : this.cities) this.cup += city.getCupYield();
-	}
-
-	public void setResearchingTechnology(Technology researchingTechnology)
-	{
-		this.researchingTechnology = researchingTechnology;
 	}
 	public ArrayList<Resource> getResources()
 	{
@@ -167,14 +163,12 @@ public class Player extends User
 	public void addUnit(Unit unit) {
 		units.add(unit);
 	}
-	
 	public void setTileStates()
 	{
 		Random tileStateRandom = new Random();
 		for(Map.Entry<Tile, TileState> entry : map.entrySet())
 			map.replace(entry.getKey(), TileState.values()[tileStateRandom.nextInt(TileState.values().length)]);
 	}
-
 }
 
 

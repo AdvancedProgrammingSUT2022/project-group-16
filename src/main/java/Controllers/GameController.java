@@ -176,6 +176,9 @@ public class GameController
 	public void addToTurnCounter(int amount) {
 		turnCounter += amount;
 	}
+	public ArrayList<Player> getPlayers() {
+		return players;
+	}
 	public void removeAllPlayers()
 	{
 		if (players.size() > 0)
@@ -363,12 +366,13 @@ public class GameController
 		}
 		return true;
 	}
+
 	//DOC commands
 	public String showResearch()
 	{
 		// TODO: calculate the remaining turns of the research
 		// TODO: find everything that unlocks after the research
-		return "Reseach info:\n"+"Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
+		return "Reseach info:\n"+"Researching technology: " + "playerTurn.getResearchingTechnology().toString()" + "\n" +
 			"Remaining turns: " + " " + "\n"+
 			"everything which will be unlocked" + " ";
 	}
@@ -383,20 +387,9 @@ public class GameController
 		
 		return allUnitsString.toString();
 	}
-	public String showDiplomacy()
-	{
-		// TODO: player should be able to negotiate with other players
-		return "Diplomacy info:\n"+ "Score of " + playerTurn.getCivilization() + ": " + playerTurn.getScore();
-	}
-	public String showVictory()
-	{
-		// TODO: show victory info
-		return "Victory info:\n";
-	}
 	public String showDemographics()
 	{
 		// TODO: show demographics info
-		
 		return "Demographics info:\n";
 	}
 	public String showNotifications()
@@ -413,21 +406,7 @@ public class GameController
 		// TODO ??
 		return showUnits();
 	}
-	public String showEconomics()
-	{
-		//TODO
-		return null;
-	}
-	public String showDiplomatic()
-	{
-		//TODO
-		return null;
-	}
-	public String showDeals()
-	{
-		//TODO
-		return null;
-	}
+
 	public String selectCUnit(String command)
 	{
 		playerTurn.setSelectedUnit(null);
