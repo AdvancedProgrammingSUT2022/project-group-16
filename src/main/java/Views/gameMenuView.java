@@ -43,7 +43,8 @@ public class gameMenuView
     {
         ArrayList<City> n = gameController.getPlayerTurn().getCities();
         int max = gameController.getPlayerTurn().getCities().size();
-        System.out.println("city name\t\t\tpopulation\t\tpower force\t\tfood yield\t\tcup yield\t\tgold yield\t\tproduction yield");
+        if(n.size() != 0)
+            System.out.println("city name\t\t\tpopulation\t\tpower force\t\tfood yield\t\tcup yield\t\tgold yield\t\tproduction yield");
         for (int i = 0; i < max; i++)
         {
             System.out.print(n.get(i).getName());
@@ -79,15 +80,16 @@ public class gameMenuView
         for (int i = 0; i < max; i++)
             System.out.println((i + 1) + ": " + gameController.getPlayerTurn().getCities().get(i).getName());
         System.out.println((max + 1) + infoCommands.searchEconomic.regex);
+        System.out.println((max + 2) + infoCommands.backToGame.regex);
         int number = 0;
         while (number == 0) {
-            number = gameController.getNum(scanner, 1, max + 1);
+            number = gameController.getNum(scanner, 1, max + 2);
             if (number == 0)
-                System.out.println(mainCommands.pickBetween.regex + "1 and " + (max + 1));
+                System.out.println(mainCommands.pickBetween.regex + "1 and " + (max + 2));
         }
         if(number == max + 1)
             showEconomics(scanner);
-        else
+        else if(number != max + 2)
         {
             gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(number - 1));
             showCity();

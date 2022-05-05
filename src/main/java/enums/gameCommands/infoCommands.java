@@ -22,7 +22,7 @@ public enum infoCommands
 
     //messages
     searchEconomic(": go to economics!"),
-    searchCity(": back to cities!"),
+    searchCity(": go to cities!"),
     backToGame(": back to game!");
 
 
