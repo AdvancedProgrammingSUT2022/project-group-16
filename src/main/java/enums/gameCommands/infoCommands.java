@@ -18,8 +18,11 @@ public enum infoCommands
     infoMilitary("^\\s*[iI]nfo\\s+[mM]ilitary\\s*$"),
     infoEconomic("^\\s*[iI]nfo\\s+[eE]conomic\\s*$"),
     infoDiplomatic("^\\s*[iI]nfo\\s+[dD]iplomatic\\s*$"),
-    infoDeals("^\\s*[iI]nfo\\s+[dD]eals\\s*$");
+    infoDeals("^\\s*[iI]nfo\\s+[dD]eals\\s*$"),
+
     //messages
+    noCity("you don't have any cities"),
+    searchEconomic(": Info Economics");
 
 
     public final String regex;

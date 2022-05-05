@@ -326,7 +326,7 @@ public class GameController
 		return null;
 	}
 
-	public String pickCivilization(ArrayList<Player> players,int num)
+	public String pickCivilization(int num)
 	{
 		if(num > 10 || num < 1)
 			return gameEnum.between1And10.regex;

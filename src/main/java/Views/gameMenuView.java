@@ -2,6 +2,7 @@ package Views;
 
 import Controllers.GameController;
 import Models.Player.Player;
+import Models.Units.NonCombatUnits.Settler;
 import Models.User;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
@@ -20,6 +21,26 @@ public class gameMenuView
 {
     private static GameController gameController = GameController.getInstance();
 
+    private static void showAllCities(Scanner scanner)
+    {
+        int max = gameController.getPlayerTurn().getCities().size();
+        for (int i = 0; i < max; i++)
+            System.out.println((i + 1) + ": " + gameController.getPlayerTurn().getCities().get(i).getName());
+        System.out.println((max + 1) + infoCommands.searchEconomic.regex);
+        int number = 0;
+        while (number == 0) {
+            number = gameController.getNum(scanner, 1, max + 1);
+            if (number == 0)
+                System.out.println(mainCommands.pickBetween.regex + "1 and " + (max + 1));
+        }
+        if(number == max + 1)
+            gameController.showEconomics();
+        else
+        {
+            gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(number - 1));
+            showCity();
+        }
+    }
     private static void showUnit()
     {
         System.out.println(gameEnum.speed.regex + gameController.getPlayerTurn().getSelectedUnit().getSpeed());
@@ -58,7 +79,7 @@ public class gameMenuView
                     if (number == 0)
                         System.out.println(mainCommands.pickBetween.regex + "1 and 10");
                 }
-                System.out.println(gameController.pickCivilization(players, number));
+                System.out.println(gameController.pickCivilization(number));
             } while (number > 10 || number < 1 || gameController.inArr(gameController.findCivilByNumber(number)));
 
             gameController.addPlayer(new Player(gameController.findCivilByNumber(number), tmpUser.getUsername(),
@@ -83,13 +104,13 @@ public class gameMenuView
                 command = scanner.nextLine();
 
                 /*cheat codes*/
-                if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //TODO
+                if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //done
                     System.out.println(gameController.increaseGold(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //TODO
                     System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null) //done
                     System.out.println(gameController.increaseFood(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null) //done
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null) //TODO
                     System.out.println(gameController.addTechnology(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.winBattle)) != null) //TODO
                     System.out.println(gameController.winBattle(matcher));
@@ -102,7 +123,11 @@ public class gameMenuView
                 else if(infoCommands.compareRegex(command, infoCommands.infoUnits) != null)
                     System.out.println(gameController.showUnits());
                 else if(infoCommands.compareRegex(command, infoCommands.infoCities) != null)
-                    System.out.println(gameController.showCities());
+                {
+                    //System.out.println(gameController.showCities());
+                    showAllCities(scanner);
+
+                }
                 else if(infoCommands.compareRegex(command, infoCommands.infoDiplomacy) != null)
                     System.out.println(gameController.showDiplomacy());
                 else if(infoCommands.compareRegex(command, infoCommands.infoVictory) != null)
