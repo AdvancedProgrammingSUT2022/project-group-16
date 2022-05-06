@@ -252,6 +252,7 @@ public class GameController
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		turnCounter += amount;
+		playerTurn.getResearchingTechnology().addTurn(amount);
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String addTechnology(Matcher matcher)
@@ -376,16 +377,23 @@ public class GameController
 		return true;
 	}
 
+	public void addTurn(int amount)
+	{
+		for(int i = 0; i < Technology.values().length; i++)
+			if (Technology.values()[i] == playerTurn.getResearchingTechnology())
+				Technology.values()[i].addTurn(amount);
+	}
 	public String checkTechnology()
 	{
-		if(playerTurn.getResearchingTechCounter() != 0 &&
-				playerTurn.getResearchingTechCounter() - turnCounter <= 0)
-		{
-			Technology technology = playerTurn.getResearchingTechnology();
-			playerTurn.addTechnology(technology);
-			playerTurn.setResearchingTechnology(null);
-			return infoCommands.successGainTech.regex + technology.name();
-		}
+		for(int i = 0; i < Technology.values().length; i++)
+			if (Technology.values()[i].inLineTurn >= Technology.values()[i].cost &&
+				!playerTurn.getTechnologies().contains(Technology.values()[i]))
+			{
+				Technology technology = Technology.values()[i];
+				playerTurn.addTechnology(technology);
+				playerTurn.setResearchingTechnology(null);
+				return (infoCommands.successGainTech.regex + technology.name());
+			}
 		return null;
 	}
 	//DOC commands
@@ -394,7 +402,7 @@ public class GameController
 		// TODO: find everything that unlocks after the research
 		if(playerTurn.getResearchingTechnology() != null)
 			return "Reseach info:\n"+"Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
-					"Remaining turns: " + (playerTurn.getResearchingTechCounter() - turnCounter);
+					"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechnology().inLineTurn );
 		return "Reseach info:\n"+"Researching technology: nothing"+ "\n" +
 				"Remaining turns: ";
 	}

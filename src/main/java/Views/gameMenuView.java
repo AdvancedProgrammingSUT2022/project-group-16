@@ -95,7 +95,11 @@ public class gameMenuView
             if(gameController.getPlayerTurn().getTechnologies().containsAll(Technology.values()[i].requiredTechnologies) &&
                 !gameController.getPlayerTurn().getTechnologies().contains(Technology.values()[i]))
             {
-                System.out.println((max + 1) + ": " + Technology.values()[i].toString());
+                if(gameController.getPlayerTurn().getResearchingTechnology() != null &&
+                    Technology.values()[i].equals(gameController.getPlayerTurn().getResearchingTechnology()))
+                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + " (current research)");
+                else
+                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + " - required turns: " + (Technology.values()[i].cost - Technology.values()[i].inLineTurn));
                 n.add(Technology.values()[i]);
                 max++;
             }
@@ -110,7 +114,7 @@ public class gameMenuView
         if(number != max + 1)
         {
             gameController.getPlayerTurn().setResearchingTechnology(n.get(number - 1));
-            gameController.getPlayerTurn().setResearchingTechCounter(gameController.getTurnCounter());
+            gameController.getPlayerTurn().setResearchingTechCounter(gameController.getTurnCounter() + gameController.getPlayerTurn().getResearchingTechCounter());
             System.out.println(infoCommands.choose.regex + n.get(number - 1).name() + infoCommands.successful.regex);
         }
     }
@@ -192,15 +196,16 @@ public class gameMenuView
         String command = null;
         do
         {
+            gameController.addTurn(1);
             if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
                 gameController.addToTurnCounter(1);
-            String s = gameController.checkTechnology();
-            if(s != null) System.out.println(s);
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
 
-            while (scanner.hasNextLine()) {
+            while (scanner.hasNextLine())
+            {
                 command = scanner.nextLine();
-
+                String s = gameController.checkTechnology();
+                if(s != null) System.out.println(s);
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //done
                     System.out.println(gameController.increaseGold(matcher));
@@ -348,6 +353,8 @@ public class gameMenuView
                 }
                 else
                     System.out.println(mainCommands.invalidCommand.regex);
+                String t = gameController.checkTechnology();
+                if(t != null) System.out.println(t);
             }
         } while (!Objects.equals(command, gameEnum.end.toString()));
     }
