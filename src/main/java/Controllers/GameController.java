@@ -254,8 +254,9 @@ public class GameController
 		int amount = Integer.parseInt(matcher.group("amount"));
 		turnCounter += amount;
 		addTurn(amount);
-		for (int i = 0; i < amount; i++)
-			playerTurn.updateCup();
+		for(Player player : players)
+			for (int i = 0; i < amount; i++)
+				player.updateCup();
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String addTechnology(Matcher matcher)
@@ -430,25 +431,23 @@ public class GameController
 			BuildingType requiredBuilding = requiredTechForBuilding(playerTurn.getResearchingTechnology());
 			Improvement requiredImprovement = requiredTechForImprovement(playerTurn.getResearchingTechnology());
 			if(requiredBuilding != null && requiredImprovement != null)
-				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
-						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
-						+ requiredBuilding.name() + " and " + requiredImprovement.name() + " will be unlock after you reach this technology!";
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredBuilding.name() + " and " + requiredImprovement.name() + infoCommands.gainAfterGetTechnology.regex;
 			else if(requiredBuilding != null)
-				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
-						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
-						+ requiredBuilding.name() + " will be unlock after you reach this technology!";
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredBuilding.name() + infoCommands.gainAfterGetTechnology.regex;
 			else if(requiredImprovement != null)
-				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
-						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
-						+ requiredImprovement.name() + " will be unlock after you reach this technology!";
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredImprovement.name() + infoCommands.gainAfterGetTechnology.regex;
 			else
-				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
-						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
-						+ "nothing will unlock after you reach this technology";
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.requiredTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ infoCommands.notGain.regex;
 		}
-		return "Reseach info:\n"+"Researching technology: nothing"+ "\n" +
-				"Remaining turns: ";
-		// TODO: find everything that unlocks after the research
+		return infoCommands.researchInfo.regex+infoCommands.currentResearching.regex + ": " + infoCommands.nothing.regex;
 	}
 	public String showUnits()
 	{
@@ -631,7 +630,7 @@ public class GameController
 				return gameEnum.isSleep.regex;
 			else
 			{
-				playerTurn.getSelectedUnit().sleepOrWakeup();
+				playerTurn.getSelectedUnit().changeSleepWake();
 				return gameEnum.slept.regex;
 			}
 		}
@@ -677,7 +676,7 @@ public class GameController
 				return gameEnum.awaken.regex;
 			else
 			{
-				playerTurn.getSelectedUnit().sleepOrWakeup();
+				playerTurn.getSelectedUnit().changeSleepWake();
 				return gameEnum.wokeUp.regex;
 			}
 		}
