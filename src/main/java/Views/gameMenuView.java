@@ -180,7 +180,7 @@ public class gameMenuView
         int flg = -1;
         if(number != max + 1)
             for(int i = 0; i < Technology.values().length; i++)
-                if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = number - 1;
+                if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = i;
         if(number == flag)
             System.out.println(infoCommands.alreadyResearching.regex);
         else if(number != max + 1 && tmp.getCup() >= candidateTechs.get(number - 1).cost - tmp.getResearchingTechCounter()[flg])
