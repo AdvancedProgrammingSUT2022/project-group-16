@@ -2,6 +2,7 @@ package Models.Player;
 
 import Controllers.GameController;
 import Models.City.City;
+import Models.City.Product;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Terrain.Improvement;
@@ -23,7 +24,7 @@ public class Player extends User
 	private int happiness = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private Technology researchingTechnology;
-	private int researchingTechCounter = 0;
+	private int[] researchingTechCounter = new int[50];
 	private ArrayList<Resource> resources;
 	private final ArrayList<LuxuryResource> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private ArrayList<Improvement> improvements = new ArrayList<>();
@@ -44,10 +45,6 @@ public class Player extends User
 		setTileStates();
 	}
 
-	public void setCapitalCity(City city)
-	{
-		currentCapitalCity = city;
-	}
 	public City getSelectedCity() {
 		return selectedCity;
 	}
@@ -62,10 +59,16 @@ public class Player extends User
 	{
 		this.selectedCity = city;
 	}
+
 	public Civilization getCivilization()
 	{
 		return civilization;
 	}
+	public void setCapitalCity(City city)
+	{
+		currentCapitalCity = city;
+	}
+
 	public int getFood()
 	{
 		return food;
@@ -90,6 +93,7 @@ public class Player extends User
 	{
 		this.happiness = happiness;
 	}
+
 	public ArrayList<Technology> getTechnologies()
 	{
 		return technologies;
@@ -106,19 +110,29 @@ public class Player extends User
 	{
 		researchingTechnology = technology;
 	}
-	public int getResearchingTechCounter() {
+	public int[] getResearchingTechCounter() {
 		return researchingTechCounter;
 	}
-	public void setResearchingTechCounter(int amount) {
-		researchingTechCounter = researchingTechnology.cost + amount;
+	public void addResearchingTechCounter(int index, int amount) {
+		researchingTechCounter[index] += amount;
 	}
+
 	public int getCup() {
 		return cup;
 	}
+	public void reduceCup()
+	{
+		this.cup = 0;
+	}
 	public void updateCup()
 	{
-		for (City city : this.cities) this.cup += city.getCupYield();
+		for (City city : this.cities)
+		{
+			city.updateCupYield();
+			this.cup += city.getCupYield();
+		}
 	}
+
 	public ArrayList<Resource> getResources()
 	{
 		return resources;
@@ -127,6 +141,7 @@ public class Player extends User
 	{
 		this.resources = resources;
 	}
+
 	public HashMap<Tile, TileState> getMap()
 	{
 		return map;

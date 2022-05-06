@@ -87,6 +87,7 @@ public class gameMenuView
     }
     private static void showTechnologies(Scanner scanner)
     {
+        System.out.println("number of cups: " + gameController.getPlayerTurn().getCup());
         showGainedTechnologies();
         System.out.println(infoCommands.chooseTechnology.regex);
         int max = 0;
@@ -99,7 +100,10 @@ public class gameMenuView
                     Technology.values()[i].equals(gameController.getPlayerTurn().getResearchingTechnology()))
                     System.out.println((max + 1) + ": " + Technology.values()[i].toString() + " (current research)");
                 else
-                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + " - required turns: " + (Technology.values()[i].cost - Technology.values()[i].inLineTurn));
+                {
+                    Player tmp = gameController.getPlayerTurn();
+                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + " - required turns: " + (Technology.values()[i].cost - tmp.getResearchingTechCounter()[i]));
+                }
                 n.add(Technology.values()[i]);
                 max++;
             }
@@ -111,12 +115,18 @@ public class gameMenuView
             if (number == 0)
                 System.out.println(mainCommands.pickBetween.regex + "1 and " + (max + 1));
         }
+        int flg = -1;
         if(number != max + 1)
+            for(int i = 0; i < Technology.values().length; i++)
+                if(Technology.values()[i] == n.get(number - 1)) flg = i;
+        if(number != max + 1 && gameController.getPlayerTurn().getCup() >= n.get(number - 1).cost - gameController.getPlayerTurn().getResearchingTechCounter()[flg])
         {
             gameController.getPlayerTurn().setResearchingTechnology(n.get(number - 1));
-            gameController.getPlayerTurn().setResearchingTechCounter(gameController.getTurnCounter() + gameController.getPlayerTurn().getResearchingTechCounter());
             System.out.println(infoCommands.choose.regex + n.get(number - 1).name() + infoCommands.successful.regex);
+            gameController.getPlayerTurn().reduceCup();
         }
+        else if(number != max + 1)
+            System.out.println(infoCommands.enoughCup.regex + n.get(number - 1).name());
     }
     private static void showAllCities(Scanner scanner)
     {
@@ -196,9 +206,12 @@ public class gameMenuView
         String command = null;
         do
         {
-            gameController.addTurn(1);
+            gameController.getPlayerTurn().updateCup();
             if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
+            {
+                gameController.addTurn(1);
                 gameController.addToTurnCounter(1);
+            }
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
 
             while (scanner.hasNextLine())
@@ -206,11 +219,12 @@ public class gameMenuView
                 command = scanner.nextLine();
                 String s = gameController.checkTechnology();
                 if(s != null) System.out.println(s);
+
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null) //done
                     System.out.println(gameController.increaseGold(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //done
-                    System.out.println(gameController.increaseTurns(matcher));
+                        System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null) //done
                     System.out.println(gameController.increaseFood(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null) //done
@@ -279,7 +293,7 @@ public class gameMenuView
                 else if(unitCommands.compareRegex(command, unitCommands.attack) != null)
                     gameController.attack(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
-                    gameController.found(); //TODO
+                    gameController.found(); //TODO: update cups
                 else if(unitCommands.compareRegex(command, unitCommands.cancelMission) != null)
                     gameController.cancel(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.wake) != null)

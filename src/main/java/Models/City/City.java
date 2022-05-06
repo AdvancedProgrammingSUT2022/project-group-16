@@ -16,7 +16,7 @@ public class City
 	private int foodYield = 0;
 	private int productionYield = 0;
 	private int goldYield = 0;
-	private int cupYield = 3;
+	private int cupYield = 0;
 	private int population = 0;
 	private int power = 0;
 	private final ArrayList<Building> buildings = new ArrayList<>();
@@ -80,7 +80,7 @@ public class City
 
 	public void createBuilding() //TODO
 	{
-	
+
 	}
 
 	public int getFoodYield() {
@@ -95,9 +95,11 @@ public class City
 	public int getCupYield() {
 		return cupYield;
 	}
-	public void addCupYield(int amount)
+	public void updateCupYield()
 	{
-		this.cupYield += amount;
+		cupYield = population;
+		if(rulerPlayer.getCurrentCapitalCity() == this)
+			cupYield += 3;
 	}
 	public int getPopulation() {
 		return population;

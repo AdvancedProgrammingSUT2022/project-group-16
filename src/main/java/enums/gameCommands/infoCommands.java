@@ -26,7 +26,8 @@ public enum infoCommands
     nothing("nothing"),
     choose("you selected "),
     successful(" successfuly"),
-    successGainTech("you gained technology ");
+    successGainTech("you gained technology "),
+    enoughCup("you don't have enough cups for ");
 
 
     public final String regex;
