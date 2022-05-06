@@ -11,6 +11,8 @@ import Models.Resources.BonusResource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
 import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.LongRange;
+import Models.Units.CombatUnits.LongRangeType;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
@@ -32,8 +34,8 @@ public class GameController
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public final int MAX_MAP_SIZE = 10;
-	private static final ArrayList<Player> players = new ArrayList<>();
-	private static Player playerTurn;
+	private final ArrayList<Player> players = new ArrayList<>();
+	private Player playerTurn;
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 
@@ -769,6 +771,7 @@ public class GameController
 						if (player.getCities().get(j).getName().equals(cityName)) {
 							if (playerTurn.getMap().get(player.getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
 								return mapCommands.visible.regex;
+							//TODO: add selectedCity to Player
 							MapPrinter.selectedCity = player.getCities().get(j);
 							return mapCommands.selected.regex;
 						}

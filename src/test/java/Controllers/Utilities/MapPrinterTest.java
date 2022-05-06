@@ -12,14 +12,16 @@ class MapPrinterTest
 	
 	public MapPrinterTest()
 	{
-		gameController = GameController.getInstance();
 		player = new Player(Civilization.PERSIAN, "DashReza7", "Reza", "Password1@");
+		gameController = GameController.getInstance();
+		gameController.addPlayer(player);
+		gameController.initGame();
 	}
 	
 	@Test
 	void getMapString()
 	{
-//		System.out.println(MapPrinter.getMapString(player.getMap(), gameController.MAX_MAP_SIZE, gameController.MAX_MAP_SIZE));
+		System.out.println(MapPrinter.getMapString(player, gameController.MAX_MAP_SIZE, gameController.MAX_MAP_SIZE));
 	}
 }
 

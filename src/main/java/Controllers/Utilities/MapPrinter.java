@@ -7,6 +7,7 @@ import Models.Resources.ResourceType;
 import Models.Terrain.*;
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
+import org.w3c.dom.Attr;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,7 +34,8 @@ public class MapPrinter
 		mapString = new StringBuilder();
 		
 		printFirstLine();
-		for(int i = 1; i <= rows * 8 + 3; i++) {
+		for(int i = 1; i <= rows * 8 + 3; i++)
+		{
 			switch(i % 8)
 			{
 				case 1 -> printLine1(i);
@@ -71,6 +73,7 @@ public class MapPrinter
 	}
 	private static void printBorder(Tile tile, int borderIndex)
 	{
+		System.out.println("here!");
 		BorderType[] borders = tile.getBorders();
 		if(borderIndex == 0 || borderIndex == 3)
 		{
@@ -452,7 +455,10 @@ public class MapPrinter
 		else
 		{
 			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
-			mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+			if(tile.getTileFeature() != TileFeature.NONE)
+				mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+			else
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
 			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
 		}
 	}
@@ -477,7 +483,10 @@ public class MapPrinter
 		else
 		{
 			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
-			mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
+			if(tile.getImprovement() == Improvement.NONE)
+				mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
+			else
+				mapString.append(Ansi.colorize(String.format("  ", tile.getTileType().attribute)));
 			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
 		}
 	}
@@ -491,8 +500,8 @@ public class MapPrinter
 				mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
 			else
 			{
-				//TODO: print highlited text if unit is selected
-				mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute,
+				Attribute unitAttribute = (player.getSelectedUnit() == tile.getCombatUnitInTile()) ? Attribute.YELLOW_BACK() : tile.getTileType().attribute;
+				mapString.append(Ansi.colorize(String.format("%  -14s", tile.getCombatUnitInTile().toString()), unitAttribute,
 						Attribute.BLACK_TEXT()));
 			}
 			
@@ -507,8 +516,11 @@ public class MapPrinter
 			if(tile.getNonCombatUnitInTile() == null)
 				mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
 			else
-				mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute,
+			{
+				Attribute unitAttribute = (player.getSelectedUnit() == tile.getNonCombatUnitInTile()) ? Attribute.YELLOW_BACK() : tile.getTileType().attribute;
+				mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), unitAttribute,
 						Attribute.BLACK_TEXT()));
+			}
 		}
 	}
 	private static void printTemp(Tile tile) // TODO:

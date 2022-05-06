@@ -28,16 +28,11 @@ public class gameMenuView
         for(int i = 0; i < n; i++)
             System.out.print(" ");
     }
-    private static int numberOfDigits(int number)
+    private static int numberOfDigits(int number) //TODO: does it work with negative numbers?
     {
-        int d = 0;
-        if(number == 0) return 1;
-        while (number > 0)
-        {
-            number /= 10;
-            d++;
-        }
-        return d;
+        if(number == 0)
+            return 1;
+        return (int)(Math.log10(number) + 1);
     }
     private static void showEconomics(Scanner scanner)
     {

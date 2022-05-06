@@ -12,14 +12,14 @@ public enum LongRangeType {
     CANON(250, 10, 26, 2, 2, Technology.CHEMISTRY, null, false),
     ARTILLERY(420, 16, 32, 3, 2, Technology.DYNAMITE, null, false);
 
-    int cost;
-    int combatStrength;
-    int rangedCombatStrength;
-    int range;
-    int movement;
-    Technology requiredTech;
-    ResourceType requiredSource;
-    boolean isMounted;
+    public int cost;
+    public int combatStrength;
+    public int rangedCombatStrength;
+    public int range;
+    public int movement;
+    public Technology requiredTech;
+    public ResourceType requiredSource;
+    public boolean isMounted;
 
 
     LongRangeType(int cost, int combatStrength, int rangedCombatStrength, int range, int movement, Technology requiredTech, ResourceType requiredSource, boolean isMounted) {
