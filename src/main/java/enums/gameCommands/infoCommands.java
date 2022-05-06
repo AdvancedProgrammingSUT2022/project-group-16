@@ -23,7 +23,8 @@ public enum infoCommands
     backToGame(": back to game!"),
     gained("gained technologies"),
     choose("choose a technology to start researching!"),
-    nothing("nothing");
+    nothing("nothing"),
+    successful("");
 
 
     public final String regex;

@@ -239,32 +239,37 @@ public class GameController
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setGold(playerTurn.getGold() + amount);
-		return cheatCode.successful.regex;
+		return (cheatCode.gold.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseFood(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setFood(playerTurn.getFood() + amount);
-		return cheatCode.successful.regex;
+		return (cheatCode.food.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseTurns(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		turnCounter += amount;
-		return cheatCode.successful.regex;
+		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String addTechnology(Matcher matcher)
 	{
-		// TODO: check if we have access to this technology
-		playerTurn.addTechnology(Technology.valueOf(matcher.group("name")));
-		return cheatCode.successful.regex;
+		for(int i = 0; i < Technology.values().length; i++)
+			if(Technology.values()[i].name().toLowerCase(Locale.ROOT).equals(matcher.group("name").toLowerCase(Locale.ROOT)) &&
+					playerTurn.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies))
+			{
+				playerTurn.addTechnology(Technology.values()[i]);
+				return  matcher.group("name") + cheatCode.addSuccessful.regex;
+			}
+		return mainCommands.invalidCommand.regex;
 	}
 	public String winBattle(Matcher matcher)
 	{
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		//TODO:win battle
-		return cheatCode.successful.regex;
+		return cheatCode.addSuccessful.regex;
 	}
 	public String moveUnit(Matcher matcher)
 	{
@@ -273,7 +278,7 @@ public class GameController
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
-		return cheatCode.successful.regex;
+		return cheatCode.addSuccessful.regex;
 	}
 	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{

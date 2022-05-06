@@ -108,7 +108,10 @@ public class gameMenuView
                 System.out.println(mainCommands.pickBetween.regex + "1 and " + (max + 1));
         }
         if(number != max + 1)
+        {
             gameController.getPlayerTurn().addTechnology(n.get(number - 1));
+            System.out.println();
+        }
     }
     private static void showAllCities(Scanner scanner)
     {

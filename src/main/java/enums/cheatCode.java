@@ -14,7 +14,11 @@ public enum cheatCode
     moveUnit("^\\s*move\\s+from\\s+(?<positionX>[0-9]+)\\s+(?<positionY>[0-9]+)\\s+to\\s+(?<newPositionX>[0-9]+)\\s+(?<newPositionY>[0-9]+)\\s*$"),
 
     //messages
-    successful("Successful");
+    gold("gold"),
+    turn("turn"),
+    food("food"),
+    increaseSuccessful(" increased Successfuly"),
+    addSuccessful(" added Successfuly");
 
     public final String regex;
 
