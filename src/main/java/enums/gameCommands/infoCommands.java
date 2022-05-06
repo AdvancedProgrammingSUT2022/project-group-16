@@ -34,7 +34,8 @@ public enum infoCommands
     researchInfo("Reseach info:\n"),
     remainingTurns("Remaining turns: "),
     gainAfterGetTechnology(" will be unlock after you reach this technology!"),
-    notGain("nothing will unlock after you reach this technology");
+    notGain("nothing will unlock after you reach this technology"),
+    alreadyResearching("you're currently researching this technology!");
 
     public final String regex;
 

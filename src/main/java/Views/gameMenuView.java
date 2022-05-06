@@ -145,7 +145,7 @@ public class gameMenuView
         System.out.println(infoCommands.numberOfCup.regex + gameController.getPlayerTurn().getCup());
         showGainedTechnologies();
         System.out.println(infoCommands.chooseTechnology.regex);
-        int max = 0;
+        int max = 0, flag = -1;
         Player tmp = gameController.getPlayerTurn();
         ArrayList<Technology> candidateTechs = new ArrayList<>();
         for(int i = 0; i < Technology.values().length; i++)
@@ -154,7 +154,10 @@ public class gameMenuView
             {
                 if(tmp.getResearchingTechnology() != null &&
                     Technology.values()[i].equals(tmp.getResearchingTechnology()))
+                {
                     System.out.println((max + 1) + ": " + Technology.values()[i].toString() + infoCommands.currResearch.regex);
+                    flag = max + 1;
+                }
                 else
                 {
                     System.out.println((max + 1) + ": " + Technology.values()[i].toString() + infoCommands.requiredTurns.regex +
@@ -177,8 +180,10 @@ public class gameMenuView
         int flg = -1;
         if(number != max + 1)
             for(int i = 0; i < Technology.values().length; i++)
-                if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = i;
-        if(number != max + 1 && tmp.getCup() >= candidateTechs.get(number - 1).cost - tmp.getResearchingTechCounter()[flg])
+                if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = number - 1;
+        if(number == flag)
+            System.out.println(infoCommands.alreadyResearching.regex);
+        else if(number != max + 1 && tmp.getCup() >= candidateTechs.get(number - 1).cost - tmp.getResearchingTechCounter()[flg])
         {
             tmp.setResearchingTechnology(candidateTechs.get(number - 1));
             System.out.println(infoCommands.choose.regex + candidateTechs.get(number - 1).name() + infoCommands.successful.regex);
@@ -307,7 +312,7 @@ public class gameMenuView
                 else if(infoCommands.compareRegex(command, infoCommands.infoNotifications) != null) //TODO
                     System.out.println(gameController.showNotifications());
                 else if(infoCommands.compareRegex(command, infoCommands.infoMilitary) != null) //done
-                    System.out.println(gameController.showMilitary());
+                    showMilitary();
                 else if(infoCommands.compareRegex(command, infoCommands.infoEconomic) != null) //TODO: add current construction (and turns til end) later
                     showEconomics(scanner);
                 else if(infoCommands.compareRegex(command, infoCommands.infoTechnologies) != null) //done
@@ -410,18 +415,18 @@ public class gameMenuView
                     System.out.println(gameEnum.endGame.regex);
                     break;
                 } //end game
-//                else if(command.equals("s"))
-//                {
-//                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,5);
-//                    Worker w = new Worker(gameController.getPlayerTurn(),10,10,gameController.getMap().get(23),23, 34);
-//                    Settler m = new Settler(gameController.getPlayerTurn(), 20,30,gameController.getMap().get(1),12,34);
-//                    Worker k = new Worker(gameController.getPlayerTurn(),10,10,gameController.getMap().get(2),23, 34);
-//                    n.createCity();
-//                    gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
-//                    m.createCity();
-//                    gameController.getPlayerTurn().getCities().get(1).addPopulation(12);
-//                    gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
-//                }
+                else if(command.equals("s"))
+                {
+                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,5);
+                    Worker w = new Worker(gameController.getPlayerTurn(),10,10,gameController.getMap().get(23),23, 34);
+                    Settler m = new Settler(gameController.getPlayerTurn(), 20,30,gameController.getMap().get(1),12,34);
+                    Worker k = new Worker(gameController.getPlayerTurn(),10,10,gameController.getMap().get(2),23, 34);
+                    n.createCity();
+                    gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
+                    m.createCity();
+                    gameController.getPlayerTurn().getCities().get(1).addPopulation(12);
+                    gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
+                }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
                     // TODO: check for the error and print it
