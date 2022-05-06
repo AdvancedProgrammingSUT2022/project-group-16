@@ -1,6 +1,7 @@
 package Controllers;
 
 import Controllers.Utilities.MapPrinter;
+import Models.City.BuildingType;
 import Models.Game.Position;
 import Models.Player.*;
 import Models.Menu.Menu;
@@ -407,15 +408,44 @@ public class GameController
 		return null;
 	}
 	//DOC commands
+	public BuildingType requiredTechForBuilding(Technology technology)
+	{
+		for(int i = 0; i < BuildingType.values().length; i++)
+			if(BuildingType.values()[i].requiredTechnology == technology) return BuildingType.values()[i];
+		return null;
+	}
+	public Improvement requiredTechForImprovement(Technology technology)
+	{
+		for(int i = 0; i < Improvement.values().length; i++)
+			if(Improvement.values()[i].requiredTechnology == technology) return Improvement.values()[i];
+		return null;
+	}
 	public String showResearch()
 	{
 		int flg = -1;
 		for(int i = 0; i < Technology.values().length; i++)
 			if(Technology.values()[i] == playerTurn.getResearchingTechnology()) flg = i;
 		if(playerTurn.getResearchingTechnology() != null)
-
-			return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
-					"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]);
+		{
+			BuildingType requiredBuilding = requiredTechForBuilding(playerTurn.getResearchingTechnology());
+			Improvement requiredImprovement = requiredTechForImprovement(playerTurn.getResearchingTechnology());
+			if(requiredBuilding != null && requiredImprovement != null)
+				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
+						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredBuilding.name() + " and " + requiredImprovement.name() + " will be unlock after you reach this technology!";
+			else if(requiredBuilding != null)
+				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
+						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredBuilding.name() + " will be unlock after you reach this technology!";
+			else if(requiredImprovement != null)
+				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
+						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredImprovement.name() + " will be unlock after you reach this technology!";
+			else
+				return "Reseach info:\n" + "Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
+						"Remaining turns: " + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ "nothing will unlock after you reach this technology";
+		}
 		return "Reseach info:\n"+"Researching technology: nothing"+ "\n" +
 				"Remaining turns: ";
 		// TODO: find everything that unlocks after the research

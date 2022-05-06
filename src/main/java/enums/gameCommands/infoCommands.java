@@ -27,8 +27,11 @@ public enum infoCommands
     choose("you selected "),
     successful(" successfuly"),
     successGainTech("you gained technology "),
-    enoughCup("you don't have enough cups for ");
-
+    enoughCup("you don't have enough cups for "),
+    numberOfCup("number of cups: "),
+    willGain("\tyou will gain "),
+    requiredTurns("\n\trequired turns: "),
+    currResearch(" (current research)");
 
     public final String regex;
 

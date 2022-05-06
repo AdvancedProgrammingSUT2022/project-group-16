@@ -87,7 +87,7 @@ public class gameMenuView
     }
     private static void showTechnologies(Scanner scanner)
     {
-        System.out.println("number of cups: " + gameController.getPlayerTurn().getCup());
+        System.out.println(infoCommands.numberOfCup.regex + gameController.getPlayerTurn().getCup());
         showGainedTechnologies();
         System.out.println(infoCommands.chooseTechnology.regex);
         int max = 0;
@@ -98,11 +98,16 @@ public class gameMenuView
             {
                 if(gameController.getPlayerTurn().getResearchingTechnology() != null &&
                     Technology.values()[i].equals(gameController.getPlayerTurn().getResearchingTechnology()))
-                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + " (current research)");
+                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + infoCommands.currResearch.regex);
                 else
                 {
                     Player tmp = gameController.getPlayerTurn();
-                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + " - required turns: " + (Technology.values()[i].cost - tmp.getResearchingTechCounter()[i]));
+                    System.out.println((max + 1) + ": " + Technology.values()[i].toString() + infoCommands.requiredTurns.regex +
+                            (Technology.values()[i].cost - tmp.getResearchingTechCounter()[i]));
+                    if(gameController.requiredTechForBuilding(Technology.values()[i]) != null)
+                        System.out.println(infoCommands.willGain.regex + gameController.requiredTechForBuilding(Technology.values()[i]).name());
+                    if(gameController.requiredTechForImprovement(Technology.values()[i]) != null)
+                        System.out.println(infoCommands.willGain.regex + gameController.requiredTechForImprovement(Technology.values()[i]).name());
                 }
                 n.add(Technology.values()[i]);
                 max++;
@@ -356,6 +361,8 @@ public class gameMenuView
                     n.createCity();
                     gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
                     m.createCity();
+                    gameController.getPlayerTurn().getCities().get(1).addPopulation(12);
+                    gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
