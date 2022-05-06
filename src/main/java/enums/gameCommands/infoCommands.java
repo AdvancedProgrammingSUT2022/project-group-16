@@ -22,9 +22,11 @@ public enum infoCommands
     searchCity(": go to cities!"),
     backToGame(": back to game!"),
     gained("gained technologies"),
-    choose("choose a technology to start researching!"),
+    chooseTechnology("choose a technology to start researching!"),
     nothing("nothing"),
-    successful("");
+    choose("you selected "),
+    successful(" successfuly"),
+    successGainTech("you gained technology ");
 
 
     public final String regex;

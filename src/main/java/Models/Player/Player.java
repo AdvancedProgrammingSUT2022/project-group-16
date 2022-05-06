@@ -23,6 +23,7 @@ public class Player extends User
 	private int happiness = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private Technology researchingTechnology;
+	private int researchingTechCounter = 0;
 	private ArrayList<Resource> resources;
 	private final ArrayList<LuxuryResource> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private ArrayList<Improvement> improvements = new ArrayList<>();
@@ -43,6 +44,10 @@ public class Player extends User
 		setTileStates();
 	}
 
+	public void setCapitalCity(City city)
+	{
+		currentCapitalCity = city;
+	}
 	public City getSelectedCity() {
 		return selectedCity;
 	}
@@ -97,7 +102,16 @@ public class Player extends User
 	{
 		return researchingTechnology;
 	}
-
+	public void setResearchingTechnology(Technology technology)
+	{
+		researchingTechnology = technology;
+	}
+	public int getResearchingTechCounter() {
+		return researchingTechCounter;
+	}
+	public void setResearchingTechCounter(int amount) {
+		researchingTechCounter = researchingTechnology.cost + amount;
+	}
 	public int getCup() {
 		return cup;
 	}

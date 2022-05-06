@@ -88,7 +88,7 @@ public class gameMenuView
     private static void showTechnologies(Scanner scanner)
     {
         showGainedTechnologies();
-        System.out.println(infoCommands.choose.regex);
+        System.out.println(infoCommands.chooseTechnology.regex);
         int max = 0;
         ArrayList<Technology> n = new ArrayList<Technology>();
         for(int i = 0; i < Technology.values().length; i++)
@@ -109,14 +109,17 @@ public class gameMenuView
         }
         if(number != max + 1)
         {
-            gameController.getPlayerTurn().addTechnology(n.get(number - 1));
-            System.out.println();
+            gameController.getPlayerTurn().setResearchingTechnology(n.get(number - 1));
+            gameController.getPlayerTurn().setResearchingTechCounter(gameController.getTurnCounter());
+            System.out.println(infoCommands.choose.regex + n.get(number - 1).name() + infoCommands.successful.regex);
         }
     }
     private static void showAllCities(Scanner scanner)
     {
         int max = gameController.getPlayerTurn().getCities().size();
-        for (int i = 0; i < max; i++)
+        if(max != 0)
+            System.out.println(1 + ": " + gameController.getPlayerTurn().getCurrentCapitalCity().getName() + " (capital city)");
+        for (int i = 1; i < max; i++)
             System.out.println((i + 1) + ": " + gameController.getPlayerTurn().getCities().get(i).getName());
         System.out.println((max + 1) + infoCommands.searchEconomic.regex);
         System.out.println((max + 2) + infoCommands.backToGame.regex);
@@ -191,6 +194,8 @@ public class gameMenuView
         {
             if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
                 gameController.addToTurnCounter(1);
+            String s = gameController.checkTechnology();
+            if(s != null) System.out.println(s);
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
 
             while (scanner.hasNextLine()) {
@@ -203,7 +208,7 @@ public class gameMenuView
                     System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null) //done
                     System.out.println(gameController.increaseFood(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null) //TODO
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null) //done
                     System.out.println(gameController.addTechnology(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.winBattle)) != null) //TODO
                     System.out.println(gameController.winBattle(matcher));
@@ -325,13 +330,14 @@ public class gameMenuView
                     System.out.println(gameEnum.endGame.regex);
                     break;
                 } //end game
-//                else if(command.equals("s"))
-//                {
-//                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,10);
-//                    Settler m = new Settler(gameController.getPlayerTurn(), 20,30,gameController.getMap().get(1),12,34);
-//                    n.createCity();
-//                    m.createCity();
-//                }
+                else if(command.equals("s"))
+                {
+                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,10);
+                    Settler m = new Settler(gameController.getPlayerTurn(), 20,30,gameController.getMap().get(1),12,34);
+                    n.createCity();
+                    gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
+                    m.createCity();
+                }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
                     // TODO: check for the error and print it

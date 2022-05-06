@@ -15,6 +15,7 @@ import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.User;
 import enums.cheatCode;
+import enums.gameCommands.infoCommands;
 import enums.gameCommands.mapCommands;
 import enums.gameCommands.selectCommands;
 import enums.gameEnum;
@@ -375,14 +376,27 @@ public class GameController
 		return true;
 	}
 
+	public String checkTechnology()
+	{
+		if(playerTurn.getResearchingTechCounter() != 0 &&
+				playerTurn.getResearchingTechCounter() - turnCounter <= 0)
+		{
+			Technology technology = playerTurn.getResearchingTechnology();
+			playerTurn.addTechnology(technology);
+			playerTurn.setResearchingTechnology(null);
+			return infoCommands.successGainTech.regex + technology.name();
+		}
+		return null;
+	}
 	//DOC commands
 	public String showResearch()
 	{
-		// TODO: calculate the remaining turns of the research
 		// TODO: find everything that unlocks after the research
-		return "Reseach info:\n"+"Researching technology: " + "playerTurn.getResearchingTechnology().toString()" + "\n" +
-			"Remaining turns: " + " " + "\n"+
-			"everything which will be unlocked" + " ";
+		if(playerTurn.getResearchingTechnology() != null)
+			return "Reseach info:\n"+"Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
+					"Remaining turns: " + (playerTurn.getResearchingTechCounter() - turnCounter);
+		return "Reseach info:\n"+"Researching technology: nothing"+ "\n" +
+				"Remaining turns: ";
 	}
 	public String showUnits()
 	{
