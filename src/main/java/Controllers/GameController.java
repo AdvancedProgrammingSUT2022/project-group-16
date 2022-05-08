@@ -127,7 +127,7 @@ public class GameController
 			Tile startingTile = player.getTileByXY(startingPositions[i].X, startingPositions[i].Y);
 			// TODO: this units are temp. they should be modified in their constructors
 			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile, MidRangeType.WARRIOR.movement, MidRangeType.WARRIOR.combatStrength);
-			Settler settler = new Settler(player, 10, 3, startingTile, 3, 0);
+			Settler settler = new Settler(player, startingTile);
 			player.addUnit(warrior);
 			player.addUnit(settler);
 			startingTile.setCombatUnitInTile(warrior);

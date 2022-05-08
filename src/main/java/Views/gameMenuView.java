@@ -5,22 +5,13 @@ import Controllers.Utilities.MapPrinter;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Resources.Resource;
-import Models.Resources.ResourceType;
-import Models.Units.CombatUnits.LongRange;
-import Models.Units.CombatUnits.LongRangeType;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
-import Models.Units.NonCombatUnits.NonCombatUnit;
-import Models.Units.NonCombatUnits.Settler;
-import Models.Units.NonCombatUnits.Worker;
+import Models.Resources.*;
+import Models.Units.CombatUnits.*;
+import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.User;
 import enums.cheatCode;
-import enums.gameCommands.infoCommands;
-import enums.gameCommands.mapCommands;
-import enums.gameCommands.selectCommands;
-import enums.gameCommands.unitCommands;
+import enums.gameCommands.*;
 import enums.gameEnum;
 import enums.mainCommands;
 
@@ -35,7 +26,7 @@ public class gameMenuView
         for(int i = 0; i < n; i++)
             System.out.print(" ");
     }
-    private static int numberOfDigits(int number) //TODO: does it work with negative numbers?
+    private static int numberOfDigits(int number)
     {
         if(number == 0)
             return 1;
@@ -316,7 +307,6 @@ public class gameMenuView
             gameController.addPlayer(new Player(gameController.findCivilByNumber(number), user.getUsername(),
                     user.getNickname(), user.getPassword()));
         }
-        
     }
     public static void startGame(Scanner scanner, HashMap<String, String> usersInfo) //TODO: rename to runGame
     {
@@ -335,15 +325,10 @@ public class gameMenuView
                 gameController.addToTurnCounter(1);
             }
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
-<<<<<<< HEAD
             System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
-            
-=======
             String e = gameController.checkTechnology();
             if(e != null) System.out.println(e);
 
-
->>>>>>> main
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -502,7 +487,8 @@ public class gameMenuView
                 }
                 else if(command.equals("t"))
                 {
-                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,5);
+//                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,5);
+                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(0));
                     n.createCity();
                     gameController.getPlayerTurn().getCities().get(2).addPopulation(34);
                     gameController.getPlayerTurn().getCities().get(2).addGold(24);

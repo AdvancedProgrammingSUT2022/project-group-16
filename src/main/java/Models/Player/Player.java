@@ -154,7 +154,7 @@ public class Player extends User
 	{
 		this.cup = cup;
 	}
-	//TODO: I deleted updateCup. I hope there isn't any problem with that :)
+	//TODO: I deleted updateCup. I hope there is no problem with that :)
 
 	public ArrayList<Resource> getResources()
 	{

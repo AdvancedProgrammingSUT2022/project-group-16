@@ -14,16 +14,18 @@ class InitGameTest
 	void setUp()
 	{
 		gameController = GameController.getInstance();
+		gameController.addPlayer(new Player(Civilization.PERSIAN, "Player 1", "p1", "123"));
+		gameController.addPlayer(new Player(Civilization.ARABIAN, "Player 2", "p2", "123"));
+		gameController.addPlayer(new Player(Civilization.MAYAN, "Player 3", "p3", "123"));
+		gameController.addPlayer(new Player(Civilization.GREEK, "Player 4", "p4", "123"));
 	}
 	
 	@Test
 	void testInitGame()
 	{
-		gameController.addPlayer(new Player(Civilization.PERSIAN, "Player 1", "p1", "123"));
-		gameController.addPlayer(new Player(Civilization.ARABIAN, "Player 2", "p2", "123"));
-		gameController.addPlayer(new Player(Civilization.MAYAN, "Player 3", "p3", "123"));
-		gameController.addPlayer(new Player(Civilization.GREEK, "Player 4", "p4", "123"));
 		gameController.initGame();
+		
+		gameController.getPlayerTurn().setSelectedUnit(gameController.getPlayerTurn().getUnits().get(1));
 		
 		System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
 		gameController.changeTurn();
