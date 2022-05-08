@@ -5,7 +5,12 @@ import Models.Game.Position;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.Resource;
+import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
+import Models.Terrain.TileFeature;
+import Models.Terrain.TileType;
+import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.NonCombatUnits.NonCombatUnit;
 
 import java.util.ArrayList;
 
@@ -25,6 +30,7 @@ public abstract class Unit implements Constructable
 	private boolean isActive = true;
 	private boolean isSleep = false;
 	private boolean hasArrived = false;
+
 
 
 	public Player getRulerPlayer() {
@@ -126,24 +132,20 @@ public abstract class Unit implements Constructable
 		return isActive;
 	}
 
-	public void setActive(boolean active) {
-		isActive = active;
+	public void changeActivate()
+	{
+		isActive = !isActive;
 	}
 
 	public boolean isSleep() {
 		return isSleep;
 	}
 
-	public void setSleep(boolean sleep) {
-		isSleep = sleep;
+	public void changeSleepWake()
+	{
+		isSleep = !isSleep;
 	}
 
-	public void sleepOrWakeup()
-	{
-		if(this.isSleep)
-			this.isSleep = false;
-		this.isSleep = true;
-	}
 	public void getReady(){
 
 	}
@@ -168,13 +170,37 @@ public abstract class Unit implements Constructable
 	}
 
 	public void move(Tile destination){
-		this.tile = destination;
+
+		this.moves = FindWay.getInstance(destination).getMoves();
+		if(this.moves.size() == 0) return;
+		Tile nextTile = rulerPlayer.getTileByXY(moves.get(0).X, moves.get(0).Y);
+		if((nextTile.getTileType().equals(TileType.OCEAN) && (!nextTile.getHasRoad() || !this.getTile().getHasRoad())) ||
+				(this.moves.size() == 1 && isThereAnotherUnitInTile(nextTile))){
+			return;
+		}
+		this.tile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
+		this.moves.remove(0);
+
+		if(this.movementPoints == 0) {
+			return;
+		}
 		this.movementPoints -= destination.getTileType().movementCost;
-		if(this.movementPoints < 0) this.movementPoints = 0;
-		//TODO include railroad movement points
-		//TODO write a unit test for findWay
-		moves = FindWay.getInstance(destination).getMoves();
-		//TODO check if unit can go to destination
+		if(nextTile.getBorders().equals(BorderType.RIVER) && (!nextTile.getHasRoad() || !this.getTile().getHasRoad())) this.movementPoints = 0;
+			if(this.movementPoints < 0) this.movementPoints = 0;
+		//TODO check for railroad penalty
+
+
+
+	}
+	private boolean isThereAnotherUnitInTile(Tile tile){
+		for (Unit unit : rulerPlayer.getUnits()) {
+			if(unit.getTile().getPosition().X == tile.getPosition().X &&
+					unit.getTile().getPosition().Y == tile.getPosition().Y &&
+					((unit instanceof NonCombatUnit && this instanceof NonCombatUnit) ||
+							(unit instanceof CombatUnit && this instanceof CombatUnit)))
+				return true;
+		}
+		return false;
 	}
 	
 }

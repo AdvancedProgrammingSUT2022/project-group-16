@@ -31,7 +31,9 @@ public enum TileType
 		this.attribute = attribute;
 		this.isBlocker = isBlocker;
 	}
+
 }
+
 
 
 

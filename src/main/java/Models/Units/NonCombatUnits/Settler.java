@@ -5,23 +5,23 @@ import Models.Player.Player;
 import Models.Terrain.Tile;
 
 public class Settler extends NonCombatUnit{
-    public Settler(Player rulerPlayer, int cost, int movement, Tile tile, int speed, int power){
+    public Settler(Player rulerPlayer, Tile tile){
         this.setRulerPlayer(rulerPlayer);
-        this.setProductionCost(cost);
+        this.setProductionCost(10);//TODO what is the max health/cost??
         this.setRequiredTechnology(null);
-        this.setMovementPoints(movement);
+        this.setMovementPoints(1);
         this.setTile(tile);
-        this.setHealth(100); //TODO what is the max health,speed,power?
-        this.setSpeed(speed);
-        this.setPower(power);
+        this.setHealth(100);
+        this.setSpeed(1);
+        this.setPower(0);
         this.setRequiredResource(null);
         rulerPlayer.addUnit(this);
     }
 
     public void createCity()
     {
-        City newCity = new City(this.getTile(), this.getRulerPlayer());
-        // TODO: delete settler from tile
+        new City(this.getTile(), this.getRulerPlayer());
+        this.removeUnit();
     }
 
     

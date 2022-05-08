@@ -1,7 +1,5 @@
 package enums.gameCommands;
 
-import enums.gameEnum;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +19,8 @@ public enum infoCommands
     searchEconomic(": go to economics!"),
     searchCity(": go to cities!"),
     backToGame(": back to game!"),
-    gained("gained technologies"),
+    gained("\ngained technologies"),
+    cityName("city name: "),
     chooseTechnology("choose a technology to start researching!"),
     nothing("nothing"),
     choose("you selected "),
@@ -31,7 +30,19 @@ public enum infoCommands
     numberOfCup("number of cups: "),
     willGain("\tyou will gain "),
     requiredTurns("\n\trequired turns: "),
-    currResearch(" (current research)");
+    currResearch(" (current research)"),
+    currentResearching("Researching technology: "),
+    researchInfo("Reseach info:\n"),
+    remainingTurns("Remaining turns: "),
+    gainAfterGetTechnology(" will be unlock after you reach this technology!"),
+    notGain("nothing will unlock after you reach this technology"),
+    alreadyResearching("you're currently researching this technology!"),
+    unitType("unit type: "),
+    name("\nname: "),
+    civilizationName("civilization name : "),
+    cities("City/Cities: "),
+    units("\nUnits: "),
+    unitName("unit name");
 
     public final String regex;
 

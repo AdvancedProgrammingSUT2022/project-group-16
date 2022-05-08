@@ -1,7 +1,7 @@
 package Models.Player;
 
 import Controllers.GameController;
-import Models.City.City;
+import Models.City.*;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Terrain.Improvement;
@@ -9,10 +9,7 @@ import Models.Terrain.Tile;
 import Models.Units.Unit;
 import Models.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Stack;
+import java.util.*;
 
 public class Player extends User
 {
@@ -24,6 +21,7 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 0;
 	private int happiness = 0;
+	private int population = 0; //TODO: maybe it's better to delete this line
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private Technology researchingTechnology;
 	private int[] researchingTechCounter = new int[50];
@@ -36,7 +34,7 @@ public class Player extends User
 	private City currentCapitalCity;    //??TODO
 	private final Stack<Notification> notifications = new Stack<>();
 	private ArrayList<Unit> units = new ArrayList<>();
-	
+
 	public Player(Civilization civilization, String username, String nickname, String password)
 	{
 		super(username, nickname, password);
@@ -63,7 +61,14 @@ public class Player extends User
 	{
 		this.selectedCity = city;
 	}
-	
+
+	public int getPopulation() {
+		return population;
+	}
+	public void setPopulation(int population) {
+		this.population = population;
+	}
+
 	public Civilization getCivilization()
 	{
 		return civilization;
@@ -72,7 +77,7 @@ public class Player extends User
 	{
 		currentCapitalCity = city;
 	}
-	
+
 	public int getFood()
 	{
 		return food;
@@ -84,6 +89,13 @@ public class Player extends User
 	public int getGold()
 	{
 		return gold;
+	}
+	public int incomeGold()
+	{
+		int n = 0;
+		for(City city : cities)
+			n += city.getGoldYield();
+		return n;
 	}
 	public void setGold(int gold)
 	{
@@ -97,7 +109,7 @@ public class Player extends User
 	{
 		this.happiness = happiness;
 	}
-	
+
 	public ArrayList<Technology> getTechnologies()
 	{
 		return technologies;
@@ -127,19 +139,23 @@ public class Player extends User
 	{
 		return cup;
 	}
+	public int incomeCup()
+	{
+		int n = 0;
+		for(City city : cities)
+			n += city.getCupYield();
+		return n;
+	}
 	public void reduceCup()
 	{
 		this.cup = 0;
 	}
-	public void updateCup()
+	public void setCup(int cup)
 	{
-		for(City city : this.cities)
-		{
-			city.updateCupYield();
-			this.cup += city.getCupYield();
-		}
+		this.cup = cup;
 	}
-	
+	//TODO: I deleted updateCup. I hope there isn't any problem with that :)
+
 	public ArrayList<Resource> getResources()
 	{
 		return resources;
@@ -284,6 +300,10 @@ public class Player extends User
 				map.replace(t, TileState.VISIBLE);
 		
 	}
+//	public ArrayList<Resource> getStrategicResources()
+//	{
+//
+//	}
 }
 
 

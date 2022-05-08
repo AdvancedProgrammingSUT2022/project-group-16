@@ -1,5 +1,8 @@
 package Models.Game;
 
+import Controllers.GameController;
+import Models.Terrain.Tile;
+
 import java.util.Objects;
 
 public class Position
@@ -59,6 +62,7 @@ public class Position
 	{
 		return super.clone();
 	}
+
 }
 
 
