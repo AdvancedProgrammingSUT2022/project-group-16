@@ -16,8 +16,9 @@ public class City
 	private int foodYield = 0;
 	private int productionYield = 0;
 	private int goldYield = 0;
-	private int cupYield = 3;
+	private int cupYield = 0;
 	private int population = 0;
+	private int power = 0;
 	private final ArrayList<Building> buildings = new ArrayList<>();
 	private final ArrayList<Citizen> citizens = new ArrayList<>();
 	private final ArrayList<Tile> workingTiles = new ArrayList<>();
@@ -61,9 +62,25 @@ public class City
 		return name;
 	}
 
+	public int getPower() {
+		return power;
+	}
+	public void addPower(int amount) {
+		power += amount;
+	}
+	public void addProduction(int amount) {
+		productionYield += amount;
+	}
+	public void addGold(int amount) {
+		goldYield += amount;
+	}
+	public void addFood(int amount) {
+		foodYield += amount;
+	}
+
 	public void createBuilding() //TODO
 	{
-	
+
 	}
 
 	public int getFoodYield() {
@@ -78,9 +95,11 @@ public class City
 	public int getCupYield() {
 		return cupYield;
 	}
-	public void addCup(int amount)
+	public void updateCupYield()
 	{
-		this.cupYield += amount;
+		cupYield = population;
+		if(rulerPlayer.getCurrentCapitalCity() == this)
+			cupYield += 3;
 	}
 	public int getPopulation() {
 		return population;

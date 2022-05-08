@@ -9,8 +9,8 @@ public enum selectCommands
     selectCombat("^\\s*[sS]elect\\s+[uU]nit\\s+[cC]ombat.*$"),
     selectNonCombat("^\\s*[sS]elect\\s+[uU]nit\\s+[nN]on\\s{0,1}[cC]ombat.*$"),
     selectCity("^\\s*[sS]elect\\s+[cC]ity.*$"),
-    newName("^ --name\\s+(?<name>\\S+)\\s*$"),
-    shortNewName("^ -n\\s+(?<name>\\S+)\\s*$"),
+    newName("^ --name\\s+(?<name>.+)\\s*$"),
+    shortNewName("^ -n\\s+(?<name>.+)\\s*$"),
     newPos("^ --coordinates\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
     shortNewPos("^ -c\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
 

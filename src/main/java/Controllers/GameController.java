@@ -1,24 +1,22 @@
 package Controllers;
 
 import Controllers.Utilities.MapPrinter;
-import Models.City.City;
+import Models.City.BuildingType;
 import Models.Game.Position;
 import Models.Player.*;
 import Models.Menu.Menu;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.BonusResource;
-import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
 import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
-import Models.Units.NonCombatUnits.Worker;
+import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.User;
-import Views.gameMenuView;
 import enums.cheatCode;
+import enums.gameCommands.infoCommands;
 import enums.gameCommands.mapCommands;
 import enums.gameCommands.selectCommands;
 import enums.gameEnum;
@@ -36,7 +34,9 @@ public class GameController
 	public final int MAX_MAP_SIZE = 10;
 	private static final ArrayList<Player> players = new ArrayList<>();
 	private static Player playerTurn;
-	
+	private final RegisterController registerController = new RegisterController();
+	private int turnCounter = 0;
+
 	public static GameController getInstance()
 	{
 		if(instance == null)
@@ -44,16 +44,9 @@ public class GameController
 		return instance;
 	}
 
-	public static ArrayList<Player> getPlayers() {
-		return players;
-	}
 	public void addPlayer(Player player)
 	{
 		players.add(player);
-		playerTurn = players.get(0);
-	}
-	public void setFirstPlayer()
-	{
 		playerTurn = players.get(0);
 	}
 	public void deletePlayer(Player player)
@@ -62,23 +55,19 @@ public class GameController
 	}
 	public void changeTurn()
 	{
-		// TODO: do everything needed to change turns
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 	}
-	public void initGame(ArrayList<Player> players)
+	public void initGame()
 	{
 		// TODO: sync with gameMenu
 		initGrid();
 		initMap();
-		this.players.addAll(players);
 		// TODO: set tileStates for each player
-		playerTurn = players.get(0);
 	}
 	public ArrayList<Tile> getMap()
 	{
 		return map;
 	}
-	
 	private void initGrid()
 	{
 		for(int i = 0; i < MAX_GRID_LENGTH; i++)
@@ -186,21 +175,33 @@ public class GameController
 	{
 		return playerTurn;
 	}
-
-	private static boolean existingPlayers(HashMap<String,String> players)
+	public int getTurnCounter() {
+		return turnCounter;
+	}
+	public void addToTurnCounter(int amount) {
+		turnCounter += amount;
+	}
+	public ArrayList<Player> getPlayers() {
+		return players;
+	}
+	public void removeAllPlayers()
 	{
-		int index = 0;
+		if (players.size() > 0)
+			players.subList(0, players.size()).clear();
+	}
+
+	private boolean existingPlayers(HashMap<String,String> players)
+	{
 		for (Object key : players.keySet())
 		{
 			Object value = players.get(key);
-			index++;
 			if(!doesUsernameExist(value.toString()))
 				return false;
 		}
 		return true;
 	}//check the input usernames with arrayList
 
-	public static String startNewGame(String command, HashMap<String, String> players)
+	public String startNewGame(String command, HashMap<String, String> players)
 	{
 		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
@@ -240,31 +241,41 @@ public class GameController
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setGold(playerTurn.getGold() + amount);
-		return cheatCode.successful.regex;
+		return (cheatCode.gold.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseFood(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setFood(playerTurn.getFood() + amount);
-		return cheatCode.successful.regex;
+		return (cheatCode.food.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseTurns(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		return cheatCode.successful.regex;
+		turnCounter += amount;
+		addTurn(amount);
+		for(Player player : players)
+			for (int i = 0; i < amount; i++)
+				player.updateCup();
+		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String addTechnology(Matcher matcher)
 	{
-		// TODO: check if we have access to this technology
-		playerTurn.addTechnology(Technology.valueOf(matcher.group("name")));
-		return cheatCode.successful.regex;
+		for(int i = 0; i < Technology.values().length; i++)
+			if(Technology.values()[i].name().toLowerCase(Locale.ROOT).equals(matcher.group("name").toLowerCase(Locale.ROOT)) &&
+					playerTurn.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies))
+			{
+				playerTurn.addTechnology(Technology.values()[i]);
+				return  matcher.group("name") + cheatCode.addSuccessful.regex;
+			}
+		return mainCommands.invalidCommand.regex;
 	}
 	public String winBattle(Matcher matcher)
 	{
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		//TODO:win battle
-		return cheatCode.successful.regex;
+		return cheatCode.addSuccessful.regex;
 	}
 	public String moveUnit(Matcher matcher)
 	{
@@ -273,9 +284,8 @@ public class GameController
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
-		return cheatCode.successful.regex;
+		return cheatCode.addSuccessful.regex;
 	}
-
 	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{
 		String menuName = matcher.group("menuName");
@@ -288,17 +298,15 @@ public class GameController
 			return "1";
 		return mainCommands.invalidCommand.regex;
 	}
-
 	public User[] convertMapToArr(HashMap<String, String> players)
 	{
 		User[] newArr = new User[players.size() + 1];
 		newArr[0] = Menu.loggedInUser;
 
 		for(int i = 1; i < players.size() + 1; i++)
-			newArr[i] = RegisterController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
+			newArr[i] = registerController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
 		return newArr;
 	}
-
 	public Civilization findCivilByNumber(int number)
 	{
 		switch (number % 10)
@@ -336,8 +344,7 @@ public class GameController
 		}
 		return null;
 	}
-
-	public String pickCivilization(ArrayList<Player> players,int num)
+	public String pickCivilization(int num)
 	{
 		if(num > 10 || num < 1)
 			return gameEnum.between1And10.regex;
@@ -346,7 +353,6 @@ public class GameController
 		else
 			return gameEnum.chooseCivilization.regex + Civilization.values()[num - 1];
 	}
-
 	public boolean inArr(Civilization n)
 	{
 		for (Player value : players) {
@@ -355,7 +361,6 @@ public class GameController
 		}
 		return false;
 	}
-
 	public int getNum(Scanner scanner, int min, int max)
 	{
 		int number = 0;
@@ -366,7 +371,6 @@ public class GameController
 			number = 0;
 		return number;
 	}
-
 	public boolean isValid(String n)
 	{
 		for(int i = 0; i < n.length(); i++)
@@ -376,14 +380,74 @@ public class GameController
 		}
 		return true;
 	}
+
+	public void addTurn(int amount)
+	{
+		for(Player player : players)
+		{
+			int flg = -1;
+			for(int i = 0; i < Technology.values().length; i++)
+				if(Technology.values()[i] == player.getResearchingTechnology()) flg = i;
+			if(flg != -1)
+				player.addResearchingTechCounter(flg, amount);
+		}
+	}
+
+	public String checkTechnology()
+	{
+		int flg = -1;
+		for(int i = 0; i < Technology.values().length; i++)
+			if(Technology.values()[i] == playerTurn.getResearchingTechnology()) flg = i;
+		if(playerTurn.getResearchingTechnology() != null &&
+				playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg] <= 0)
+		{
+			Technology tmp = playerTurn.getResearchingTechnology();
+			playerTurn.addTechnology(tmp);
+			playerTurn.setResearchingTechnology(null);
+			return infoCommands.successGainTech.regex + tmp.name();
+		}
+		return null;
+	}
 	//DOC commands
+	public BuildingType requiredTechForBuilding(Technology technology)
+	{
+		for(int i = 0; i < BuildingType.values().length; i++)
+			if(BuildingType.values()[i].requiredTechnology == technology) return BuildingType.values()[i];
+		return null;
+	}
+	public Improvement requiredTechForImprovement(Technology technology)
+	{
+		for(int i = 0; i < Improvement.values().length; i++)
+			if(Improvement.values()[i].requiredTechnology == technology) return Improvement.values()[i];
+		return null;
+	}
 	public String showResearch()
 	{
-		// TODO: calculate the remaining turns of the research
-		// TODO: find everything that unlocks after the research
-		return "Reseach info:\n"+"Researching technology: " + playerTurn.getResearchingTechnology().toString() + "\n" +
-			"Remaining turns: " + " " + "\n"+
-			"everything which will be unlocked" + " ";
+		int flg = -1;
+		for(int i = 0; i < Technology.values().length; i++)
+			if(Technology.values()[i] == playerTurn.getResearchingTechnology()) flg = i;
+		if(playerTurn.getResearchingTechnology() != null)
+		{
+			BuildingType requiredBuilding = requiredTechForBuilding(playerTurn.getResearchingTechnology());
+			Improvement requiredImprovement = requiredTechForImprovement(playerTurn.getResearchingTechnology());
+			if(requiredBuilding != null && requiredImprovement != null)
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredBuilding.name() + " and " + requiredImprovement.name() + infoCommands.gainAfterGetTechnology.regex;
+			else if(requiredBuilding != null)
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredBuilding.name() + infoCommands.gainAfterGetTechnology.regex;
+			else if(requiredImprovement != null)
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ requiredImprovement.name() + infoCommands.gainAfterGetTechnology.regex;
+			else
+				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						+ infoCommands.notGain.regex;
+		}
+		return infoCommands.researchInfo.regex+infoCommands.currentResearching.regex + ": " + infoCommands.nothing.regex;
 	}
 	public String showUnits()
 	{
@@ -396,29 +460,9 @@ public class GameController
 		
 		return allUnitsString.toString();
 	}
-	public String showCities()
-	{
-		// TODO: player should be able to go to some cities and see their info
-		StringBuilder allCitiesString = new StringBuilder("Cities info:\n");
-		for(City city : playerTurn.getCities())
-			allCitiesString.append(city.getName() + ", ");
-		
-		return allCitiesString.toString();
-	}
-	public String showDiplomacy()
-	{
-		// TODO: player should be able to negotiate with other players
-		return "Diplomacy info:\n"+ "Score of " + playerTurn.getCivilization() + ": " + playerTurn.getScore();
-	}
-	public String showVictory()
-	{
-		// TODO: show victory info
-		return "Victory info:\n";
-	}
 	public String showDemographics()
 	{
 		// TODO: show demographics info
-		
 		return "Demographics info:\n";
 	}
 	public String showNotifications()
@@ -435,24 +479,10 @@ public class GameController
 		// TODO ??
 		return showUnits();
 	}
-	public String showEconomics()
-	{
-		//TODO
-		return null;
-	}
-	public String showDiplomatic()
-	{
-		//TODO
-		return null;
-	}
-	public String showDeals()
-	{
-		//TODO
-		return null;
-	}
+
 	public String selectCUnit(String command)
 	{
-		playerTurn.setSelectedUnit(null);
+		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -475,12 +505,13 @@ public class GameController
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y) //TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
+						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedUnit() == null)
+				if(playerTurn.getSelectedUnit()  != playerTurn.getUnits().get(flag))
 					return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -488,7 +519,7 @@ public class GameController
 	}
 	public String selectNUnit(String command)
 	{
-		playerTurn.setSelectedUnit(null);
+		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -511,12 +542,13 @@ public class GameController
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)//TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
+						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedUnit() == null)
+				if(playerTurn.getSelectedUnit() != playerTurn.getUnits().get(flag))
 					return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -526,7 +558,7 @@ public class GameController
 	public String selectCity(String command)
 	{
 		int x = 0, y = 0;
-		playerTurn.setSelectedCity(null);
+		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -550,9 +582,10 @@ public class GameController
 					if(playerTurn.getCities().get(j).getName().equals(cityName))
 					{
 						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
+						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedCity() == null)
+				if(playerTurn.getSelectedCity() != playerTurn.getCities().get(flag))
 					return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			else if(matcher4 != null)
@@ -589,9 +622,19 @@ public class GameController
 	{
 
 	}
-	public void sleep()
+	public String sleep()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(playerTurn.getSelectedUnit().isSleep())
+				return gameEnum.isSleep.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().changeSleepWake();
+				return gameEnum.slept.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	public void alert()
 	{
@@ -625,9 +668,20 @@ public class GameController
 	{
 
 	}
-	public void wake()
+	public String wake()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getSelectedUnit().isSleep())
+				return gameEnum.awaken.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().changeSleepWake();
+				return gameEnum.wokeUp.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
 	public void delete()
 	{
@@ -709,13 +763,12 @@ public class GameController
 			else if(matcher3 != null)
 			{
 				String cityName = matcher3.group("name");
-				for(int k = 0; k < players.size(); k++)
-					for(int j = 0; j < players.get(k).getCities().size(); j++)
-						if(players.get(k).getCities().get(j).getName().equals(cityName))
-						{
-							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
+				for (Player player : players)
+					for (int j = 0; j < player.getCities().size(); j++)
+						if (player.getCities().get(j).getName().equals(cityName)) {
+							if (playerTurn.getMap().get(player.getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
 								return mapCommands.visible.regex;
-							MapPrinter.selectedCity = players.get(k).getCities().get(j);
+							MapPrinter.selectedCity = player.getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)
@@ -724,13 +777,12 @@ public class GameController
 			else if(matcher4 != null)
 			{
 				String cityName = matcher4.group("name");
-				for(int k = 0; k < players.size(); k++)
-					for(int j = 0; j < players.get(k).getCities().size(); j++)
-						if(players.get(k).getCities().get(j).getName().equals(cityName))
-						{
-							if(playerTurn.getMap().get(players.get(k).getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
+				for (Player player : players)
+					for (int j = 0; j < player.getCities().size(); j++)
+						if (player.getCities().get(j).getName().equals(cityName)) {
+							if (playerTurn.getMap().get(player.getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
 								return mapCommands.visible.regex;
-							MapPrinter.selectedCity = players.get(k).getCities().get(j);
+							MapPrinter.selectedCity = player.getCities().get(j);
 							return mapCommands.selected.regex;
 						}
 				if(MapPrinter.selectedTile == null)
@@ -801,5 +853,11 @@ public class GameController
 				return Integer.parseInt(matcher.group("c"));
 			}
 		return -2;
+	}
+
+	public void resetSelectedObjects()
+	{
+		getPlayerTurn().setSelectedUnit(null);
+		getPlayerTurn().setSelectedCity(null);
 	}
 }

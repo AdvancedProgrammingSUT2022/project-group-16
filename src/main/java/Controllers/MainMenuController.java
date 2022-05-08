@@ -11,36 +11,26 @@ import java.util.regex.Matcher;
 
 public class MainMenuController
 {
-	public static void startNewGame()
-	{
-		gameMenuView.run();
-	}
-
-	public static void enterProfileMenu(Scanner scanner, Matcher matcher)
-	{
-		profileMenuVeiw.run(scanner, matcher);
-	}
-
-	public static String enterMenu(Scanner scanner, Matcher matcher)
+	public String enterMenu(Scanner scanner, Matcher matcher)
 	{
 		String menuName = matcher.group("menuName");
-		if((matcher = mainCommands.compareRegex(menuName, mainCommands.profileName)) != null)
+		if(mainCommands.compareRegex(menuName, mainCommands.profileName) != null)
 		{
-			enterProfileMenu(scanner, matcher);
+			profileMenuVeiw.run(scanner);
 			return "1";
 		}
-		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.startNewGame)) != null)
+		else if(mainCommands.compareRegex(menuName, mainCommands.startNewGame) != null)
 		{
-			startNewGame();
+			gameMenuView.run();
 			return "1";
 		}
-		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.loginMenu)) != null)
+		else if(mainCommands.compareRegex(menuName, mainCommands.loginMenu) != null)
 			return mainCommands.navigationError.regex;
 		else
 			return mainCommands.invalidCommand.regex;
 	}
 
-	public static String logoutUser()
+	public String logoutUser()
 	{
 		Menu.loggedInUser = null;
 		return mainMenuEnum.successfulLogout.regex;

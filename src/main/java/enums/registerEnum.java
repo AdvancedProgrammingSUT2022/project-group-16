@@ -9,6 +9,12 @@ public enum registerEnum
 	enterMenu("^menu\\s+enter\\s+(?<menuName>.+)$"),
 	registerUser("^user\\s+create.+$"),
 	loginUser("^user\\s+login.+$"),
+	getUsername("^--username\\s+(?<username>\\S+).*$"),
+	getNickname("^--nickname\\s+(?<nickname>\\S+).*$"),
+	getPassword("^--password\\s+(?<password>\\S+).*$"),
+	shortFormPassword("^-p\\s+(?<password>\\S+).*$"),
+	shortFormUsername("^-u\\s+(?<username>\\S+).*$"),
+	shortFormNickname("^-n\\s+(?<nickname>\\S+).*$"),
 
 	//messages
 	loginFirst("please login first"),

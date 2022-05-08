@@ -6,8 +6,11 @@ import java.util.regex.Pattern;
 public enum profileEnum
 {
     //commands
-    changeNickname("^\\s*profile\\s+change.+$"),
-    changePassword("^\\s*profile\\s+change\\s+--password.+$"),
+    changeNickname("^\\s*[pP]rofile\\s+[cC]hange\\s+--[nN]ickname\\s+(?<newName>\\S+)\\s*$"),
+    shortChangeNickname("^\\s*[pP]rofile\\s+[cC]hange\\s+-n\\s+(?<newName>\\S+)\\s*$"),
+    changePassword("^\\s*[pP]rofile\\s+[cC]hange\\s+--password.*$"),
+    getNewPassword("^ --new\\s+(?<password>\\S+).*$"),
+    getOldPassword("^ --current\\s+(?<password>\\S+).*$"),
 
     //messages
     successfulPassChange("password changed successfully!"),

@@ -4,13 +4,12 @@ import Models.Menu.Menu;
 import enums.profileEnum;
 import enums.mainCommands;
 
-
-import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class ProfileController
 {
-	private static int doesUsernameExist(String username)
+	RegisterController registerController = new RegisterController();
+	private int doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
 		{
@@ -20,7 +19,7 @@ public class ProfileController
 		return -1;
 	}
 
-	private static int doesNicknameExist(String nickName)
+	private int doesNicknameExist(String nickName)
 	{
 		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
 		{
@@ -29,55 +28,31 @@ public class ProfileController
 		}
 		return -1;
 	}
-
-	private static Matcher matchRegex(Matcher matcher, String line, mainCommands regex)
+	public String changeNickname(Matcher matcher)
 	{
-		if(matcher == null && (matcher = mainCommands.compareRegex(line, regex)) != null)
-			matcher = mainCommands.compareRegex(line, regex);
-		return matcher;
-	}
+		String nickname = matcher.group("newName");
 
-	public static String changeNickname(String command)
-	{
-		Matcher nicknameMatcher = null;
-
-		for(int i = 0; i < command.length(); i++)
-		{
-			String sub = command.substring(i);
-			nicknameMatcher = matchRegex(nicknameMatcher, sub, mainCommands.getNickname);
-			nicknameMatcher = matchRegex(nicknameMatcher, sub, mainCommands.shortFormNickname);
-		}
-		if(nicknameMatcher != null)
-		{
-			String nickname = nicknameMatcher.group("nickname");
-
-			if(doesNicknameExist(nickname) != -1)
-				return (mainCommands.specificNickname.regex + nickname + mainCommands.alreadyExist.regex);
-			else
-			{
-				Menu.loggedInUser.setNickname(nickname);
-				Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setNickname(nickname);
-				RegisterController.writeDataOnJson();
-				return profileEnum.successfulNicknameChange.regex;
-			}
-		}
+		if(doesNicknameExist(nickname) != -1)
+			return (mainCommands.specificNickname.regex + nickname + mainCommands.alreadyExist.regex);
 		else
-			return mainCommands.invalidCommand.regex;
+		{
+			Menu.loggedInUser.setNickname(nickname);
+			Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setNickname(nickname);
+			registerController.writeDataOnJson();
+			return profileEnum.successfulNicknameChange.regex;
+		}
 	}
 
-	public static String changePassword(Matcher oldPassword, Matcher newPassword, String command)
+	public String changePassword(String command)
 	{
-		oldPassword = null;
-		newPassword = null;
-
+		Matcher newPassword = null;
+		Matcher oldPassword = null;
 		for(int i = 0; i < command.length(); i++)
-		{
-			String sub = command.substring(i, command.length());
-			if(newPassword == null && (newPassword = mainCommands.compareRegex(sub, mainCommands.getNewPassword)) != null)
-				newPassword = mainCommands.compareRegex(sub, mainCommands.getNewPassword);
-			else if(oldPassword == null && (oldPassword = mainCommands.compareRegex(sub, mainCommands.getOldPassword)) != null)
-				oldPassword = mainCommands.compareRegex(sub, mainCommands.getOldPassword);
-		}
+			if(newPassword == null && (newPassword = profileEnum.compareRegex(command.substring(i), profileEnum.getNewPassword)) != null)
+				newPassword = profileEnum.compareRegex(command.substring(i), profileEnum.getNewPassword);
+		for(int i = 0; i < command.length(); i++)
+			if(oldPassword == null && (oldPassword = profileEnum.compareRegex(command.substring(i), profileEnum.getOldPassword)) != null)
+				oldPassword = profileEnum.compareRegex(command.substring(i), profileEnum.getOldPassword);
 		if (newPassword != null && oldPassword != null)
 		{
 			String currPass = oldPassword.group("password");
@@ -87,13 +62,13 @@ public class ProfileController
 				return profileEnum.invalidOldPass.regex;
 			else if(currPass.equals(newPass))
 				return profileEnum.commonPasswords.regex;
-			else if(RegisterController.checkWeaknessOfPassword(newPass) != null)
+			else if(registerController.checkWeaknessOfPassword(newPass) != null)
 				return mainCommands.weakNewPass.regex;
 			else
 			{
 				Menu.loggedInUser.setPassword(newPass);
 				Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setPassword(newPass);
-				RegisterController.writeDataOnJson();
+				registerController.writeDataOnJson();
 				return profileEnum.successfulPassChange.regex;
 			}
 		}
@@ -101,15 +76,15 @@ public class ProfileController
 			return mainCommands.invalidCommand.regex;
 	}
 
-	public static String enterMenu(Scanner scanner, Matcher matcher)
+	public String enterMenu(Matcher matcher)
 	{
 		String menuName = matcher.group("menuName");
 
-		if((matcher = mainCommands.compareRegex(menuName, mainCommands.startNewGame)) != null)
+		if(mainCommands.compareRegex(menuName, mainCommands.startNewGame) != null)
 			return mainCommands.navigationError.regex;
-		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.loginMenu)) != null)
+		else if(mainCommands.compareRegex(menuName, mainCommands.loginMenu) != null)
 			return mainCommands.navigationError.regex;
-		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.mainMenu)) != null)
+		else if(mainCommands.compareRegex(menuName, mainCommands.mainMenu) != null)
 			return "1";
 		return mainCommands.invalidCommand.regex;
 	}

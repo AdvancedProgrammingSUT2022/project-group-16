@@ -27,6 +27,7 @@ public abstract class Unit implements Constructable
 	private boolean hasArrived = false;
 
 
+
 	public Player getRulerPlayer() {
 		return rulerPlayer;
 	}
@@ -126,21 +127,20 @@ public abstract class Unit implements Constructable
 		return isActive;
 	}
 
-	public void setActive(boolean active) {
-		isActive = active;
+	public void changeActivate()
+	{
+		isActive = !isActive;
 	}
 
 	public boolean isSleep() {
 		return isSleep;
 	}
 
-	public void setSleep(boolean sleep) {
-		isSleep = sleep;
+	public void changeSleepWake()
+	{
+		isSleep = !isSleep;
 	}
 
-	public void sleep(){
-		this.isActive = false;
-	}
 	public void getReady(){
 
 	}
