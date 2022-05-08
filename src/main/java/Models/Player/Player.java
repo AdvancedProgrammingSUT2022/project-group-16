@@ -22,6 +22,7 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 0;
 	private int happiness = 0;
+	private int population = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private Technology researchingTechnology;
 	private int[] researchingTechCounter = new int[50];
@@ -60,6 +61,13 @@ public class Player extends User
 		this.selectedCity = city;
 	}
 
+	public int getPopulation() {
+		return population;
+	}
+	public void setPopulation(int population) {
+		this.population = population;
+	}
+
 	public Civilization getCivilization()
 	{
 		return civilization;
@@ -77,13 +85,19 @@ public class Player extends User
 	{
 		this.food = food;
 	}
-	public int getGold()
-	{
+	public int getGold() {
 		return gold;
 	}
-	public void setGold(int gold)
+	public int incomeGold()
 	{
-		this.gold = gold;
+		int n = 0;
+		for(City city : cities)
+			n += city.getGoldYield();
+		return n;
+	}
+	public void setGold(int amount)
+	{
+		this.gold += amount;
 	}
 	public int getHappiness()
 	{
@@ -93,6 +107,7 @@ public class Player extends User
 	{
 		this.happiness = happiness;
 	}
+
 
 	public ArrayList<Technology> getTechnologies()
 	{
@@ -120,17 +135,20 @@ public class Player extends User
 	public int getCup() {
 		return cup;
 	}
+	public int incomeCup()
+	{
+		int n = 0;
+		for(City city : cities)
+			n += city.getCupYield();
+		return n;
+	}
 	public void reduceCup()
 	{
 		this.cup = 0;
 	}
-	public void updateCup()
+	public void setCup(int amount)
 	{
-		for (City city : this.cities)
-		{
-			city.updateCupYield();
-			this.cup += city.getCupYield();
-		}
+		this.cup += amount;
 	}
 
 	public ArrayList<Resource> getResources()
@@ -198,6 +216,10 @@ public class Player extends User
 		for(Map.Entry<Tile, TileState> entry : map.entrySet())
 			map.replace(entry.getKey(), TileState.values()[tileStateRandom.nextInt(TileState.values().length)]);
 	}
+//	public ArrayList<Resource> getStrategicResources()
+//	{
+//
+//	}
 }
 
 
