@@ -29,7 +29,7 @@ public enum TileType
 		this.combatModifier = combatModifier;
 		this.movementCost = movementCost;
 		this.attribute = attribute;
-		this.isBlocker = true;
+		this.isBlocker = isBlocker;
 	}
 }
 

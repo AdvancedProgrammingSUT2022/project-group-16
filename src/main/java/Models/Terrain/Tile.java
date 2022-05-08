@@ -86,9 +86,17 @@ public class Tile
 	{
 		return combatUnitInTile;
 	}
+	public void setCombatUnitInTile(CombatUnit combatUnit)
+	{
+		this.combatUnitInTile = combatUnit;
+	}
 	public NonCombatUnit getNonCombatUnitInTile()
 	{
 		return nonCombatUnitInTile;
+	}
+	public void setNonCombatUnitInTile(NonCombatUnit nonCombatUnit)
+	{
+		this.nonCombatUnitInTile = nonCombatUnit;
 	}
 	public boolean isPillaged()
 	{

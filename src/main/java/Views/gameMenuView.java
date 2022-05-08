@@ -1,6 +1,7 @@
 package Views;
 
 import Controllers.GameController;
+import Controllers.Utilities.MapPrinter;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -165,11 +166,12 @@ public class gameMenuView
         System.out.println(gameEnum.gold.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
         System.out.println(gameEnum.cup.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
     }
-    private static void pickCivilizations(Scanner scanner, User[] tmpUsers)
+    private static void pickCivilsAndCreatePlayers(Scanner scanner, User[] usersToPlay) // and create players
     {
-        for (User tmpUser : tmpUsers)
+        for (User user : usersToPlay)
         {
-            System.out.println(tmpUser.getUsername() + gameEnum.pickCivilization.regex);
+            //TODO: this should be fixed: printing civilizations should be dynamic
+            System.out.println(user.getUsername() + gameEnum.pickCivilization.regex);
             System.out.println(gameEnum.AMERICAN.regex);
             System.out.println(gameEnum.ARABIAN.regex);
             System.out.println(gameEnum.ASSYRIAN.regex);
@@ -185,22 +187,23 @@ public class gameMenuView
                 number = 0;
                 while (number == 0)
                 {
-                    number = gameController.getNum(scanner, 1, 10);
+                    number = gameController.getNum(scanner, 1, 10); //TODO: shouldn't be in GameController
                     if (number == 0)
                         System.out.println(mainCommands.pickBetween.regex + "1 and 10");
                 }
                 System.out.println(gameController.pickCivilization(number));
             } while (number > 10 || number < 1 || gameController.inArr(gameController.findCivilByNumber(number)));
 
-            gameController.addPlayer(new Player(gameController.findCivilByNumber(number), tmpUser.getUsername(),
-                    tmpUser.getNickname(), tmpUser.getPassword()));
+            gameController.addPlayer(new Player(gameController.findCivilByNumber(number), user.getUsername(),
+                    user.getNickname(), user.getPassword()));
         }
+        
     }
-    public static void startGame(Scanner scanner, HashMap<String, String> Map)
+    public static void startGame(Scanner scanner, HashMap<String, String> usersInfo) //TODO: rename to runGame
     {
         Matcher matcher;
-        User[] tmpUsers = gameController.convertMapToArr(Map); //Note: player[0] is loggedInUSer! [loggedInUser, player1, player2, ...]
-        pickCivilizations(scanner, tmpUsers);
+        User[] tmpUsers = gameController.convertMapToArr(usersInfo); //Note: user[0] is loggedInUSer! [loggedInUser, user1, user2, ...]
+        pickCivilsAndCreatePlayers(scanner, tmpUsers);
         gameController.initGame();
 
         String command = null;
@@ -213,7 +216,8 @@ public class gameMenuView
                 gameController.addToTurnCounter(1);
             }
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
-
+            System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
+            
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -374,7 +378,7 @@ public class gameMenuView
             }
         } while (!Objects.equals(command, gameEnum.end.toString()));
     }
-    public static void run()
+    public static void run() //TODO: rename to runGameMenu
     {
         String command;
         Scanner scanner = new Scanner(System.in);

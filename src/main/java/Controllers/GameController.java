@@ -10,10 +10,8 @@ import Models.Player.Technology;
 import Models.Resources.BonusResource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
-import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.LongRange;
-import Models.Units.CombatUnits.LongRangeType;
-import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.User;
@@ -33,23 +31,27 @@ public class GameController
 	private final ArrayList<Position> grid = new ArrayList<>();
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
-	public final int MAX_MAP_SIZE = 10;
+	public final int MAP_SIZE = 10;
 	private final ArrayList<Player> players = new ArrayList<>();
 	private Player playerTurn;
+	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 
 	public static GameController getInstance()
 	{
 		if(instance == null)
+		{
 			instance = new GameController();
+			instance.initGrid();
+			instance.initMap();
+		}
 		return instance;
 	}
 
 	public void addPlayer(Player player)
 	{
 		players.add(player);
-		playerTurn = players.get(0);
 	}
 	public void deletePlayer(Player player)
 	{
@@ -61,9 +63,7 @@ public class GameController
 	}
 	public void initGame()
 	{
-		// TODO: sync with gameMenu
-		initGrid();
-		initMap();
+		initPlayers();
 		// TODO: set tileStates for each player
 	}
 	public ArrayList<Tile> getMap()
@@ -99,8 +99,8 @@ public class GameController
 		Random resourceRandom = new Random();
 		Random CUnitRandom = new Random();
 		
-		for(int i = 0; i < MAX_MAP_SIZE; i++)
-			for(int j = 0; j < MAX_MAP_SIZE; j++)
+		for(int i = 0; i < MAP_SIZE; i++)
+			for(int j = 0; j < MAP_SIZE; j++)
 			{
 				BorderType[] borders = new BorderType[6];
 				for(int k = 0; k < 6; k++)
@@ -113,6 +113,25 @@ public class GameController
 						null,
 						null));
 			}
+	}
+	// set playerTurn and set two units for each player and set their tileStates
+	private void initPlayers()
+	{
+		playerTurn = players.get(0);
+		// create two units for each player and set their starting positions and tileStates
+		for(int i = 0; i < players.size(); i++)
+		{
+			Player player = players.get(i);
+			Tile startingTile = player.getTileByXY(startingPositions[i].X, startingPositions[i].Y);
+			// TODO: this units are temp. they should be modified in their constructors
+			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile, MidRangeType.WARRIOR.movement, MidRangeType.WARRIOR.combatStrength);
+			Settler settler = new Settler(player, 10, 3, startingTile, 3, 0);
+			player.addUnit(warrior);
+			player.addUnit(settler);
+			startingTile.setCombatUnitInTile(warrior);
+			startingTile.setNonCombatUnitInTile(settler);
+			player.updateTileStates();
+		}
 	}
 	public Tile getTileByXY(int X, int Y)
 	{
@@ -299,7 +318,7 @@ public class GameController
 			return "1";
 		return mainCommands.invalidCommand.regex;
 	}
-	public User[] convertMapToArr(HashMap<String, String> players)
+	public User[] convertMapToArr(HashMap<String, String> players) //Does it sort the users?
 	{
 		User[] newArr = new User[players.size() + 1];
 		newArr[0] = Menu.loggedInUser;
@@ -503,9 +522,9 @@ public class GameController
 			}
 			if(matcher1 != null || matcher2 != null)
 			{
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				if(x >= getInstance().MAP_SIZE || x < 0 ||
+						y >= getInstance().MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
 							playerTurn.getUnits().get(j).getTile().getPosition().Y == y) //TODO: c/n unit
@@ -540,9 +559,9 @@ public class GameController
 			}
 			if(matcher1 != null || matcher2 != null)
 			{
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				if(x >= getInstance().MAP_SIZE || x < 0 ||
+						y >= getInstance().MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
 							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)//TODO: c/n unit
@@ -605,9 +624,9 @@ public class GameController
 			}
 			if(matcher1 != null || matcher2 != null)
 			{
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				if(x >= getInstance().MAP_SIZE || x < 0 ||
+						y >= getInstance().MAP_SIZE || y < 0)
+					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getCities().size(); j++)
 					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
 							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
@@ -794,9 +813,9 @@ public class GameController
 			}
 			if(matcher1 != null || matcher2 != null)
 			{
-				if(x >= getInstance().MAX_MAP_SIZE || x < 0 ||
-						y >= getInstance().MAX_MAP_SIZE || y < 0)
-					return mapCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
+				if(x >= getInstance().MAP_SIZE || x < 0 ||
+						y >= getInstance().MAP_SIZE || y < 0)
+					return mapCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
 				if (playerTurn.getMap().get(playerTurn.getTileByXY(x, y)).equals(TileState.FOG_OF_WAR))
 					return mapCommands.visible.regex;
 				MapPrinter.selectedTile = getTileByXY(x, y);
