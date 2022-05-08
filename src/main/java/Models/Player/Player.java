@@ -146,8 +146,7 @@ public class Player extends User
 	{
 		this.cup = 0;
 	}
-	public void setCup(int amount)
-	{
+	public void setCup(int amount) {
 		this.cup += amount;
 	}
 

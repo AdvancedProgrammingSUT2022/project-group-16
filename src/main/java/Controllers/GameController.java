@@ -620,7 +620,7 @@ public class GameController
 	}
 	public void moveUnit(int x, int y)
 	{
-		System.out.println(x + " " + y);
+
 	}
 	public String sleep()
 	{

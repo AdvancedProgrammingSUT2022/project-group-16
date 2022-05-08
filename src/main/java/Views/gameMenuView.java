@@ -87,7 +87,7 @@ public class gameMenuView
         System.out.println(gameEnum.goldIncome.regex + tmp.incomeGold());
 
         if(gameController.getPlayerTurn().getUnits().size() != 0)
-            System.out.println("\nUnits: ");
+            System.out.println(infoCommands.units.regex);
         showAllUnits(gameController.getPlayerTurn().getUnits().size());
     }
     private static void showMilitary()
@@ -106,11 +106,16 @@ public class gameMenuView
         while (number != max + 1)
         {
             number = 0;
-            for (int i = 0; i < max; i++) {
-                System.out.print((i + 1) + ": " + tmp.get(i).toString().toLowerCase(Locale.ROOT) + "\tX: " + tmp.get(i).getTile().getPosition().X + "\tY: " + tmp.get(i).getTile().getPosition().Y
-                        + "\tstatus: ");
-                if (tmp.get(i).isActive()) System.out.println("Active");
-                else System.out.println("In Active");
+            if(max != 0)
+                System.out.println("   unit type\t\tcoordinates\t\tis active");
+            for (int i = 0; i < max; i++)
+            {
+                Unit curr = gameController.getPlayerTurn().getUnits().get(i);
+                System.out.print((i + 1) + ": " + curr.toString().toLowerCase(Locale.ROOT));
+                printSpace(20 - curr.toString().length());
+                System.out.print(curr.getTile().getPosition().X + "," + curr.getTile().getPosition().Y);
+                if(curr.isActive()) System.out.println("\t\t\t Active");
+                else System.out.println("\t\t\tIn Active");
             }
             System.out.println((max + 1) + ": go to Military panel");
             System.out.println((max + 2) + infoCommands.backToGame.regex);
@@ -227,10 +232,14 @@ public class gameMenuView
     }
     private static void printCities(int max)
     {
-        if(max != 0)
+        if(max == 0)
+            System.out.println(infoCommands.nothing.regex);
+        else
+        {
             System.out.println(1 + ": " + gameController.getPlayerTurn().getCurrentCapitalCity().getName() + " (capital city)");
-        for (int i = 1; i < max; i++)
-            System.out.println((i + 1) + ": " + gameController.getPlayerTurn().getCities().get(i).getName());
+            for (int i = 1; i < max; i++)
+                System.out.println((i + 1) + ": " + gameController.getPlayerTurn().getCities().get(i).getName());
+        }
     }
     private static void showAllCities(Scanner scanner)
     {
@@ -275,10 +284,10 @@ public class gameMenuView
         City tmp = gameController.getPlayerTurn().getSelectedCity();
 
         System.out.println(infoCommands.cityName.regex + tmp.getName());
-        System.out.println(gameEnum.food.regex + gameController.getPlayerTurn().getSelectedCity().getFoodYield());
+        System.out.println(gameEnum.foodYield.regex + gameController.getPlayerTurn().getSelectedCity().getFoodYield());
         System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getSelectedCity().getProductionYield());
-        System.out.println(gameEnum.gold.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
-        System.out.println(gameEnum.cup.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
+        System.out.println(gameEnum.goldYield.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
+        System.out.println(gameEnum.cupYield.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
     }
     private static void pickCivilizations(Scanner scanner, User[] tmpUsers)
     {
@@ -322,8 +331,6 @@ public class gameMenuView
         do
         {
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().incomeCup());
-            for(City city : gameController.getPlayerTurn().getCities())
-                System.out.println(city.getCupYield());
             if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
             {
                 gameController.addTurn(1);
@@ -481,7 +488,6 @@ public class gameMenuView
                     Worker k = new Worker(gameController.getPlayerTurn(),10,10,gameController.getMap().get(2),23, 34);
                     LongRange r = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(34),10, 23);
                     LongRange l = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(34),10, 23);
-                    System.out.println(l.getType().name());
                     n.createCity();
                     gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
                     m.createCity();
@@ -489,6 +495,13 @@ public class gameMenuView
                     gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
 
 
+                }
+                else if(command.equals("t"))
+                {
+                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,5);
+                    n.createCity();
+                    gameController.getPlayerTurn().getCities().get(2).addPopulation(34);
+                    gameController.getPlayerTurn().getCities().get(2).addGold(24);
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
