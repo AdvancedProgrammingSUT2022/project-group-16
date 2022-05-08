@@ -40,6 +40,11 @@ public class City
 		territory.addAll(GameController.getInstance().getAdjacentTiles(capitalTile));
 		this.name = setCityName();
 		rulerPlayer.addCity(this);
+		if(rulerPlayer.getCities().size() == 1)
+		{
+			cupYield = 3;
+			rulerPlayer.setCup(3);
+		}
 	}
 	private String setCityName() {
 		for (String cityName : rulerPlayer.getCivilization().cities) {
@@ -95,18 +100,14 @@ public class City
 	public int getCupYield() {
 		return cupYield;
 	}
-	public void updateCupYield()
-	{
-		cupYield = population;
-		if(rulerPlayer.getCurrentCapitalCity() == this)
-			cupYield += 3;
-	}
 	public int getPopulation() {
 		return population;
 	}
 	public void addPopulation(int amount)
 	{
 		this.population += amount;
+		cupYield += amount;
+		rulerPlayer.setCup(amount);
 	}
 
 	public void growCity() //TODO: this should increase the number of citizens of the city

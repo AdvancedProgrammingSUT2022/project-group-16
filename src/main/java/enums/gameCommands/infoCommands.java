@@ -40,7 +40,9 @@ public enum infoCommands
     unitType("unit type: "),
     name("\nname: "),
     civilizationName("civilization name : "),
-    cities("City/Cities: ");
+    cities("City/Cities: "),
+    units("\nUnits: "),
+    unitName("unit name");
 
     public final String regex;
 
