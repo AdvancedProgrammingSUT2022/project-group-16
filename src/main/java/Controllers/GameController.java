@@ -277,6 +277,7 @@ public class GameController
 		//TODO:win battle
 		return cheatCode.addSuccessful.regex;
 	}
+
 	public String moveUnit(Matcher matcher)
 	{
 		//TODO: move unit
@@ -618,9 +619,16 @@ public class GameController
 		}
 		return selectCommands.invalidCommand.regex;
 	}
-	public void moveUnit()
+	public void updatePlayersUnitLocations(){
+		for (Unit unit : this.getPlayerTurn().getUnits()) {
+			if(unit.getMoves() != null && unit.getMoves().size() > 0){
+				unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
+			}
+		}
+	}
+	public void moveUnit(Position position)
 	{
-
+		playerTurn.getSelectedUnit().move(getTileByXY(position.X, position.Y));
 	}
 	public String sleep()
 	{

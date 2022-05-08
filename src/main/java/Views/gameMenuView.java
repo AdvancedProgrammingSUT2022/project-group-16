@@ -280,6 +280,7 @@ public class gameMenuView
             String e = gameController.checkTechnology();
             if(e != null) System.out.println(e);
 
+
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -440,7 +441,9 @@ public class gameMenuView
                 String t = gameController.checkTechnology();
                 if(t != null) System.out.println(t);
             }
-        } while (!Objects.equals(command, gameEnum.end.toString()));
+        } while (!Objects.equals(command, gameEnum.end.toString())) ;{
+            gameController.updatePlayersUnitLocations();
+        }
     }
     public static void run()
     {

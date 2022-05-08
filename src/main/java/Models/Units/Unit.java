@@ -165,14 +165,20 @@ public abstract class Unit implements Constructable
 	}
 
 	public void move(Tile destination){
-		this.tile = destination;
+		if(this.movementPoints == 0) {
+			return;
+		}
 		this.movementPoints -= destination.getTileType().movementCost;
 		if(this.movementPoints < 0) this.movementPoints = 0;
 		//TODO include railroad movement points
-		//TODO write a unit test for findWay
-		moves = FindWay.getInstance(destination).getMoves();
+		if(this.moves.size() == 0) this.moves = FindWay.getInstance(destination).getMoves();
 		//TODO check if unit can go to destination
+		if(this.moves.size() > 0) {
+			this.tile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
+			this.moves.remove(0);
+		}
 	}
+
 	
 }
 
