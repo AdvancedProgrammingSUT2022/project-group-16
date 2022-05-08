@@ -340,6 +340,7 @@ public class gameMenuView
             String e = gameController.checkTechnology();
             if(e != null) System.out.println(e);
 
+
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -480,12 +481,12 @@ public class gameMenuView
                 else if(command.equals("s"))
                 {
                     MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45),12, 34);
-                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,5);
-                    Worker w = new Worker(gameController.getPlayerTurn(),10,10,gameController.getMap().get(23),23, 34);
+                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(0));
+                    Worker w = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(23));
                     LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34),10, 23);
-                    Settler m = new Settler(gameController.getPlayerTurn(), 20,30,gameController.getMap().get(1),12,34);
+                    Settler m = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(1));
                     MidRange o = new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(45),12, 34);
-                    Worker k = new Worker(gameController.getPlayerTurn(),10,10,gameController.getMap().get(2),23, 34);
+                    Worker k = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(2));
                     LongRange r = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(34),10, 23);
                     LongRange l = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(34),10, 23);
                     n.createCity();
@@ -516,7 +517,9 @@ public class gameMenuView
                 String t = gameController.checkTechnology();
                 if(t != null) System.out.println(t);
             }
-        } while (!Objects.equals(command, gameEnum.end.toString()));
+        } while (!Objects.equals(command, gameEnum.end.toString())) ;{
+            gameController.updatePlayersUnitLocations();
+        }
     }
     public static void run()
     {

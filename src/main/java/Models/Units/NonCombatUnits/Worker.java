@@ -1,21 +1,24 @@
 package Models.Units.NonCombatUnits;
 
 import Models.Player.Player;
+import Models.Player.Technology;
 import Models.Terrain.Tile;
+import Models.Terrain.TileFeature;
+import Models.Terrain.TileType;
 
 public class Worker extends NonCombatUnit{
 
     private int TurnsTillRepairment = 3;
 
-    public Worker(Player rulerPlayer, int cost, int movement, Tile tile, int speed, int power){
+    public Worker(Player rulerPlayer, Tile tile){
         this.setRulerPlayer(rulerPlayer);
-        this.setProductionCost(cost);
+        this.setProductionCost(10);//TODO what is the max health/cost??
         this.setRequiredTechnology(null);
-        this.setMovementPoints(movement);
+        this.setMovementPoints(1);
         this.setTile(tile);
-        this.setHealth(100); //TODO what is the max health,speed,power?
-        this.setSpeed(speed);
-        this.setPower(power);
+        this.setHealth(100);
+        this.setSpeed(1);
+        this.setPower(0);
         this.setRequiredResource(null);
         rulerPlayer.addUnit(this);
     }
@@ -37,12 +40,19 @@ public class Worker extends NonCombatUnit{
     public void removeDevelopment(){
 
     }
+    private boolean canBuildRoad(){
+        if(this.getTile().getTileType().equals(TileType.OCEAN) || this.getTile().getTileType().equals(TileType.MOUNTAIN) ||
+                this.getTile().getTileType().equals(TileType.TUNDRA) || this.getTile().getTileFeature().equals(TileFeature.ICE) ||
+                !this.getRulerPlayer().getTechnologies().contains(Technology.THE_WHEEL))
+            return false;
+        return true;
+    }
     public void buildRailRoad(){
-        //TODO check if it is possible to pass the tile
-        this.getTile().setHasRailRoad(true);
+       if(canBuildRoad())
+           this.getTile().setHasRailRoad(true);
     }
     public void buildRoad(){
-        //TODO check if it is possible to pass the tile
+        if(canBuildRoad())
         this.getTile().setHasRoad(true);
     }
     public void buildFarm(){

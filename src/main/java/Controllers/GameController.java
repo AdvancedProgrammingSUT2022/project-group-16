@@ -618,8 +618,17 @@ public class GameController
 		}
 		return selectCommands.invalidCommand.regex;
 	}
+	public void updatePlayersUnitLocations(){
+		for (Unit unit : this.getPlayerTurn().getUnits()) {
+			if(unit.getMoves() != null && unit.getMoves().size() > 0){
+				unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
+			}
+		}
+	}
 	public void moveUnit(int x, int y)
 	{
+		playerTurn.getSelectedUnit().move(getTileByXY(x, y));
+		System.out.println(x + " " + y);
 
 	}
 	public String sleep()
