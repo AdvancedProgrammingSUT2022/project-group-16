@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public enum unitCommands
 {
     //commands
-    moveTo("^\\s*[uU]nit\\s+[mM]ove\\s*[tT]o.*$"),
+    moveTo("^\\s*[uU]nit\\s+[mM]ove\\s*[tT]o\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     sleep("^\\s*[uU]nit\\s+[sS]leep\\s*$"),
     alert("^\\s*[uU]nit\\s+[aA]lert\\s*$"),
     fortify("^\\s*[uU]nit\\s+[fF]ortify\\s*$"),

@@ -19,7 +19,8 @@ public enum infoCommands
     searchEconomic(": go to economics!"),
     searchCity(": go to cities!"),
     backToGame(": back to game!"),
-    gained("gained technologies"),
+    gained("\ngained technologies"),
+    cityName("city name: "),
     chooseTechnology("choose a technology to start researching!"),
     nothing("nothing"),
     choose("you selected "),
@@ -35,7 +36,11 @@ public enum infoCommands
     remainingTurns("Remaining turns: "),
     gainAfterGetTechnology(" will be unlock after you reach this technology!"),
     notGain("nothing will unlock after you reach this technology"),
-    alreadyResearching("you're currently researching this technology!");
+    alreadyResearching("you're currently researching this technology!"),
+    unitType("unit type: "),
+    name("\nname: "),
+    civilizationName("civilization name : "),
+    cities("City/Cities: ");
 
     public final String regex;
 

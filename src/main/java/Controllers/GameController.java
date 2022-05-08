@@ -2,6 +2,7 @@ package Controllers;
 
 import Controllers.Utilities.MapPrinter;
 import Models.City.BuildingType;
+import Models.City.City;
 import Models.Game.Position;
 import Models.Player.*;
 import Models.Menu.Menu;
@@ -13,6 +14,7 @@ import Models.Terrain.*;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
+import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import Models.User;
 import enums.cheatCode;
@@ -256,8 +258,15 @@ public class GameController
 		addTurn(amount);
 		for(Player player : players)
 			for (int i = 0; i < amount; i++)
-				player.updateCup();
+				player.setCup(player.incomeCup());
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
+	}
+
+	public String increaseHappiness(Matcher matcher)
+	{
+		int amount = Integer.parseInt(matcher.group("amount"));
+		playerTurn.setHappiness(playerTurn.getHappiness() + amount);
+		return (cheatCode.happiness.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String addTechnology(Matcher matcher)
 	{
@@ -277,7 +286,6 @@ public class GameController
 		//TODO:win battle
 		return cheatCode.addSuccessful.regex;
 	}
-
 	public String moveUnit(Matcher matcher)
 	{
 		//TODO: move unit
@@ -475,15 +483,9 @@ public class GameController
 		
 		return allNotificationsString.toString();
 	}
-	public String showMilitary()
-	{
-		// TODO ??
-		return showUnits();
-	}
 
 	public String selectCUnit(String command)
 	{
-		int flag = 0;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -506,21 +508,20 @@ public class GameController
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y) //TODO: c/n unit
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y &&
+							!playerTurn.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit")) //TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
-						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedUnit()  != playerTurn.getUnits().get(flag))
-					return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
+				return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
 		return selectCommands.invalidCommand.regex;
 	}
 	public String selectNUnit(String command)
 	{
-		int flag = 0;
+		int flag = -1;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -543,14 +544,13 @@ public class GameController
 					return selectCommands.invalidRange.regex + (getInstance().MAX_MAP_SIZE - 1);
 				for(int j = 0; j < playerTurn.getUnits().size(); j++)
 					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y)//TODO: c/n unit
+							playerTurn.getUnits().get(j).getTile().getPosition().Y == y &&
+							playerTurn.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))//TODO: c/n unit
 					{
 						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
-						flag = j;
 						return selectCommands.selected.regex;
 					}
-				if(playerTurn.getSelectedUnit() != playerTurn.getUnits().get(flag))
-					return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
+				return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
 		return selectCommands.invalidCommand.regex;
@@ -583,7 +583,6 @@ public class GameController
 					if(playerTurn.getCities().get(j).getName().equals(cityName))
 					{
 						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
-						flag = j;
 						return selectCommands.selected.regex;
 					}
 				if(playerTurn.getSelectedCity() != playerTurn.getCities().get(flag))
@@ -626,9 +625,10 @@ public class GameController
 			}
 		}
 	}
-	public void moveUnit(Position position)
+	public void moveUnit(int x, int y)
 	{
-		playerTurn.getSelectedUnit().move(getTileByXY(position.X, position.Y));
+		playerTurn.getSelectedUnit().move(getTileByXY(x, y));
+		System.out.println(x + " " + y);
 	}
 	public String sleep()
 	{

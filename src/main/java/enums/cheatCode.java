@@ -11,12 +11,14 @@ public enum cheatCode
     winBattle("^\\s*win\\s+this\\s+battle\\s+(?<positionX>[0-9]+)\\s+(?<positionY>[0-9]+)\\s*$"),
     gainFood("^\\s*increase\\s+food\\s+(?<amount>[0-9]+)\\s*$"),
     gainTechnology("^\\s*add\\s+technology\\s+(?<name>\\S+)\\s*$"),
+    increaseHappiness("^\\s*increase\\s+happiness\\s+(?<amount>[0-9]+)\\s*$"),
     moveUnit("^\\s*move\\s+from\\s+(?<positionX>[0-9]+)\\s+(?<positionY>[0-9]+)\\s+to\\s+(?<newPositionX>[0-9]+)\\s+(?<newPositionY>[0-9]+)\\s*$"),
 
     //messages
     gold("gold"),
     turn("turn"),
     food("food"),
+    happiness("happiness"),
     increaseSuccessful(" increased Successfuly"),
     addSuccessful(" added Successfuly");
 

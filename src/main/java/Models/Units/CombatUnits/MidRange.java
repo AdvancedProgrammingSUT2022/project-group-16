@@ -24,6 +24,10 @@ public class MidRange extends CombatUnit{
         rulerPlayer.addUnit(this);
     }
 
+    public MidRangeType getType() {
+        return type;
+    }
+
     private void setType(MidRangeType midRangeType) {
         this.type = midRangeType;
     }
