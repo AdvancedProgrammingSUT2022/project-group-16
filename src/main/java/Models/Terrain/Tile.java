@@ -9,7 +9,8 @@ public class Tile
 {
 	private final Position position;
 	private final TileType tileType;
-	private final TileFeature tileFeature;
+	private  TileFeature tileFeature;
+
 	// 6 borders, starting from the north border from 0. (counterclockwise)
 	private BorderType[] borders;
 	private Resource resource;
@@ -19,8 +20,9 @@ public class Tile
 	private CombatUnit combatUnitInTile = null;
 	private NonCombatUnit nonCombatUnitInTile = null;
 	boolean isPillaged = false;
-	boolean isRuined; //not sure if it should be boolean
-	
+	boolean isRuined;
+
+
 	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource)
 	{
 		this.position = position;
@@ -29,7 +31,10 @@ public class Tile
 		this.borders = borders;
 		this.resource = resource;
 	}
-	
+
+	public void setTileFeature(TileFeature tileFeature) {
+		this.tileFeature = tileFeature;
+	}
 	public TileType getTileType()
 	{
 		return tileType;
@@ -101,6 +106,13 @@ public class Tile
 	public Position getPosition()
 	{
 		return position;
+	}
+	public boolean isRuined() {
+		return isRuined;
+	}
+
+	public void setRuined(boolean ruined) {
+		isRuined = ruined;
 	}
 	protected Tile clone()
 	{ //TODO: assert that this is a deep copy and everything is cloned correctly

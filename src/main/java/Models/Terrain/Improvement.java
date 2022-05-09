@@ -3,7 +3,7 @@ package Models.Terrain;
 import Models.Player.Technology;
 public enum Improvement
 {
-	//TODO complete inline turn for 0 ones
+	//TODO complete inline turn for ones that are not written in the doc
 	NONE(0, 0, 0, null, "  ", 0),
 	CAMP(0, 0, 0, Technology.TRAPPING, "\uD83C\uDFD5", 0),
 	FARM(1, 0, 0, Technology.AGRICULTURE, "\uD83D\uDE9C", 6),
@@ -13,7 +13,7 @@ public enum Improvement
 	PLANTATION(0, 0, 0, Technology.CALENDAR, "\uD83C\uDF31", 0),
 	QUARRY(0, 0, 0, Technology.MASONRY, "??", 0),
 	TRADING_POST(0, 0, 1, Technology.TRAPPING, "??", 0),
-	MANUFACTORY(0, 2, 0, Technology.ENGINEERING, "\uD83C\uDFED", 0);
+	FACTORY(0, 2, 0, Technology.ENGINEERING, "\uD83C\uDFED", 0);
 	
 	public final int foodYield;
 	public final int productionYield;
@@ -21,7 +21,8 @@ public enum Improvement
 	public final Technology requiredTechnology;
 	public final String symbol;
 	public int inLineTurn;
-	
+	public  int turnToConstruct;
+
 	Improvement(int foodYield, int productionYield, int goldYield, Technology requiredTechnology, String symbol, int inLineTurn)
 	{
 		this.foodYield = foodYield;
@@ -31,6 +32,7 @@ public enum Improvement
 		this.symbol = symbol;
 		this.inLineTurn = inLineTurn;
 	}
+
 }
 
 
