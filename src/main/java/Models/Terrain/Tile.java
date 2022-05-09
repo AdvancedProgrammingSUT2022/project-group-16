@@ -13,31 +13,21 @@ public class Tile
 	// 6 borders, starting from the north border from 0. (counterclockwise)
 	private BorderType[] borders;
 	private Resource resource;
-	private Improvement improvement;
+	private Improvement improvement = Improvement.NONE;
 	private boolean hasRoad;
 	private boolean hasRailRoad;
-	private CombatUnit combatUnitInTile;
-	private NonCombatUnit nonCombatUnitInTile;
-
-
-	boolean isPillaged;
+	private CombatUnit combatUnitInTile = null;
+	private NonCombatUnit nonCombatUnitInTile = null;
+	boolean isPillaged = false;
 	boolean isRuined; //not sure if it should be boolean
 	
-	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource,
-	            Improvement improvement, CombatUnit combatUnitInTile, NonCombatUnit nonCombatUnitInTile)
+	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource)
 	{
 		this.position = position;
 		this.tileType = tileType;
 		this.tileFeature = tileFeature;
 		this.borders = borders;
 		this.resource = resource;
-		this.combatUnitInTile = null;
-		this.nonCombatUnitInTile = null;
-		this.improvement = Improvement.NONE;
-		this.isPillaged = false;
-		this.improvement = improvement;
-		this.combatUnitInTile = combatUnitInTile;
-		this.nonCombatUnitInTile = nonCombatUnitInTile;
 	}
 	
 	public TileType getTileType()
@@ -68,7 +58,7 @@ public class Tile
 	{
 		this.improvement = improvement;
 	}
-	public boolean getHasRoad()
+	public boolean hasRoad()
 	{
 		return hasRoad;
 	}
@@ -76,7 +66,7 @@ public class Tile
 	{
 		this.hasRoad = hasRoad;
 	}
-	public boolean getHasRailRoad()
+	public boolean hasRailRoad()
 	{
 		return hasRailRoad;
 	}
@@ -88,35 +78,47 @@ public class Tile
 	{
 		return combatUnitInTile;
 	}
+	public void setCombatUnitInTile(CombatUnit combatUnit)
+	{
+		this.combatUnitInTile = combatUnit;
+	}
 	public NonCombatUnit getNonCombatUnitInTile()
 	{
 		return nonCombatUnitInTile;
+	}
+	public void setNonCombatUnitInTile(NonCombatUnit nonCombatUnit)
+	{
+		this.nonCombatUnitInTile = nonCombatUnit;
 	}
 	public boolean isPillaged()
 	{
 		return isPillaged;
 	}
+	public void setIsPillaged(boolean isPillaged)
+	{
+		this.isPillaged = isPillaged;
+	}
 	public Position getPosition()
 	{
 		return position;
 	}
-	public void setCombatUnitInTile(CombatUnit combatUnitInTile) {
-		this.combatUnitInTile = combatUnitInTile;
+	protected Tile clone()
+	{ //TODO: assert that this is a deep copy and everything is cloned correctly
+		Tile newTile = new Tile(position, tileType, tileFeature, null, resource);
+		BorderType[] newBorders = new BorderType[6];
+		for (int i = 0; i < 6; i++)
+			newBorders[i] = borders[i];
+		newTile.borders = newBorders;
+		newTile.hasRoad = hasRoad;
+		newTile.hasRailRoad = hasRailRoad;
+		newTile.combatUnitInTile = combatUnitInTile.clone();
+		newTile.combatUnitInTile.setTile(newTile);
+		newTile.nonCombatUnitInTile = nonCombatUnitInTile.clone();
+		newTile.nonCombatUnitInTile.setTile(newTile);
+		newTile.isPillaged = isPillaged;
+		newTile.isRuined = isRuined;
+		return newTile;
 	}
-	public void setNonCombatUnitInTile(NonCombatUnit nonCombatUnitInTile) {
-		this.nonCombatUnitInTile = nonCombatUnitInTile;
-	}
-	public void improveTile(){
-
-	}
-	// TODO: override equals???
-	@Override
-	protected Object clone() throws CloneNotSupportedException
-	{
-		return super.clone();
-	}
-
-
 }
 
 

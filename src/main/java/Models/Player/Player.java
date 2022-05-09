@@ -1,13 +1,11 @@
 package Models.Player;
 
 import Controllers.GameController;
-import Models.City.City;
-import Models.City.Product;
+import Models.City.*;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Terrain.Improvement;
 import Models.Terrain.Tile;
-import Models.Units.CombatUnits.LongRange;
 import Models.Units.Unit;
 import Models.User;
 
@@ -15,6 +13,7 @@ import java.util.*;
 
 public class Player extends User
 {
+	GameController gameController;
 	private Unit selectedUnit = null;
 	private City selectedCity = null;
 	private final Civilization civilization;
@@ -22,14 +21,14 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 0;
 	private int happiness = 0;
-	private int population = 0;
+	private int population = 0; //TODO: maybe it's better to delete this line
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private Technology researchingTechnology;
 	private int[] researchingTechCounter = new int[50];
 	private ArrayList<Resource> resources;
 	private final ArrayList<LuxuryResource> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
-	private ArrayList<Improvement> improvements = new ArrayList<>();
-	private final HashMap<Tile, TileState> map;
+	private final ArrayList<Improvement> improvements = new ArrayList<>();
+	private HashMap<Tile, TileState> map; //TODO: make this final
 	private ArrayList<City> cities = new ArrayList<>();
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
@@ -40,16 +39,18 @@ public class Player extends User
 	{
 		super(username, nickname, password);
 		this.civilization = civilization;
-		map = new HashMap<>();
-		for(Tile tile : GameController.getInstance().getMap())
-			map.put(tile, TileState.FOG_OF_WAR);
-		setTileStates();
+		gameController = GameController.getInstance();
+		this.map = new HashMap<>();
+		for(Tile tile : gameController.getMap())
+			this.map.put(tile, TileState.FOG_OF_WAR);
 	}
-
-	public City getSelectedCity() {
+	
+	public City getSelectedCity()
+	{
 		return selectedCity;
 	}
-	public Unit getSelectedUnit() {
+	public Unit getSelectedUnit()
+	{
 		return selectedUnit;
 	}
 	public void setSelectedUnit(Unit unit)
@@ -85,7 +86,8 @@ public class Player extends User
 	{
 		this.food = food;
 	}
-	public int getGold() {
+	public int getGold()
+	{
 		return gold;
 	}
 	public int incomeGold()
@@ -95,9 +97,9 @@ public class Player extends User
 			n += city.getGoldYield();
 		return n;
 	}
-	public void setGold(int amount)
+	public void setGold(int gold)
 	{
-		this.gold += amount;
+		this.gold = gold;
 	}
 	public int getHappiness()
 	{
@@ -107,7 +109,6 @@ public class Player extends User
 	{
 		this.happiness = happiness;
 	}
-
 
 	public ArrayList<Technology> getTechnologies()
 	{
@@ -125,14 +126,17 @@ public class Player extends User
 	{
 		researchingTechnology = technology;
 	}
-	public int[] getResearchingTechCounter() {
+	public int[] getResearchingTechCounter()
+	{
 		return researchingTechCounter;
 	}
-	public void addResearchingTechCounter(int index, int amount) {
+	public void addResearchingTechCounter(int index, int amount)
+	{
 		researchingTechCounter[index] += amount;
 	}
-
-	public int getCup() {
+	
+	public int getCup()
+	{
 		return cup;
 	}
 	public int incomeCup()
@@ -146,9 +150,11 @@ public class Player extends User
 	{
 		this.cup = 0;
 	}
-	public void setCup(int amount) {
-		this.cup += amount;
+	public void setCup(int cup)
+	{
+		this.cup = cup;
 	}
+	//TODO: I deleted updateCup. I hope there is no problem with that :)
 
 	public ArrayList<Resource> getResources()
 	{
@@ -158,7 +164,8 @@ public class Player extends User
 	{
 		this.resources = resources;
 	}
-
+	
+	// TODO: there should be a Map class which holds all the tiles and its methods like getTileByXY and getTileByQRS and ...
 	public HashMap<Tile, TileState> getMap()
 	{
 		return map;
@@ -170,13 +177,23 @@ public class Player extends User
 				return tile;
 		return null;
 	}
-	public void addCity(City newCity) {
+	public Tile getTileByQRS(int q, int r, int s)
+	{
+		for(Tile tile : map.keySet())
+			if(tile.getPosition().Q == q && tile.getPosition().R == r && tile.getPosition().S == s)
+				return tile;
+		return null;
+	}
+	public void addCity(City newCity)
+	{
 		cities.add(newCity);
 	}
-	public void setMap(ArrayList<Tile> map)
-	{
-		// TODO
-	}
+//	public void setMap(ArrayList<Tile> map)
+//	{
+//		this.map = new HashMap<>();
+//		for(Tile tile : map)
+//			this.map.put(tile, TileState.FOG_OF_WAR);
+//	}
 	//TODO: set tile states maybe????!!!
 	public ArrayList<City> getCities()
 	{
@@ -206,14 +223,82 @@ public class Player extends User
 	{
 		return units;
 	}
-	public void addUnit(Unit unit) {
+	public void addUnit(Unit unit)
+	{
 		units.add(unit);
 	}
-	public void setTileStates()
+	public void updateTileStates()
 	{
-		Random tileStateRandom = new Random();
-		for(Map.Entry<Tile, TileState> entry : map.entrySet())
-			map.replace(entry.getKey(), TileState.values()[tileStateRandom.nextInt(TileState.values().length)]);
+		//TODO: set tile states based on units and cities positions
+		//TODO: is this the best way to do it?
+		
+		// Bad smell code :(
+		HashSet<Tile> tilesInSight = new HashSet<>();
+		
+		// set tileStates of tiles around units
+		for(Unit unit : units)
+		{
+			tilesInSight.add(unit.getTile());
+			
+			Tile tile;
+			Tile outerTile;
+			// for all 6 borders:
+			// northern border
+			tile = getTileByQRS(unit.getTile().getPosition().Q, unit.getTile().getPosition().R - 1, unit.getTile().getPosition().S + 1);
+			if(tile != null)
+			{
+				tilesInSight.add(tile);
+				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q, tile.getPosition().R - 1, tile.getPosition().S + 1)) != null)
+					tilesInSight.add(outerTile);
+			}
+			// northern-eastern border
+			tile = getTileByQRS(unit.getTile().getPosition().Q + 1, unit.getTile().getPosition().R - 1, unit.getTile().getPosition().S);
+			if(tile != null)
+			{
+				tilesInSight.add(tile);
+				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S)) != null)
+					tilesInSight.add(outerTile);
+			}
+			// southern-eastern border
+			tile = getTileByQRS(unit.getTile().getPosition().Q + 1, unit.getTile().getPosition().R, unit.getTile().getPosition().S - 1);
+			if(tile != null)
+			{
+				tilesInSight.add(tile);
+				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1)) != null)
+					tilesInSight.add(outerTile);
+			}
+			// southern border
+			tile = getTileByQRS(unit.getTile().getPosition().Q, unit.getTile().getPosition().R + 1, unit.getTile().getPosition().S - 1);
+			if(tile != null)
+			{
+				tilesInSight.add(tile);
+				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q, tile.getPosition().R + 1, tile.getPosition().S - 1)) != null)
+					tilesInSight.add(outerTile);
+			}
+			// southern-western border
+			tile = getTileByQRS(unit.getTile().getPosition().Q - 1, unit.getTile().getPosition().R + 1, unit.getTile().getPosition().S);
+			if(tile != null)
+			{
+				tilesInSight.add(tile);
+				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S)) != null)
+					tilesInSight.add(outerTile);
+			}
+			// northern-western border
+			tile = getTileByQRS(unit.getTile().getPosition().Q - 1, unit.getTile().getPosition().R, unit.getTile().getPosition().S + 1);
+			if(tile != null)
+			{
+				tilesInSight.add(tile);
+				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1)) != null)
+					tilesInSight.add(outerTile);
+			}
+		}
+		//TODO: set tileStates of tiles around cities
+		
+		// set tile states
+		for(Tile t : tilesInSight)
+			if(!map.get(t).equals(TileState.VISIBLE))
+				map.replace(t, TileState.VISIBLE);
+		
 	}
 //	public ArrayList<Resource> getStrategicResources()
 //	{

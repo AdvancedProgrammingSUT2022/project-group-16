@@ -7,7 +7,6 @@ import Models.Player.Technology;
 import Models.Resources.Resource;
 import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
-import Models.Terrain.TileFeature;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.NonCombatUnits.NonCombatUnit;
@@ -174,7 +173,7 @@ public abstract class Unit implements Constructable
 		this.moves = FindWay.getInstance(destination).getMoves();
 		if(this.moves.size() == 0) return;
 		Tile nextTile = rulerPlayer.getTileByXY(moves.get(0).X, moves.get(0).Y);
-		if((nextTile.getTileType().equals(TileType.OCEAN) && (!nextTile.getHasRoad() || !this.getTile().getHasRoad())) ||
+		if((nextTile.getTileType().equals(TileType.OCEAN) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) ||
 				(this.moves.size() == 1 && isThereAnotherUnitInTile(nextTile))){
 			return;
 		}
@@ -187,7 +186,7 @@ public abstract class Unit implements Constructable
 		this.moves.remove(0);
 
 		this.movementPoints -= destination.getTileType().movementCost;
-		if(nextTile.getBorders().equals(BorderType.RIVER) && (!nextTile.getHasRoad() || !this.getTile().getHasRoad())) this.movementPoints = 0;
+		if(nextTile.getBorders().equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
 			if(this.movementPoints < 0) this.movementPoints = 0;
 		//TODO check for railroad penalty
 

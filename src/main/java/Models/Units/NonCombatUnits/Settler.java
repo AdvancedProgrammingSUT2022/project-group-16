@@ -31,4 +31,10 @@ public class Settler extends NonCombatUnit{
     {
         return "SETTLER";
     }
+    public Settler clone()
+    {
+        Settler settler = new Settler(this.getRulerPlayer(), this.getTile());
+        settler.setHealth(this.getHealth());
+        return settler;
+    }
 }

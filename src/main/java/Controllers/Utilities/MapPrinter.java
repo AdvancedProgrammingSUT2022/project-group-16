@@ -8,32 +8,34 @@ import Models.Terrain.*;
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 
+import Controllers.GameController;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MapPrinter
 {
-	public static Tile selectedTile = null;
-	public static City selectedCity = null;
+	// our map is a square with size of MapSize * MapSize
+	public static Tile selectedTile = null; //TODO: remove these lines
+	public static City selectedCity = null; //TODO: remove these lines
 	private static HashMap<Tile, TileState> map;
 	private static Player player;
-	private static int columns;
-	private static int rows;
+	private static int mapSize;
 	private static StringBuilder mapString;
-	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.BACK_COLOR(255, 255, 255);
+	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.BACK_COLOR(255, 255, 255); // JColor.Attribute of fog of war
 	private final static String REVEALED_SYMBOL = "*REVEALED*";
 	
-	public static String getMapString(Player player, int columns, int rows)
+	public static String getMapString(Player player)
 	{
 		MapPrinter.player = player;
 		MapPrinter.map = player.getMap();
-		MapPrinter.columns = columns;
-		MapPrinter.rows = rows;
+		GameController gameController = GameController.getInstance();
+		MapPrinter.mapSize = gameController.MAP_SIZE;
 		mapString = new StringBuilder();
 		
 		printFirstLine();
-		for(int i = 1; i <= rows * 8 + 3; i++) {
+		for(int i = 1; i <= gameController.MAP_SIZE * 8 + 3; i++)
 			switch(i % 8)
 			{
 				case 1 -> printLine1(i);
@@ -46,9 +48,9 @@ public class MapPrinter
 				case 0 -> printLine8(i);
 				default -> System.out.println("error in switchcase map printer");
 			}
-		}
 		printLastLine();
 		printMapGuide();
+		
 		return mapString.toString();
 	}
 	private static Tile getTileByXY(int x, int y)
@@ -148,10 +150,10 @@ public class MapPrinter
 	{
 		// print the first line (considering rivers)
 		mapString.append("    ");
-		for(int i = 0; i < columns; i += 2)
+		for(int i = 0; i < mapSize; i += 2)
 		{
 			printBorder(getTileByXY(0, i), 0);
-			if(i != columns - 1)
+			if(i != mapSize - 1)
 				mapString.append("                  ");
 		}
 		mapString.append("\n");
@@ -159,7 +161,7 @@ public class MapPrinter
 	private static void printLine1(int line)
 	{
 		// print position and CUnit
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -184,7 +186,7 @@ public class MapPrinter
 				}
 			else if(tile == null)
 			{
-				if(i + 1 < columns)
+				if(i + 1 < mapSize)
 				{
 					mapString.append("                ");
 					printBorder(getTileByXY(row + 1, i + 1), 1);
@@ -201,7 +203,7 @@ public class MapPrinter
 	private static void printLine2(int line)
 	{
 		// printing tileFeature and NCUnit
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -230,7 +232,7 @@ public class MapPrinter
 			{
 				if(tile == null)
 				{
-					if(i + 1 < columns)
+					if(i + 1 < mapSize)
 					{
 						mapString.append("              ");
 						printBorder(getTileByXY(row + 1, i + 1), 1);
@@ -248,7 +250,7 @@ public class MapPrinter
 	private static void printLine3(int line)
 	{
 		// printing resource and empty
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -277,7 +279,7 @@ public class MapPrinter
 			{
 				if(tile == null)
 				{
-					if(i + 1 < columns)
+					if(i + 1 < mapSize)
 					{
 						mapString.append("            ");
 						printBorder(getTileByXY(row + 1, i + 1), 1);
@@ -295,7 +297,7 @@ public class MapPrinter
 	private static void printLine4(int line)
 	{
 		// printing improvement and border
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -312,7 +314,7 @@ public class MapPrinter
 				printBorder(getTileByXY(row + 1, i), 0);
 				if(tile == null)
 				{
-					if(i + 2 < columns)
+					if(i + 2 < mapSize)
 						printBorder(getTileByXY(row + 1, i + 1), 1);
 				}
 				else
@@ -324,7 +326,7 @@ public class MapPrinter
 	private static void printLine5(int line)
 	{
 		// printing CUnit and position
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -347,7 +349,7 @@ public class MapPrinter
 	private static void printLine6(int line)
 	{
 		// printing NCUnit and tileFeature
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -373,7 +375,7 @@ public class MapPrinter
 	private static void printLine7(int line)
 	{
 		// printing temp and resource
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -400,7 +402,7 @@ public class MapPrinter
 	private static void printLine8(int line)
 	{
 		// printing border and improvement
-		for(int i = 0; i < columns; i++)
+		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = getTileByXY(row, i);
@@ -426,14 +428,14 @@ public class MapPrinter
 	private static void printLastLine()
 	{
 		mapString.append("                 ");
-		for(int i = 1; i < columns; i += 2)
+		for(int i = 1; i < mapSize; i += 2)
 		{
-			Tile tile = getTileByXY(rows - 1, i);
+			Tile tile = getTileByXY(mapSize - 1, i);
 			assert tile != null;
 			printBorder(tile, 2);
 			printBorder(tile, 3);
 			printBorder(tile, 4);
-			if(i < columns)
+			if(i < mapSize)
 				mapString.append("                ");
 		}
 		mapString.append("\n");
@@ -453,7 +455,10 @@ public class MapPrinter
 		else
 		{
 			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
-			mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+			if(tile.getTileFeature() != TileFeature.NONE)
+				mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+			else
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
 			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
 		}
 	}
@@ -478,7 +483,10 @@ public class MapPrinter
 		else
 		{
 			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
-			mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
+			if(tile.getImprovement() == Improvement.NONE)
+				mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
+			else
+				mapString.append(Ansi.colorize(String.format("  ", tile.getTileType().attribute)));
 			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
 		}
 	}
@@ -492,8 +500,8 @@ public class MapPrinter
 				mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
 			else
 			{
-				//TODO: print highlited text if unit is selected
-				mapString.append(Ansi.colorize(String.format("%-16s", tile.getCombatUnitInTile().toString()), tile.getTileType().attribute,
+				Attribute unitAttribute = (player.getSelectedUnit() == tile.getCombatUnitInTile()) ? Attribute.YELLOW_BACK() : tile.getTileType().attribute;
+				mapString.append(Ansi.colorize(String.format("  %-14s", tile.getCombatUnitInTile().toString()), unitAttribute,
 						Attribute.BLACK_TEXT()));
 			}
 			
@@ -508,8 +516,11 @@ public class MapPrinter
 			if(tile.getNonCombatUnitInTile() == null)
 				mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
 			else
-				mapString.append(Ansi.colorize(String.format("%-14s", tile.getNonCombatUnitInTile().toString()), tile.getTileType().attribute,
+			{
+				Attribute unitAttribute = (player.getSelectedUnit() == tile.getNonCombatUnitInTile()) ? Attribute.YELLOW_BACK() : tile.getTileType().attribute;
+				mapString.append(Ansi.colorize(String.format("  %-12s", tile.getNonCombatUnitInTile().toString()), unitAttribute,
 						Attribute.BLACK_TEXT()));
+			}
 		}
 	}
 	private static void printTemp(Tile tile) // TODO:

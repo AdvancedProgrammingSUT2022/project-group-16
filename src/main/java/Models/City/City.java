@@ -66,7 +66,10 @@ public class City
 	public String getName() {
 		return name;
 	}
-
+	public ArrayList<Tile> getTerritory()
+	{
+		return territory;
+	}
 	public int getPower() {
 		return power;
 	}
@@ -136,7 +139,7 @@ public class City
 			this.territory.add(tile);
 
 	}
-	private boolean isTileNeighbor(Tile newTile){
+	private boolean isTileNeighbor(Tile newTile){ //TODO: should be deleted
 		for (Tile tile : territory) {
 			if(tile.getPosition().Q - newTile.getPosition().Q == 1 || tile.getPosition().Q - newTile.getPosition().Q == -1 ||
 					tile.getPosition().R - newTile.getPosition().R == 1 || tile.getPosition().R - newTile.getPosition().R == -1 ||

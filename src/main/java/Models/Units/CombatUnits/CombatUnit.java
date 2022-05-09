@@ -7,4 +7,8 @@ public abstract class CombatUnit extends Unit
     public void attack(){
 
     }
+    
+    public CombatUnit clone(){
+        return null;
+    }
 }
