@@ -499,7 +499,7 @@ public class gameMenuView
                 }
                 else if(command.equals("t"))
                 {
-                    Settler n = new Settler(gameController.getPlayerTurn(), 10,10,gameController.getMap().get(0),10,5);
+                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(0));
                     n.createCity();
                     gameController.getPlayerTurn().getCities().get(2).addPopulation(34);
                     gameController.getPlayerTurn().getCities().get(2).addGold(24);

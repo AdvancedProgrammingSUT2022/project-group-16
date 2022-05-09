@@ -20,6 +20,7 @@ public class Settler extends NonCombatUnit{
 
     public void createCity()
     {
+        //TODO check if the city can be created in the tile
         new City(this.getTile(), this.getRulerPlayer());
         this.removeUnit();
     }

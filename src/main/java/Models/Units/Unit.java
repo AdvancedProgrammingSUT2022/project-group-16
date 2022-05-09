@@ -178,12 +178,14 @@ public abstract class Unit implements Constructable
 				(this.moves.size() == 1 && isThereAnotherUnitInTile(nextTile))){
 			return;
 		}
-		this.tile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
-		this.moves.remove(0);
-
 		if(this.movementPoints == 0) {
 			return;
 		}
+		if(this instanceof CombatUnit && this.getTile().getCombatUnitInTile() != null) this.getTile().setCombatUnitInTile(null);
+		if(this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() != null) this.getTile().setNonCombatUnitInTile(null);
+			this.tile = nextTile;
+		this.moves.remove(0);
+
 		this.movementPoints -= destination.getTileType().movementCost;
 		if(nextTile.getBorders().equals(BorderType.RIVER) && (!nextTile.getHasRoad() || !this.getTile().getHasRoad())) this.movementPoints = 0;
 			if(this.movementPoints < 0) this.movementPoints = 0;

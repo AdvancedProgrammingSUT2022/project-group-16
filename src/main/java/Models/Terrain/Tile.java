@@ -18,6 +18,8 @@ public class Tile
 	private boolean hasRailRoad;
 	private CombatUnit combatUnitInTile;
 	private NonCombatUnit nonCombatUnitInTile;
+
+
 	boolean isPillaged;
 	boolean isRuined; //not sure if it should be boolean
 	
@@ -98,6 +100,12 @@ public class Tile
 	{
 		return position;
 	}
+	public void setCombatUnitInTile(CombatUnit combatUnitInTile) {
+		this.combatUnitInTile = combatUnitInTile;
+	}
+	public void setNonCombatUnitInTile(NonCombatUnit nonCombatUnitInTile) {
+		this.nonCombatUnitInTile = nonCombatUnitInTile;
+	}
 	public void improveTile(){
 
 	}
@@ -107,6 +115,8 @@ public class Tile
 	{
 		return super.clone();
 	}
+
+
 }
 
 

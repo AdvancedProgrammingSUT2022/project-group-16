@@ -44,6 +44,7 @@ public class MapPrinter
 				case 6 -> printLine6(i);
 				case 7 -> printLine7(i);
 				case 0 -> printLine8(i);
+				default -> System.out.println("error in switchcase map printer");
 			}
 		}
 		printLastLine();
