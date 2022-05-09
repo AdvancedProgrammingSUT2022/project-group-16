@@ -32,4 +32,8 @@ public enum LongRangeType {
         this.requiredSource = requiredSource;
         this.isMounted = isMounted;
     }
+
+    public int getCost() {
+        return cost;
+    }
 }

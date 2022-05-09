@@ -11,6 +11,7 @@ import Models.Player.Technology;
 import Models.Resources.BonusResource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.*;
@@ -654,6 +655,18 @@ public class GameController
 		System.out.println(x + " " + y);
 
 	}
+	private static int getCostOfRemove(Unit unit)
+	{
+		if(unit.getClass().equals(Settler.class))
+			return 9;
+		else if(unit.getClass().equals(Worker.class))
+			return 7;
+		else if(unit.getClass().equals(MidRange.class))
+			return (((MidRange) unit).getType().getCost() / 10);
+		else if(unit.getClass().equals(LongRange.class))
+			return (((LongRange) unit).getType().getCost() / 10);
+		return 0;
+	}
 	public String sleep()
 	{
 		if(playerTurn.getSelectedUnit() != null)
@@ -713,9 +726,19 @@ public class GameController
 		}
 		return gameEnum.nonSelect.regex;
 	}
-	public void cancel()
+	public String cancel()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!isForPlayerTurn(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().getCommands().clear();
+				return unitCommands.cancelCommand.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	public String wake()
 	{
@@ -736,9 +759,23 @@ public class GameController
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public void delete()
+	public String delete()
 	{
-
+		Unit tmp = playerTurn.getSelectedUnit();
+		if(tmp != null)
+		{
+			if(!isForPlayerTurn(tmp))
+				return unitCommands.notYours.regex;
+			else
+			{
+				int gold = getCostOfRemove(tmp);
+				playerTurn.setGold(playerTurn.getGold() + gold);
+				tmp.removeUnit();
+				return unitCommands.removeUnit.regex + unitCommands.gainGold.regex + gold + unitCommands.gold.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
 	public void road()
 	{

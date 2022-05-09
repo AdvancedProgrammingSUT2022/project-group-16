@@ -35,7 +35,11 @@ public enum unitCommands
     //messages
     notYours("selected unit is not for you"),
     notSettler("the selected unit is not settler"),
-    cityBuilt("city built");
+    cityBuilt("city built"),
+    cancelCommand("command canceled"),
+    removeUnit("unit removed"),
+    gainGold("\nyou got "),
+    gold(" gold");
 
     public final String regex;
 

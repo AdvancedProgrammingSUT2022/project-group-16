@@ -413,14 +413,20 @@ public class gameMenuView
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
                     System.out.println(gameController.found());
                 else if(unitCommands.compareRegex(command, unitCommands.cancelMission) != null)
-                    gameController.cancel(); //TODO
+                {
+                    System.out.println(gameController.cancel());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.wake) != null)
                 {
                     System.out.println(gameController.wake());
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.delete) != null)
-                    gameController.delete(); //TODO
+                {
+                    System.out.println(gameController.delete());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.buildRoad) != null)
                     gameController.road(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.buildRailRoad) != null)

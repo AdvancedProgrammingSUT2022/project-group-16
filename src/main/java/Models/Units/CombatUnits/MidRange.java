@@ -6,10 +6,6 @@ import Models.Terrain.Tile;
 public class MidRange extends CombatUnit{
     private MidRangeType type;
 
-    public MidRange(MidRangeType type){
-        this.type = type;
-    }
-
     public MidRange(Player rulerPlayer, MidRangeType midRangeType, Tile tile, int speed, int power){
         this.setRulerPlayer(rulerPlayer);
         this.setType(midRangeType);

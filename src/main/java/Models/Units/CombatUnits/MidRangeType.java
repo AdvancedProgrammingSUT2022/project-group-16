@@ -37,4 +37,8 @@ public enum MidRangeType {
         this.requiredSource = requiredSource;
         this. isMounted = isMounted;
     }
+
+    public int getCost() {
+        return cost;
+    }
 }
