@@ -23,8 +23,8 @@ public class Player extends User
 	private int happiness = 0;
 	private int population = 0; //TODO: maybe it's better to delete this line
 	private final ArrayList<Technology> technologies = new ArrayList<>();
-	private Technology researchingTechnology;
 	private int[] researchingTechCounter = new int[50];
+	private Technology researchingTechnology;
 	private ArrayList<Resource> resources;
 	private final ArrayList<LuxuryResource> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
@@ -39,6 +39,7 @@ public class Player extends User
 	{
 		super(username, nickname, password);
 		this.civilization = civilization;
+		this.happiness = 100;
 		gameController = GameController.getInstance();
 		this.map = new HashMap<>();
 		for(Tile tile : gameController.getMap())
@@ -230,74 +231,6 @@ public class Player extends User
 	public void updateTileStates()
 	{
 		//TODO: set tile states based on units and cities positions
-		//TODO: is this the best way to do it?
-		
-		// Bad smell code :(
-		HashSet<Tile> tilesInSight = new HashSet<>();
-		
-		// set tileStates of tiles around units
-		for(Unit unit : units)
-		{
-			tilesInSight.add(unit.getTile());
-			
-			Tile tile;
-			Tile outerTile;
-			// for all 6 borders:
-			// northern border
-			tile = getTileByQRS(unit.getTile().getPosition().Q, unit.getTile().getPosition().R - 1, unit.getTile().getPosition().S + 1);
-			if(tile != null)
-			{
-				tilesInSight.add(tile);
-				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q, tile.getPosition().R - 1, tile.getPosition().S + 1)) != null)
-					tilesInSight.add(outerTile);
-			}
-			// northern-eastern border
-			tile = getTileByQRS(unit.getTile().getPosition().Q + 1, unit.getTile().getPosition().R - 1, unit.getTile().getPosition().S);
-			if(tile != null)
-			{
-				tilesInSight.add(tile);
-				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S)) != null)
-					tilesInSight.add(outerTile);
-			}
-			// southern-eastern border
-			tile = getTileByQRS(unit.getTile().getPosition().Q + 1, unit.getTile().getPosition().R, unit.getTile().getPosition().S - 1);
-			if(tile != null)
-			{
-				tilesInSight.add(tile);
-				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1)) != null)
-					tilesInSight.add(outerTile);
-			}
-			// southern border
-			tile = getTileByQRS(unit.getTile().getPosition().Q, unit.getTile().getPosition().R + 1, unit.getTile().getPosition().S - 1);
-			if(tile != null)
-			{
-				tilesInSight.add(tile);
-				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q, tile.getPosition().R + 1, tile.getPosition().S - 1)) != null)
-					tilesInSight.add(outerTile);
-			}
-			// southern-western border
-			tile = getTileByQRS(unit.getTile().getPosition().Q - 1, unit.getTile().getPosition().R + 1, unit.getTile().getPosition().S);
-			if(tile != null)
-			{
-				tilesInSight.add(tile);
-				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S)) != null)
-					tilesInSight.add(outerTile);
-			}
-			// northern-western border
-			tile = getTileByQRS(unit.getTile().getPosition().Q - 1, unit.getTile().getPosition().R, unit.getTile().getPosition().S + 1);
-			if(tile != null)
-			{
-				tilesInSight.add(tile);
-				if(!tile.getTileType().isBlocker && (outerTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1)) != null)
-					tilesInSight.add(outerTile);
-			}
-		}
-		//TODO: set tileStates of tiles around cities
-		
-		// set tile states
-		for(Tile t : tilesInSight)
-			if(!map.get(t).equals(TileState.VISIBLE))
-				map.replace(t, TileState.VISIBLE);
 		
 	}
 //	public ArrayList<Resource> getStrategicResources()

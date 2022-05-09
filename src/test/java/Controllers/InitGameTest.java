@@ -28,7 +28,7 @@ class InitGameTest
 		gameController.getPlayerTurn().setSelectedUnit(gameController.getPlayerTurn().getUnits().get(1));
 		
 		System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
-		gameController.changeTurn();
+		gameController.checkChangeTurn();
 		System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
 		
 	}
