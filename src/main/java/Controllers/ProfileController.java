@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 public class ProfileController
 {
 	RegisterController registerController = new RegisterController();
-	private int doesUsernameExist(String username)
+	public int doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
 		{

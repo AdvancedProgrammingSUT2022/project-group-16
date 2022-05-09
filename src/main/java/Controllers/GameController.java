@@ -39,6 +39,7 @@ public class GameController
 	private Player playerTurn;
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
+	private final ProfileController profileController = new ProfileController();
 	private int turnCounter = 0;
 
 	public static GameController getInstance()
@@ -311,6 +312,31 @@ public class GameController
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
 		return cheatCode.addSuccessful.regex;
+	}
+	public String increaseHealth(Matcher matcher)
+	{
+		int x = Integer.parseInt(matcher.group("x"));
+		int y = Integer.parseInt(matcher.group("y"));
+		Unit tmp = null;
+		for(Unit unit : playerTurn.getUnits())
+			if(unit.getTile().getPosition().X == x &&
+					unit.getTile().getPosition().Y == y &&
+					!unit.getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				tmp = unit;
+		if(tmp != null)
+		{
+			tmp.setHealth(100);
+			return (cheatCode.health.regex + cheatCode.increaseSuccessful.regex);
+		}
+		return mainCommands.invalidCommand.regex;
+	}
+	public String increaseScore(Matcher matcher)
+	{
+		int amount = Integer.parseInt(matcher.group("amount"));
+		User tmp = Menu.allUsers.get(profileController.doesUsernameExist(Menu.loggedInUser.getUsername()));
+		tmp.setScore(tmp.getScore() + amount);
+		registerController.writeDataOnJson();
+		return( cheatCode.score.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{

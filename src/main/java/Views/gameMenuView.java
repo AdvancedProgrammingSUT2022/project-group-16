@@ -319,6 +319,7 @@ public class gameMenuView
         String command = null;
         do
         {
+            gameController.getPlayerTurn().getUnits().get(0).setHealth(45);
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
             if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
             {
@@ -351,6 +352,13 @@ public class gameMenuView
                     System.out.println(gameController.winBattle(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null) //TODO
                     System.out.println(gameController.moveUnit(matcher));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseHealth)) != null)
+                    System.out.println(gameController.increaseHealth(matcher));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseScore)) != null)
+                    System.out.println(gameController.increaseScore(matcher));
+                else if (cheatCode.compareRegex(command, cheatCode.winGame) != null)
+                    break; //TODO: calculate scores
+
 
                 /*Info*/
                 else if(infoCommands.compareRegex(command, infoCommands.infoResearch) != null)
