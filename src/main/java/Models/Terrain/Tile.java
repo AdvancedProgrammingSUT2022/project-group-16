@@ -13,29 +13,21 @@ public class Tile
 	// 6 borders, starting from the north border from 0. (counterclockwise)
 	private BorderType[] borders;
 	private Resource resource;
-	private Improvement improvement;
+	private Improvement improvement = Improvement.NONE;
 	private boolean hasRoad;
 	private boolean hasRailRoad;
-	private CombatUnit combatUnitInTile;
-	private NonCombatUnit nonCombatUnitInTile;
-	boolean isPillaged;
+	private CombatUnit combatUnitInTile = null;
+	private NonCombatUnit nonCombatUnitInTile = null;
+	boolean isPillaged = false;
 	boolean isRuined; //not sure if it should be boolean
 	
-	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource,
-	            Improvement improvement, CombatUnit combatUnitInTile, NonCombatUnit nonCombatUnitInTile)
+	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource)
 	{
 		this.position = position;
 		this.tileType = tileType;
 		this.tileFeature = tileFeature;
 		this.borders = borders;
 		this.resource = resource;
-		this.combatUnitInTile = null;
-		this.nonCombatUnitInTile = null;
-		this.improvement = Improvement.NONE;
-		this.isPillaged = false;
-		this.improvement = improvement;
-		this.combatUnitInTile = combatUnitInTile;
-		this.nonCombatUnitInTile = nonCombatUnitInTile;
 	}
 	
 	public TileType getTileType()
@@ -110,10 +102,9 @@ public class Tile
 
 	}
 	// TODO: override equals???
-	@Override
-	protected Object clone() throws CloneNotSupportedException
+	protected Tile clone()
 	{
-		return super.clone();
+//		return new Tile(position, tileType, tileFeature, borders, resource, improvement, combatUnitInTile, nonCombatUnitInTile);
 	}
 }
 
