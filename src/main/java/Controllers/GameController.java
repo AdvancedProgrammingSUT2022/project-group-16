@@ -49,17 +49,44 @@ public class GameController
 		}
 		return instance;
 	}
-
-	public void addPlayer(Player player)
+	
+	// this method checks that everything before changing turn is done. (i.e. check if all units have used their turns)
+	// if everything is ok, it calls the changeTurn method
+	public String checkChangeTurn()
 	{
-		players.add(player);
+		// if there is a unit which has not used its turn, it returns the unit's name with error message
+		for(Unit unit : playerTurn.getUnits())
+		{
+			//TODO: check if unit has used its turn
+			if(false)
+			{
+				return "unit in " + unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + " has not used its turn";
+			}
+		}
+		changeTurn();
+		return null;
 	}
-	public void deletePlayer(Player player)
+	// this updates all turns at the end of each turn (i.e. reset all units turns and decrement researching technology turns)
+	private void changeTurn()
 	{
-		players.remove(player);
-	}
-	public void changeTurn()
-	{
+		turnCounter++;
+		// reset all units turns
+		for(Unit unit : playerTurn.getUnits())
+		{
+			// set their turns to default
+		}
+		playerTurn.setSelectedUnit(null);
+		playerTurn.setSelectedCity(null);
+		
+		// consume food for this player (consumes 1 food for each citizen)
+		for(City city : playerTurn.getCities())
+			playerTurn.setFood(playerTurn.getFood() - city.getPopulation());
+		// decrement researching technology turns
+		
+		// check for city growth
+		
+		
+		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 	}
 	public void initGame()
@@ -107,11 +134,8 @@ public class GameController
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
 				// TODO: bug with the resource and unit. fix it!!!
-				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
-						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
-						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
-						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
-						null,
+				map.add(new Tile(getPosition(i, j), TileType.PLAINS,
+						TileFeature.NONE, borders,
 						null));
 			}
 	}
@@ -127,8 +151,6 @@ public class GameController
 			// TODO: this units are temp. they should be modified in their constructors
 			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile, MidRangeType.WARRIOR.movement, MidRangeType.WARRIOR.combatStrength);
 			Settler settler = new Settler(player, startingTile);
-			player.addUnit(warrior);
-			player.addUnit(settler);
 			startingTile.setCombatUnitInTile(warrior);
 			startingTile.setNonCombatUnitInTile(settler);
 			player.updateTileStates();
@@ -166,12 +188,14 @@ public class GameController
 		
 		return adjacentTiles;
 	}
-	public String getMapString()
+	public void addPlayer(Player player)
 	{
-		// TODO:
-		return null;
+		players.add(player);
 	}
-	// TODO: create overloaded printMap which takes a map as an argument
+	public void deletePlayer(Player player)
+	{
+		players.remove(player);
+	}
 	///////////////////////////
 	//menu methods
 	private static boolean numberOfPlayers(HashMap<String,String> players)
@@ -340,36 +364,26 @@ public class GameController
 	{
 		switch (number % 10)
 		{
-			case 1 -> {
+			case 1:
 				return Civilization.AMERICAN;
-			}
-			case 2 -> {
+			case 2:
 				return Civilization.ARABIAN;
-			}
-			case 3 -> {
+			case 3:
 				return Civilization.ASSYRIAN;
-			}
-			case 4 -> {
+			case 4:
 				return Civilization.CHINESE;
-			}
-			case 5 -> {
+			case 5:
 				return Civilization.GERMAN;
-			}
-			case 6 -> {
+			case 6:
 				return Civilization.GREEK;
-			}
-			case 7 -> {
+			case 7:
 				return Civilization.MAYAN;
-			}
-			case 8 -> {
+			case 8:
 				return Civilization.PERSIAN;
-			}
-			case 9 -> {
+			case 9:
 				return Civilization.OTTOMAN;
-			}
-			case 0 -> {
+			case 0:
 				return Civilization.RUSSIAN;
-			}
 		}
 		return null;
 	}

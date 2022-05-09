@@ -8,7 +8,5 @@ public abstract class CombatUnit extends Unit
 
     }
     
-    public CombatUnit clone(){
-        return null;
-    }
+    public abstract CombatUnit clone();
 }
