@@ -18,11 +18,22 @@ public class Settler extends NonCombatUnit{
         rulerPlayer.addUnit(this);
     }
 
+    private boolean theTileIsInAnotherCity(){
+        for (City city : this.getRulerPlayer().getCities()) {
+            for (Tile tile : city.getTerritory()) {
+                if(tile.getPosition().equals(this.getTile()))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public void createCity()
     {
-        //TODO check if the city can be created in the tile
-        new City(this.getTile(), this.getRulerPlayer());
-        this.removeUnit();
+        if(!theTileIsInAnotherCity()) {
+            new City(this.getTile(), this.getRulerPlayer());
+            this.removeUnit();
+        }
     }
 
     

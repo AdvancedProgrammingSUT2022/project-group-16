@@ -8,8 +8,9 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 public class Tile
 {
 	private final Position position;
-	private TileType tileType;
-	private TileFeature tileFeature;
+	private final TileType tileType;
+	private  TileFeature tileFeature;
+
 	// 6 borders, starting from the north border from 0. (counterclockwise)
 	private BorderType[] borders;
 	private Resource resource;
@@ -19,8 +20,9 @@ public class Tile
 	private CombatUnit combatUnitInTile = null;
 	private NonCombatUnit nonCombatUnitInTile = null;
 	boolean isPillaged = false;
-	boolean isRuined; //not sure if it should be boolean
-	
+	boolean isRuined;
+
+
 	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource)
 	{
 		this.position = position;
@@ -29,22 +31,17 @@ public class Tile
 		this.borders = borders;
 		this.resource = resource;
 	}
-	
+
+	public void setTileFeature(TileFeature tileFeature) {
+		this.tileFeature = tileFeature;
+	}
 	public TileType getTileType()
 	{
 		return tileType;
 	}
-	public void setTileType(TileType tileType) //TODO: should be removed. tileType should be final
-	{
-		this.tileType = tileType;
-	}
 	public TileFeature getTileFeature()
 	{
 		return tileFeature;
-	}
-	public void setTileFeature(TileFeature tileFeature)
-	{
-		this.tileFeature = tileFeature;
 	}
 	public BorderType[] getBorders()
 	{
@@ -110,14 +107,21 @@ public class Tile
 	{
 		return position;
 	}
-	
+	public boolean isRuined() {
+		return isRuined;
+	}
+
+	public void setRuined(boolean ruined) {
+		isRuined = ruined;
+	}
+
 	public int distanceTo(Tile tile)
 	{
 		if(tile == null)
 			return -1;
 		return Math.abs((Math.abs(this.getPosition().Q - tile.getPosition().Q) + Math.abs(this.getPosition().R - tile.getPosition().R) + Math.abs(this.getPosition().S - tile.getPosition().S)) / 2);
 	}
-	
+
 	public Tile clone() //TODO: should be a deep copy
 	{
 		Tile newTile = new Tile(position.clone(), tileType, tileFeature, null, null);
