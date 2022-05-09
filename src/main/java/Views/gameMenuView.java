@@ -334,6 +334,9 @@ public class gameMenuView
                 String s = gameController.checkTechnology();
                 if(s != null) System.out.println(s);
 
+                //update tileStates for playerTurn
+                gameController.getPlayerTurn().updateTileStates();
+
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     System.out.println(gameController.increaseGold(matcher));

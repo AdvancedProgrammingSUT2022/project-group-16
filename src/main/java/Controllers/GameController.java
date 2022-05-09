@@ -54,8 +54,6 @@ public class GameController
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
-		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
-		
 		// if there is a unit which has not used its turn, it returns the unit's name with error message
 		for(Unit unit : playerTurn.getUnits())
 		{
@@ -136,9 +134,9 @@ public class GameController
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
 				// TODO: bug with the resource and unit. fix it!!!
-				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
-						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
-						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)])));
+				map.add(new Tile(getPosition(i, j), TileType.PLAINS,
+						TileFeature.NONE, borders,
+						null));
 			}
 	}
 	// set playerTurn and set two units for each player and set their tileStates
@@ -366,36 +364,26 @@ public class GameController
 	{
 		switch (number % 10)
 		{
-			case 1 -> {
+			case 1:
 				return Civilization.AMERICAN;
-			}
-			case 2 -> {
+			case 2:
 				return Civilization.ARABIAN;
-			}
-			case 3 -> {
+			case 3:
 				return Civilization.ASSYRIAN;
-			}
-			case 4 -> {
+			case 4:
 				return Civilization.CHINESE;
-			}
-			case 5 -> {
+			case 5:
 				return Civilization.GERMAN;
-			}
-			case 6 -> {
+			case 6:
 				return Civilization.GREEK;
-			}
-			case 7 -> {
+			case 7:
 				return Civilization.MAYAN;
-			}
-			case 8 -> {
+			case 8:
 				return Civilization.PERSIAN;
-			}
-			case 9 -> {
+			case 9:
 				return Civilization.OTTOMAN;
-			}
-			case 0 -> {
+			case 0:
 				return Civilization.RUSSIAN;
-			}
 		}
 		return null;
 	}

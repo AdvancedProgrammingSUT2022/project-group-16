@@ -6,4 +6,9 @@ public class BonusResource extends Resource
 	{
 		super(resourceType);
 	}
+
+	public BonusResource clone()
+	{
+		return new BonusResource(this.RESOURCE_TYPE);
+	}
 }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 class InitGameTest
 {
 	GameController gameController;
+	Player playerTurn;
 	
 	@BeforeEach
 	void setUp()
@@ -16,21 +17,19 @@ class InitGameTest
 		gameController = GameController.getInstance();
 		gameController.addPlayer(new Player(Civilization.PERSIAN, "Player 1", "p1", "123"));
 		gameController.addPlayer(new Player(Civilization.ARABIAN, "Player 2", "p2", "123"));
-		gameController.addPlayer(new Player(Civilization.MAYAN, "Player 3", "p3", "123"));
-		gameController.addPlayer(new Player(Civilization.GREEK, "Player 4", "p4", "123"));
 	}
 	
 	@Test
 	void testInitGame()
 	{
 		gameController.initGame();
+		playerTurn = gameController.getPlayerTurn();
 		
-		gameController.getPlayerTurn().setSelectedUnit(gameController.getPlayerTurn().getUnits().get(1));
-		
-		System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
-		gameController.checkChangeTurn();
-		System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
-		
+		// initial map
+		System.out.println(MapPrinter.getMapString(playerTurn));
+		// SOME CHANGES TO THE MAP
+		playerTurn.updateTileStates();
+		System.out.println(MapPrinter.getMapString(playerTurn));
 	}
 }
 

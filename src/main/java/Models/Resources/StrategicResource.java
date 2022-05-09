@@ -6,4 +6,9 @@ public class StrategicResource extends Resource
 	{
 		super(resourceType);
 	}
+
+	public StrategicResource clone()
+	{
+		return new StrategicResource(this.RESOURCE_TYPE);
+	}
 }

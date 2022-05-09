@@ -202,6 +202,7 @@ public abstract class Unit implements Constructable
 		return false;
 	}
 	
+	public abstract Unit clone();
 }
 
 

@@ -2,6 +2,7 @@ package Models.Player;
 
 import Controllers.GameController;
 import Models.City.*;
+import Models.Game.Position;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Terrain.Improvement;
@@ -185,6 +186,24 @@ public class Player extends User
 				return tile;
 		return null;
 	}
+	public ArrayList<Tile> getAdjacentTiles(Tile tile)
+	{
+		ArrayList<Tile> adjacentTiles = new ArrayList<>();
+		int Q = tile.getPosition().Q;
+		int R = tile.getPosition().R;
+		int S = tile.getPosition().S;
+		
+		int[][] distances = {{0, 1, -1}, {0, -1, 1}, {1, 0, -1}, {-1, 0, 1}, {1, -1, 0}, {-1, 1, 0}};
+		Tile adjacentTile;
+		for(int i = 0; i < 6; i++)
+		{
+			adjacentTile = getTileByQRS(Q + distances[i][0], R + distances[i][1], S + distances[i][2]);
+			if(adjacentTile != null)
+				adjacentTiles.add(adjacentTile);
+		}
+		
+		return adjacentTiles;
+	}
 	public void addCity(City newCity)
 	{
 		cities.add(newCity);
@@ -230,13 +249,102 @@ public class Player extends User
 	}
 	public void updateTileStates()
 	{
-		//TODO: set tile states based on units and cities positions
+		//iterate through all tiles and change their state based on their relative position to units and cities
 		
+		// this is all tiles that can be seen by the units and cities
+		HashSet<Tile> tilesInSight = new HashSet<>();
+		
+		//tiles in sight of units
+		for(Unit unit : units)
+			for(Tile tile : map.keySet())
+			{
+				int distance = tile.distanceTo(unit.getTile());
+				if(distance == 0 || distance == 1)
+					tilesInSight.add(tile);
+				else if(distance == 2)
+				{
+					Position unitPosition = unit.getTile().getPosition();
+					Position tilePosition = tile.getPosition();
+					
+					if(unitPosition.Q == tilePosition.Q)
+					{
+						Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
+						if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							tilesInSight.add(tile);
+					}
+					else if(unitPosition.R == tilePosition.R)
+					{
+						Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
+						if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							tilesInSight.add(tile);
+					}
+					else if(unitPosition.S == tilePosition.S)
+					{
+						Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
+						if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							tilesInSight.add(tile);
+					}
+					if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2 && tilePosition.S - unitPosition.S == 1
+							&& !getTileByXY(unitPosition.X - 1, unitPosition.Y).getTileType().isBlocker && !getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker)
+						tilesInSight.add(tile);
+					else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1 && tilePosition.S - unitPosition.S == -1
+							&& !getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker && !getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker)
+						tilesInSight.add(tile);
+					else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1 && tilePosition.S - unitPosition.S == -2
+							&& !getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker)
+						tilesInSight.add(tile);
+					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2 && tilePosition.S - unitPosition.S == -1
+							&& !getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker)
+						tilesInSight.add(tile);
+					else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1 && tilePosition.S - unitPosition.S == 1
+							&& !getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker && !getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker)
+						tilesInSight.add(tile);
+					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1 && tilePosition.S - unitPosition.S == 2
+							&& !getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1).getTileType().isBlocker)
+						tilesInSight.add(tile);
+						
+				}
+			}
+		//tiles in sight of cities
+		for(City city : cities)
+			for(Tile tile : city.getTerritory())
+			{
+				tilesInSight.add(tile);
+				tilesInSight.addAll(getAdjacentTiles(tile));
+			}
+		
+		/* update tileStates */
+		// tileStates that are in sight
+		HashSet<Tile> tilesToBeVisible = new HashSet<>();
+		for(Tile tile : tilesInSight)
+			if(map.get(tile).equals(TileState.FOG_OF_WAR))
+				map.replace(tile, TileState.VISIBLE);
+			else if(map.get(tile).equals(TileState.REVEALED))
+				tilesToBeVisible.add(tile);
+		for(Tile tile : tilesToBeVisible)
+		{
+			map.remove(tile);
+			tilesInSight.remove(tile);
+			Tile visibleTile = gameController.getTileByXY(tile.getPosition().X, tile.getPosition().Y);
+			map.put(visibleTile, TileState.VISIBLE);
+			tilesInSight.add(visibleTile);
+		}
+		
+		// collect all tiles that are not in sight and are not fog of war to make them REVEALED
+		HashSet<Tile> tilesToBeRevealed = new HashSet<Tile>();
+		for(Tile tile : map.keySet())
+		{
+			if(tilesInSight.contains(tile))
+				continue;
+			if(map.get(tile).equals(TileState.VISIBLE))
+				tilesToBeRevealed.add(tile);
+		}
+		for(Tile tile : tilesToBeRevealed)
+		{
+			map.remove(tile);
+			map.put(gameController.getTileByXY(tile.getPosition().X, tile.getPosition().Y).clone(), TileState.REVEALED);
+		}
 	}
-//	public ArrayList<Resource> getStrategicResources()
-//	{
-//
-//	}
 }
 
 
