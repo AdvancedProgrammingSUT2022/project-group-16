@@ -30,10 +30,12 @@ public enum unitCommands
     buildQuarry("^\\s*[uU]nit\\s+[bB]uild\\s+[qQ]uarry\\s*$"),
     removeJungle("^\\s*[uU]nit\\s+[rR]emove\\s+[jJ]ungle\\s*$"),
     removeRoute("^\\s*[uU]nit\\s+[rR]emove\\s+[rR]oute\\s*$"),
-    repair("^\\s*[uU]nit\\s+[rR]epair\\s*$")
+    repair("^\\s*[uU]nit\\s+[rR]epair\\s*$"),
 
     //messages
-    ;
+    notYours("selected unit is not for you"),
+    notSettler("the selected unit is not settler"),
+    cityBuilt("city built");
 
     public final String regex;
 

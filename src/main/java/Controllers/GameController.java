@@ -20,6 +20,7 @@ import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameCommands.mapCommands;
 import enums.gameCommands.selectCommands;
+import enums.gameCommands.unitCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 
@@ -109,10 +110,7 @@ public class GameController
 				// TODO: bug with the resource and unit. fix it!!!
 				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
 						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
-						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
-						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
-						null,
-						null));
+						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)])));
 			}
 	}
 	// set playerTurn and set two units for each player and set their tileStates
@@ -127,8 +125,6 @@ public class GameController
 			// TODO: this units are temp. they should be modified in their constructors
 			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile, MidRangeType.WARRIOR.movement, MidRangeType.WARRIOR.combatStrength);
 			Settler settler = new Settler(player, startingTile);
-			player.addUnit(warrior);
-			player.addUnit(settler);
 			startingTile.setCombatUnitInTile(warrior);
 			startingTile.setNonCombatUnitInTile(settler);
 			player.updateTileStates();
@@ -278,7 +274,7 @@ public class GameController
 		addTurn(amount);
 		for(Player player : players)
 			for (int i = 0; i < amount; i++)
-				player.setCup(player.incomeCup());
+				player.setCup(player.getCup() + player.incomeCup());
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 
@@ -526,14 +522,15 @@ public class GameController
 				if(x >= getInstance().MAP_SIZE || x < 0 ||
 						y >= getInstance().MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getUnits().size(); j++)
-					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y &&
-							!playerTurn.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit")) //TODO: c/n unit
-					{
-						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
-						return selectCommands.selected.regex;
-					}
+				for(Player player : players)
+					for(int j = 0; j < player.getUnits().size(); j++)
+						if(player.getUnits().get(j).getTile().getPosition().X == x &&
+								player.getUnits().get(j).getTile().getPosition().Y == y &&
+								!player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit")) //TODO: c/n unit
+						{
+							playerTurn.setSelectedUnit(player.getUnits().get(j));
+							return selectCommands.selected.regex;
+						}
 				return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -541,7 +538,6 @@ public class GameController
 	}
 	public String selectNUnit(String command)
 	{
-		int flag = -1;
 		for(int i = 0; i < command.length(); i++)
 		{
 			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
@@ -562,14 +558,15 @@ public class GameController
 				if(x >= getInstance().MAP_SIZE || x < 0 ||
 						y >= getInstance().MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getUnits().size(); j++)
-					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y &&
-							playerTurn.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))//TODO: c/n unit
-					{
-						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
-						return selectCommands.selected.regex;
-					}
+				for(Player player : players)
+					for(int j = 0; j < player.getUnits().size(); j++)
+						if(player.getUnits().get(j).getTile().getPosition().X == x &&
+								player.getUnits().get(j).getTile().getPosition().Y == y &&
+								player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))//TODO: c/n unit
+						{
+							playerTurn.setSelectedUnit(player.getUnits().get(j));
+							return selectCommands.selected.regex;
+						}
 				return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -599,41 +596,41 @@ public class GameController
 			else if(matcher3 != null)
 			{
 				String cityName = matcher3.group("name");
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getName().equals(cityName))
-					{
-						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
-						return selectCommands.selected.regex;
-					}
-				if(playerTurn.getSelectedCity() != playerTurn.getCities().get(flag))
-					return selectCommands.nameDoesntExist.regex + cityName;
+				for(Player player : players)
+					for(int j = 0; j < player.getCities().size(); j++)
+						if(player.getCities().get(j).getName().equals(cityName))
+						{
+							playerTurn.setSelectedCity(player.getCities().get(j));
+							return selectCommands.selected.regex;
+						}
+				return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			else if(matcher4 != null)
 			{
 				String cityName = matcher4.group("name");
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getName().equals(cityName))
-					{
-						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
-						return selectCommands.selected.regex;
-					}
-				if(playerTurn.getSelectedCity() == null)
-					return selectCommands.nameDoesntExist.regex + cityName;
+				for(Player player : players)
+					for(int j = 0; j < player.getCities().size(); j++)
+						if(player.getCities().get(j).getName().equals(cityName))
+						{
+							playerTurn.setSelectedCity(player.getCities().get(j));
+							return selectCommands.selected.regex;
+						}
+				return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			if(matcher1 != null || matcher2 != null)
 			{
 				if(x >= getInstance().MAP_SIZE || x < 0 ||
 						y >= getInstance().MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
-							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
-					{
-						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
-						return selectCommands.selected.regex;
-					}
-				if(playerTurn.getSelectedCity() == null)
-					return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
+				for(Player player : players)
+					for(int j = 0; j < player.getCities().size(); j++)
+						if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
+								player.getCities().get(j).getCapitalTile().getPosition().Y == y)
+						{
+							playerTurn.setSelectedCity(player.getCities().get(j));
+							return selectCommands.selected.regex;
+						}
+				return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
 			}
 		}
 		return selectCommands.invalidCommand.regex;
@@ -645,6 +642,12 @@ public class GameController
 			}
 		}
 	}
+
+	private boolean isForPlayerTurn(Unit unit)
+	{
+		return playerTurn.getUnits().contains(unit);
+	}
+
 	public void moveUnit(int x, int y)
 	{
 		playerTurn.getSelectedUnit().move(getTileByXY(x, y));
@@ -655,12 +658,17 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(playerTurn.getSelectedUnit().isSleep())
-				return gameEnum.isSleep.regex;
+			if(!isForPlayerTurn(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
 			else
 			{
-				playerTurn.getSelectedUnit().changeSleepWake();
-				return gameEnum.slept.regex;
+				if (playerTurn.getSelectedUnit().isSleep())
+					return gameEnum.isSleep.regex;
+				else
+				{
+					playerTurn.getSelectedUnit().changeSleepWake();
+					return gameEnum.slept.regex;
+				}
 			}
 		}
 		return gameEnum.nonSelect.regex;
@@ -689,9 +697,21 @@ public class GameController
 	{
 
 	}
-	public void found()
+	public String found()
 	{
+		Unit tmp = playerTurn.getSelectedUnit();
+		if(tmp != null)
+		{
+			if(!isForPlayerTurn(tmp))
+				return unitCommands.notYours.regex;
+			else if(!tmp.getClass().equals(Settler.class))
+				return unitCommands.notSettler.regex;
+			//TODO: can't found city
+			((Settler) tmp).createCity();
 
+			return unitCommands.cityBuilt.regex;
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	public void cancel()
 	{
@@ -701,12 +721,16 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getSelectedUnit().isSleep())
-				return gameEnum.awaken.regex;
+			if(!isForPlayerTurn(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
 			else
 			{
-				playerTurn.getSelectedUnit().changeSleepWake();
-				return gameEnum.wokeUp.regex;
+				if (!playerTurn.getSelectedUnit().isSleep())
+					return gameEnum.awaken.regex;
+				else {
+					playerTurn.getSelectedUnit().changeSleepWake();
+					return gameEnum.wokeUp.regex;
+				}
 			}
 		}
 		else

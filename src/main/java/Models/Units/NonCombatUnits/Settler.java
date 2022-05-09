@@ -21,6 +21,7 @@ public class Settler extends NonCombatUnit{
     public void createCity()
     {
         new City(this.getTile(), this.getRulerPlayer());
+        getRulerPlayer().setSelectedUnit(null);
         this.removeUnit();
     }
 

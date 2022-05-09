@@ -252,6 +252,7 @@ public class gameMenuView
     {
         Unit tmp = gameController.getPlayerTurn().getSelectedUnit();
 
+        System.out.println("owner: " + tmp.getRulerPlayer().getCivilization().name().toLowerCase(Locale.ROOT));
         System.out.print(infoCommands.unitType.regex + tmp.getClass().getSuperclass().getSimpleName());
         if(tmp.getClass().equals(LongRange.class))
             System.out.println(" - " + tmp.getClass().getSimpleName() + infoCommands.name.regex +
@@ -318,7 +319,7 @@ public class gameMenuView
         String command = null;
         do
         {
-            gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().incomeCup());
+            gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
             if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
             {
                 gameController.addTurn(1);
@@ -326,8 +327,8 @@ public class gameMenuView
             }
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
             System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
-            String e = gameController.checkTechnology();
-            if(e != null) System.out.println(e);
+            String doesTechDone = gameController.checkTechnology();
+            if(doesTechDone != null) System.out.println(doesTechDone);
 
             while (scanner.hasNextLine())
             {
@@ -410,7 +411,7 @@ public class gameMenuView
                 else if(unitCommands.compareRegex(command, unitCommands.attack) != null)
                     gameController.attack(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
-                    gameController.found(); //TODO: update cups
+                    System.out.println(gameController.found());
                 else if(unitCommands.compareRegex(command, unitCommands.cancelMission) != null)
                     gameController.cancel(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.wake) != null)
@@ -469,7 +470,7 @@ public class gameMenuView
                 else if(command.equals("s"))
                 {
                     MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45),12, 34);
-                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(0));
+                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(54));
                     Worker w = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(23));
                     LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34),10, 23);
                     Settler m = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(1));
@@ -482,8 +483,6 @@ public class gameMenuView
                     m.createCity();
                     gameController.getPlayerTurn().getCities().get(1).addPopulation(12);
                     gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
-
-
                 }
                 else if(command.equals("t"))
                 {
@@ -503,8 +502,8 @@ public class gameMenuView
                 }
                 else
                     System.out.println(mainCommands.invalidCommand.regex);
-                String t = gameController.checkTechnology();
-                if(t != null) System.out.println(t);
+                String isTechDone = gameController.checkTechnology();
+                if(isTechDone != null) System.out.println(isTechDone);
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.updatePlayersUnitLocations();

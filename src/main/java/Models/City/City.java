@@ -44,6 +44,7 @@ public class City
 		{
 			cupYield = 3;
 			rulerPlayer.setCup(3);
+			rulerPlayer.setCurrentCapitalCity(this);
 		}
 	}
 	private String setCityName() {
@@ -110,7 +111,7 @@ public class City
 	{
 		this.population += amount;
 		cupYield += amount;
-		rulerPlayer.setCup(amount);
+		rulerPlayer.setCup(rulerPlayer.getCup() + amount);
 	}
 
 	public void growCity() //TODO: this should increase the number of citizens of the city
