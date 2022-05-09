@@ -57,10 +57,9 @@ public class Position
 	{
 		return Objects.hash(X, Y, Q, R, S);
 	}
-	@Override
-	protected Object clone() throws CloneNotSupportedException
+	public Position clone()
 	{
-		return super.clone();
+		return new Position(X, Y);
 	}
 
 }

@@ -15,4 +15,6 @@ public abstract class Resource implements Product
 	{
 		return RESOURCE_TYPE;
 	}
+
+	public abstract Resource clone();
 }

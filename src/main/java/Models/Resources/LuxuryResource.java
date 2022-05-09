@@ -6,4 +6,9 @@ public class LuxuryResource extends Resource
 	{
 		super(resourceType);
 	}
+
+	public LuxuryResource clone()
+	{
+		return new LuxuryResource(this.RESOURCE_TYPE);
+	}
 }

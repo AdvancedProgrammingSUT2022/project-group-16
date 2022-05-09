@@ -5,7 +5,6 @@ import Controllers.Utilities.MapPrinter;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Resources.*;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
@@ -337,6 +336,9 @@ public class gameMenuView
                 String s = gameController.checkTechnology();
                 if(s != null) System.out.println(s);
 
+                //update tileStates for playerTurn
+                gameController.getPlayerTurn().updateTileStates();
+
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     System.out.println(gameController.increaseGold(matcher));
@@ -508,11 +510,11 @@ public class gameMenuView
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
-                    // TODO: check for the error and print it
-                    gameController.getPlayerTurn().setSelectedUnit(null);
-                    gameController.getPlayerTurn().setSelectedCity(null);
-                    gameController.changeTurn();
-                    break;
+                    String changeTurnResult = gameController.checkChangeTurn();
+                    if(changeTurnResult != null)
+                        System.out.println(changeTurnResult);
+                    else // change turn was successful
+                        break;
                 }
                 else
                     System.out.println(mainCommands.invalidCommand.regex);

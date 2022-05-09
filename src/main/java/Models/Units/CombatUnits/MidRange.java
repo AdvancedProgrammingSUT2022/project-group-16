@@ -37,7 +37,7 @@ public class MidRange extends CombatUnit{
     {
         return type.name();
     }
-    public MidRange clone(){ //TODO: assert that this works correctly
+    public MidRange clone(){
         MidRange newMidRange = new MidRange(this.getRulerPlayer(),this.getType(),this.getTile(),this.getSpeed(),this.getPower());
         newMidRange.setHealth(this.getHealth());
         return newMidRange;

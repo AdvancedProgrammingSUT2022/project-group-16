@@ -38,33 +38,35 @@ public class MapPrinter
 		for(int i = 1; i <= gameController.MAP_SIZE * 8 + 3; i++)
 			switch(i % 8)
 			{
-				case 1 -> printLine1(i);
-				case 2 -> printLine2(i);
-				case 3 -> printLine3(i);
-				case 4 -> printLine4(i);
-				case 5 -> printLine5(i);
-				case 6 -> printLine6(i);
-				case 7 -> printLine7(i);
-				case 0 -> printLine8(i);
+				case 1:
+					printLine1(i);
+					break;
+				case 2:
+					printLine2(i);
+					break;
+				case 3:
+					printLine3(i);
+					break;
+				case 4:
+					printLine4(i);
+					break;
+				case 5:
+					printLine5(i);
+					break;
+				case 6:
+					printLine6(i);
+					break;
+				case 7:
+					printLine7(i);
+					break;
+				case 0:
+					printLine8(i);
+					break;
 			}
 		printLastLine();
 		printMapGuide();
 		
 		return mapString.toString();
-	}
-	private static Tile getTileByXY(int x, int y)
-	{
-		for(Map.Entry<Tile, TileState> entry : map.entrySet())
-			if(entry.getKey().getPosition().X == x && entry.getKey().getPosition().Y == y)
-				return entry.getKey();
-		return null;
-	}
-	private static Tile getTileByQRS(int q, int r, int s)
-	{
-		for(Map.Entry<Tile, TileState> entry : map.entrySet())
-			if(entry.getKey().getPosition().Q == q && entry.getKey().getPosition().R == r && entry.getKey().getPosition().S == s)
-				return entry.getKey();
-		return null;
 	}
 	private static void printFog(int number)
 	{
@@ -78,9 +80,9 @@ public class MapPrinter
 		{
 			Tile neighborTile;
 			if(borderIndex == 0)
-				neighborTile = getTileByXY(tile.getPosition().X - 1, tile.getPosition().Y);
+				neighborTile = player.getTileByXY(tile.getPosition().X - 1, tile.getPosition().Y);
 			else
-				neighborTile = getTileByXY(tile.getPosition().X + 1, tile.getPosition().Y);
+				neighborTile = player.getTileByXY(tile.getPosition().X + 1, tile.getPosition().Y);
 			
 			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
 				printFog(10);
@@ -94,13 +96,13 @@ public class MapPrinter
 		{
 			Tile neighborTile = null;
 			if(borderIndex == 1)
-				neighborTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1);
+				neighborTile = player.getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1);
 			else if(borderIndex == 2)
-				neighborTile = getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S);
+				neighborTile = player.getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S);
 			else if(borderIndex == 4)
-				neighborTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1);
+				neighborTile = player.getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1);
 			else if(borderIndex == 5)
-				neighborTile = getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S);
+				neighborTile = player.getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S);
 			
 			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
 				printFog(1);
@@ -151,7 +153,7 @@ public class MapPrinter
 		mapString.append("    ");
 		for(int i = 0; i < mapSize; i += 2)
 		{
-			printBorder(getTileByXY(0, i), 0);
+			printBorder(player.getTileByXY(0, i), 0);
 			if(i != mapSize - 1)
 				mapString.append("                  ");
 		}
@@ -163,7 +165,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 				if(tile == null)
@@ -171,7 +173,7 @@ public class MapPrinter
 					if(i == 0)
 						mapString.append("    ");
 					mapString.append("          ");
-					printBorder(getTileByXY(row - 1, i + 1), 2);
+					printBorder(player.getTileByXY(row - 1, i + 1), 2);
 				}
 				else
 				{
@@ -188,7 +190,7 @@ public class MapPrinter
 				if(i + 1 < mapSize)
 				{
 					mapString.append("                ");
-					printBorder(getTileByXY(row + 1, i + 1), 1);
+					printBorder(player.getTileByXY(row + 1, i + 1), 1);
 				}
 			}
 			else
@@ -205,7 +207,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 			{
@@ -214,7 +216,7 @@ public class MapPrinter
 					if(i == 0)
 						mapString.append("   ");
 					mapString.append("            ");
-					printBorder(getTileByXY(row - 1, i + 1), 2);
+					printBorder(player.getTileByXY(row - 1, i + 1), 2);
 				}
 				else
 				{
@@ -234,7 +236,7 @@ public class MapPrinter
 					if(i + 1 < mapSize)
 					{
 						mapString.append("              ");
-						printBorder(getTileByXY(row + 1, i + 1), 1);
+						printBorder(player.getTileByXY(row + 1, i + 1), 1);
 					}
 				}
 				else
@@ -252,7 +254,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 			{
@@ -261,7 +263,7 @@ public class MapPrinter
 					if(i == 0)
 						mapString.append("  ");
 					mapString.append("              ");
-					printBorder(getTileByXY(row - 1, i + 1), 2);
+					printBorder(player.getTileByXY(row - 1, i + 1), 2);
 				}
 				else
 				{
@@ -281,7 +283,7 @@ public class MapPrinter
 					if(i + 1 < mapSize)
 					{
 						mapString.append("            ");
-						printBorder(getTileByXY(row + 1, i + 1), 1);
+						printBorder(player.getTileByXY(row + 1, i + 1), 1);
 					}
 				}
 				else
@@ -299,7 +301,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 			{
@@ -310,14 +312,14 @@ public class MapPrinter
 			}
 			else
 			{
-				printBorder(getTileByXY(row + 1, i), 0);
+				printBorder(player.getTileByXY(row + 1, i), 0);
 				if(tile == null)
 				{
 					if(i + 2 < mapSize)
-						printBorder(getTileByXY(row + 1, i + 1), 1);
+						printBorder(player.getTileByXY(row + 1, i + 1), 1);
 				}
 				else
-					printBorder(getTileByXY(row, i), 4);
+					printBorder(player.getTileByXY(row, i), 4);
 			}
 		}
 		mapString.append("\n");
@@ -328,7 +330,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 			{
@@ -351,7 +353,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 			{
@@ -377,7 +379,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 			{
@@ -404,7 +406,7 @@ public class MapPrinter
 		for(int i = 0; i < mapSize; i++)
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
-			Tile tile = getTileByXY(row, i);
+			Tile tile = player.getTileByXY(row, i);
 			
 			if(i % 2 == 0)
 			{
@@ -429,7 +431,7 @@ public class MapPrinter
 		mapString.append("                 ");
 		for(int i = 1; i < mapSize; i += 2)
 		{
-			Tile tile = getTileByXY(mapSize - 1, i);
+			Tile tile = player.getTileByXY(mapSize - 1, i);
 			assert tile != null;
 			printBorder(tile, 2);
 			printBorder(tile, 3);
@@ -482,10 +484,10 @@ public class MapPrinter
 		else
 		{
 			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
-			if(tile.getImprovement() == Improvement.NONE)
-				mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
+			if(tile.getImprovement().equals(Improvement.NONE))
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
 			else
-				mapString.append(Ansi.colorize(String.format("  ", tile.getTileType().attribute)));
+				mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
 			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
 		}
 	}

@@ -8,8 +8,8 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 public class Tile
 {
 	private final Position position;
-	private final TileType tileType;
-	private final TileFeature tileFeature;
+	private TileType tileType;
+	private TileFeature tileFeature;
 	// 6 borders, starting from the north border from 0. (counterclockwise)
 	private BorderType[] borders;
 	private Resource resource;
@@ -34,9 +34,17 @@ public class Tile
 	{
 		return tileType;
 	}
+	public void setTileType(TileType tileType) //TODO: should be removed. tileType should be final
+	{
+		this.tileType = tileType;
+	}
 	public TileFeature getTileFeature()
 	{
 		return tileFeature;
+	}
+	public void setTileFeature(TileFeature tileFeature)
+	{
+		this.tileFeature = tileFeature;
 	}
 	public BorderType[] getBorders()
 	{
@@ -102,19 +110,35 @@ public class Tile
 	{
 		return position;
 	}
-	protected Tile clone()
-	{ //TODO: assert that this is a deep copy and everything is cloned correctly
-		Tile newTile = new Tile(position, tileType, tileFeature, null, resource);
+	
+	public int distanceTo(Tile tile)
+	{
+		if(tile == null)
+			return -1;
+		return Math.abs((Math.abs(this.getPosition().Q - tile.getPosition().Q) + Math.abs(this.getPosition().R - tile.getPosition().R) + Math.abs(this.getPosition().S - tile.getPosition().S)) / 2);
+	}
+	
+	public Tile clone() //TODO: should be a deep copy
+	{
+		Tile newTile = new Tile(position.clone(), tileType, tileFeature, null, null);
 		BorderType[] newBorders = new BorderType[6];
-		for (int i = 0; i < 6; i++)
+		for(int i = 0; i < 6; i++)
 			newBorders[i] = borders[i];
 		newTile.borders = newBorders;
+		if(this.resource != null)
+			newTile.resource = this.resource.clone();
 		newTile.hasRoad = hasRoad;
 		newTile.hasRailRoad = hasRailRoad;
-		newTile.combatUnitInTile = combatUnitInTile.clone();
-		newTile.combatUnitInTile.setTile(newTile);
-		newTile.nonCombatUnitInTile = nonCombatUnitInTile.clone();
-		newTile.nonCombatUnitInTile.setTile(newTile);
+		if(combatUnitInTile != null)
+		{
+			newTile.combatUnitInTile = combatUnitInTile.clone();
+			newTile.combatUnitInTile.setTile(newTile);
+		}
+		if(nonCombatUnitInTile != null)
+		{
+			newTile.nonCombatUnitInTile = nonCombatUnitInTile.clone();
+			newTile.nonCombatUnitInTile.setTile(newTile);
+		}
 		newTile.isPillaged = isPillaged;
 		newTile.isRuined = isRuined;
 		return newTile;

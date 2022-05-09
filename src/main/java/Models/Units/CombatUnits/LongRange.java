@@ -50,7 +50,7 @@ public class LongRange extends CombatUnit{
     {
         return type.name();
     }
-    public LongRange clone(){ //TODO: assert that this works correctly
+    public LongRange clone(){
         LongRange newLongRange = new LongRange(this.getRulerPlayer(),this.getType(),this.getTile(),this.getSpeed(),this.getPower());
         newLongRange.setIsSet(this.isSet);
         newLongRange.setHealth(this.getHealth());
