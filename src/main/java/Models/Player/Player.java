@@ -33,7 +33,7 @@ public class Player extends User
 	private ArrayList<City> cities = new ArrayList<>();
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
-	private final Stack<Notification> notifications = new Stack<>();
+	private final ArrayList<Notification> notifications = new ArrayList<>();
 	private ArrayList<Unit> units = new ArrayList<>();
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score)
@@ -236,7 +236,7 @@ public class Player extends User
 	{
 		this.currentCapitalCity = currentCapitalCity;
 	}
-	public Stack<Notification> getNotifications()
+	public ArrayList<Notification> getNotifications()
 	{
 		return notifications;
 	}

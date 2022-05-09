@@ -70,7 +70,6 @@ public class GameController
 	// this updates all turns at the end of each turn (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
-		turnCounter++;
 		// reset all units turns
 		for(Unit unit : playerTurn.getUnits())
 		{
@@ -519,31 +518,7 @@ public class GameController
 		}
 		return infoCommands.researchInfo.regex+infoCommands.currentResearching.regex + ": " + infoCommands.nothing.regex;
 	}
-	public String showUnits()
-	{
-		// TODO: player should be able to active some units
-		// TODO: show units in the right order
-		StringBuilder allUnitsString = new StringBuilder("Units info:\n");
-		ArrayList<Unit> units = playerTurn.getUnits();
-		for(int i = 0; i < units.size(); i++)
-			allUnitsString.append(units.get(i).toString() + ", ");
 
-		return allUnitsString.toString();
-	}
-	public String showDemographics()
-	{
-		// TODO: show demographics info
-		return "Demographics info:\n";
-	}
-	public String showNotifications()
-	{
-		StringBuilder allNotificationsString = new StringBuilder("Notifications info:\n");
-		Stack<Notification> notifications = playerTurn.getNotifications();
-		for(int i = notifications.size() - 1; i >= 0; i--)
-			allNotificationsString.append(notifications.get(i).toString()).append(", ");
-
-		return allNotificationsString.toString();
-	}
 
 	public String selectCUnit(String command)
 	{
@@ -688,10 +663,20 @@ public class GameController
 			}
 		}
 	}
-	public void moveUnit(int x, int y)
+	public String moveUnit(int x, int y)
 	{
-		playerTurn.getSelectedUnit().move(getTileByXY(x, y));
-		System.out.println(x + " " + y);
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			//TODO: add errors
+			else
+			{
+				playerTurn.getSelectedUnit().move(getTileByXY(x,y));
+				return unitCommands.moveSuccessfull.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 
 	}
 	public String sleep()
@@ -712,9 +697,35 @@ public class GameController
 		}
 		return gameEnum.nonSelect.regex;
 	}
-	public void alert()
+	public void stayAlert()
 	{
-
+		for (Unit tmp : playerTurn.getUnits())
+			for(Player player : players)
+				for(Unit unit : player.getUnits())
+					if(player != playerTurn &&
+							tmp.getTile().distanceTo(unit.getTile()) <= 2 &&
+							tmp.isSleep())
+						tmp.changeSleepWake();
+	}
+	public String alert()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				return unitCommands.isNotCombat.regex;
+			else
+			{
+				if (playerTurn.getSelectedUnit().isSleep())
+					return gameEnum.isSleep.regex;
+				else {
+					playerTurn.getSelectedUnit().changeSleepWake();
+					return unitCommands.standByUnit.regex;
+				}
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	public void fortify()
 	{
@@ -732,9 +743,24 @@ public class GameController
 	{
 
 	}
-	public void attack()
+	public String attack()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				return unitCommands.isNotCombat.regex;
+			//TODO: DOC
+			else
+			{
+				//TODO: add more errors
+				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
+				return unitCommands.destroyImprovement.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
 	private boolean isCapitalCity(Tile tile)
 	{
@@ -833,20 +859,28 @@ public class GameController
 			{
 				int gold = getGoldOfUnit(playerTurn.getSelectedUnit());
 				playerTurn.getSelectedUnit().removeUnit();
+				playerTurn.setGold(playerTurn.getGold() + gold);
 				return unitCommands.removeUnit.regex + unitCommands.gainGold.regex + (gold) + unitCommands.gold.regex;
 			}
 		}
 		else
 			return gameEnum.nonSelect.regex;
 	}
+
+	private String buildErrors()
+	{
+		if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+			return unitCommands.notYours.regex;
+		else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+			return unitCommands.notWorker.regex;
+		return null;
+	}
 	public String road()
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().hasRoad())
 				return unitCommands.hasRoad.regex;
 			else
@@ -862,10 +896,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().hasRailRoad())
 				return unitCommands.hasRailRoad.regex;
 			else
@@ -881,10 +913,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.FARM))
 				return unitCommands.hasFarm.regex;
 			//TODO: cant build(reasons)
@@ -901,10 +931,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.MINE))
 				return unitCommands.hasMine.regex;
 				//TODO: cant build(reasons)
@@ -921,10 +949,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.TRADING_POST))
 				return unitCommands.hasTradingPost.regex;
 				//TODO: cant build(reasons)
@@ -941,10 +967,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.LUMBER_MILL))
 				return unitCommands.hasLumberMill.regex;
 				//TODO: cant build(reasons)
@@ -961,10 +985,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.PASTURE))
 				return unitCommands.hasPasture.regex;
 				//TODO: cant build(reasons)
@@ -981,10 +1003,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.CAMP))
 				return unitCommands.hasCamp.regex;
 				//TODO: cant build(reasons)
@@ -1001,10 +1021,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.PLANTATION))
 				return unitCommands.hasPlantation.regex;
 				//TODO: cant build(reasons)
@@ -1021,10 +1039,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.QUARRY))
 				return unitCommands.hasQuarry.regex;
 				//TODO: cant build(reasons)
@@ -1041,10 +1057,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.JUNGLE) &&
 					!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.FOREST))
 				return unitCommands.hasntJungle.regex;
@@ -1061,10 +1075,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(!playerTurn.getSelectedUnit().getTile().hasRoad() &&
 					!playerTurn.getSelectedUnit().getTile().hasRailRoad())
 				return unitCommands.hasntRoad.regex;
@@ -1081,10 +1093,8 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
-				return unitCommands.notYours.regex;
-			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
-				return unitCommands.notWorker.regex;
+			if(buildErrors() != null)
+				return buildErrors();
 			else if(!playerTurn.getSelectedUnit().getTile().isRuined())
 				return unitCommands.isNotRuined.regex;
 			else

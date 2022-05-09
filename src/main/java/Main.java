@@ -1,3 +1,4 @@
+import Models.Terrain.Tile;
 import Views.registerAndLoginView;
 
 public class Main

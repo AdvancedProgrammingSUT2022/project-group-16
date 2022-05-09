@@ -3,6 +3,7 @@ package Views;
 import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
 import Models.City.City;
+import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Units.CombatUnits.*;
@@ -43,6 +44,22 @@ public class gameMenuView
         return tmp;
     }
 
+    private static void showNotifications(Scanner scanner)
+    {
+        ArrayList<Notification> tmp = gameController.getPlayerTurn().getNotifications();
+        int number = gameController.getPlayerTurn().getNotifications().size();
+        if(number == 0)
+            System.out.println(infoCommands.nothing.regex);
+        for(int i = 0; i < number; i++)
+        {
+            System.out.print((i + 1) + ":\n\t");
+            System.out.println(tmp.get(i).getSenderPlayer().getCivilization().name() + infoCommands.sendMessage.regex + tmp.get(i).getSendingTurn());
+            System.out.println("\t" + infoCommands.message.regex);
+            System.out.println("\t" + tmp.get(i).getMessage());
+        }
+        System.out.println("\n1: " + infoCommands.backToGame.regex);
+        getNumber(scanner, 1);
+    }
     private static void showScoreBoard(Scanner scanner, Player player)
     {
         System.out.println(infoCommands.scoreBoard.regex);
@@ -352,7 +369,7 @@ public class gameMenuView
         String command = null;
         do
         {
-            gameController.getPlayerTurn().getUnits().get(0).setHealth(45);
+            gameController.stayAlert();
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
             if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
             {
@@ -367,8 +384,8 @@ public class gameMenuView
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
-                String s = gameController.checkTechnology();
-                if(s != null) System.out.println(s);
+                String techDone = gameController.checkTechnology();
+                if(techDone != null) System.out.println(techDone);
 
                 //update tileStates for playerTurn
 //                gameController.getPlayerTurn().updateTileStates();
@@ -402,10 +419,10 @@ public class gameMenuView
                     showUnits(scanner);
                 else if(infoCommands.compareRegex(command, infoCommands.infoCities) != null)
                     showAllCities(scanner);
-                else if(infoCommands.compareRegex(command, infoCommands.infoDemographics) != null) //TODO
+                else if(infoCommands.compareRegex(command, infoCommands.infoDemographics) != null)
                     showDemographic(gameController.getPlayerTurn(), scanner);
-                else if(infoCommands.compareRegex(command, infoCommands.infoNotifications) != null) //TODO
-                    System.out.println(gameController.showNotifications());
+                else if(infoCommands.compareRegex(command, infoCommands.infoNotifications) != null)
+                    showNotifications(scanner);
                 else if(infoCommands.compareRegex(command, infoCommands.infoMilitary) != null)
                     showMilitary(scanner);
                 else if(infoCommands.compareRegex(command, infoCommands.infoEconomic) != null) //TODO: add current construction (and turns til end) later
@@ -435,14 +452,21 @@ public class gameMenuView
 
                 /*unit*/
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.moveTo)) != null)
-                    gameController.moveUnit(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y"))); //TODO
+                {
+                    int x = Integer.parseInt(matcher.group("x")), y = Integer.parseInt(matcher.group("y"));
+                    System.out.println(gameController.moveUnit(x, y));
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.sleep) != null)
                 {
                     System.out.println(gameController.sleep());
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.alert) != null)
-                    gameController.alert(); //TODO
+                {
+                    System.out.println(gameController.alert());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.fortify) != null)
                     gameController.fortify(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.fortifyHeal) != null)
@@ -452,7 +476,10 @@ public class gameMenuView
                 else if(unitCommands.compareRegex(command, unitCommands.setup) != null)
                     gameController.setup(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.attack) != null)
-                    gameController.attack(); //TODO
+                {
+                    System.out.println(gameController.attack());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
                 {
                     System.out.println(gameController.found());
@@ -571,7 +598,7 @@ public class gameMenuView
                 }
                 else if(command.equals("t"))
                 {
-                    Worker m = new Worker(gameController.getPlayerTurn(), gameController.getMap().get(54));
+                    Notification n = new Notification(gameController.getPlayers().get(1), gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam eshgham, halet chetore? ");
                 }
                 else if(command.equals("q"))
                 {

@@ -121,7 +121,6 @@ public class Tile
 			return -1;
 		return Math.abs((Math.abs(this.getPosition().Q - tile.getPosition().Q) + Math.abs(this.getPosition().R - tile.getPosition().R) + Math.abs(this.getPosition().S - tile.getPosition().S)) / 2);
 	}
-
 	public Tile clone() //TODO: should be a deep copy
 	{
 		Tile newTile = new Tile(position.clone(), tileType, tileFeature, null, null);

@@ -69,6 +69,10 @@ public enum unitCommands
     roadRemoved("road removed"),
     repairedSuccessful("tile repaired successfully"),
     plantationBuild("plantation built"),
+    isNotCombat("selected unit is not a combat unit"),
+    standByUnit("unit stand by"), //TODO: maybe change
+    destroyImprovement("improvement destroyed"),
+    moveSuccessfull("unit moved successfully"),
     gainGold("\nyou got "),
     gold(" gold");
 

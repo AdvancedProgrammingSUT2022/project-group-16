@@ -14,6 +14,7 @@ public class Notification
 		this.receiverPlayer = receiverPlayer;
 		this.sendingTurn = sendingTurn;
 		this.message = message;
+		this.receiverPlayer.getNotifications().add(this);
 	}
 	
 	public Player getSenderPlayer()

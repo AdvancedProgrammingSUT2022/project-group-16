@@ -164,7 +164,6 @@ public abstract class Unit implements Constructable
 		isSleep = false;
 	}
 	public void removeUnit(){
-		rulerPlayer.setGold((int) (rulerPlayer.getGold() + (this.productionCost * 0.1)));
 		rulerPlayer.getUnits().remove(this);
 	}
 

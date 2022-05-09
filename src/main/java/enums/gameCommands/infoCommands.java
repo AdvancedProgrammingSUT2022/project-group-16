@@ -43,7 +43,9 @@ public enum infoCommands
     civilizationName("civilization name : "),
     cities("City/Cities: "),
     units("\nUnits: "),
-    unitName("unit name");
+    unitName("unit name"),
+    sendMessage(" send you a message on turn "),
+    message("message: ");
 
     public final String regex;
 
