@@ -8,9 +8,9 @@ import Models.Player.*;
 import Models.Menu.Menu;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Resources.BonusResource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.*;
@@ -20,6 +20,7 @@ import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameCommands.mapCommands;
 import enums.gameCommands.selectCommands;
+import enums.gameCommands.unitCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 
@@ -50,16 +51,43 @@ public class GameController
 		return instance;
 	}
 
-	public void addPlayer(Player player)
+	// this method checks that everything before changing turn is done. (i.e. check if all units have used their turns)
+	// if everything is ok, it calls the changeTurn method
+	public String checkChangeTurn()
 	{
-		players.add(player);
+		// if there is a unit which has not used its turn, it returns the unit's name with error message
+		for(Unit unit : playerTurn.getUnits())
+		{
+			//TODO: check if unit has used its turn
+			if(false)
+			{
+				return "unit in " + unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + " has not used its turn";
+			}
+		}
+		changeTurn();
+		return null;
 	}
-	public void deletePlayer(Player player)
+	// this updates all turns at the end of each turn (i.e. reset all units turns and decrement researching technology turns)
+	private void changeTurn()
 	{
-		players.remove(player);
-	}
-	public void changeTurn()
-	{
+		turnCounter++;
+		// reset all units turns
+		for(Unit unit : playerTurn.getUnits())
+		{
+			// set their turns to default
+		}
+		playerTurn.setSelectedUnit(null);
+		playerTurn.setSelectedCity(null);
+
+		// consume food for this player (consumes 1 food for each citizen)
+		for(City city : playerTurn.getCities())
+			playerTurn.setFood(playerTurn.getFood() - city.getPopulation());
+		// decrement researching technology turns
+
+		// check for city growth
+
+
+		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 	}
 	public void initGame()
@@ -81,17 +109,17 @@ public class GameController
 	{
 		if(x < 0 || y < 0 || x >= MAX_GRID_LENGTH || y >= MAX_GRID_LENGTH)
 			return null;
-		
+
 		for(Position position : grid)
 			if(position.X == x && position.Y == y)
 				return position;
-		
+
 		return null;
 	}
 	private void initMap()
 	{
 		// TODO: select from a list of maps
-		
+
 		// create sample maps
 		Random borderRandom = new Random();
 		Random tileTypeRandom = new Random();
@@ -99,7 +127,7 @@ public class GameController
 		Random improvementRandom = new Random();
 		Random resourceRandom = new Random();
 		Random CUnitRandom = new Random();
-		
+
 		for(int i = 0; i < MAP_SIZE; i++)
 			for(int j = 0; j < MAP_SIZE; j++)
 			{
@@ -107,11 +135,8 @@ public class GameController
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
 				// TODO: bug with the resource and unit. fix it!!!
-				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
-						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)], borders,
-						new BonusResource(ResourceType.values()[resourceRandom.nextInt(ResourceType.values().length)]),
-						Improvement.values()[improvementRandom.nextInt(Improvement.values().length)],
-						null,
+				map.add(new Tile(getPosition(i, j), TileType.PLAINS,
+						TileFeature.NONE, borders,
 						null));
 			}
 	}
@@ -127,8 +152,6 @@ public class GameController
 			// TODO: this units are temp. they should be modified in their constructors
 			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile, MidRangeType.WARRIOR.movement, MidRangeType.WARRIOR.combatStrength);
 			Settler settler = new Settler(player, startingTile);
-			player.addUnit(warrior);
-			player.addUnit(settler);
 			startingTile.setCombatUnitInTile(warrior);
 			startingTile.setNonCombatUnitInTile(settler);
 			player.updateTileStates();
@@ -142,7 +165,6 @@ public class GameController
 		}
 		return false;
 	}
-
 	public Tile getTileByXY(int X, int Y)
 	{
 		for(Tile tile : map)
@@ -150,7 +172,6 @@ public class GameController
 				return tile;
 		return null;
 	}
-
 	public Tile getTileByQRS(int Q, int R, int S)
 	{
 		for(Tile tile : map)
@@ -164,7 +185,7 @@ public class GameController
 		int Q = tile.getPosition().Q;
 		int R = tile.getPosition().R;
 		int S = tile.getPosition().S;
-		
+
 		int[][] distances = {{0, 1, -1}, {0, -1, 1}, {1, 0, -1}, {-1, 0, 1}, {1, -1, 0}, {-1, 1, 0}};
 		Tile adjacentTile;
 		for(int i = 0; i < 6; i++)
@@ -173,15 +194,17 @@ public class GameController
 			if(adjacentTile != null)
 				adjacentTiles.add(adjacentTile);
 		}
-		
+
 		return adjacentTiles;
 	}
-	public String getMapString()
+	public void addPlayer(Player player)
 	{
-		// TODO:
-		return null;
+		players.add(player);
 	}
-	// TODO: create overloaded printMap which takes a map as an argument
+	public void deletePlayer(Player player)
+	{
+		players.remove(player);
+	}
 	///////////////////////////
 	//menu methods
 	private static boolean numberOfPlayers(HashMap<String,String> players)
@@ -202,7 +225,7 @@ public class GameController
 		}
 		return false;
 	}
-	
+
 	public Player getPlayerTurn()
 	{
 		return playerTurn;
@@ -298,6 +321,23 @@ public class GameController
 		playerTurn.setHappiness(playerTurn.getHappiness() + amount);
 		return (cheatCode.happiness.regex + cheatCode.increaseSuccessful.regex);
 	}
+	public String increaseHealth(Matcher matcher)
+	{
+		int x = Integer.parseInt(matcher.group("x"));
+		int y = Integer.parseInt(matcher.group("y"));
+		for(Unit unit : playerTurn.getUnits())
+			if(unit.getTile().getPosition().X == x &&
+					unit.getTile().getPosition().Y == y &&
+					!unit.getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				unit.setHealth(100);
+		return (cheatCode.health.regex + cheatCode.increaseSuccessful.regex);
+	}
+	public String increaseScore(Matcher matcher)
+	{
+		int amount = Integer.parseInt(matcher.group("amount"));
+		playerTurn.setScore(playerTurn.getScore() + amount);
+		return cheatCode.score.regex + cheatCode.increaseSuccessful.regex;
+	}
 	public String addTechnology(Matcher matcher)
 	{
 		for(int i = 0; i < Technology.values().length; i++)
@@ -337,49 +377,38 @@ public class GameController
 			return "1";
 		return mainCommands.invalidCommand.regex;
 	}
-	public User[] convertMapToArr(HashMap<String, String> players) //Does it sort the users?
+	public ArrayList<User> convertMapToArr(HashMap<String, String> players)
 	{
-		User[] newArr = new User[players.size() + 1];
-		newArr[0] = Menu.loggedInUser;
-
+		ArrayList<User> newArr = new ArrayList<>();
+		newArr.add(Menu.loggedInUser);
 		for(int i = 1; i < players.size() + 1; i++)
-			newArr[i] = registerController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2));
+			newArr.add(registerController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2)));
 		return newArr;
 	}
 	public Civilization findCivilByNumber(int number)
 	{
 		switch (number % 10)
 		{
-			case 1 -> {
+			case 1:
 				return Civilization.AMERICAN;
-			}
-			case 2 -> {
+			case 2:
 				return Civilization.ARABIAN;
-			}
-			case 3 -> {
+			case 3:
 				return Civilization.ASSYRIAN;
-			}
-			case 4 -> {
+			case 4:
 				return Civilization.CHINESE;
-			}
-			case 5 -> {
+			case 5:
 				return Civilization.GERMAN;
-			}
-			case 6 -> {
+			case 6:
 				return Civilization.GREEK;
-			}
-			case 7 -> {
+			case 7:
 				return Civilization.MAYAN;
-			}
-			case 8 -> {
+			case 8:
 				return Civilization.PERSIAN;
-			}
-			case 9 -> {
+			case 9:
 				return Civilization.OTTOMAN;
-			}
-			case 0 -> {
+			case 0:
 				return Civilization.RUSSIAN;
-			}
 		}
 		return null;
 	}
@@ -412,6 +441,8 @@ public class GameController
 	}
 	public boolean isValid(String n)
 	{
+		if(n.length() == 0)
+			return false;
 		for(int i = 0; i < n.length(); i++)
 		{
 			if(n.charAt(i) > 57 || n.charAt(i) < 48)
@@ -496,7 +527,7 @@ public class GameController
 		ArrayList<Unit> units = playerTurn.getUnits();
 		for(int i = 0; i < units.size(); i++)
 			allUnitsString.append(units.get(i).toString() + ", ");
-		
+
 		return allUnitsString.toString();
 	}
 	public String showDemographics()
@@ -510,7 +541,7 @@ public class GameController
 		Stack<Notification> notifications = playerTurn.getNotifications();
 		for(int i = notifications.size() - 1; i >= 0; i--)
 			allNotificationsString.append(notifications.get(i).toString()).append(", ");
-		
+
 		return allNotificationsString.toString();
 	}
 
@@ -536,14 +567,15 @@ public class GameController
 				if(x >= getInstance().MAP_SIZE || x < 0 ||
 						y >= getInstance().MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getUnits().size(); j++)
-					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y &&
-							!playerTurn.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit")) //TODO: c/n unit
-					{
-						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
-						return selectCommands.selected.regex;
-					}
+				for(Player player : players)
+					for(int j = 0; j < player.getUnits().size(); j++)
+						if(player.getUnits().get(j).getTile().getPosition().X == x &&
+								player.getUnits().get(j).getTile().getPosition().Y == y &&
+								!player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+						{
+							playerTurn.setSelectedUnit(player.getUnits().get(j));
+							return selectCommands.selected.regex;
+						}
 				return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -572,14 +604,15 @@ public class GameController
 				if(x >= getInstance().MAP_SIZE || x < 0 ||
 						y >= getInstance().MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getUnits().size(); j++)
-					if(playerTurn.getUnits().get(j).getTile().getPosition().X == x &&
-							playerTurn.getUnits().get(j).getTile().getPosition().Y == y &&
-							playerTurn.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))//TODO: c/n unit
-					{
-						playerTurn.setSelectedUnit(playerTurn.getUnits().get(j));
-						return selectCommands.selected.regex;
-					}
+				for(Player player : players)
+					for(int j = 0; j < player.getUnits().size(); j++)
+						if(player.getUnits().get(j).getTile().getPosition().X == x &&
+								player.getUnits().get(j).getTile().getPosition().Y == y &&
+								player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+						{
+							playerTurn.setSelectedUnit(player.getUnits().get(j));
+							return selectCommands.selected.regex;
+						}
 				return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
 			}
 		}
@@ -609,41 +642,41 @@ public class GameController
 			else if(matcher3 != null)
 			{
 				String cityName = matcher3.group("name");
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getName().equals(cityName))
-					{
-						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
-						return selectCommands.selected.regex;
-					}
-				if(playerTurn.getSelectedCity() != playerTurn.getCities().get(flag))
-					return selectCommands.nameDoesntExist.regex + cityName;
+				for(Player player : players)
+					for(int j = 0; j < player.getCities().size(); j++)
+						if(player.getCities().get(j).getName().equals(cityName))
+						{
+							playerTurn.setSelectedCity(player.getCities().get(j));
+							return selectCommands.selected.regex;
+						}
+				return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			else if(matcher4 != null)
 			{
 				String cityName = matcher4.group("name");
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getName().equals(cityName))
-					{
-						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
-						return selectCommands.selected.regex;
-					}
-				if(playerTurn.getSelectedCity() == null)
-					return selectCommands.nameDoesntExist.regex + cityName;
+				for(Player player : players)
+					for(int j = 0; j < player.getCities().size(); j++)
+						if(player.getCities().get(j).getName().equals(cityName))
+						{
+							playerTurn.setSelectedCity(player.getCities().get(j));
+							return selectCommands.selected.regex;
+						}
+				return selectCommands.nameDoesntExist.regex + cityName;
 			}
 			if(matcher1 != null || matcher2 != null)
 			{
 				if(x >= getInstance().MAP_SIZE || x < 0 ||
 						y >= getInstance().MAP_SIZE || y < 0)
 					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(int j = 0; j < playerTurn.getCities().size(); j++)
-					if(playerTurn.getCities().get(j).getCapitalTile().getPosition().X == x &&
-							playerTurn.getCities().get(j).getCapitalTile().getPosition().Y == y)
-					{
-						playerTurn.setSelectedCity(playerTurn.getCities().get(j));
-						return selectCommands.selected.regex;
-					}
-				if(playerTurn.getSelectedCity() == null)
-					return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
+				for(Player player : players)
+					for(int j = 0; j < player.getCities().size(); j++)
+						if(player.getCities().get(j).getCapitalTile().getPosition().X == x &&
+								player.getCities().get(j).getCapitalTile().getPosition().Y == y)
+						{
+							playerTurn.setSelectedCity(player.getCities().get(j));
+							return selectCommands.selected.regex;
+						}
+				return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
 			}
 		}
 		return selectCommands.invalidCommand.regex;
@@ -652,22 +685,6 @@ public class GameController
 		for (Unit unit : this.getPlayerTurn().getUnits()) {
 			if(unit.getMoves() != null && unit.getMoves().size() > 0){
 				unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
-			}
-		}
-	}
-	public void updateWorkersConstructions(){
-		for (Unit unit : this.getPlayerTurn().getUnits()) {
-			if(unit instanceof Worker){
-				if(((Worker) unit).getTurnsTillBuildRoad() < 3)
-					((Worker) unit).buildRoad();
-				if(((Worker) unit).getTurnsTillBuildRailRoad() < 3)
-					((Worker) unit).buildRailRoad();
-				if(((Worker) unit).getTurnsTillRepairment() < 3)
-					((Worker) unit).repairTile();
-				if(((Worker) unit).getImprovements().get(0).inLineTurn < ((Worker) unit).getImprovements().get(0).turnToConstruct)
-					((Worker) unit).buildFarm();
-				if(((Worker) unit).getImprovements().get(1).inLineTurn < ((Worker) unit).getImprovements().get(1).turnToConstruct)
-					((Worker) unit).buildMine();
 			}
 		}
 	}
@@ -681,12 +698,16 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(playerTurn.getSelectedUnit().isSleep())
-				return gameEnum.isSleep.regex;
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
 			else
 			{
-				playerTurn.getSelectedUnit().changeSleepWake();
-				return gameEnum.slept.regex;
+				if (playerTurn.getSelectedUnit().isSleep())
+					return gameEnum.isSleep.regex;
+				else {
+					playerTurn.getSelectedUnit().changeSleepWake();
+					return gameEnum.slept.regex;
+				}
 			}
 		}
 		return gameEnum.nonSelect.regex;
@@ -715,84 +736,365 @@ public class GameController
 	{
 
 	}
-	public void found()
+	private boolean isCapitalCity(Tile tile)
 	{
-
+		int x = tile.getPosition().X;
+		int y = tile.getPosition().Y;
+		for(Player player : players)
+			for (City city : player.getCities())
+				if(city.getCapitalTile().getPosition().X == x &&
+					city.getCapitalTile().getPosition().Y == y)
+					return true;
+		return false;
 	}
-	public void cancel()
+	private boolean hasCity(Tile tile)
 	{
-
+		int x = tile.getPosition().X;
+		int y = tile.getPosition().Y;
+		for (Player player : players)
+			for(City city : player.getCities())
+				for(Tile tmp : city.getTerritory())
+					if(tmp.getPosition().X == x &&
+						tmp.getPosition().Y == y)
+						return true;
+		return false;
 	}
-	public String wake()
+	public String found()
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			if(!playerTurn.getSelectedUnit().isSleep())
-				return gameEnum.awaken.regex;
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Settler.class))
+				return unitCommands.notSettler.regex;
+			else if(isCapitalCity(playerTurn.getSelectedUnit().getTile()))
+				return unitCommands.isCapitalCity.regex;
+			else if(hasCity(playerTurn.getSelectedUnit().getTile()))
+				return unitCommands.hasCity.regex;
 			else
 			{
-				playerTurn.getSelectedUnit().changeSleepWake();
-				return gameEnum.wokeUp.regex;
+				((Settler) playerTurn.getSelectedUnit()).createCity();
+				return unitCommands.cityBuilt.regex;
 			}
 		}
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public void delete()
+	public String cancel()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().getCommands().clear();
+				return unitCommands.cancelCommand.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void road()
+	public String wake()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else
+			{
+				if (!playerTurn.getSelectedUnit().isSleep())
+					return gameEnum.awaken.regex;
+				else {
+					playerTurn.getSelectedUnit().changeSleepWake();
+					return gameEnum.wokeUp.regex;
+				}
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void railRoad()
+	private int getGoldOfUnit(Unit unit)
 	{
-
+		int number = 0;
+		if(unit.getClass().equals(Settler.class)) number = 89;
+		if(unit.getClass().equals(Worker.class)) number = 40;
+		if(unit.getClass().equals(LongRange.class)) number = ((LongRange) unit).getType().getCost();
+		if(unit.getClass().equals(MidRange.class)) number = ((MidRange) unit).getType().getCost();
+		return number / 10;
 	}
-	public void farm()
+	public String delete()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else
+			{
+				int gold = getGoldOfUnit(playerTurn.getSelectedUnit());
+				playerTurn.getSelectedUnit().removeUnit();
+				return unitCommands.removeUnit.regex + unitCommands.gainGold.regex + (gold) + unitCommands.gold.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void mine()
+	public String road()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().hasRoad())
+				return unitCommands.hasRoad.regex;
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildRoad();
+				return unitCommands.roadBuilt.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void tradingPost()
+	public String  railRoad()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().hasRailRoad())
+				return unitCommands.hasRailRoad.regex;
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildRailRoad();
+				return unitCommands.railRoadBuilt.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void lumberMill()
+	public String farm()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.FARM))
+				return unitCommands.hasFarm.regex;
+			//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildFarm();
+				return unitCommands.farmBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void pasture()
+	public String  mine()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.MINE))
+				return unitCommands.hasMine.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildMine();
+				return unitCommands.mineBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void camp()
+	public String tradingPost()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.TRADING_POST))
+				return unitCommands.hasTradingPost.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildTradingPost();
+				return unitCommands.tradingPostBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void plantation()
+	public String lumberMill()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.LUMBER_MILL))
+				return unitCommands.hasLumberMill.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildLumberMill();
+				return unitCommands.lumberMillBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void quarry()
+	public String pasture()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.PASTURE))
+				return unitCommands.hasPasture.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildPasture();
+				return unitCommands.pastureBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void removeJungle()
+	public String camp()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.CAMP))
+				return unitCommands.hasCamp.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildCamp();
+				return unitCommands.campBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void removeRoute()
+	public String plantation()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.PLANTATION))
+				return unitCommands.hasPlantation.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildPlantation();
+				return unitCommands.plantationBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
-	public void repair()
+	public String quarry()
 	{
-
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.QUARRY))
+				return unitCommands.hasQuarry.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).buildQuarry();
+				return unitCommands.quarryBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+	}
+	public String removeJungle()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.JUNGLE) &&
+					!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.FOREST))
+				return unitCommands.hasntJungle.regex;
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).removeJungle();
+				return unitCommands.jungleRemoved.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+	}
+	public String removeRoute()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(!playerTurn.getSelectedUnit().getTile().hasRoad() &&
+					!playerTurn.getSelectedUnit().getTile().hasRailRoad())
+				return unitCommands.hasntRoad.regex;
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).removeRoads();
+				return unitCommands.roadRemoved.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+	}
+	public String repair()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(Worker.class))
+				return unitCommands.notWorker.regex;
+			else if(!playerTurn.getSelectedUnit().getTile().isRuined())
+				return unitCommands.isNotRuined.regex;
+			else
+			{
+				((Worker) playerTurn.getSelectedUnit()).repairTile();
+				return unitCommands.repairedSuccessful.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
 	}
 
 	public String mapShow(String command)

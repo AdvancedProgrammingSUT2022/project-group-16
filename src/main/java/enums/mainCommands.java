@@ -24,6 +24,7 @@ public enum mainCommands
     weakPass("password is weak"),
     weakNewPass("new password is weak"),
     navigationError("menu navigation is not possible"),
+    and(" and "),
     pickBetween("please pick a number between ");
 
     public final String regex;

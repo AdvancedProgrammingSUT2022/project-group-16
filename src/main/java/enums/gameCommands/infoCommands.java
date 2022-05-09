@@ -28,6 +28,7 @@ public enum infoCommands
     successGainTech("you gained technology "),
     enoughCup("you don't have enough cups for "),
     numberOfCup("number of cups: "),
+    scoreBoard("Score Board: "),
     willGain("\tyou will gain "),
     requiredTurns("\n\trequired turns: "),
     currResearch(" (current research)"),

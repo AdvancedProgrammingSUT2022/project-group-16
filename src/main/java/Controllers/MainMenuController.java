@@ -21,7 +21,7 @@ public class MainMenuController
 		}
 		else if(mainCommands.compareRegex(menuName, mainCommands.startNewGame) != null)
 		{
-			gameMenuView.run();
+			gameMenuView.runGameMenu();
 			return "1";
 		}
 		else if(mainCommands.compareRegex(menuName, mainCommands.loginMenu) != null)

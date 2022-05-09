@@ -36,13 +36,14 @@ public class Player extends User
 	private final Stack<Notification> notifications = new Stack<>();
 	private ArrayList<Unit> units = new ArrayList<>();
 
-	public Player(Civilization civilization, String username, String nickname, String password)
+	public Player(Civilization civilization, String username, String nickname, String password, int score)
 	{
 		super(username, nickname, password);
 		this.civilization = civilization;
 		this.happiness = 100;
 		gameController = GameController.getInstance();
 		this.map = new HashMap<>();
+		this.setScore(score);
 		for(Tile tile : gameController.getMap())
 			this.map.put(tile, TileState.FOG_OF_WAR);
 	}
