@@ -101,4 +101,9 @@ public class Worker extends NonCombatUnit{
     {
         return "WORKER";
     }
+    public Worker clone(){
+        Worker newWorker = new Worker(this.getRulerPlayer(), this.getTile());
+        newWorker.setHealth(this.getHealth());
+        return newWorker;
+    }
 }

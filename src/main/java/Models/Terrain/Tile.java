@@ -58,7 +58,7 @@ public class Tile
 	{
 		this.improvement = improvement;
 	}
-	public boolean getHasRoad()
+	public boolean hasRoad()
 	{
 		return hasRoad;
 	}
@@ -66,7 +66,7 @@ public class Tile
 	{
 		this.hasRoad = hasRoad;
 	}
-	public boolean getHasRailRoad()
+	public boolean hasRailRoad()
 	{
 		return hasRailRoad;
 	}
@@ -94,17 +94,30 @@ public class Tile
 	{
 		return isPillaged;
 	}
+	public void setIsPillaged(boolean isPillaged)
+	{
+		this.isPillaged = isPillaged;
+	}
 	public Position getPosition()
 	{
 		return position;
 	}
-	public void improveTile(){
-
-	}
-	// TODO: override equals???
 	protected Tile clone()
-	{
-//		return new Tile(position, tileType, tileFeature, borders, resource, improvement, combatUnitInTile, nonCombatUnitInTile);
+	{ //TODO: assert that this is a deep copy and everything is cloned correctly
+		Tile newTile = new Tile(position, tileType, tileFeature, null, resource);
+		BorderType[] newBorders = new BorderType[6];
+		for (int i = 0; i < 6; i++)
+			newBorders[i] = borders[i];
+		newTile.borders = newBorders;
+		newTile.hasRoad = hasRoad;
+		newTile.hasRailRoad = hasRailRoad;
+		newTile.combatUnitInTile = combatUnitInTile.clone();
+		newTile.combatUnitInTile.setTile(newTile);
+		newTile.nonCombatUnitInTile = nonCombatUnitInTile.clone();
+		newTile.nonCombatUnitInTile.setTile(newTile);
+		newTile.isPillaged = isPillaged;
+		newTile.isRuined = isRuined;
+		return newTile;
 	}
 }
 

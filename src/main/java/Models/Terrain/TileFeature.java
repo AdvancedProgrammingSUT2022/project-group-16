@@ -31,3 +31,23 @@ public enum TileFeature
 		this.inLineTurn = inLineTurn;
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
