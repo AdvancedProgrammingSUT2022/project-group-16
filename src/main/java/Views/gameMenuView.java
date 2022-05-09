@@ -523,6 +523,7 @@ public class gameMenuView
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.updatePlayersUnitLocations();
+            gameController.updateWorkersConstructions();
         }
     }
     public static void run() //TODO: rename to runGameMenu

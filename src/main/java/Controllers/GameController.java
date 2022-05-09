@@ -134,6 +134,15 @@ public class GameController
 			player.updateTileStates();
 		}
 	}
+	public boolean isTileInPlayerTerritory(Position position){
+		for (City city : playerTurn.getCities()) {
+			for (Tile tile : city.getTerritory()) {
+				if(tile.getPosition().equals(position)) return true;
+			}
+		}
+		return false;
+	}
+
 	public Tile getTileByXY(int X, int Y)
 	{
 		for(Tile tile : map)
@@ -141,6 +150,7 @@ public class GameController
 				return tile;
 		return null;
 	}
+
 	public Tile getTileByQRS(int Q, int R, int S)
 	{
 		for(Tile tile : map)
@@ -642,6 +652,22 @@ public class GameController
 		for (Unit unit : this.getPlayerTurn().getUnits()) {
 			if(unit.getMoves() != null && unit.getMoves().size() > 0){
 				unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
+			}
+		}
+	}
+	public void updateWorkersConstructions(){
+		for (Unit unit : this.getPlayerTurn().getUnits()) {
+			if(unit instanceof Worker){
+				if(((Worker) unit).getTurnsTillBuildRoad() < 3)
+					((Worker) unit).buildRoad();
+				if(((Worker) unit).getTurnsTillBuildRailRoad() < 3)
+					((Worker) unit).buildRailRoad();
+				if(((Worker) unit).getTurnsTillRepairment() < 3)
+					((Worker) unit).repairTile();
+				if(((Worker) unit).getImprovements().get(0).inLineTurn < ((Worker) unit).getImprovements().get(0).turnToConstruct)
+					((Worker) unit).buildFarm();
+				if(((Worker) unit).getImprovements().get(1).inLineTurn < ((Worker) unit).getImprovements().get(1).turnToConstruct)
+					((Worker) unit).buildMine();
 			}
 		}
 	}
