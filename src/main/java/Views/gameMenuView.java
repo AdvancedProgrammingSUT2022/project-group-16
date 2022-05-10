@@ -413,7 +413,7 @@ public class gameMenuView
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     System.out.println(gameController.increaseGold(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null)
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //Almost done
                         System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
                     System.out.println(gameController.increaseFood(matcher));

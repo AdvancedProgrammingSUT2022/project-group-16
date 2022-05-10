@@ -51,7 +51,7 @@ public class GameController
 		return instance;
 	}
 
-	// this method checks that everything before changing turn is done. (i.e. check if all units have used their turns)
+	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns)
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
@@ -69,7 +69,7 @@ public class GameController
 		changeTurn();
 		return null;
 	}
-	// this updates all turns at the end of each turn (i.e. reset all units turns and decrement researching technology turns)
+	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
 		//happiness
@@ -87,8 +87,10 @@ public class GameController
 		playerTurn.setSelectedCity(null);
 
 		// consume food for this player (consumes 1 food for each citizen)
+/*
 		for(City city : playerTurn.getCities())
 			playerTurn.setFood(playerTurn.getFood() - city.getPopulation());
+*/
 		// decrement researching technology turns
 
 		// check for city growth
@@ -96,6 +98,9 @@ public class GameController
 
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+		//TODO: check that this is not a duplicate from runGame while loop
+		if(players.indexOf(playerTurn) == 0)
+			turnCounter++;
 	}
 	public void initGame()
 	{
@@ -317,7 +322,6 @@ public class GameController
 	//cheat codes
 	public String increaseGold(Matcher matcher)
 	{
-		//TODO: write try catch for catching invalid input
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setGold(playerTurn.getGold() + amount);
 		return (cheatCode.gold.regex + cheatCode.increaseSuccessful.regex);
@@ -350,11 +354,17 @@ public class GameController
 	{
 		int x = Integer.parseInt(matcher.group("x"));
 		int y = Integer.parseInt(matcher.group("y"));
-		for(Unit unit : playerTurn.getUnits())
-			if(unit.getTile().getPosition().X == x &&
-					unit.getTile().getPosition().Y == y &&
-					!unit.getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
-				unit.setHealth(100);
+		Tile tile = playerTurn.getTileByXY(x, y);
+		// validation
+		if(tile == null)
+			return mainCommands.invalidCommand.regex;
+		Unit unit = tile.getCombatUnitInTile();
+		if(unit == null)
+			return mainCommands.invalidCommand.regex;
+		
+		// increase health
+		unit.setHealth(100);
+		
 		return (cheatCode.health.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseScore(Matcher matcher)
