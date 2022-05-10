@@ -7,6 +7,8 @@ import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Terrain.Improvement;
 import Models.Terrain.Tile;
+import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import Models.User;
 
@@ -247,6 +249,18 @@ public class Player extends User
 	public void addUnit(Unit unit)
 	{
 		units.add(unit);
+	}
+	// this method gets a unit and removes it from the units list and tile's combatUnitInTile or tile's nonCombatUnitInTile
+	public void removeUnit(Unit unit)
+	{
+		if(unit == null)
+			return;
+		units.remove(unit);
+		if(unit instanceof CombatUnit)
+			unit.getTile().setCombatUnitInTile(null);
+		else if(unit instanceof NonCombatUnit)
+			unit.getTile().setNonCombatUnitInTile(null);
+		unit.setTile(null);
 	}
 	public void updateTileStates()
 	{
