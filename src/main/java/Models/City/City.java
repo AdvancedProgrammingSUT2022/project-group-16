@@ -19,7 +19,6 @@ public class City
 	private int cupYield = 0;
 	private int population = 0;
 	private int power = 0;
-	private Building building;
 	private final ArrayList<Building> buildings = new ArrayList<>();
 	private final ArrayList<Citizen> citizens = new ArrayList<>();
 	private final ArrayList<Tile> workingTiles = new ArrayList<>();
@@ -91,8 +90,6 @@ public class City
 	public void createBuilding(Building building) //TODO
 	{
 		buildings.add(building);
-		System.out.println(building.getBuildingType());
-		System.out.println(building.happinessFromBuilding(building.getBuildingType()));
 		rulerPlayer.setHappiness(rulerPlayer.getHappiness() + building.happinessFromBuilding(building.getBuildingType())); //Increase happiness
 	}
 
@@ -116,6 +113,10 @@ public class City
 		this.population += amount;
 		cupYield += amount;
 		rulerPlayer.setCup(rulerPlayer.getCup() + amount);
+	}
+
+	public ArrayList<Building> getBuildings() {
+		return buildings;
 	}
 
 	public void growCity() //TODO: this should increase the number of citizens of the city

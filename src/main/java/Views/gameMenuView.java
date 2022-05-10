@@ -11,6 +11,7 @@ import Models.Player.Technology;
 import Models.Resources.LuxuryResource;
 import Models.Resources.ResourceType;
 import Models.Terrain.Improvement;
+import Models.Terrain.Tile;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
@@ -49,6 +50,22 @@ public class gameMenuView
         return tmp;
     }
 
+    private static BuildingType showValidBuildings(Scanner scanner)
+    {
+        int max = 0;
+        ArrayList<BuildingType> tmp = new ArrayList<>();
+        for(int i = 0; i < BuildingType.values().length; i++)
+            if(gameController.getPlayerTurn().getTechnologies().contains(BuildingType.values()[i].requiredTechnology)) {
+                System.out.println((max + 1) + ": " + BuildingType.values()[i].name().toLowerCase(Locale.ROOT));
+                tmp.add(BuildingType.values()[i]);
+                max++;
+            }
+        System.out.println((max + 1) + ": " + infoCommands.backToGame.regex);
+        int number = getNumber(scanner, max + 1);
+        if(number != max + 1)
+            return tmp.get(number - 1);
+        return null;
+    }
     private static void showBaseFields()
     {
         Player tmp = gameController.getPlayerTurn();
@@ -593,6 +610,17 @@ public class gameMenuView
                 else if(mapCommands.compareRegex(command, mapCommands.mapShow) != null)
                     System.out.println(gameController);
 
+                /*City*/
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.buildBuilding)) != null)
+                {
+                    if(gameController.isValidCoordinate(matcher))
+                    {
+                        BuildingType tmp = showValidBuildings(scanner);
+                        if(tmp != null)
+                            System.out.println(gameController.buildBuilding(matcher, tmp));
+                    }
+
+                }
                 /*others*/
                 else if(gameEnum.compareRegex(command, gameEnum.end) != null)
                 {

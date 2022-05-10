@@ -1,6 +1,7 @@
 package Controllers;
 
 import Controllers.Utilities.MapPrinter;
+import Models.City.Building;
 import Models.City.BuildingType;
 import Models.City.City;
 import Models.Game.Position;
@@ -340,7 +341,7 @@ public class GameController
 		addTurn(amount);
 		for(Player player : players)
 			for (int i = 0; i < amount; i++)
-				player.setCup(player.incomeCup());
+				player.setCup(player.getCup() + player.incomeCup());
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 
@@ -1326,7 +1327,52 @@ public class GameController
 		else
 			return gameEnum.nonSelect.regex;
 	}
-
+	public boolean isValidCoordinate(Matcher matcher)
+	{
+		int x = Integer.parseInt(matcher.group("x"));
+		int y = Integer.parseInt(matcher.group("y"));
+		if(x > 9 || x < 0 || y > 9 || y < 0)
+			return false;
+		return true;
+	}
+	private boolean hasBuilding(Tile tile)
+	{
+		for (Player player : players)
+			for (City city : player.getCities())
+				for (Building building : city.getBuildings())
+					if(tile == building.getTile())
+						return true;
+		return false;
+	}
+	public String buildBuilding(Matcher matcher, BuildingType buildingType)
+	{
+		if(playerTurn.getSelectedCity() != null)
+		{
+			if(!playerTurn.getCities().contains(playerTurn.getSelectedCity()))
+				return unitCommands.notYours.regex;
+			else
+			{
+				int x = Integer.parseInt(matcher.group("x"));
+				int y = Integer.parseInt(matcher.group("y"));
+				Tile tile = getTileByXY(x, y);
+				if(!playerTurn.getSelectedCity().getTerritory().contains(tile))
+					return unitCommands.belongTo.regex;
+				if(tile.getImprovement() != Improvement.NONE)
+					return unitCommands.hasImprovement.regex;
+				else if(hasBuilding(tile))
+					return unitCommands.hasBuilding.regex;
+				else if(belongToCity(tile) != null && !belongToPlayerTurn(tile))
+					return unitCommands.cantBuild.regex;
+				else
+				{
+					playerTurn.getSelectedCity().createBuilding(new Building(buildingType, tile));
+					return unitCommands.buildSuccessful.regex;
+				}
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+	}
 	public void resetSelectedObjects()
 	{
 		getPlayerTurn().setSelectedUnit(null);
