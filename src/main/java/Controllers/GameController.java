@@ -98,6 +98,15 @@ public class GameController
 	{
 		return map;
 	}
+	public String getMapString()
+	{
+		return MapPrinter.getMapString(playerTurn);
+	}
+	public String getMapString(Player player)
+	{
+		return MapPrinter.getMapString(player);
+	}
+	
 	private void initGrid()
 	{
 		for(int i = 0; i < MAX_GRID_LENGTH; i++)
@@ -1107,122 +1116,6 @@ public class GameController
 		}
 		else
 			return gameEnum.nonSelect.regex;
-	}
-
-	public String mapShow(String command)
-	{
-		int x = 0, y = 0;
-		playerTurn.setSelectedCity(null);
-		for(int i = 0; i < command.length(); i++)
-		{
-			Matcher matcher1 = mapCommands.compareRegex(command.substring(i), mapCommands.newPos);
-			Matcher matcher2 = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewPos);
-			Matcher matcher3 = mapCommands.compareRegex(command.substring(i), mapCommands.newName);
-			Matcher matcher4 = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewName);
-			if(matcher1 != null)
-			{
-				x = Integer.parseInt(matcher1.group("x"));
-				y = Integer.parseInt(matcher1.group("y"));
-			}
-			else if(matcher2 != null)
-			{
-				x = Integer.parseInt(matcher2.group("x"));
-				y = Integer.parseInt(matcher2.group("y"));
-			}
-			else if(matcher3 != null)
-			{
-				String cityName = matcher3.group("name");
-				for (Player player : players)
-					for (int j = 0; j < player.getCities().size(); j++)
-						if (player.getCities().get(j).getName().equals(cityName)) {
-							if (playerTurn.getMap().get(player.getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
-								return mapCommands.visible.regex;
-							//TODO: add selectedCity to Player
-							MapPrinter.selectedCity = player.getCities().get(j);
-							return mapCommands.selected.regex;
-						}
-				if(MapPrinter.selectedTile == null)
-					return selectCommands.nameDoesntExist.regex + cityName;
-			}
-			else if(matcher4 != null)
-			{
-				String cityName = matcher4.group("name");
-				for (Player player : players)
-					for (int j = 0; j < player.getCities().size(); j++)
-						if (player.getCities().get(j).getName().equals(cityName)) {
-							if (playerTurn.getMap().get(player.getCities().get(j).getCapitalTile()).equals(TileState.FOG_OF_WAR))
-								return mapCommands.visible.regex;
-							MapPrinter.selectedCity = player.getCities().get(j);
-							return mapCommands.selected.regex;
-						}
-				if(MapPrinter.selectedTile == null)
-					return selectCommands.nameDoesntExist.regex + cityName;
-			}
-			if(matcher1 != null || matcher2 != null)
-			{
-				if(x >= getInstance().MAP_SIZE || x < 0 ||
-						y >= getInstance().MAP_SIZE || y < 0)
-					return mapCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				if (playerTurn.getMap().get(playerTurn.getTileByXY(x, y)).equals(TileState.FOG_OF_WAR))
-					return mapCommands.visible.regex;
-				MapPrinter.selectedTile = getTileByXY(x, y);
-				return mapCommands.selected.regex;
-			}
-		}
-		return mapCommands.invalidCommand.regex;
-	}
-	public String mapMoveRight(String command)
-	{
-		int number = getMoves(command);
-		if(number == -1)
-			return mapCommands.positiveNum.regex;
-		if(number == -2)
-			return mapCommands.invalidCommand.regex;
-		//TODO
-		return mapCommands.successful.regex;
-	}
-	public String mapMoveLeft(String command)
-	{
-		int number = getMoves(command);
-		if(number == -1)
-			return mapCommands.positiveNum.regex;
-		if(number == -2)
-			return mapCommands.invalidCommand.regex;
-		//TODO
-		return mapCommands.successful.regex;
-	}
-	public String mapMoveUp(String command)
-	{
-		int number = getMoves(command);
-		if(number == -1)
-			return mapCommands.positiveNum.regex;
-		if(number == -2)
-			return mapCommands.invalidCommand.regex;
-		//TODO
-		return mapCommands.successful.regex;
-	}
-	public String mapMoveDown(String command)
-	{
-		int number = getMoves(command);
-		if(number == -1)
-			return mapCommands.positiveNum.regex;
-		if(number == -2)
-			return mapCommands.invalidCommand.regex;
-		//TODO
-		return mapCommands.successful.regex;
-	}
-
-	private int getMoves(String command)
-	{
-		Matcher matcher;
-		for(int i = 0; i < command.length(); i++)
-			if ((matcher = mapCommands.compareRegex(command.substring(i), mapCommands.shortNewNumber)) != null)
-			{
-				if(Integer.parseInt(matcher.group("c")) < 0)
-					return -1;
-				return Integer.parseInt(matcher.group("c"));
-			}
-		return -2;
 	}
 
 	public void resetSelectedObjects()
