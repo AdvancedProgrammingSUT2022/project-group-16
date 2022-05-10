@@ -2,10 +2,14 @@ package Views;
 
 import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
+import Models.City.Building;
+import Models.City.BuildingType;
 import Models.City.City;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
+import Models.Resources.LuxuryResource;
+import Models.Resources.ResourceType;
 import Models.Terrain.Improvement;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
@@ -45,6 +49,15 @@ public class gameMenuView
         return tmp;
     }
 
+    private static void showBaseFields()
+    {
+        Player tmp = gameController.getPlayerTurn();
+        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
+        System.out.println(MapPrinter.getMapString(tmp));
+        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
+        System.out.println(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
+                tmp.getHappiness() + "\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
+    }
     private static void showNotifications(Scanner scanner)
     {
         ArrayList<Notification> tmp = gameController.getPlayerTurn().getNotifications();
@@ -369,6 +382,7 @@ public class gameMenuView
         ArrayList<User> tmpUsers = gameController.convertMapToArr(usersInfo); //Note: user[0] is loggedInUser! [loggedInUser, user1, user2, ...]
         pickCivilizationAndCreatePlayers(scanner, tmpUsers);;
         gameController.initGame();
+        gameController.setFirstHappiness();
 
         String command = null;
         do
@@ -381,13 +395,11 @@ public class gameMenuView
                 gameController.addToTurnCounter(1);
                 gameController.updateFortifyTilHeal();
             }
-            System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
-            System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
             gameController.updateFortify();
 
-            System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
+            showBaseFields();
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -492,9 +504,9 @@ public class gameMenuView
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.setup) != null)
                     gameController.setup(); //TODO
-                else if(unitCommands.compareRegex(command, unitCommands.attack) != null)
+                else if((matcher = unitCommands.compareRegex(command, unitCommands.attack)) != null)
                 {
-                    System.out.println(gameController.attack());
+                    System.out.println(gameController.attack(matcher));
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
@@ -591,7 +603,7 @@ public class gameMenuView
                 else if(command.equals("s"))
                 {
                     MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45));
-                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(54));
+                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(55));
                     Worker w = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(54));
                     LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34));
                     Settler m = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(1));
@@ -617,15 +629,21 @@ public class gameMenuView
                 }
                 else if(command.equals("f"))
                 {
-                    System.out.println(gameController.getMap().get(54).getImprovement().symbol);
+                    gameController.getPlayers().get(0).setPopulation(0);
                 }
                 else if(command.equals("d"))
                 {
-                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(54));
+                    LuxuryResource l = new LuxuryResource(ResourceType.GEMS);
+                    gameController.getPlayerTurn().addLuxuryResource(l);
+                }
+                else if(command.equals("v"))
+                {
+                    gameController.getPlayerTurn().setHappiness(gameController.getPlayerTurn().getHappiness() - 15);
                 }
                 else if(command.equals("p"))
                 {
-                    System.out.println(gameController.getPlayerTurn().getCities().get(0).getGarrison().getClass().getSimpleName());
+                    LuxuryResource l = new LuxuryResource(ResourceType.FURS);
+                    gameController.getPlayerTurn().addLuxuryResource(l);
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {

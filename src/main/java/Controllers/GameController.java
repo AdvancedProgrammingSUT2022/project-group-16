@@ -55,6 +55,8 @@ public class GameController
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
+		if(!playerTurn.getIsUnHappy() && playerTurn.getHappiness() < 0)
+			playerTurn.isUnHappy();
 		// if there is a unit which has not used its turn, it returns the unit's name with error message
 		for(Unit unit : playerTurn.getUnits())
 		{
@@ -70,6 +72,12 @@ public class GameController
 	// this updates all turns at the end of each turn (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
+		//happiness
+		if(playerTurn.getPopulation() >= playerTurn.getMaxPopulation() + 10)
+		{
+			playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
+			playerTurn.setMaxPopulation(playerTurn.getPopulation());
+		}
 		// reset all units turns
 		for(Unit unit : playerTurn.getUnits())
 		{
@@ -297,6 +305,14 @@ public class GameController
 		else
 			return gameEnum.successfulStartGame.regex;
 	}
+	public int powerForce(Unit unit)
+	{
+		if(unit.getClass().equals(MidRange.class))
+			return ((MidRange) unit).getType().getCombatStrength();
+		if(unit.getClass().equals(LongRange.class))
+			return ((LongRange) unit).getType().getCombatStrength();
+		return 0;
+	}
 
 	//cheat codes
 	public String increaseGold(Matcher matcher)
@@ -327,7 +343,7 @@ public class GameController
 	public String increaseHappiness(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		playerTurn.setHappiness(playerTurn.getHappiness() + amount);
+		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 1.2));
 		return (cheatCode.happiness.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseHealth(Matcher matcher)
@@ -903,19 +919,48 @@ public class GameController
 	{
 
 	}
-	public String attack()
+	private boolean belongToPlayerTurn(Tile tile)
 	{
+		for (City city : playerTurn.getCities())
+			if(city.getTerritory().contains(tile))
+				return true;
+		return false;
+	}
+	private Tile belongToCity(Tile tile)
+	{
+		for(Player player : players)
+			for (City city : player.getCities())
+				for (Tile tmp : city.getTerritory())
+					if(tmp == tile)
+						return tmp;
+		return null;
+	}
+	public String attack(Matcher matcher)
+	{
+		if(Integer.parseInt(matcher.group("x")) > 9 || Integer.parseInt(matcher.group("x")) < 0 ||
+				Integer.parseInt(matcher.group("y")) > 9 || Integer.parseInt(matcher.group("y")) < 0)
+			return unitCommands.wrongCoordinates.regex;
+		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
 				return unitCommands.isNotCombat.regex;
-			//TODO: DOC
+			else if(belongToPlayerTurn(tile))
+				return unitCommands.playerTurnCity.regex;
+			else if(playerTurn.getSelectedUnit().getClass().equals(MidRange.class) &&
+						playerTurn.getSelectedUnit().getTile().distanceTo(tile) > 1)
+				return unitCommands.rangeError.regex;
+			else if(playerTurn.getSelectedUnit().getClass().equals(LongRange.class) &&
+					playerTurn.getSelectedUnit().getTile().distanceTo(tile) > ((LongRange) playerTurn.getSelectedUnit()).getType().getRange())
+				return unitCommands.rangeError.regex;
+			else if(tile.getImprovement().equals(Improvement.NONE) && belongToCity(tile) == null)
+				return unitCommands.nothingInTile.regex;
 			else
 			{
-				//TODO: add more errors
 				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
+				//TODO: attack city
 				playerTurn.getSelectedUnit().changeFortify();
 				return unitCommands.destroyImprovement.regex;
 			}
@@ -961,6 +1006,8 @@ public class GameController
 			else
 			{
 				((Settler) playerTurn.getSelectedUnit()).createCity();
+				if(playerTurn.getCities().size() != 1)
+					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 				return unitCommands.cityBuilt.regex;
 			}
 		}
@@ -1274,5 +1321,10 @@ public class GameController
 	{
 		getPlayerTurn().setSelectedUnit(null);
 		getPlayerTurn().setSelectedCity(null);
+	}
+	public void setFirstHappiness()
+	{
+		for (Player player : players)
+			player.setHappiness(100 - players.size() * 5);
 	}
 }

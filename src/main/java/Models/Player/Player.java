@@ -5,9 +5,12 @@ import Models.City.*;
 import Models.Game.Position;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
+import Models.Resources.ResourceType;
 import Models.Terrain.Improvement;
 import Models.Terrain.Tile;
 import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.LongRange;
+import Models.Units.CombatUnits.MidRange;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import Models.User;
@@ -24,12 +27,13 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 0;
 	private int happiness = 0;
-	private int population = 0; //TODO: maybe it's better to delete this line
+	private int population = 0;
+	private int maxPopulation = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
 	private ArrayList<Resource> resources;
-	private final ArrayList<LuxuryResource> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
+	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
 	private ArrayList<City> cities = new ArrayList<>();
@@ -37,6 +41,7 @@ public class Player extends User
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
 	private ArrayList<Unit> units = new ArrayList<>();
+	private boolean isUnHappy = false;
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score)
 	{
@@ -72,6 +77,12 @@ public class Player extends User
 	}
 	public void setPopulation(int population) {
 		this.population = population;
+	}
+	public int getMaxPopulation() {
+		return maxPopulation;
+	}
+	public void setMaxPopulation(int maxPopulation) {
+		this.maxPopulation = maxPopulation;
 	}
 
 	public Civilization getCivilization()
@@ -114,6 +125,30 @@ public class Player extends User
 	{
 		this.happiness = happiness;
 	}
+	public boolean getIsUnHappy()
+	{
+		return isUnHappy;
+	}
+	public void isUnHappy()
+	{
+		isUnHappy = true;
+		for(Unit unit : units) {
+			System.out.println((int) (0.75 * gameController.powerForce(unit)));
+			unit.setPower((int) (0.75 * gameController.powerForce(unit)));
+			System.out.println(unit.getPower());
+		}
+	}
+	public void isHappy()
+	{
+		isUnHappy = false;
+		for(Unit unit : units)
+		{
+			if(unit.getClass().equals(MidRange.class))
+				unit.setPower(((MidRange) unit).getType().getCombatStrength());
+			if(unit.getClass().equals(LongRange.class))
+				unit.setPower(((LongRange) unit).getType().getCombatStrength());
+		}
+	}
 
 	public ArrayList<Technology> getTechnologies()
 	{
@@ -138,6 +173,20 @@ public class Player extends User
 	public void addResearchingTechCounter(int index, int amount)
 	{
 		researchingTechCounter[index] += amount;
+	}
+
+	public ArrayList<ResourceType> getAcquiredLuxuryResources() {
+		return acquiredLuxuryResources;
+	}
+	public void addLuxuryResource(LuxuryResource luxuryResource)
+	{
+		if(!acquiredLuxuryResources.contains(luxuryResource.getRESOURCE_TYPE()))
+		{
+			this.acquiredLuxuryResources.add(luxuryResource.getRESOURCE_TYPE());
+			setHappiness((int) (getHappiness() * 1.1));
+			if(getHappiness() > 100)
+				setHappiness(100);
+		}
 	}
 
 	public int getCup()

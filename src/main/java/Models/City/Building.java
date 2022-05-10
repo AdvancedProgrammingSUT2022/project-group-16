@@ -32,6 +32,16 @@ public class Building implements Constructable
 		this.hitPoints = hitPoints;
 	}
 	//TODO: do special things for each type of building
+
+	public int happinessFromBuilding(BuildingType buildingType)
+	{
+		if(buildingType.equals(BuildingType.BURIAL_TOMB)) return 2;
+		if(buildingType.equals(BuildingType.CIRCUS)) return 3;
+		if(buildingType.equals(BuildingType.COLOSSEUM)) return 4;
+		if(buildingType.equals(BuildingType.SATRAPS_COURT)) return 2;
+		if(buildingType.equals(BuildingType.THEATER)) return 4;
+		return 0;
+	}
 }
 
 

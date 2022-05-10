@@ -19,6 +19,7 @@ public class City
 	private int cupYield = 0;
 	private int population = 0;
 	private int power = 0;
+	private Building building;
 	private final ArrayList<Building> buildings = new ArrayList<>();
 	private final ArrayList<Citizen> citizens = new ArrayList<>();
 	private final ArrayList<Tile> workingTiles = new ArrayList<>();
@@ -87,9 +88,12 @@ public class City
 		foodYield += amount;
 	}
 
-	public void createBuilding() //TODO
+	public void createBuilding(Building building) //TODO
 	{
-
+		buildings.add(building);
+		System.out.println(building.getBuildingType());
+		System.out.println(building.happinessFromBuilding(building.getBuildingType()));
+		rulerPlayer.setHappiness(rulerPlayer.getHappiness() + building.happinessFromBuilding(building.getBuildingType())); //Increase happiness
 	}
 
 	public int getFoodYield() {

@@ -12,6 +12,7 @@ public class MidRange extends CombatUnit{
         this.setProductionCost(type.cost);
         this.setRequiredTechnology(type.requiredTech);
         this.setMovementPoints(type.movement);
+        this.setPower(type.combatStrength);
         this.setTile(tile);
         tile.setCombatUnitInTile(this);
         this.setHealth(100); //TODO what is the max health,speed,power?

@@ -40,4 +40,8 @@ public enum LongRangeType {
     public int getCombatStrength() {
         return combatStrength;
     }
+
+    public int getRange() {
+        return range;
+    }
 }
