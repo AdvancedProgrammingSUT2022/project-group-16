@@ -29,7 +29,6 @@ public abstract class Unit implements Constructable
 	private ArrayList<UnitCommands> commands = new ArrayList<>();
 	private boolean isActive = true;
 	private boolean isSleep = false;
-	private boolean hasArrived = false;
 
 
 
@@ -112,13 +111,6 @@ public abstract class Unit implements Constructable
 	public void setMoves(ArrayList<Position> moves) {
 		this.moves = moves;
 	}
-	public boolean isHasArrived() {
-		return hasArrived;
-	}
-
-	public void setHasArrived(boolean hasArrived) {
-		this.hasArrived = hasArrived;
-	}
 
 	public ArrayList<UnitCommands> getCommands() {
 		return commands;
@@ -162,7 +154,7 @@ public abstract class Unit implements Constructable
 		commands.remove(i);
 	}
 	public void awaken(){
-		isSleep = false;
+		isSleep = !isSleep;
 	}
 	public void removeUnit(){
 		rulerPlayer.getUnits().remove(this);
@@ -187,6 +179,7 @@ public abstract class Unit implements Constructable
 		if(this.moves.size() == 0){
 			if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
 			if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
+			this.commands.remove(0);
 		}
 
 		this.movementPoints -= destination.getTileType().movementCost;

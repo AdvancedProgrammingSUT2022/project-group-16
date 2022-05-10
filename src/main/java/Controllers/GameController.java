@@ -13,6 +13,7 @@ import Models.Terrain.*;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.CommandHandeling.UnitCommandsHandler;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
@@ -695,7 +696,10 @@ public class GameController
 		for (Unit unit : playerTurn.getUnits()) {
 			if(unit.getCommands().size() > 0){
 				UnitCommandsHandler.handleCommands(unit, unit.getCommands().get(0));
-				unit.getCommands().remove(0);
+				if(!unit.getCommands().get(0).equals(UnitCommands.REPAIR_TILE) &&
+						!unit.getCommands().get(0).equals(UnitCommands.MOVE) && !unit.getCommands().get(0).equals(UnitCommands.BUILD_FARM) &&
+						!unit.getCommands().get(0).equals(UnitCommands.BUILD_MINE))
+					unit.getCommands().remove(0);
 			}
 		}
 	}

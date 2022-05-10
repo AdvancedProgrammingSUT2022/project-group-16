@@ -31,6 +31,8 @@ public enum UnitCommands {
     REMOVE_FOREST(),
     REMOVE_MARSH(),
     REMOVE_ROADS(),
+    CHANGE_ACTIVATE(),
+    SLEEP(),
     REPAIR_TILE();
 
 

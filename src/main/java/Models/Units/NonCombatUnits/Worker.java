@@ -104,6 +104,7 @@ public class Worker extends NonCombatUnit{
             removeForest();
             removeJungle();
             removeMarsh();
+            this.getCommands().remove(0);
             return null;
         }
 
@@ -136,6 +137,7 @@ public class Worker extends NonCombatUnit{
             removeForest();
             removeJungle();
             removeMarsh();
+            this.getCommands().remove(0);
             return null;
         }
 
@@ -264,6 +266,7 @@ public class Worker extends NonCombatUnit{
         if(getTurnsTillRepairment() == 0 && this.getTile().isRuined()){
             this.getTile().setRuined(false);
             this.setTurnsTillRepairment(3);
+            this.getCommands().remove(0);
             return null;
         }
         setTurnsTillRepairment(getTurnsTillRepairment() - 1);
