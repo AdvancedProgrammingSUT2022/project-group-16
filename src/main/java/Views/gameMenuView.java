@@ -6,6 +6,7 @@ import Models.City.City;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
+import Models.Terrain.Improvement;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
@@ -380,20 +381,20 @@ public class gameMenuView
             {
                 gameController.addTurn(1);
                 gameController.addToTurnCounter(1);
+                gameController.updateFortifyTilHeal();
             }
             System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
-            System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
 
+            System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
                 String techDone = gameController.checkTechnology();
                 if(techDone != null) System.out.println(techDone);
 
-                //update tileStates for playerTurn
-//                gameController.getPlayerTurn().updateTileStates();
+//                update tileStates for playerTurn
 
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
@@ -439,20 +440,23 @@ public class gameMenuView
                 else if(selectCommands.compareRegex(command, selectCommands.selectCombat) != null)
                 {
                     System.out.println(gameController.selectCUnit(command));
-                    if(gameController.selectCUnit(command).equals(selectCommands.selected.regex))
+                    if(gameController.selectCUnit(command).equals(selectCommands.selected.regex)) {
                         showUnit();
+                    }
                 }
                 else if(selectCommands.compareRegex(command, selectCommands.selectNonCombat) != null)
                 {
                     System.out.println(gameController.selectNUnit(command));
-                    if(gameController.selectNUnit(command).equals(selectCommands.selected.regex))
+                    if(gameController.selectNUnit(command).equals(selectCommands.selected.regex)) {
                         showUnit();
+                    }
                 }
                 else if(selectCommands.compareRegex(command, selectCommands.selectCity) != null)
                 {
                     System.out.println(gameController.selectCity(command));
-                    if(gameController.getPlayerTurn().getSelectedCity() != null)
+                    if(gameController.getPlayerTurn().getSelectedCity() != null) {
                         showCity();
+                    }
                 }
 
                 /*unit*/
@@ -461,6 +465,8 @@ public class gameMenuView
                     int x = Integer.parseInt(matcher.group("x")), y = Integer.parseInt(matcher.group("y"));
                     System.out.println(gameController.moveUnit(x, y));
                     gameController.getPlayerTurn().setSelectedUnit(null);
+                    gameController.getPlayerTurn().updateTileStates();
+                    System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.sleep) != null)
                 {
@@ -475,9 +481,15 @@ public class gameMenuView
                 else if(unitCommands.compareRegex(command, unitCommands.fortify) != null)
                     gameController.fortify(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.fortifyHeal) != null)
-                    gameController.fortifyTilHeal(); //TODO
+                {
+                    System.out.println(gameController.fortifyTilHeal());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.garrison) != null)
-                    gameController.garrison(); //TODO
+                {
+                    System.out.println(gameController.garrison());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.setup) != null)
                     gameController.setup(); //TODO
                 else if(unitCommands.compareRegex(command, unitCommands.attack) != null)
@@ -595,11 +607,25 @@ public class gameMenuView
                 }
                 else if(command.equals("t"))
                 {
-                    Notification n = new Notification(gameController.getPlayers().get(1), gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam eshgham, halet chetore? ");
+                    Notification n = new Notification(gameController.getPlayers().get(1), gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam usa, halet chetore? ");
+                    Notification m = new Notification(gameController.getPlayers().get(1), gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam arabian, halet chetore? ");
+
                 }
                 else if(command.equals("q"))
                 {
                     System.out.println(((Worker) gameController.getPlayerTurn().getUnits().get(2)).getTurnsTillBuildRailRoad());
+                }
+                else if(command.equals("f"))
+                {
+                    System.out.println(gameController.getMap().get(54).getImprovement().symbol);
+                }
+                else if(command.equals("d"))
+                {
+                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(54));
+                }
+                else if(command.equals("p"))
+                {
+                    System.out.println(gameController.getPlayerTurn().getCities().get(0).getGarrison().getClass().getSimpleName());
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {

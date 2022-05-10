@@ -137,7 +137,7 @@ public class Player extends User
 	{
 		researchingTechCounter[index] += amount;
 	}
-	
+
 	public int getCup()
 	{
 		return cup;

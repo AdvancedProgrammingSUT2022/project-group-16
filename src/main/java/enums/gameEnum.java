@@ -54,6 +54,7 @@ public enum gameEnum
     slept("unit slept"),
     productionCost("production cost: "),
     wokeUp("unit woke up"),
+    fortifyActive("Fortify activated!"),
     isSleep("unit already slept"),
     awaken("unit is awake"),
     nonSelect("nothing has been selected");

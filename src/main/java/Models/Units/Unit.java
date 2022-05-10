@@ -29,7 +29,8 @@ public abstract class Unit implements Constructable
 	private boolean isActive = true;
 	private boolean isSleep = false;
 	private boolean hasArrived = false;
-
+	private boolean isFortify = false;
+	private boolean isFortifyTilHeal = false;
 
 
 	public Player getRulerPlayer() {
@@ -138,6 +139,26 @@ public abstract class Unit implements Constructable
 
 	public boolean isSleep() {
 		return isSleep;
+	}
+
+	public boolean getIsFortifyTilHeal()
+	{
+		return isFortifyTilHeal;
+	}
+
+	public void setIsFortifyTilHEal()
+	{
+		isFortifyTilHeal = !isFortifyTilHeal;
+	}
+
+	public boolean getIsFortify()
+	{
+		return isFortify;
+	}
+
+	public void setIsFortify()
+	{
+		isFortify = !isFortify;
 	}
 
 	public void changeSleepWake()

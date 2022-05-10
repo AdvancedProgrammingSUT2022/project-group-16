@@ -74,6 +74,8 @@ public enum unitCommands
     destroyImprovement("improvement destroyed"),
     moveSuccessfull("unit moved successfully"),
     gainGold("\nyou got "),
+    isNotInCity("selected unit is not in a city"),
+    garissonSet("garrison placed in the city"),
     gold(" gold");
 
     public final String regex;

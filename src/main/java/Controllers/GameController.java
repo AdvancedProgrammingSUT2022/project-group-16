@@ -10,6 +10,7 @@ import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
@@ -741,17 +742,86 @@ public class GameController
 		}
 		return gameEnum.nonSelect.regex;
 	}
-	public void fortify()
+	public void updateFortifyTilHeal()
 	{
-
+		for(Player player : players)
+			for(Unit unit : player.getUnits())
+				if(unit.getIsFortifyTilHeal())
+					unit.setHealth(unit.getHealth() + 15);
 	}
-	public void fortifyTilHeal()
-	{
 
+	public String fortify()
+	{
+		Unit tmp = playerTurn.getSelectedUnit();
+		if(tmp != null)
+		{
+			if(!playerTurn.getUnits().contains(tmp))
+				return unitCommands.notYours.regex;
+			else if(tmp.getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				return unitCommands.isNotCombat.regex;
+			else
+			{
+				if (tmp.isSleep())
+					return gameEnum.isSleep.regex;
+				else
+				{
+					tmp.changeSleepWake();
+					tmp.setIsFortify();
+					tmp.setPower((int) (tmp.getPower() * 1.5));
+					return gameEnum.fortifyActive.regex;
+				}
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
-	public void garrison()
+	public String fortifyTilHeal()
 	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				return unitCommands.isNotCombat.regex;
+			else
+			{
+				if (playerTurn.getSelectedUnit().isSleep())
+					return gameEnum.isSleep.regex;
+				else
+				{
+					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().setIsFortifyTilHEal();
+					return gameEnum.fortifyActive.regex;
+				}
+			}
+		}
+		return gameEnum.nonSelect.regex;
+	}
+	private City isInCity(Unit unit)
+	{
+		for (City city : playerTurn.getCities())
+			if(city.getCapitalTile() == unit.getTile())
+				return city;
+		return null;
+	}
 
+	public String garrison()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				return unitCommands.isNotCombat.regex;
+			else if(isInCity(playerTurn.getSelectedUnit()) == null)
+				return unitCommands.isNotInCity.regex;
+			else
+			{
+				Objects.requireNonNull(isInCity(playerTurn.getSelectedUnit())).
+						setGarrison((CombatUnit) playerTurn.getSelectedUnit());
+				return unitCommands.garissonSet.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	public void setup()
 	{
@@ -889,6 +959,7 @@ public class GameController
 			return unitCommands.notWorker.regex;
 		return null;
 	}
+
 	public String road()
 	{
 		if(playerTurn.getSelectedUnit() != null)
