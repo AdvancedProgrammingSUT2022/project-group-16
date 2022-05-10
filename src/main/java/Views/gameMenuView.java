@@ -509,6 +509,7 @@ public class gameMenuView
                 if(t != null) System.out.println(t);
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
+            gameController.handleUnitCommands();
             gameController.updatePlayersUnitLocations();
             gameController.updateWorkersConstructions();
         }
