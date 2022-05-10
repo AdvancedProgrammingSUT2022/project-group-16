@@ -14,6 +14,7 @@ public enum gameEnum
     end("^\\s*[eE]nd\\s*$"),
 
     //messages
+    invalidCommand("invalid command"),
     endGame("game has ended!"),
     numberOfPlayers("invalid number of players"),
     lessThanFour("please pick less than 4 players:)"),
