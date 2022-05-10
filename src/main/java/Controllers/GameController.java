@@ -285,6 +285,7 @@ public class GameController
 	//cheat codes
 	public String increaseGold(Matcher matcher)
 	{
+		//TODO: write try and catch to catch the exceptions
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setGold(playerTurn.getGold() + amount);
 		return (cheatCode.gold.regex + cheatCode.increaseSuccessful.regex);
@@ -295,6 +296,7 @@ public class GameController
 		playerTurn.setFood(playerTurn.getFood() + amount);
 		return (cheatCode.food.regex + cheatCode.increaseSuccessful.regex);
 	}
+	//TODO: this method should be shorter. it should not increase cups	
 	public String increaseTurns(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
