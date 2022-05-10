@@ -388,7 +388,7 @@ public class gameMenuView
                 if(techDone != null) System.out.println(techDone);
 
                 //update tileStates for playerTurn
-//                gameController.getPlayerTurn().updateTileStates();
+                gameController.getPlayerTurn().updateTileStates();
 
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
@@ -401,9 +401,9 @@ public class gameMenuView
                     System.out.println(gameController.addTechnology(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseHappiness)) != null)
                     System.out.println(gameController.increaseHappiness(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.winBattle)) != null) //TODO
-                    System.out.println(gameController.winBattle(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null) //TODO
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.killEnemyUnit)) != null)
+                    System.out.println(gameController.killEnemyUnit(matcher));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
                     System.out.println(gameController.moveUnit(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseHealth)) != null)
                     System.out.println(gameController.increaseHealth(matcher));
@@ -573,15 +573,15 @@ public class gameMenuView
                 } //end game
                 else if(command.equals("s"))
                 {
-                    MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45),12, 34);
+                    MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45));
                     Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(54));
                     Worker w = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(54));
-                    LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34),10, 23);
+                    LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34));
                     Settler m = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(1));
-                    MidRange o = new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(45),12, 34);
+                    MidRange o = new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(45));
                     Worker k = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(2));
-                    LongRange r = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(34),10, 23);
-                    LongRange l = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(34),10, 23);
+                    LongRange r = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(34));
+                    LongRange l = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(34));
                     n.createCity();
                     gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
                     m.createCity();
