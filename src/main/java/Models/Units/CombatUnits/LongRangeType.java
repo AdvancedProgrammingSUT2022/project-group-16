@@ -36,4 +36,8 @@ public enum LongRangeType {
     public int getCost() {
         return cost;
     }
+
+    public int getCombatStrength() {
+        return combatStrength;
+    }
 }

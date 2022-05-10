@@ -382,7 +382,7 @@ public class GameController
 		if(enemyNonCombatUnit != null)
 			enemyNonCombatUnit.getRulerPlayer().removeUnit(enemyNonCombatUnit);
 		
-		return cheatCode.addSuccessful.regex;
+		return cheatCode.unitKilled.regex;
 	}
 	public String moveUnit(Matcher matcher)
 	{ //TODO: check for bugs
@@ -745,6 +745,7 @@ public class GameController
 			}
 		}
 	}
+
 	public String moveUnit(int x, int y)
 	{
 		if(playerTurn.getSelectedUnit() != null)
@@ -755,6 +756,7 @@ public class GameController
 			else
 			{
 				playerTurn.getSelectedUnit().move(getTileByXY(x,y));
+				playerTurn.getSelectedUnit().changeFortify();
 				return unitCommands.moveSuccessfull.regex;
 			}
 		}
@@ -773,6 +775,7 @@ public class GameController
 					return gameEnum.isSleep.regex;
 				else {
 					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().changeFortify();
 					return gameEnum.slept.regex;
 				}
 			}
@@ -803,6 +806,7 @@ public class GameController
 					return gameEnum.isSleep.regex;
 				else {
 					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().changeFortify();
 					return unitCommands.standByUnit.regex;
 				}
 			}
@@ -816,7 +820,18 @@ public class GameController
 				if(unit.getIsFortifyTilHeal())
 					unit.setHealth(unit.getHealth() + 15);
 	}
+	public void updateFortify()
+	{
+		for(Player player : players)
+			for(Unit unit : player.getUnits())
+			{
+				if(unit.getClass().equals(MidRange.class) && !unit.getIsFortify())
+					unit.setPower(((MidRange) unit).getType().getCombatStrength());
+				if(unit.getClass().equals(LongRange.class) && !unit.getIsFortify())
+					unit.setPower(((LongRange) unit).getType().getCombatStrength());
+			}
 
+	}
 	public String fortify()
 	{
 		Unit tmp = playerTurn.getSelectedUnit();
@@ -828,15 +843,9 @@ public class GameController
 				return unitCommands.isNotCombat.regex;
 			else
 			{
-				if (tmp.isSleep())
-					return gameEnum.isSleep.regex;
-				else
-				{
-					tmp.changeSleepWake();
-					tmp.setIsFortify();
-					tmp.setPower((int) (tmp.getPower() * 1.5));
-					return gameEnum.fortifyActive.regex;
-				}
+				tmp.setIsFortify();
+				tmp.setPower((int) (tmp.getPower() * 1.5));
+				return unitCommands.fortifyActivated.regex;
 			}
 		}
 		return gameEnum.nonSelect.regex;
@@ -870,7 +879,6 @@ public class GameController
 				return city;
 		return null;
 	}
-
 	public String garrison()
 	{
 		if(playerTurn.getSelectedUnit() != null)
@@ -885,6 +893,7 @@ public class GameController
 			{
 				Objects.requireNonNull(isInCity(playerTurn.getSelectedUnit())).
 						setGarrison((CombatUnit) playerTurn.getSelectedUnit());
+				playerTurn.getSelectedUnit().changeFortify();
 				return unitCommands.garissonSet.regex;
 			}
 		}
@@ -907,6 +916,7 @@ public class GameController
 			{
 				//TODO: add more errors
 				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
+				playerTurn.getSelectedUnit().changeFortify();
 				return unitCommands.destroyImprovement.regex;
 			}
 		}
@@ -984,6 +994,7 @@ public class GameController
 					return gameEnum.awaken.regex;
 				else {
 					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().changeFortify();
 					return gameEnum.wokeUp.regex;
 				}
 			}

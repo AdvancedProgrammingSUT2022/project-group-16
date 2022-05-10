@@ -179,6 +179,11 @@ public abstract class Unit implements Constructable
 	public void getSet(){
 
 	}
+	public void changeFortify()
+	{
+		isFortify = false;
+		isFortifyTilHeal = false;
+	}
 	public void cancelCommand(int i){
 		commands.remove(i);
 	}

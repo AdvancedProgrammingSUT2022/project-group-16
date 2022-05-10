@@ -54,9 +54,7 @@ public class gameMenuView
         for(int i = 0; i < number; i++)
         {
             System.out.print((i + 1) + ":\n\t");
-            System.out.println(tmp.get(i).getSenderPlayer().getCivilization().name() + infoCommands.sendMessage.regex + tmp.get(i).getSendingTurn());
-            System.out.println("\t" + infoCommands.message.regex);
-            System.out.println("\t" + tmp.get(i).getMessage());
+            System.out.println(tmp.get(i).getMessage() + "\n\t" + infoCommands.sendMessage.regex + tmp.get(i).getSendingTurn());
         }
         System.out.println("\n1: " + infoCommands.backToGame.regex);
         getNumber(scanner, 1);
@@ -387,6 +385,7 @@ public class gameMenuView
             System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
+            gameController.updateFortify();
 
             System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             while (scanner.hasNextLine())
@@ -394,6 +393,7 @@ public class gameMenuView
                 command = scanner.nextLine();
                 String techDone = gameController.checkTechnology();
                 if(techDone != null) System.out.println(techDone);
+                gameController.updateFortify();
 
                 //update tileStates for playerTurn
                 gameController.getPlayerTurn().updateTileStates();
@@ -476,7 +476,10 @@ public class gameMenuView
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.fortify) != null)
-                    gameController.fortify(); //TODO
+                {
+                    System.out.println(gameController.fortify());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.fortifyHeal) != null)
                 {
                     System.out.println(gameController.fortifyTilHeal());
@@ -604,8 +607,8 @@ public class gameMenuView
                 }
                 else if(command.equals("t"))
                 {
-                    Notification n = new Notification(gameController.getPlayers().get(1), gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam usa, halet chetore? ");
-                    Notification m = new Notification(gameController.getPlayers().get(1), gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam arabian, halet chetore? ");
+                    Notification n = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam usa, halet chetore? ");
+                    Notification m = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam arabian, halet chetore? ");
 
                 }
                 else if(command.equals("q"))

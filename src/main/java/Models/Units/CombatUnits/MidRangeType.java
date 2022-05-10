@@ -41,4 +41,8 @@ public enum MidRangeType {
     public int getCost() {
         return cost;
     }
+
+    public int getCombatStrength() {
+        return combatStrength;
+    }
 }

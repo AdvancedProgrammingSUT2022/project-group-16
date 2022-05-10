@@ -76,7 +76,9 @@ public enum unitCommands
     gainGold("\nyou got "),
     isNotInCity("selected unit is not in a city"),
     garissonSet("garrison placed in the city"),
-    gold(" gold");
+    gold(" gold"),
+    fortifyActivated("fortify activated"),
+    commandAdded("command added!");
 
     public final String regex;
 

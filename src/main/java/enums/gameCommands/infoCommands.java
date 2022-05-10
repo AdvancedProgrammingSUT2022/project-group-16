@@ -45,7 +45,7 @@ public enum infoCommands
     units("\nUnits: "),
     averageScore("Average: "),
     unitName("unit name"),
-    sendMessage(" send you a message on turn "),
+    sendMessage("Turn: "),
     message("message: ");
 
     public final String regex;
