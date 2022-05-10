@@ -567,15 +567,7 @@ public class gameMenuView
 
                 /*map*/
                 else if(mapCommands.compareRegex(command, mapCommands.mapShow) != null)
-                    System.out.println(gameController.mapShow(command)); //TODO
-                else if(mapCommands.compareRegex(command, mapCommands.mapMoveRight) != null)
-                    System.out.println(gameController.mapMoveRight(command)); //TODO
-                else if(mapCommands.compareRegex(command, mapCommands.mapMoveLeft) != null)
-                    System.out.println(gameController.mapMoveLeft(command)); //TODO
-                else if(mapCommands.compareRegex(command, mapCommands.mapMoveUp) != null)
-                    System.out.println(gameController.mapMoveUp(command)); //TODO
-                else if(mapCommands.compareRegex(command, mapCommands.mapMoveDown) != null)
-                    System.out.println(gameController.mapMoveDown(command)); //TODO
+                    System.out.println(gameController);
 
                 /*others*/
                 else if(gameEnum.compareRegex(command, gameEnum.end) != null)

@@ -23,6 +23,7 @@ public class Worker extends NonCombatUnit{
         this.setRequiredTechnology(null);
         this.setMovementPoints(1);
         this.setTile(tile);
+        tile.setNonCombatUnitInTile(this);
         this.setHealth(100);
         this.setSpeed(1);
         this.setPower(0);

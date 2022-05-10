@@ -17,8 +17,6 @@ import java.util.Map;
 public class MapPrinter
 {
 	// our map is a square with size of MapSize * MapSize
-	public static Tile selectedTile = null; //TODO: remove these lines
-	public static City selectedCity = null; //TODO: remove these lines
 	private static HashMap<Tile, TileState> map;
 	private static Player player;
 	private static int mapSize;
