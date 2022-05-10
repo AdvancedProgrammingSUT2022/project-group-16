@@ -76,34 +76,39 @@ public class Worker extends NonCombatUnit{
             return false;
         return true;
     }
-    public void buildRailRoad(){
-        if(this.getTile().hasRailRoad() == true) return;
+    public String buildRailRoad(){
+        if(this.getTile().hasRailRoad() == true) return "the tile has railroad";
        if(this.getTurnsTillBuildRailRoad() == 3 && canBuildRoad())
            this.setTurnsTillBuildRailRoad(2);
        if(this.getTurnsTillBuildRailRoad() == 0) {
            this.getTile().setHasRailRoad(true);
+           return null;
        }
+        return null;
     }
-    public void buildRoad(){
-        if(this.getTile().hasRoad() == true) return;
+    public String buildRoad(){
+        if(this.getTile().hasRoad() == true) return "the tile has road";
         if(this.getTurnsTillBuildRoad() == 3 && canBuildRoad())
             this.setTurnsTillBuildRoad(2);
         if(this.getTurnsTillBuildRoad() == 0) {
             this.getTile().setHasRoad(true);
+            return null;
         }
+        return null;
     }
-    public void buildFarm(){
-        if(this.getTile().getImprovement() != null || !this.getRulerPlayer().getTechnologies().contains(Technology.AGRICULTURE)) return;
+    public String buildFarm(){
+        if(this.getTile().getImprovement() != null) return "the tile has improvement";
+        if(!this.getRulerPlayer().getTechnologies().contains(Technology.AGRICULTURE)) return "the civilization doesn't have required tech";
         if(this.getTile().getImprovement() == null && this.improvements.get(1).inLineTurn == 0){
             this.getTile().setImprovement(Improvement.FARM);
             removeForest();
             removeJungle();
             removeMarsh();
-            return;
+            return null;
         }
 
         if(this.getTile().getTileType().equals(TileType.TUNDRA) || this.getTile().getTileFeature().equals(TileFeature.ICE) ||
-        this.getTile().getResource() != null) return;
+        this.getTile().getResource() != null) return "can't build farm on this tile";
 
         if(this.getTile().getTileFeature().equals(TileFeature.FOREST) && this.getRulerPlayer().getTechnologies().contains(Technology.MINING)){
             this.improvements.get(0).turnToConstruct = 10;
@@ -122,20 +127,20 @@ public class Worker extends NonCombatUnit{
             this.improvements.get(0).turnToConstruct = 6;
             this.improvements.get(0).inLineTurn -- ;
         }
-
+        return null;
     }
-    public void buildMine(){
-        if(this.getTile().getImprovement() != null) return;
+    public String buildMine(){
+        if(this.getTile().getImprovement() != null) return "this tile has improvement";
         if(this.getTile().getImprovement() == null && this.improvements.get(3).inLineTurn == 0){
             this.getTile().setImprovement(Improvement.MINE);
             removeForest();
             removeJungle();
             removeMarsh();
-            return;
+            return null;
         }
 
         if(!this.getTile().getTileType().equals(TileType.HILLS) || this.getTile().getResource() == null ||
-                !this.getRulerPlayer().getTechnologies().contains(Technology.MINING)) return;
+                !this.getRulerPlayer().getTechnologies().contains(Technology.MINING)) return "can't build mine in this tile";
 
         if(this.getTile().getTileFeature().equals(TileFeature.FOREST)){
             this.improvements.get(1).turnToConstruct = 10;
@@ -154,79 +159,115 @@ public class Worker extends NonCombatUnit{
             this.improvements.get(1).turnToConstruct = 6;
             this.improvements.get(1).inLineTurn -- ;
         }
-
+        return null;
     }
-    public void buildTradingPost(){
+    public String buildTradingPost(){
         if(this.getTile().getImprovement() == null && this.getRulerPlayer().getTechnologies().contains(Technology.TRAPPING) &&
                 (this.getTile().getTileType().equals(TileType.DESERT) || this.getTile().getTileType().equals(TileType.GRASSLAND) ||
-                        this.getTile().getTileType().equals(TileType.PLAINS) || this.getTile().getTileType().equals(TileType.TUNDRA)))
+                        this.getTile().getTileType().equals(TileType.PLAINS) || this.getTile().getTileType().equals(TileType.TUNDRA))){
             this.getTile().setImprovement(Improvement.TRADING_POST);
+            return null;
+        }
+        return "can't build trading post in this tile";
 
     }
-    public void buildLumberMill(){
+    public String buildLumberMill(){
         if(this.getTile().getImprovement() == null && this.getTile().getTileFeature().equals(TileFeature.JUNGLE) &&
-        this.getRulerPlayer().getTechnologies().contains(Technology.CONSTRUCTION))
+        this.getRulerPlayer().getTechnologies().contains(Technology.CONSTRUCTION)){
             this.getTile().setImprovement(Improvement.LUMBER_MILL);
+            return null;
+        }
+        return "can't build lumberMill in this tile";
     }
-    public void buildPasture(){
+    public String buildPasture(){
         if(this.getTile().getImprovement() == null && this.getRulerPlayer().getTechnologies().contains(Technology.ANIMAL_HUSBANDRY) &&
                 (this.getTile().getTileType().equals(TileType.DESERT) || this.getTile().getTileType().equals(TileType.GRASSLAND) ||
                         this.getTile().getTileType().equals(TileType.PLAINS) || this.getTile().getTileType().equals(TileType.TUNDRA)) ||
-                this.getTile().getTileType().equals(TileType.HILLS))
+                this.getTile().getTileType().equals(TileType.HILLS)){
             this.getTile().setImprovement(Improvement.PASTURE);
+            return null;
+        }
+        return "can't build pasture in this tile";
+
     }
-    public void buildCamp(){
+    public String buildCamp(){
         if(this.getTile().getImprovement() == null && this.getRulerPlayer().getTechnologies().contains(Technology.TRAPPING) &&
                 (this.getTile().getTileFeature().equals(TileFeature.JUNGLE) || this.getTile().getTileType().equals(TileType.PLAINS) ||
-                        this.getTile().getTileType().equals(TileType.TUNDRA)) || this.getTile().getTileType().equals(TileType.HILLS))
+                        this.getTile().getTileType().equals(TileType.TUNDRA)) || this.getTile().getTileType().equals(TileType.HILLS)){
             this.getTile().setImprovement(Improvement.CAMP);
+            return null;
+        }
+        return "can't build camp in this tile";
     }
-    public void buildPlantation(){
+    public String buildPlantation(){
         if(this.getTile().getImprovement() == null && this.getRulerPlayer().getTechnologies().contains(Technology.CALENDAR) &&
                 (this.getTile().getTileFeature().equals(TileFeature.JUNGLE) || this.getTile().getTileType().equals(TileType.PLAINS) ||
                         this.getTile().getTileType().equals(TileType.DESERT) || this.getTile().getTileType().equals(TileType.GRASSLAND) ||
                         this.getTile().getTileFeature().equals(TileFeature.FOREST) || this.getTile().getTileFeature().equals(TileFeature.MARSH) ||
-                this.getTile().getTileFeature().equals(TileFeature.FLOOD_PLAIN)))
+                this.getTile().getTileFeature().equals(TileFeature.FLOOD_PLAIN))){
             this.getTile().setImprovement(Improvement.PLANTATION);
+            return null;
+        }
+        return "can't build plantation in this tile";
     }
-    public void buildQuarry(){
+    public String buildQuarry(){
         if(this.getTile().getImprovement() == null && this.getRulerPlayer().getTechnologies().contains(Technology.MASONRY) &&
                 (this.getTile().getTileType().equals(TileType.PLAINS) || this.getTile().getTileType().equals(TileType.TUNDRA) ||
                         this.getTile().getTileType().equals(TileType.DESERT) || this.getTile().getTileType().equals(TileType.GRASSLAND) ||
-                        this.getTile().getTileType().equals(TileType.HILLS)))
+                        this.getTile().getTileType().equals(TileType.HILLS))){
             this.getTile().setImprovement(Improvement.QUARRY);
+            return null;
+        }
+        return "can't build quarry in this tile";
     }
-    public void buildFactory(){
+    public String buildFactory(){
         if(this.getTile().getImprovement() == null && this.getRulerPlayer().getTechnologies().contains(Technology.ENGINEERING) &&
                 (this.getTile().getTileType().equals(TileType.PLAINS) || this.getTile().getTileType().equals(TileType.TUNDRA) ||
                         this.getTile().getTileType().equals(TileType.DESERT) || this.getTile().getTileType().equals(TileType.GRASSLAND) ||
-                        this.getTile().getTileType().equals(TileType.SNOW)))
+                        this.getTile().getTileType().equals(TileType.SNOW))) {
             this.getTile().setImprovement(Improvement.FACTORY);
+            return null;
+        }
+        return "can't build factory in this tile";
     }
-    public void removeJungle(){
-        if(this.getTile().getTileFeature().equals(TileFeature.JUNGLE))
+    public String removeJungle(){
+        if(this.getTile().getTileFeature().equals(TileFeature.JUNGLE)) {
             this.getTile().setTileFeature(null);
+            return null;
+        }
+        return "the tile doesn't have Jungle";
     }
-    public void removeForest(){
-        if(this.getTile().getTileFeature().equals(TileFeature.FOREST))
+    public String removeForest(){
+        if(this.getTile().getTileFeature().equals(TileFeature.FOREST)) {
             this.getTile().setTileFeature(null);
+            return null;
+        }
+        return "the tile doesn't have Forest";
     }
-    public void removeMarsh(){
-        if(this.getTile().getTileFeature().equals(TileFeature.MARSH))
+    public String removeMarsh(){
+        if(this.getTile().getTileFeature().equals(TileFeature.MARSH)) {
             this.getTile().setTileFeature(null);
+            return null;
+        }
+        return "tile doesn't have Marsh";
     }
-    public void removeRoads(){
-        this.getTile().setHasRailRoad(false);
-        this.getTile().setHasRoad(false);
+    public String removeRoads(){
+        if(this.getTile().hasRailRoad() || this.getTile().hasRoad()) {
+            this.getTile().setHasRailRoad(false);
+            this.getTile().setHasRoad(false);
+            return null;
+        }
+        return "the tile doesn't have roads";
     }
-    public void repairTile(){
-        if(!this.getTile().isRuined()) return;
+    public String repairTile(){
+        if(!this.getTile().isRuined()) return "there is nothing to repair";
         if(getTurnsTillRepairment() == 0 && this.getTile().isRuined()){
             this.getTile().setRuined(false);
             this.setTurnsTillRepairment(3);
-            return;
+            return null;
         }
         setTurnsTillRepairment(getTurnsTillRepairment() - 1);
+        return null;
     }
     
     @Override

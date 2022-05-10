@@ -14,6 +14,7 @@ import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.CommandHandeling.UnitCommandsHandler;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.User;
@@ -107,7 +108,7 @@ public class GameController
 	{
 		return MapPrinter.getMapString(player);
 	}
-	
+
 	private void initGrid()
 	{
 		for(int i = 0; i < MAX_GRID_LENGTH; i++)
@@ -118,17 +119,17 @@ public class GameController
 	{
 		if(x < 0 || y < 0 || x >= MAX_GRID_LENGTH || y >= MAX_GRID_LENGTH)
 			return null;
-
+		
 		for(Position position : grid)
 			if(position.X == x && position.Y == y)
 				return position;
-
+		
 		return null;
 	}
 	private void initMap()
 	{
 		// TODO: select from a list of maps
-
+		
 		// create sample maps
 		Random borderRandom = new Random();
 		Random tileTypeRandom = new Random();
@@ -136,7 +137,7 @@ public class GameController
 		Random improvementRandom = new Random();
 		Random resourceRandom = new Random();
 		Random CUnitRandom = new Random();
-
+		
 		for(int i = 0; i < MAP_SIZE; i++)
 			for(int j = 0; j < MAP_SIZE; j++)
 			{
@@ -675,6 +676,30 @@ public class GameController
 		for (Unit unit : this.getPlayerTurn().getUnits()) {
 			if(unit.getMoves() != null && unit.getMoves().size() > 0){
 				unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
+			}
+		}
+	}
+	public void updateWorkersConstructions(){
+		for (Unit unit : this.getPlayerTurn().getUnits()) {
+			if(unit instanceof Worker){
+				if(((Worker) unit).getTurnsTillBuildRoad() < 3)
+					((Worker) unit).buildRoad();
+				if(((Worker) unit).getTurnsTillBuildRailRoad() < 3)
+					((Worker) unit).buildRailRoad();
+				if(((Worker) unit).getTurnsTillRepairment() < 3)
+					((Worker) unit).repairTile();
+				if(((Worker) unit).getImprovements().get(0).inLineTurn < ((Worker) unit).getImprovements().get(0).turnToConstruct)
+					((Worker) unit).buildFarm();
+				if(((Worker) unit).getImprovements().get(1).inLineTurn < ((Worker) unit).getImprovements().get(1).turnToConstruct)
+					((Worker) unit).buildMine();
+			}
+		}
+	}
+	public void handleUnitCommands(){
+		for (Unit unit : playerTurn.getUnits()) {
+			if(unit.getCommands().size() > 0){
+				UnitCommandsHandler.handleCommands(unit, unit.getCommands().get(0));
+				unit.getCommands().remove(0);
 			}
 		}
 	}
