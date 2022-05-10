@@ -8,8 +8,8 @@ import Models.Player.*;
 import Models.Menu.Menu;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Resources.ResourceType;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
@@ -18,7 +18,6 @@ import Models.Units.Unit;
 import Models.User;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
-import enums.gameCommands.mapCommands;
 import enums.gameCommands.selectCommands;
 import enums.gameCommands.unitCommands;
 import enums.gameEnum;
@@ -157,8 +156,7 @@ public class GameController
 		{
 			Player player = players.get(i);
 			Tile startingTile = player.getTileByXY(startingPositions[i].X, startingPositions[i].Y);
-			// TODO: this units are temp. they should be modified in their constructors
-			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile, MidRangeType.WARRIOR.movement, MidRangeType.WARRIOR.combatStrength);
+			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile);
 			Settler settler = new Settler(player, startingTile);
 			startingTile.setCombatUnitInTile(warrior);
 			startingTile.setNonCombatUnitInTile(settler);
@@ -359,20 +357,65 @@ public class GameController
 			}
 		return mainCommands.invalidCommand.regex;
 	}
-	public String winBattle(Matcher matcher)
-	{
+	public String killEnemyUnit(Matcher matcher) //TODO: change to killUnit. with this cheat code, we can kill any opponent unit.
+	{ //TODO: check for bugs
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
-		//TODO:win battle
+		
+		Tile givenTile = getTileByXY(x, y);
+		
+		// validation
+		if(givenTile == null)
+			return mainCommands.invalidCommand.regex;
+		CombatUnit enemyCombatUnit = givenTile.getCombatUnitInTile();
+		NonCombatUnit enemyNonCombatUnit = givenTile.getNonCombatUnitInTile();
+		if (enemyCombatUnit == null && enemyNonCombatUnit == null)
+			return mainCommands.invalidCommand.regex;
+		
+		// kill enemy unit
+		if(enemyCombatUnit != null)
+			enemyCombatUnit.getRulerPlayer().removeUnit(enemyCombatUnit);
+		if(enemyNonCombatUnit != null)
+			enemyNonCombatUnit.getRulerPlayer().removeUnit(enemyNonCombatUnit);
+		
 		return cheatCode.addSuccessful.regex;
 	}
 	public String moveUnit(Matcher matcher)
-	{
-		//TODO: move unit
+	{ //TODO: check for bugs
+		//TODO: add invalid output regexes instead of returning invalid command
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
+		
+		Tile originTile = getTileByXY(x, y);
+		Tile destinationTile = getTileByXY(newX, newY);
+		Unit unitToMove = playerTurn.getSelectedUnit();
+		
+		//validation
+		if(destinationTile == null)
+			return mainCommands.invalidCommand.regex;
+		if(destinationTile.getCombatUnitInTile() != null && destinationTile.getCombatUnitInTile().getRulerPlayer() != playerTurn)
+			return mainCommands.invalidCommand.regex;
+		if((unitToMove instanceof CombatUnit && destinationTile.getCombatUnitInTile() != null) ||
+				(unitToMove instanceof NonCombatUnit && destinationTile.getNonCombatUnitInTile() != null))
+			return mainCommands.invalidCommand.regex;
+		
+		// move unit
+		if(unitToMove instanceof CombatUnit)
+		{
+			CombatUnit combatUnit = (CombatUnit) unitToMove;
+			combatUnit.setTile(destinationTile);
+			destinationTile.setCombatUnitInTile(combatUnit);
+			originTile.setCombatUnitInTile(null);
+		}
+		else if(unitToMove instanceof NonCombatUnit)
+		{
+			NonCombatUnit nonCombatUnit = (NonCombatUnit) unitToMove;
+			nonCombatUnit.setTile(destinationTile);
+			destinationTile.setNonCombatUnitInTile(nonCombatUnit);
+			originTile.setNonCombatUnitInTile(null);
+		}
 		return cheatCode.addSuccessful.regex;
 	}
 	public static String enterMenu(Scanner scanner, Matcher matcher)
