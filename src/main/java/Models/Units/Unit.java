@@ -9,6 +9,7 @@ import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public abstract class Unit implements Constructable
 	private Technology requiredTechnology; //TODO
 	private Resource requiredResource;
 	private ArrayList<Position> moves = new ArrayList<>();
-	private ArrayList commands = new ArrayList<>();
+	private ArrayList<UnitCommands> commands = new ArrayList<>();
 	private boolean isActive = true;
 	private boolean isSleep = false;
 	private boolean hasArrived = false;
@@ -119,13 +120,13 @@ public abstract class Unit implements Constructable
 		this.hasArrived = hasArrived;
 	}
 
-	public ArrayList getCommands() {
+	public ArrayList<UnitCommands> getCommands() {
 		return commands;
 	}
 
-	public void addCommands(String command) {
+	public void addCommand(UnitCommands command) {
 		commands.add(command);
-	}    //TODO what is the command Type?
+	}
 
 	public boolean isActive() {
 		return isActive;
@@ -148,10 +149,10 @@ public abstract class Unit implements Constructable
 	public void getReady(){
 
 	}
-	public void reinforce(){
+	public void fortify(){
 
 	}
-	public void reinforceTillRecovery(){
+	public void fortifyTillHeel(){
 
 	}
 	public void getSet(){
@@ -167,39 +168,36 @@ public abstract class Unit implements Constructable
 		rulerPlayer.getUnits().remove(this);
 	}
 
-	public void move(Tile destination){
-
+	public String move(Tile destination){
+		if(this.getTile().getPosition().equals(destination.getPosition())) return "the unit is in destination Tile";
 		this.moves = FindWay.getInstance(destination).getMoves();
-		if(this.moves.size() == 0) return;
+		if(this.moves.size() == 0) return "the unit can't go to destination";
 		Tile nextTile = rulerPlayer.getTileByXY(moves.get(0).X, moves.get(0).Y);
-		if((nextTile.getTileType().equals(TileType.OCEAN) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) ||
-				(this.moves.size() == 1 && isThereAnotherUnitInTile(nextTile))){
-			return;
+		if((nextTile.getTileType().equals(TileType.OCEAN) && (!nextTile.hasRoad() || !this.getTile().hasRoad()))){
+			return "the unit can't go to destination";
 		}
+		if(this.moves.size() == 1 && isThereAnotherUnitInTile(nextTile)) return "there is another unit of this type at destination";
 		if(this.movementPoints == 0) {
-			return;
+			return "the unit doesn't have any MPs";
 		}
-		if(this instanceof CombatUnit && this.getTile().getCombatUnitInTile() != null) this.getTile().setCombatUnitInTile(null);
-		if(this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() != null) this.getTile().setNonCombatUnitInTile(null);
+		if(this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this) this.getTile().setCombatUnitInTile(null);
+		if(this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this) this.getTile().setNonCombatUnitInTile(null);
 			this.tile = nextTile;
 		this.moves.remove(0);
+		if(this.moves.size() == 0){
+			if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
+			if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
+		}
 
 		this.movementPoints -= destination.getTileType().movementCost;
 		if(nextTile.getBorders().equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
 			if(this.movementPoints < 0) this.movementPoints = 0;
 		//TODO check for railroad penalty
-
-
-
+		return null;
 	}
 	private boolean isThereAnotherUnitInTile(Tile tile){
-		for (Unit unit : rulerPlayer.getUnits()) {
-			if(unit.getTile().getPosition().X == tile.getPosition().X &&
-					unit.getTile().getPosition().Y == tile.getPosition().Y &&
-					((unit instanceof NonCombatUnit && this instanceof NonCombatUnit) ||
-							(unit instanceof CombatUnit && this instanceof CombatUnit)))
-				return true;
-		}
+		if(tile.getCombatUnitInTile() != null && (this instanceof CombatUnit)) return true;
+		if(tile.getNonCombatUnitInTile() != null && (this instanceof NonCombatUnit)) return true;
 		return false;
 	}
 	

@@ -43,7 +43,7 @@ public class LongRange extends CombatUnit{
         this.type = type;
     }
     
-    private void getReadyToFight(){
+    public void getReadyToFight(){
         this.isSet = true;
     }
     

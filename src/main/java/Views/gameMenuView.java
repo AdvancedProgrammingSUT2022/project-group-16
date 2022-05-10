@@ -610,6 +610,7 @@ public class gameMenuView
                 if(isTechDone != null) System.out.println(isTechDone);
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
+            gameController.handleUnitCommands();
             gameController.updatePlayersUnitLocations();
         }
     }
