@@ -334,7 +334,10 @@ public class GameController
 	public String increaseScore(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
+		int index = Menu.allUsers.indexOf(registerController.getUserByUsername(playerTurn.getUsername()));
 		playerTurn.setScore(playerTurn.getScore() + amount);
+		Menu.allUsers.get(index).setScore(Menu.allUsers.get(index).getScore() + amount);
+		registerController.writeDataOnJson();
 		return cheatCode.score.regex + cheatCode.increaseSuccessful.regex;
 	}
 	public String addTechnology(Matcher matcher)

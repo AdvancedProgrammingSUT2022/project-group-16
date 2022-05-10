@@ -72,6 +72,11 @@ public class gameMenuView
         for(int i = number - 1; i >= 0; i--)
             System.out.println((number - i) + " - " + gameController.getPlayers().get(i).getCivilization().name().toLowerCase(Locale.ROOT)
              + ": " +  gameController.getPlayers().get(i).getScore());
+        int avg = 0;
+        for(Player player1 : gameController.getPlayers())
+            avg += player1.getScore();
+        System.out.println("----------------------");
+        System.out.println(infoCommands.averageScore.regex + ((double) avg / gameController.getPlayers().size()));
         System.out.println("1: " + infoCommands.backToGame.regex);
         getNumber(scanner, 1);
         showDemographic(player, scanner);
