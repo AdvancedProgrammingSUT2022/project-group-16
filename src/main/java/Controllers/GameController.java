@@ -9,6 +9,7 @@ import Models.Player.*;
 import Models.Menu.Menu;
 import Models.Player.Player;
 import Models.Player.Technology;
+import Models.Resources.*;
 import Models.Terrain.*;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
@@ -41,18 +42,21 @@ public class GameController
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 
+	// private constructor to prevent instantiation
+	private GameController()
+	{
+		initGrid();
+		initMap();
+	}
+	// this method is called to get the GameController singleton instance
 	public static GameController getInstance()
 	{
 		if(instance == null)
-		{
 			instance = new GameController();
-			instance.initGrid();
-			instance.initMap();
-		}
 		return instance;
 	}
 
-	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns)
+	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns) //TODO: is this needed?
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
@@ -79,7 +83,7 @@ public class GameController
 			playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 			playerTurn.setMaxPopulation(playerTurn.getPopulation());
 		}
-		// reset all units turns
+		// reset all units turns. TODO: is this needed?
 		for(Unit unit : playerTurn.getUnits())
 		{
 			// set their turns to default
@@ -101,7 +105,11 @@ public class GameController
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 		//TODO: check that this is not a duplicate from runGame while loop
 		if(players.indexOf(playerTurn) == 0)
+		{
 			turnCounter++;
+			addTurn(1); //TODO: what does this do?
+			updateFortifyTilHeal();
+		}
 	}
 	public void initGame()
 	{
@@ -121,6 +129,7 @@ public class GameController
 		return MapPrinter.getMapString(player);
 	}
 
+	// this is called when GameController is created. this method only creates an array of Positions and fills grid with these positions
 	private void initGrid()
 	{
 		for(int i = 0; i < MAX_GRID_LENGTH; i++)
@@ -138,6 +147,7 @@ public class GameController
 		
 		return null;
 	}
+	// this method is called when GameController is created. this method creates an array of Tiles and fills map with these tiles. TODO: currently it creates a random map
 	private void initMap()
 	{
 		// TODO: select from a list of maps
@@ -153,13 +163,23 @@ public class GameController
 		for(int i = 0; i < MAP_SIZE; i++)
 			for(int j = 0; j < MAP_SIZE; j++)
 			{
+				Random resourceTypeRandom = new Random();
+				int resourceType = resourceTypeRandom.nextInt(3);
+				Resource resource = null;
+				if(resourceType == 0)
+					resource = new BonusResource(ResourceType.values()[resourceRandom.nextInt(5) + 1]);
+				else if(resourceType == 1)
+					resource = new LuxuryResource(ResourceType.values()[resourceRandom.nextInt(3) + 6]);
+				else
+					resource = new StrategicResource(ResourceType.values()[resourceRandom.nextInt(11) + 9]);
+				
 				BorderType[] borders = new BorderType[6];
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
-				// TODO: bug with the resource and unit. fix it!!!
-				map.add(new Tile(getPosition(i, j), TileType.PLAINS,
-						TileFeature.NONE, borders,
-						null));
+				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
+						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)],
+						borders,
+						resource));
 			}
 	}
 	// set playerTurn and set two units for each player and set their tileStates
@@ -171,10 +191,8 @@ public class GameController
 		{
 			Player player = players.get(i);
 			Tile startingTile = player.getTileByXY(startingPositions[i].X, startingPositions[i].Y);
-			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile);
-			Settler settler = new Settler(player, startingTile);
-			startingTile.setCombatUnitInTile(warrior);
-			startingTile.setNonCombatUnitInTile(settler);
+			new MidRange(player, MidRangeType.WARRIOR, startingTile);
+			new Settler(player, startingTile);
 			player.updateTileStates();
 		}
 	}

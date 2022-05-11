@@ -30,8 +30,7 @@ class InitGameTest
 		
 		// initial map
 		System.out.println(gameController.getMapString());
-		new LongRange(playerTurn, LongRangeType.ARTILLERY, playerTurn.getTileByXY(5, 4));
-			
+		
 	}
 }
 

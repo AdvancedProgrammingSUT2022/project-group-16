@@ -406,12 +406,12 @@ public class gameMenuView
         {
             gameController.stayAlert();
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
-            if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
-            {
-                gameController.addTurn(1);
-                gameController.addToTurnCounter(1);
-                gameController.updateFortifyTilHeal();
-            }
+            //if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
+            //{
+            //    gameController.addTurn(1);
+            //    gameController.addToTurnCounter(1);
+            //    gameController.updateFortifyTilHeal();
+            //}
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
             gameController.updateFortify();

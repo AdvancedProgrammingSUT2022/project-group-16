@@ -348,23 +348,23 @@ public class Player extends User
 						if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
 							tilesInSight.add(tile);
 					}
-					if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2 && tilePosition.S - unitPosition.S == 1
-							&& !getTileByXY(unitPosition.X - 1, unitPosition.Y).getTileType().isBlocker && !getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker)
+					if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2
+							&& (!getTileByXY(unitPosition.X - 1, unitPosition.Y).getTileType().isBlocker || !getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker))
 						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1 && tilePosition.S - unitPosition.S == -1
-							&& !getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker && !getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker)
+					else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1
+							&& (!getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker || !getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker))
 						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1 && tilePosition.S - unitPosition.S == -2
-							&& !getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker)
+					else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1
+							&& (!getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker || !getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker))
 						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2 && tilePosition.S - unitPosition.S == -1
-							&& !getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker)
+					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2
+							&& (!getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker || !getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker))
 						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1 && tilePosition.S - unitPosition.S == 1
-							&& !getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker && !getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker)
+					else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1
+							&& (!getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker || !getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker))
 						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1 && tilePosition.S - unitPosition.S == 2
-							&& !getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1).getTileType().isBlocker)
+					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1
+							&& (!getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker || !getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1).getTileType().isBlocker))
 						tilesInSight.add(tile);
 						
 				}
