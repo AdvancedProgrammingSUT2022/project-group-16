@@ -2,10 +2,10 @@ package Models.City;
 
 import Controllers.GameController;
 import Models.Player.Player;
-import Models.Resources.Resource;
 import Models.Terrain.Tile;
-import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.Unit;
 
 import java.util.ArrayList;
 
@@ -17,20 +17,19 @@ public class City
 	private int productionYield = 0;
 	private int goldYield = 0;
 	private int cupYield = 0;
-	private int population = 0;
 	private int power = 0;
-	private final ArrayList<Building> buildings = new ArrayList<>();
-	private final ArrayList<Citizen> citizens = new ArrayList<>();
-	private final ArrayList<Tile> workingTiles = new ArrayList<>();
-	private Constructable currentConstruction = null;
-	private int inLineConstructionTurn; //how many turns are left till the construction is ready
-
+	private  ArrayList<Building> buildings = new ArrayList<>();
+	private  ArrayList<Citizen> citizens = new ArrayList<>();
+	private Construction currentConstruction = null;
+	private int inLineConstructionTurn = 4; //how many turns are left till the construction is ready
 	private Product currentProduct = null; //what the city is producing
+
 	private CombatUnit garrison = null;
 	private NonCombatUnit nonCombatUnit = null;
-	private int combatStrength;
+	private int combatStrength = 10;//this amount is default and may change later
 	private Player rulerPlayer;
 	private String name;
+	private CityState state = CityState.NONE;
 	
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
@@ -86,12 +85,6 @@ public class City
 	public void addFood(int amount) {
 		foodYield += amount;
 	}
-
-	public void createBuilding() //TODO
-	{
-
-	}
-
 	public int getFoodYield() {
 		return foodYield;
 	}
@@ -104,26 +97,34 @@ public class City
 	public int getCupYield() {
 		return cupYield;
 	}
-	public int getPopulation() {
-		return population;
+	public Player getRulerPlayer() {
+		return rulerPlayer;
 	}
+	public void setRulerPlayer(Player rulerPlayer) {
+		this.rulerPlayer =  rulerPlayer;
+	}
+	public ArrayList<Citizen> getCitizens() {
+		return citizens;
+	}
+	public Construction getCurrentConstruction() {
+		return currentConstruction;
+	}
+
+	public void createBuilding() {}//TODO
 	public void addPopulation(int amount)
 	{
-		this.population += amount;
+		for(int i = 0; i < amount; i++){
+			citizens.add(new Citizen(this));
+		}
 		cupYield += amount;
 		rulerPlayer.setCup(rulerPlayer.getCup() + amount);
 	}
 
-	public void growCity() //TODO: this should increase the number of citizens of the city
-	{
-	
-	}
 	public CombatUnit getGarrison() {
 		return garrison;
 	}
 	public void setGarrison(CombatUnit garrison) {
 		this.garrison = garrison;
-		//TODO add defence power to city
 	}
 	public NonCombatUnit getNonCombatUnit() {
 		return nonCombatUnit;
@@ -134,13 +135,15 @@ public class City
 	public Tile getCapitalTile() {
 		return capitalTile;
 	}
-	public void buyTile(Tile tile){
-		//TODO check if player can pay the cost
-		if(isTileNeighbor(tile))
+	public void purchaseTile(Tile tile){
+		if(isTileNeighbor(tile) && getRulerPlayer().getGold() >= getRulerPlayer().getTilePurchaseCost()) {
 			this.territory.add(tile);
+			this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getRulerPlayer().getTilePurchaseCost());
+			this.getRulerPlayer().setTilePurchaseCost((int) (1.2 * getRulerPlayer().getTilePurchaseCost()));
+		}
 
 	}
-	private boolean isTileNeighbor(Tile newTile){ //TODO: should be deleted
+	private boolean isTileNeighbor(Tile newTile){
 		for (Tile tile : territory) {
 			if(tile.getPosition().Q - newTile.getPosition().Q == 1 || tile.getPosition().Q - newTile.getPosition().Q == -1 ||
 					tile.getPosition().R - newTile.getPosition().R == 1 || tile.getPosition().R - newTile.getPosition().R == -1 ||
@@ -149,9 +152,144 @@ public class City
 		}
 		return false;
 	}
-	public void buyProduct(Product product){
-		//TODO
+	public String buyProduct(Product product){
+		//TODO add purchasing buildings for phase 2
+		if( product instanceof Unit){
+			if(this.getRulerPlayer().getGold() >= ((Unit) product).getProductionCost()) {
+				Tile destination;
+				if((destination = (findTileWithNoUnit((Unit) product))) == null) return"there is no tile without unit";
+				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) product).getProductionCost());
+				this.getRulerPlayer().getUnits().add((Unit) product);
+				((Unit) product).move(destination);//TODO if using command list, add move command to arraylist
+			}else{
+				return "not enough money";
+			}
+		}
+		return null;
 	}
+	private Tile findTileWithNoUnit(Unit unit){
+		for (City city : this.getRulerPlayer().getCities()) {
+			for (Tile tile : city.getTerritory()) {
+				if(tile.getNonCombatUnitInTile() == null && unit instanceof NonCombatUnit) return tile;
+				else if(tile.getCombatUnitInTile() == null && unit instanceof CombatUnit) return tile;
+			}
+		}
+		return null;
+	}
+
+	public String construct(Construction construction){
+		if(inLineConstructionTurn == 0) {
+			if(construction instanceof Unit) {
+				Tile destination;
+				if((destination = (findTileWithNoUnit((Unit) construction))) == null) return"there is no tile without unit";
+				this.getRulerPlayer().addUnit((Unit) construction);
+				((Unit) construction).move(destination);
+			}
+			inLineConstructionTurn = 4;
+			currentConstruction = null;
+			return null;
+		}
+		if(inLineConstructionTurn < 4) {
+			inLineConstructionTurn --;
+			return null;
+		}
+		if(currentConstruction == null && construction != null){
+			if(constructionCanBeBuilt(construction)) {
+				currentConstruction = construction;
+				inLineConstructionTurn--;
+				return null;
+			}
+			return "the construction can't be built";
+		}
+
+		return "something else is being constructed or there is nothing to construct";
+	}
+
+	private boolean constructionCanBeBuilt(Construction construction){
+		if(construction instanceof Unit) {
+			if (this.getRulerPlayer().getGold() >= ((Unit) construction).getProductionCost()) {
+				this.getRulerPlayer().getUnits().add((Unit) construction);
+				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) construction).getProductionCost());
+				return true;
+			}
+			return false;
+		}
+		//TODO add building for phase 2;
+		return false;
+	}
+
+	public String changeConstruction(Construction construction){
+		//TODO save previous construction;
+		if(currentConstruction == null) return "nothing is being built";
+		if(constructionCanBeBuilt(construction)){
+			currentConstruction = construction;
+			inLineConstructionTurn = 3;
+			return null;
+		}
+		return "cannot change construction";
+	}
+
+	public String destroyCity(){
+		if(!rulerPlayer.getSeizedCities().contains(this)) return"cannot destroy this city";
+		for (Player player : GameController.getInstance().getPlayers()) {
+			if(this == player.getCurrentCapitalCity()) return"cannot destroy the capital of a civilization";
+		}
+		rulerPlayer.getSeizedCities().remove(this);
+		this.state = CityState.DESTROYED;
+		return null;
+	}
+
+	public String attachCity(){
+		if(!rulerPlayer.getSeizedCities().contains(this)) return"cannot attach this city";
+		if(this.state.equals(CityState.SEIZED)) this.state = CityState.ATTACHED;
+		return null;
+	}
+	public void seizeCity(Player winner){
+		this.rulerPlayer = winner;
+		this.state = CityState.SEIZED;
+		winner.getSeizedCities().add(this);
+	}
+
+	public void updateCityCombatStrength(){
+		this.combatStrength = 10;
+		for (Tile tile : this.getTerritory()) {
+			this.combatStrength += tile.getTileType().combatModifier * this.combatStrength;
+			this.combatStrength += tile.getTileFeature().combatModifier * this.combatStrength;
+		}
+		this.combatStrength += (this.getTerritory().size() / 5) * 2; //strength increases 2 degrees for each 5 tiles
+		if(this.getGarrison() != null && this.getGarrison() instanceof LongRange)
+			this.combatStrength += ((LongRange) this.getGarrison()).getType().combatStrength;
+		else if(this.getGarrison() != null && this.getGarrison() instanceof MidRange)
+			this.combatStrength += ((MidRange) this.getGarrison()).getType().combatStrength;
+	}
+	//TODO check if the units are active;
+	public String attackCityWithMidRange(City enemy){
+		MidRange unit = null;
+		if(enemy.getRulerPlayer() == this.getRulerPlayer()) return "cannot attack your city";
+		for (Tile tile : this.getTerritory()) {
+			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile() instanceof MidRange){
+				unit = (MidRange) tile.getCombatUnitInTile();
+				break;
+			}
+		}
+		if(unit == null) return"do not have any melee unit to attack";
+		//TODO move melee to enemy tile;
+		return null;
+	}
+	public String attackCityWithLongRange(City enemy){
+		LongRange unit = null;
+		if(enemy.getRulerPlayer() == this.getRulerPlayer()) return "cannot attack your city";
+		for (Tile tile : this.getTerritory()) {
+			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile() instanceof LongRange){
+				unit = (LongRange) tile.getCombatUnitInTile();
+				break;
+			}
+		}
+		if(unit == null) return"do not have any melee unit to attack";
+		//TODO calculate hit points;
+		return null;
+	}
+
 }
 
 

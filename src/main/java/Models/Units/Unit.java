@@ -1,6 +1,6 @@
 package Models.Units;
 
-import Models.City.Constructable;
+import Models.City.Construction;
 import Models.Game.Position;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -14,7 +14,7 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 
 import java.util.ArrayList;
 
-public abstract class Unit implements Constructable
+public abstract class Unit implements Construction
 {
 	private Player rulerPlayer;
 	private int productionCost;

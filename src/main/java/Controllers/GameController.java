@@ -82,7 +82,7 @@ public class GameController
 
 		// consume food for this player (consumes 1 food for each citizen)
 		for(City city : playerTurn.getCities())
-			playerTurn.setFood(playerTurn.getFood() - city.getPopulation());
+			playerTurn.setFood(playerTurn.getFood() - city.getCitizens().size());
 		// decrement researching technology turns
 
 		// check for city growth
@@ -322,8 +322,13 @@ public class GameController
 		turnCounter += amount;
 		addTurn(amount);
 		for(Player player : players)
-			for (int i = 0; i < amount; i++)
+			for (int i = 0; i < amount; i++) {
 				player.setCup(player.incomeCup());
+				handleUnitCommands();
+				updatePlayersUnitLocations();
+				updateWorkersConstructions();
+				updateCityConstructions();
+			}
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 
@@ -690,6 +695,11 @@ public class GameController
 				if(((Worker) unit).getImprovements().get(1).inLineTurn < ((Worker) unit).getImprovements().get(1).turnToConstruct)
 					((Worker) unit).buildMine();
 			}
+		}
+	}
+	public void updateCityConstructions(){
+		for (City city : this.getPlayerTurn().getCities()) {
+			city.construct(city.getCurrentConstruction());
 		}
 	}
 	public void handleUnitCommands(){

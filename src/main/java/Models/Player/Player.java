@@ -31,10 +31,12 @@ public class Player extends User
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
 	private ArrayList<City> cities = new ArrayList<>();
+	private ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
 	private ArrayList<Unit> units = new ArrayList<>();
+	private int tilePurchaseCost = 10; //increases every time the player purchases a tile
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score)
 	{
@@ -79,6 +81,13 @@ public class Player extends User
 	public void setCapitalCity(City city)
 	{
 		currentCapitalCity = city;
+	}
+
+	public int getTilePurchaseCost() {
+		return tilePurchaseCost;
+	}
+	public void setTilePurchaseCost(int tilePurchaseCost) {
+		this.tilePurchaseCost = tilePurchaseCost;
 	}
 
 	public int getFood()
@@ -137,6 +146,10 @@ public class Player extends User
 	{
 		researchingTechCounter[index] += amount;
 	}
+	public ArrayList<City> getSeizedCities() {
+		return seizedCities;
+	}
+	public void attachCity(){}//TODO
 	
 	public int getCup()
 	{
