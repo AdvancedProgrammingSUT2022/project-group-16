@@ -15,7 +15,6 @@ public class LongRange extends CombatUnit{
         this.setMovementPoints(type.movement);
         this.setTile(tile);
         tile.setCombatUnitInTile(this);
-        this.setHealth(100); //TODO what is the max health,speed,power?
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
     }

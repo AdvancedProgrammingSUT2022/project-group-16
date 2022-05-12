@@ -1,18 +1,20 @@
 package Controllers.Utilities;
 
+import Controllers.GameController;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Player.TileState;
+import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.UnitState;
 import com.diogonunes.jcolor.Ansi;
 import com.diogonunes.jcolor.Attribute;
 
-import Controllers.GameController;
-
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 
 public class MapPrinter
 {
@@ -144,6 +146,10 @@ public class MapPrinter
 				mapString.append(String.format("%s:%-6s", improvement, improvement.symbol));
 		}));
 		mapString.append("\n");
+		mapString.append(String.format("%-15s    ", "unit states:"));
+		Arrays.asList(UnitState.values()).forEach((unitState)->{
+			mapString.append(String.format("%s:%-6s", unitState, unitState.symbol));
+		});
 	}
 	private static void printFirstLine()
 	{
@@ -223,7 +229,7 @@ public class MapPrinter
 						mapString.append("  ");
 						printBorder(tile, 1);
 					}
-					printTileFeature(tile);
+					printFeatures(tile);
 					printBorder(tile, 5);
 				}
 			}
@@ -270,7 +276,7 @@ public class MapPrinter
 						mapString.append(" ");
 						printBorder(tile, 1);
 					}
-					printResource(tile);
+					printCivilization(tile);
 					printBorder(tile, 5);
 				}
 			}
@@ -305,7 +311,7 @@ public class MapPrinter
 			{
 				if(i == 0)
 					printBorder(tile, 1);
-				printImprovement(tile);
+				printCityName(tile);
 				printBorder(tile, 5);
 			}
 			else
@@ -365,7 +371,7 @@ public class MapPrinter
 			}
 			else
 			{
-				printTileFeature(tile);
+				printFeatures(tile);
 				printBorder(tile, 5);
 			}
 		}
@@ -392,7 +398,7 @@ public class MapPrinter
 			else
 			{
 				// print resource
-				printResource(tile);
+				printCivilization(tile);
 				printBorder(tile, 5);
 			}
 		}
@@ -418,7 +424,7 @@ public class MapPrinter
 			}
 			else
 			{
-				printImprovement(tile);
+				printCityName(tile);
 				printBorder(tile, 5);
 			}
 		}
@@ -444,51 +450,85 @@ public class MapPrinter
 		if(map.get(tile).equals(TileState.FOG_OF_WAR))
 			printFog(10);
 		else
-			mapString.append(Ansi.colorize(String.format("  (%-2d,%2d) ", tile.getPosition().X, tile.getPosition().Y),
+		{
+			mapString.append(Ansi.colorize(String.format(" (%-2d,%2d)", tile.getPosition().X, tile.getPosition().Y),
 					tile.getTileType().attribute, Attribute.BLACK_TEXT()));
+			for(int i = 0; i < player.getCities().size(); i++)
+			{
+				if(player.getCities().get(i).getCapitalTile().equals(tile))
+				{
+					mapString.append(Ansi.colorize("⭐", tile.getTileType().attribute, Attribute.BLACK_TEXT()));
+					break;
+				}
+				if(i == player.getCities().size() - 1)
+					mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			}
+			//			if(player.getCities().size() == 0)
+			//				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+		}
 	}
-	private static void printTileFeature(Tile tile)
+	// Prints tileFeature and resource and improvement
+	private static void printFeatures(Tile tile)
 	{
 		if(map.get(tile).equals(TileState.FOG_OF_WAR))
 			printFog(12);
 		else
 		{
-			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+			TileFeature tileFeature = tile.getTileFeature();
+			Resource resource = tile.getResource();
+			Improvement improvement = tile.getImprovement();
+			//			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+			//			if(tile.getTileFeature() != TileFeature.NONE)
+			//				mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+			//			else
+			//				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			//			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+			mapString.append(Ansi.colorize(" ", tile.getTileType().attribute));
 			if(tile.getTileFeature() != TileFeature.NONE)
-				mapString.append(String.format("%2s", tile.getTileFeature().symbol));
+				mapString.append(String.format("%2s", tileFeature.symbol));
 			else
 				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
-			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
+			mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			if(resource != null)
+				mapString.append(String.format("%2s", tile.getResource().getRESOURCE_TYPE().symbol));
+			else
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			if(improvement != Improvement.NONE)
+				mapString.append(String.format("%2s", improvement.symbol));
+			else
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			mapString.append(Ansi.colorize(" ", tile.getTileType().attribute));
 		}
 	}
-	private static void printResource(Tile tile)
+	// print civilization owner "what did I just say?!  :|  "
+	private static void printCivilization(Tile tile)
 	{
 		if(map.get(tile).equals(TileState.FOG_OF_WAR))
 			printFog(14);
 		else
 		{
-			mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
-			if(tile.getResource() == null)
-				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			if(player.getTileCity(tile) != null)
+				mapString.append(Ansi.colorize(String.format("   %-8s   ", player.getCivilization()), tile.getTileType().attribute, Attribute.BLACK_TEXT()));
 			else
-				mapString.append(String.format("%2s", tile.getResource().getRESOURCE_TYPE().symbol));
-			mapString.append(Ansi.colorize("      ", tile.getTileType().attribute));
+				mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
 		}
 	}
-	private static void printImprovement(Tile tile)
+	// print name of the city if tile is inside a city
+	private static void printCityName(Tile tile)
 	{
 		if(map.get(tile).equals(TileState.FOG_OF_WAR))
 			printFog(16);
 		else
 		{
-			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
-			if(tile.getImprovement().equals(Improvement.NONE))
-				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
-			else
-				mapString.append(Ansi.colorize(String.format("%2s", tile.getImprovement().symbol)));
-			mapString.append(Ansi.colorize("       ", tile.getTileType().attribute));
+			String cityName = "";
+			City tileCity = player.getTileCity(tile);
+			if(tileCity != null)
+				cityName = tileCity.getName();
+			mapString.append(Ansi.colorize(String.format("%-16s", cityName), tile.getTileType().attribute, Attribute.BLACK_TEXT()));
 		}
 	}
+	// prints combatUnit
 	private static void printCUnit(Tile tile)
 	{
 		if(map.get(tile).equals(TileState.FOG_OF_WAR))
@@ -499,13 +539,21 @@ public class MapPrinter
 				mapString.append(Ansi.colorize("                ", tile.getTileType().attribute));
 			else
 			{
-				Attribute unitAttribute = (player.getSelectedUnit() == tile.getCombatUnitInTile()) ? Attribute.YELLOW_BACK() : tile.getTileType().attribute;
-				mapString.append(Ansi.colorize(String.format("  %-14s", tile.getCombatUnitInTile().toString()), unitAttribute,
-						Attribute.BLACK_TEXT()));
+				CombatUnit combatUnit = tile.getCombatUnitInTile();
+				Attribute unitAttribute;
+				if(!combatUnit.getRulerPlayer().equals(player))
+					unitAttribute = Attribute.RED_BACK();
+				else if(player.getSelectedUnit() == combatUnit)
+					unitAttribute = Attribute.YELLOW_BACK();
+				else
+					unitAttribute = tile.getTileType().attribute;
+				
+				mapString.append(Ansi.colorize(String.format("%-10s%s❤%2d", tile.getCombatUnitInTile().toString(),
+						combatUnit.getUnitState().symbol, combatUnit.getHealth()), unitAttribute, Attribute.BLACK_TEXT()));
 			}
-			
 		}
 	}
+	// prints nonCombatUnit
 	private static void printNCUnit(Tile tile)
 	{
 		if(map.get(tile).equals(TileState.FOG_OF_WAR))
@@ -516,8 +564,15 @@ public class MapPrinter
 				mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
 			else
 			{
-				Attribute unitAttribute = (player.getSelectedUnit() == tile.getNonCombatUnitInTile()) ? Attribute.YELLOW_BACK() : tile.getTileType().attribute;
-				mapString.append(Ansi.colorize(String.format("  %-12s", tile.getNonCombatUnitInTile().toString()), unitAttribute,
+				NonCombatUnit nonCombatUnit = tile.getNonCombatUnitInTile();
+				Attribute unitAttribute;
+				if(!nonCombatUnit.getRulerPlayer().equals(player))
+					unitAttribute = Attribute.RED_BACK();
+				else if(player.getSelectedUnit() == nonCombatUnit)
+					unitAttribute = Attribute.YELLOW_BACK();
+				else
+					unitAttribute = tile.getTileType().attribute;
+				mapString.append(Ansi.colorize(String.format("%-14s", nonCombatUnit.toString()), unitAttribute,
 						Attribute.BLACK_TEXT()));
 			}
 		}

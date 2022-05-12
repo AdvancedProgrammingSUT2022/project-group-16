@@ -20,21 +20,17 @@ public abstract class Unit implements Constructable
 	private int productionCost;
 	private int movementPoints;
 	private Tile tile;
-	private int health;
+	public final int MAX_HEALTH = 10;
+	private int health = MAX_HEALTH;
 	private int speed;
 	private int power;
 	private Technology requiredTechnology; //TODO
 	private Resource requiredResource;
 	private ArrayList<Position> moves = new ArrayList<>();
 	private ArrayList<UnitCommands> commands = new ArrayList<>();
-	private boolean isActive = true;
-	private boolean isSleep = false;
-	private boolean isAlert = false;
 	private boolean hasArrived = false;
-	private boolean isFortify = false;
-	private boolean isFortifyTilHeal = false;
-
-
+	private UnitState unitState = UnitState.ACTIVE;
+	
 	public Player getRulerPlayer() {
 		return rulerPlayer;
 	}
@@ -58,7 +54,14 @@ public abstract class Unit implements Constructable
 	public void setHealth(int health) {
 		this.health = health;
 	}
-
+	
+	public UnitState getUnitState() {
+		return unitState;
+	}
+	public void setUnitState(UnitState unitState) {
+		this.unitState = unitState;
+	}
+	
 	public int getSpeed() {
 		return speed;
 	}
@@ -130,52 +133,6 @@ public abstract class Unit implements Constructable
 		commands.add(command);
 	}
 
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public boolean getIsAlert() {
-		return isAlert;
-	}
-
-	public void setIsAlert(boolean isAlert) {
-		this.isAlert = isAlert;
-	}
-
-	public void changeActivate()
-	{
-		isActive = !isActive;
-	}
-
-	public boolean isSleep() {
-		return isSleep;
-	}
-
-	public boolean getIsFortifyTilHeal()
-	{
-		return isFortifyTilHeal;
-	}
-
-	public void setIsFortifyTilHEal(boolean isFortifyTilHeal)
-	{
-		this.isFortifyTilHeal = isFortifyTilHeal;
-	}
-
-	public boolean getIsFortify()
-	{
-		return isFortify;
-	}
-
-	public void setIsFortify(boolean isFortify)
-	{
-		this.isFortify = isFortify;
-	}
-
-	public void setIsSleep(boolean isSleep)
-	{
-		this.isSleep = isSleep;
-	}
-
 	public void getReady(){
 
 	}
@@ -188,16 +145,8 @@ public abstract class Unit implements Constructable
 	public void getSet(){
 
 	}
-	public void changeFortify()
-	{
-		isFortify = false;
-		isFortifyTilHeal = false;
-	}
 	public void cancelCommand(int i){
 		commands.remove(i);
-	}
-	public void awaken(){
-		isSleep = false;
 	}
 	public void removeUnit(){
 		rulerPlayer.getUnits().remove(this);

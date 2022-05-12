@@ -15,7 +15,6 @@ public class MidRange extends CombatUnit{
         this.setPower(type.combatStrength);
         this.setTile(tile);
         tile.setCombatUnitInTile(this);
-        this.setHealth(100); //TODO what is the max health,speed,power?
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
     }

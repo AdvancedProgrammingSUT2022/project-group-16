@@ -34,6 +34,7 @@ public class City
 	
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
+		//TODO: check that we can't build a city in distance of 1 cities
 		this.capitalTile = capitalTile;
 		this.rulerPlayer = rulerPlayer;
 		territory.add(capitalTile);

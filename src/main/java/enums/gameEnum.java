@@ -59,7 +59,7 @@ public enum gameEnum
     productionCost("production cost: "),
     wokeUp("unit woke up"),
     fortifyActive("Fortify activated!"),
-    isSleep("unit already slept"),
+    isSleep("unit already is asleep"),
     isAlert("unit already alerted"),
     isFortify("unit already fortified"),
     isFortifyTilHeal("unit already fortified til heal"),

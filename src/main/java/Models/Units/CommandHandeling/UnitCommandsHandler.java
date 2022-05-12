@@ -2,9 +2,9 @@ package Models.Units.CommandHandeling;
 
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
-import Models.Units.NonCombatUnits.Settler;
-import Models.Units.NonCombatUnits.Worker;
+import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
+import Models.Units.UnitState;
 
 public class UnitCommandsHandler {
 
@@ -13,7 +13,7 @@ public class UnitCommandsHandler {
         else if(commands.equals(UnitCommands.FORTIFY)) unit.fortify();
         else if(commands.equals(UnitCommands.FORTIFY_TILL_Heel)) unit.fortifyTillHeel();
         else if(commands.equals(UnitCommands.GET_SET)) unit.getSet();
-        else if(commands.equals(UnitCommands.AWAKEN)) unit.awaken();
+        else if(commands.equals(UnitCommands.AWAKEN)) unit.setUnitState(UnitState.ACTIVE);
         else if(commands.equals(UnitCommands.REMOVE_UNIT)) unit.removeUnit();
         else if(commands.equals(UnitCommands.MOVE)) unit.move(UnitCommands.MOVE.getDestination());
         else if(commands.equals(UnitCommands.ATTACK)) ((CombatUnit) unit).attack();
