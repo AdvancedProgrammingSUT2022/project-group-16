@@ -4,6 +4,7 @@ import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
 import Models.City.Building;
 import Models.City.BuildingType;
+import Models.City.Citizen;
 import Models.City.City;
 import Models.Player.Notification;
 import Models.Player.Player;
@@ -357,10 +358,12 @@ public class gameMenuView
         City tmp = gameController.getPlayerTurn().getSelectedCity();
 
         System.out.println(infoCommands.cityName.regex + tmp.getName());
-        System.out.println(gameEnum.foodYield.regex + gameController.getPlayerTurn().getSelectedCity().getFoodYield());
-        System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getSelectedCity().getProductionYield());
-        System.out.println(gameEnum.goldYield.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
-        System.out.println(gameEnum.cupYield.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
+        System.out.println(gameEnum.foodYield.regex + tmp.getFoodYield());
+        System.out.println(gameEnum.production.regex + tmp.getProductionYield());
+        System.out.println(gameEnum.goldYield.regex + tmp.getGoldYield());
+        System.out.println(gameEnum.cupYield.regex + tmp.getCupYield());
+        System.out.println(gameEnum.employedCitizens.regex + (tmp.employedCitizens()));
+        System.out.println(gameEnum.unEmployedCitizens.regex + (tmp.getPopulation() - tmp.employedCitizens()));
     }
     private static void showCivilizations()
     {
@@ -417,6 +420,7 @@ public class gameMenuView
             gameController.updateFortify();
 
             showBaseFields();
+            System.out.println(gameController.getTurnCounter());
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -653,7 +657,7 @@ public class gameMenuView
                 }
                 else if(command.equals("q"))
                 {
-                    System.out.println(((Worker) gameController.getPlayerTurn().getUnits().get(2)).getTurnsTillBuildRailRoad());
+                    MidRange n = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(54));
                 }
                 else if(command.equals("f"))
                 {
@@ -666,7 +670,8 @@ public class gameMenuView
                 }
                 else if(command.equals("v"))
                 {
-                    gameController.getPlayerTurn().setHappiness(gameController.getPlayerTurn().getHappiness() - 15);
+                    gameController.getPlayerTurn().getCities().get(0).addPopulation(23);
+                    gameController.getPlayerTurn().getCities().get(0).addCitizen(new Citizen(gameController.getPlayerTurn().getCities().get(0)));
                 }
                 else if(command.equals("p"))
                 {
@@ -685,6 +690,7 @@ public class gameMenuView
                     System.out.println(mainCommands.invalidCommand.regex);
                 String isTechDone = gameController.checkTechnology();
                 if(isTechDone != null) System.out.println(isTechDone);
+                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.handleUnitCommands();

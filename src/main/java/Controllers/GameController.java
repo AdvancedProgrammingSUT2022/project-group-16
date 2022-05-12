@@ -793,14 +793,16 @@ public class GameController
 
 	public String moveUnit(int x, int y)
 	{
+		Tile tile = getTileByXY(x, y);
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
-			//TODO: add errors
+			else if(playerTurn.getSelectedUnit().move(tile) != null)
+				return playerTurn.getSelectedUnit().move(tile);
 			else
 			{
-				playerTurn.getSelectedUnit().move(getTileByXY(x,y));
+				playerTurn.getSelectedUnit().move(tile);
 				playerTurn.getSelectedUnit().changeFortify();
 				return unitCommands.moveSuccessfull.regex;
 			}
@@ -816,10 +818,13 @@ public class GameController
 				return unitCommands.notYours.regex;
 			else
 			{
-				if (playerTurn.getSelectedUnit().isSleep())
+				if (playerTurn.getSelectedUnit().isSleep() &&
+						!playerTurn.getSelectedUnit().getIsAlert() &&
+						!playerTurn.getSelectedUnit().getIsFortify() &&
+						!playerTurn.getSelectedUnit().getIsFortifyTilHeal())
 					return gameEnum.isSleep.regex;
 				else {
-					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().setIsSleep(true);
 					playerTurn.getSelectedUnit().changeFortify();
 					return gameEnum.slept.regex;
 				}
@@ -834,8 +839,10 @@ public class GameController
 				for(Unit unit : player.getUnits())
 					if(player != playerTurn &&
 							tmp.getTile().distanceTo(unit.getTile()) <= 2 &&
-							tmp.isSleep())
-						tmp.changeSleepWake();
+							tmp.getIsAlert()) {
+						tmp.setIsSleep(false);
+						tmp.setIsAlert(false);
+					}
 	}
 	public String alert()
 	{
@@ -847,10 +854,11 @@ public class GameController
 				return unitCommands.isNotCombat.regex;
 			else
 			{
-				if (playerTurn.getSelectedUnit().isSleep())
-					return gameEnum.isSleep.regex;
+				if (playerTurn.getSelectedUnit().getIsAlert())
+					return gameEnum.isAlert.regex;
 				else {
-					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().setIsSleep(true);
+					playerTurn.getSelectedUnit().setIsAlert(true);
 					playerTurn.getSelectedUnit().changeFortify();
 					return unitCommands.standByUnit.regex;
 				}
@@ -863,7 +871,11 @@ public class GameController
 		for(Player player : players)
 			for(Unit unit : player.getUnits())
 				if(unit.getIsFortifyTilHeal())
-					unit.setHealth(unit.getHealth() + 15);
+				{
+					unit.setHealth((int) (unit.getHealth() * 1.2));
+					if(unit.getHealth() > 100)
+						unit.setHealth(100);
+				}
 	}
 	public void updateFortify()
 	{
@@ -888,9 +900,15 @@ public class GameController
 				return unitCommands.isNotCombat.regex;
 			else
 			{
-				tmp.setIsFortify();
-				tmp.setPower((int) (tmp.getPower() * 1.5));
-				return unitCommands.fortifyActivated.regex;
+				if (tmp.getIsFortify())
+					return gameEnum.isFortify.regex;
+				else
+				{
+					tmp.setIsSleep(true);
+					tmp.setIsFortify(true);
+					tmp.setPower((int) (tmp.getPower() * 1.5));
+					return unitCommands.fortifyActivated.regex;
+				}
 			}
 		}
 		return gameEnum.nonSelect.regex;
@@ -905,12 +923,12 @@ public class GameController
 				return unitCommands.isNotCombat.regex;
 			else
 			{
-				if (playerTurn.getSelectedUnit().isSleep())
-					return gameEnum.isSleep.regex;
+				if (playerTurn.getSelectedUnit().getIsFortifyTilHeal())
+					return gameEnum.isFortifyTilHeal.regex;
 				else
 				{
-					playerTurn.getSelectedUnit().changeSleepWake();
-					playerTurn.getSelectedUnit().setIsFortifyTilHEal();
+					playerTurn.getSelectedUnit().setIsSleep(true);
+					playerTurn.getSelectedUnit().setIsFortifyTilHEal(true);
 					return gameEnum.fortifyActive.regex;
 				}
 			}
@@ -984,12 +1002,12 @@ public class GameController
 			else if(playerTurn.getSelectedUnit().getClass().equals(LongRange.class) &&
 					playerTurn.getSelectedUnit().getTile().distanceTo(tile) > ((LongRange) playerTurn.getSelectedUnit()).getType().getRange())
 				return unitCommands.rangeError.regex;
-			else if(tile.getImprovement().equals(Improvement.NONE) && belongToCity(tile) == null)
+			else if(tile.getImprovement().equals(Improvement.NONE))
 				return unitCommands.nothingInTile.regex;
 			else
 			{
 				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
-				//TODO: attack city
+				tile.setIsPillaged(true);
 				playerTurn.getSelectedUnit().changeFortify();
 				return unitCommands.destroyImprovement.regex;
 			}
@@ -1069,7 +1087,7 @@ public class GameController
 				if (!playerTurn.getSelectedUnit().isSleep())
 					return gameEnum.awaken.regex;
 				else {
-					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().setIsSleep(false);
 					playerTurn.getSelectedUnit().changeFortify();
 					return gameEnum.wokeUp.regex;
 				}

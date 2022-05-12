@@ -29,6 +29,7 @@ public abstract class Unit implements Constructable
 	private ArrayList<UnitCommands> commands = new ArrayList<>();
 	private boolean isActive = true;
 	private boolean isSleep = false;
+	private boolean isAlert = false;
 	private boolean hasArrived = false;
 	private boolean isFortify = false;
 	private boolean isFortifyTilHeal = false;
@@ -133,6 +134,14 @@ public abstract class Unit implements Constructable
 		return isActive;
 	}
 
+	public boolean getIsAlert() {
+		return isAlert;
+	}
+
+	public void setIsAlert(boolean isAlert) {
+		this.isAlert = isAlert;
+	}
+
 	public void changeActivate()
 	{
 		isActive = !isActive;
@@ -147,9 +156,9 @@ public abstract class Unit implements Constructable
 		return isFortifyTilHeal;
 	}
 
-	public void setIsFortifyTilHEal()
+	public void setIsFortifyTilHEal(boolean isFortifyTilHeal)
 	{
-		isFortifyTilHeal = !isFortifyTilHeal;
+		this.isFortifyTilHeal = isFortifyTilHeal;
 	}
 
 	public boolean getIsFortify()
@@ -157,14 +166,14 @@ public abstract class Unit implements Constructable
 		return isFortify;
 	}
 
-	public void setIsFortify()
+	public void setIsFortify(boolean isFortify)
 	{
-		isFortify = !isFortify;
+		this.isFortify = isFortify;
 	}
 
-	public void changeSleepWake()
+	public void setIsSleep(boolean isSleep)
 	{
-		isSleep = !isSleep;
+		this.isSleep = isSleep;
 	}
 
 	public void getReady(){
