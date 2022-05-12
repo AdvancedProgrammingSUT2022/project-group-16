@@ -3,6 +3,7 @@ package Controllers;
 import Controllers.Utilities.MapPrinter;
 import Models.City.Building;
 import Models.City.BuildingType;
+import Models.City.Citizen;
 import Models.City.City;
 import Models.Game.Position;
 import Models.Player.*;
@@ -60,6 +61,12 @@ public class GameController
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
+		//happiness
+		if(totalPopulation() >= playerTurn.getMaxPopulation() + 10)
+		{
+			playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
+			playerTurn.setMaxPopulation(totalPopulation());
+		}
 		if(!playerTurn.getIsUnHappy() && playerTurn.getHappiness() < 0)
 			playerTurn.isUnHappy();
 		// if there is a unit which has not used its turn, it returns the unit's name with error message
@@ -77,12 +84,6 @@ public class GameController
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
-		//happiness
-		if(playerTurn.getPopulation() >= playerTurn.getMaxPopulation() + 10)
-		{
-			playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
-			playerTurn.setMaxPopulation(playerTurn.getPopulation());
-		}
 		// reset all units turns. TODO: is this needed?
 		for(Unit unit : playerTurn.getUnits())
 		{
@@ -553,6 +554,13 @@ public class GameController
 		return true;
 	}
 
+	public int totalPopulation()
+	{
+		int n = 0;
+		for(City city : playerTurn.getCities())
+			n += city.getCitizens().size();
+		return n;
+	}
 	public void addTurn(int amount)
 	{
 		for(Player player : players)
@@ -1418,5 +1426,11 @@ public class GameController
 	{
 		for (Player player : players)
 			player.setHappiness(100 - players.size() * 5);
+	}
+
+	public void annexedCity(City annexedCity)
+	{
+		playerTurn.addAnnexedCity(annexedCity);
+		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 	}
 }

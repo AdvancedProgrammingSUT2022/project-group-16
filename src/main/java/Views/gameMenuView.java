@@ -363,7 +363,7 @@ public class gameMenuView
         System.out.println(gameEnum.goldYield.regex + tmp.getGoldYield());
         System.out.println(gameEnum.cupYield.regex + tmp.getCupYield());
         System.out.println(gameEnum.employedCitizens.regex + (tmp.employedCitizens()));
-        System.out.println(gameEnum.unEmployedCitizens.regex + (tmp.getPopulation() - tmp.employedCitizens()));
+        System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.totalPopulation() - tmp.employedCitizens()));
     }
     private static void showCivilizations()
     {
@@ -409,12 +409,6 @@ public class gameMenuView
         {
             gameController.stayAlert();
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
-            //if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
-            //{
-            //    gameController.addTurn(1);
-            //    gameController.addToTurnCounter(1);
-            //    gameController.updateFortifyTilHeal();
-            //}
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
             gameController.updateFortify();
@@ -657,11 +651,11 @@ public class gameMenuView
                 }
                 else if(command.equals("q"))
                 {
-                    MidRange n = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(54));
+                    City n = new City(gameController.getMap().get(53), gameController.getPlayerTurn());
                 }
                 else if(command.equals("f"))
                 {
-                    gameController.getPlayers().get(0).setPopulation(0);
+                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(53));
                 }
                 else if(command.equals("d"))
                 {
@@ -670,7 +664,6 @@ public class gameMenuView
                 }
                 else if(command.equals("v"))
                 {
-                    gameController.getPlayerTurn().getCities().get(0).addPopulation(23);
                     gameController.getPlayerTurn().getCities().get(0).addCitizen(new Citizen(gameController.getPlayerTurn().getCities().get(0)));
                 }
                 else if(command.equals("p"))
@@ -690,7 +683,7 @@ public class gameMenuView
                     System.out.println(mainCommands.invalidCommand.regex);
                 String isTechDone = gameController.checkTechnology();
                 if(isTechDone != null) System.out.println(isTechDone);
-                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
+//                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.handleUnitCommands();

@@ -37,6 +37,7 @@ public class Player extends User
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
 	private ArrayList<City> cities = new ArrayList<>();
+	private ArrayList<City> annexedCities = new ArrayList<>();
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
@@ -70,6 +71,12 @@ public class Player extends User
 	public void setSelectedCity(City city)
 	{
 		this.selectedCity = city;
+	}
+	public ArrayList<City> getAnnexedCities() {
+		return annexedCities;
+	}
+	public void addAnnexedCity(City annexedCity) {
+		annexedCities.add(annexedCity);
 	}
 
 	public int getPopulation() {
