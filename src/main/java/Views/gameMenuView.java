@@ -426,6 +426,9 @@ public class gameMenuView
 
                 //update tileStates for playerTurn
                 gameController.getPlayerTurn().updateTileStates();
+                
+                // print map after before(after?) command
+                System.out.println(gameController.getMapString());
 
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
