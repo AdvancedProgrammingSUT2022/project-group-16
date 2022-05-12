@@ -73,8 +73,16 @@ public class gameMenuView
         System.out.println(tmp.getUsername() + gameEnum.turn.regex);
         System.out.println(MapPrinter.getMapString(tmp));
         System.out.println(tmp.getUsername() + gameEnum.turn.regex);
-        System.out.println(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
-                tmp.getHappiness() + "\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
+        System.out.print(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
+                tmp.getHappiness());
+        System.out.print(":");
+        if(tmp.getHappiness() > 50)
+            for(int i = 0; i < (tmp.getHappiness() - 50) / 10; i++)
+                System.out.print(")");
+        else
+            for(int i = 0; i <  5 - (tmp.getHappiness() / 10); i++)
+                System.out.print("(");
+        System.out.println("\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
     }
     private static void showNotifications(Scanner scanner)
     {
@@ -664,7 +672,7 @@ public class gameMenuView
                 }
                 else if(command.equals("v"))
                 {
-                    gameController.getPlayerTurn().getCities().get(0).addCitizen(new Citizen(gameController.getPlayerTurn().getCities().get(0)));
+                    gameController.getPlayerTurn().setHappiness(gameController.getPlayerTurn().getHappiness() - 15);
                 }
                 else if(command.equals("p"))
                 {
