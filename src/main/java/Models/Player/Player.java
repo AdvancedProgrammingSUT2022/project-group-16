@@ -5,8 +5,13 @@ import Models.City.*;
 import Models.Game.Position;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
+import Models.Resources.ResourceType;
 import Models.Terrain.Improvement;
 import Models.Terrain.Tile;
+import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.LongRange;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import Models.User;
 
@@ -22,19 +27,22 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 0;
 	private int happiness = 0;
-	private int population = 0; //TODO: maybe it's better to delete this line
+	private int population = 0;
+	private int maxPopulation = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
 	private ArrayList<Resource> resources;
-	private final ArrayList<LuxuryResource> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
+	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
 	private ArrayList<City> cities = new ArrayList<>();
+	private ArrayList<City> annexedCities = new ArrayList<>();
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
 	private ArrayList<Unit> units = new ArrayList<>();
+	private boolean isUnHappy = false;
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score)
 	{
@@ -64,12 +72,24 @@ public class Player extends User
 	{
 		this.selectedCity = city;
 	}
+	public ArrayList<City> getAnnexedCities() {
+		return annexedCities;
+	}
+	public void addAnnexedCity(City annexedCity) {
+		annexedCities.add(annexedCity);
+	}
 
 	public int getPopulation() {
 		return population;
 	}
 	public void setPopulation(int population) {
 		this.population = population;
+	}
+	public int getMaxPopulation() {
+		return maxPopulation;
+	}
+	public void setMaxPopulation(int maxPopulation) {
+		this.maxPopulation = maxPopulation;
 	}
 
 	public Civilization getCivilization()
@@ -112,6 +132,30 @@ public class Player extends User
 	{
 		this.happiness = happiness;
 	}
+	public boolean getIsUnHappy()
+	{
+		return isUnHappy;
+	}
+	public void isUnHappy()
+	{
+		isUnHappy = true;
+		for(Unit unit : units) {
+			System.out.println((int) (0.75 * gameController.powerForce(unit)));
+			unit.setPower((int) (0.75 * gameController.powerForce(unit)));
+			System.out.println(unit.getPower());
+		}
+	}
+	public void isHappy()
+	{
+		isUnHappy = false;
+		for(Unit unit : units)
+		{
+			if(unit.getClass().equals(MidRange.class))
+				unit.setPower(((MidRange) unit).getType().getCombatStrength());
+			if(unit.getClass().equals(LongRange.class))
+				unit.setPower(((LongRange) unit).getType().getCombatStrength());
+		}
+	}
 
 	public ArrayList<Technology> getTechnologies()
 	{
@@ -137,7 +181,21 @@ public class Player extends User
 	{
 		researchingTechCounter[index] += amount;
 	}
-	
+
+	public ArrayList<ResourceType> getAcquiredLuxuryResources() {
+		return acquiredLuxuryResources;
+	}
+	public void addLuxuryResource(LuxuryResource luxuryResource)
+	{
+		if(!acquiredLuxuryResources.contains(luxuryResource.getRESOURCE_TYPE()))
+		{
+			this.acquiredLuxuryResources.add(luxuryResource.getRESOURCE_TYPE());
+			setHappiness((int) (getHappiness() * 1.1));
+			if(getHappiness() > 100)
+				setHappiness(100);
+		}
+	}
+
 	public int getCup()
 	{
 		return cup;
@@ -187,21 +245,13 @@ public class Player extends User
 				return tile;
 		return null;
 	}
-	public ArrayList<Tile> getAdjacentTiles(Tile tile)
+	// this method gets a tile (center tile) and returns the tiles in range of distance from it
+	public ArrayList<Tile> getAdjacentTiles(Tile tile, int distance)
 	{
 		ArrayList<Tile> adjacentTiles = new ArrayList<>();
-		int Q = tile.getPosition().Q;
-		int R = tile.getPosition().R;
-		int S = tile.getPosition().S;
-		
-		int[][] distances = {{0, 1, -1}, {0, -1, 1}, {1, 0, -1}, {-1, 0, 1}, {1, -1, 0}, {-1, 1, 0}};
-		Tile adjacentTile;
-		for(int i = 0; i < 6; i++)
-		{
-			adjacentTile = getTileByQRS(Q + distances[i][0], R + distances[i][1], S + distances[i][2]);
-			if(adjacentTile != null)
-				adjacentTiles.add(adjacentTile);
-		}
+		for(Tile thisTile : map.keySet())
+			if(tile.distanceTo(thisTile) == 1)
+				adjacentTiles.add(thisTile);
 		
 		return adjacentTiles;
 	}
@@ -219,6 +269,15 @@ public class Player extends User
 	public ArrayList<City> getCities()
 	{
 		return cities;
+	}
+	// this method gets a tile and returns the city it is in. (or null if it is not in a city)
+	public City getTileCity(Tile tile)
+	{
+		for(City city : cities)
+			for(Tile tileInCity : city.getTerritory())
+				if(tileInCity.equals(tile))
+					return city;
+		return null;
 	}
 	public City getInitialCapitalCity()
 	{
@@ -248,6 +307,18 @@ public class Player extends User
 	{
 		units.add(unit);
 	}
+	// this method gets a unit and removes it from the units list and tile's combatUnitInTile or tile's nonCombatUnitInTile
+	public void removeUnit(Unit unit)
+	{
+		if(unit == null)
+			return;
+		units.remove(unit);
+		if(unit instanceof CombatUnit)
+			unit.getTile().setCombatUnitInTile(null);
+		else if(unit instanceof NonCombatUnit)
+			unit.getTile().setNonCombatUnitInTile(null);
+		unit.setTile(null);
+	}
 	public void updateTileStates()
 	{
 		//iterate through all tiles and change their state based on their relative position to units and cities
@@ -260,58 +331,88 @@ public class Player extends User
 			for(Tile tile : map.keySet())
 			{
 				int distance = tile.distanceTo(unit.getTile());
+				
 				if(distance == 0 || distance == 1)
 					tilesInSight.add(tile);
 				else if(distance == 2)
 				{
-					Position unitPosition = unit.getTile().getPosition();
-					Position tilePosition = tile.getPosition();
-					
-					if(unitPosition.Q == tilePosition.Q)
-					{
-						Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
-						if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
-							tilesInSight.add(tile);
-					}
-					else if(unitPosition.R == tilePosition.R)
-					{
-						Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
-						if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
-							tilesInSight.add(tile);
-					}
-					else if(unitPosition.S == tilePosition.S)
-					{
-						Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
-						if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
-							tilesInSight.add(tile);
-					}
-					if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2 && tilePosition.S - unitPosition.S == 1
-							&& !getTileByXY(unitPosition.X - 1, unitPosition.Y).getTileType().isBlocker && !getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker)
-						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1 && tilePosition.S - unitPosition.S == -1
-							&& !getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S).getTileType().isBlocker && !getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker)
-						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1 && tilePosition.S - unitPosition.S == -2
-							&& !getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker)
-						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2 && tilePosition.S - unitPosition.S == -1
-							&& !getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker)
-						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1 && tilePosition.S - unitPosition.S == 1
-							&& !getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S).getTileType().isBlocker && !getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker)
-						tilesInSight.add(tile);
-					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1 && tilePosition.S - unitPosition.S == 2
-							&& !getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1).getTileType().isBlocker && !getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1).getTileType().isBlocker)
-						tilesInSight.add(tile);
+						Position unitPosition = unit.getTile().getPosition();
+						Position tilePosition = tile.getPosition();
 						
-				}
+						if(unitPosition.Q == tilePosition.Q)
+						{
+							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
+							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+								tilesInSight.add(tile);
+						}
+						else if(unitPosition.R == tilePosition.R)
+						{
+							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
+							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+								tilesInSight.add(tile);
+						}
+						else if(unitPosition.S == tilePosition.S)
+						{
+							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
+							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+								tilesInSight.add(tile);
+						}
+						if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
+						{
+							Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
+							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
+							if((northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker) ||
+									(northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker))
+								tilesInSight.add(tile);
+						}
+						else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
+						{
+							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
+							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+							if((northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker) ||
+									(southEastNeighbor != null && !southEastNeighbor.getTileType().isBlocker && !southEastNeighbor.getTileFeature().isBlocker))
+								tilesInSight.add(tile);
+						}
+						else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
+						{
+							Tile southWestNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
+							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker) ||
+									(southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker))
+								tilesInSight.add(tile);
+						}
+						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
+						{
+							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
+							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
+							if((southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker) ||
+									(southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker))
+								tilesInSight.add(tile);
+						}
+						else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
+						{
+							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
+							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
+							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && ! southWestNeighbor.getTileFeature().isBlocker) ||
+									(northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker))
+								tilesInSight.add(tile);
+						}
+						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
+						{
+							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
+							Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
+							if((northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker) ||
+									(northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker))
+								tilesInSight.add(tile);
+						}
+					}
 			}
 		//tiles in sight of cities
 		for(City city : cities)
 			for(Tile tile : city.getTerritory())
 			{
 				tilesInSight.add(tile);
-				tilesInSight.addAll(getAdjacentTiles(tile));
+				tilesInSight.addAll(getAdjacentTiles(tile, 1));
 			}
 		
 		/* update tileStates */

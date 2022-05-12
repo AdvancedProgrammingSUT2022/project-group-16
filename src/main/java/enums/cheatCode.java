@@ -8,7 +8,7 @@ public enum cheatCode
     //commands
     increaseTurns("^\\s*increase\\s+turn\\s+(?<amount>[0-9]+)\\s*$"),
     increaseGold("^\\s*increase\\s+gold\\s+(?<amount>[0-9]+)\\s*$"),
-    winBattle("^\\s*win\\s+this\\s+battle\\s+(?<positionX>[0-9]+)\\s+(?<positionY>[0-9]+)\\s*$"),
+    killEnemyUnit("^\\s*kill\\s+enemy\\s+unit\\s+in\\s+-c\\s+(?<positionX>[0-9]+)\\s*,\\s*(?<positionY>[0-9]+)\\s*$"),
     gainFood("^\\s*increase\\s+food\\s+(?<amount>[0-9]+)\\s*$"),
     gainTechnology("^\\s*add\\s+technology\\s+(?<name>\\S+)\\s*$"),
     increaseHappiness("^\\s*increase\\s+happiness\\s+(?<amount>[0-9]+)\\s*$"),
@@ -25,7 +25,8 @@ public enum cheatCode
     health("health"),
     happiness("happiness"),
     increaseSuccessful(" increased Successfuly"),
-    addSuccessful(" added Successfuly");
+    addSuccessful(" added Successfully"),
+    unitKilled("Unit killed successfully");
 
     public final String regex;
 

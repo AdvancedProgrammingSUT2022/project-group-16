@@ -2,29 +2,17 @@ package Models.Player;
 
 public class Notification
 {
-	private final Player senderPlayer;
-	private final Player receiverPlayer;
 	private int sendingTurn; // turn of sending the notification
 	private String message;
 	//TODO
 	
-	public Notification(Player senderPlayer, Player receiverPlayer, int sendingTurn, String message)
+	public Notification(Player rulerPlayer, int sendingTurn, String message)
 	{
-		this.senderPlayer = senderPlayer;
-		this.receiverPlayer = receiverPlayer;
 		this.sendingTurn = sendingTurn;
 		this.message = message;
-		this.receiverPlayer.getNotifications().add(this);
+		rulerPlayer.getNotifications().add(this);
 	}
-	
-	public Player getSenderPlayer()
-	{
-		return senderPlayer;
-	}
-	public Player getReceiverPlayer()
-	{
-		return receiverPlayer;
-	}
+
 	public int getSendingTurn()
 	{
 		return sendingTurn;

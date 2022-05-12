@@ -13,7 +13,7 @@ public enum unitCommands
     fortifyHeal("^\\s*[uU]nit\\s+[fF]ortify\\s+[hH]eal\\s*$"),
     garrison("^\\s*[uU]nit\\s+[gG]arrison\\s*$"),
     setup("^\\s*[uU]nit\\s+[sS]etup\\s+[rR]anged\\s*$"),
-    attack("^\\s*[uU]nit\\s+[aA]ttack.*$"),
+    attack("^\\s*[uU]nit\\s+[aA]ttack\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     foundCity("^\\s*[uU]nit\\s+[fF]ound\\s+[cC]ity\\s*$"),
     cancelMission("^\\s*[uU]nit\\s+[cC]ancel\\s+[mM]ission\\s*$"),
     wake("^\\s*[uU]nit\\s+[wW]ake\\s*$"),
@@ -52,8 +52,17 @@ public enum unitCommands
     hasntJungle("this tile doesn't have Jungle/Forest"),
     hasntRoad("this tile doesn't have Road/RailRoad"),
     isNotRuined("this tile isn't ruined"),
+    playerTurnCity("this tile is in your territory!"),
+    hasBuilding("there is a building in the selected tile!"),
+    cantBuild("you can not build anything here"),
+    notYourCity("selected city is not yours"),
+    buildSuccessful("building built successfully"),
+    belongTo("this tile is not belong to you"),
+    wrongCoordinates("invalid coordinates"),
+    nothingInTile("there is nothing in selected tile to destroy"),
     cantBuildRoad("you can not build road on this tile!"),
     cityBuilt("city built"),
+    rangeError("selected tile is out of unit attack range"),
     roadBuilt("road built"),
     railRoadBuilt("rail road built"),
     cancelCommand("command canceled"),
@@ -70,11 +79,16 @@ public enum unitCommands
     repairedSuccessful("tile repaired successfully"),
     plantationBuild("plantation built"),
     isNotCombat("selected unit is not a combat unit"),
-    standByUnit("unit stand by"), //TODO: maybe change
+    alerted("unit is in ALERT now"),
     destroyImprovement("improvement destroyed"),
     moveSuccessfull("unit moved successfully"),
     gainGold("\nyou got "),
-    gold(" gold");
+    isNotInCity("selected unit is not in a city"),
+    hasGarrison("this city already has a garrison"),
+    garissonSet("garrison placed in the city"),
+    gold(" gold"),
+    fortifyActivated("fortify activated"),
+    commandAdded("command added!");
 
     public final String regex;
 

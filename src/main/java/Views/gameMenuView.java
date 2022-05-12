@@ -2,13 +2,18 @@ package Views;
 
 import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
+import Models.City.BuildingType;
+import Models.City.Citizen;
 import Models.City.City;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
+import Models.Resources.LuxuryResource;
+import Models.Resources.ResourceType;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
+import Models.Units.UnitState;
 import Models.User;
 import enums.cheatCode;
 import enums.gameCommands.*;
@@ -44,6 +49,39 @@ public class gameMenuView
         return tmp;
     }
 
+    private static BuildingType showValidBuildings(Scanner scanner)
+    {
+        int max = 0;
+        ArrayList<BuildingType> tmp = new ArrayList<>();
+        for(int i = 0; i < BuildingType.values().length; i++)
+            if(gameController.getPlayerTurn().getTechnologies().contains(BuildingType.values()[i].requiredTechnology)) {
+                System.out.println((max + 1) + ": " + BuildingType.values()[i].name().toLowerCase(Locale.ROOT));
+                tmp.add(BuildingType.values()[i]);
+                max++;
+            }
+        System.out.println((max + 1) + ": " + infoCommands.backToGame.regex);
+        int number = getNumber(scanner, max + 1);
+        if(number != max + 1)
+            return tmp.get(number - 1);
+        return null;
+    }
+    private static void showBaseFields()
+    {
+        Player tmp = gameController.getPlayerTurn();
+        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
+        System.out.println(MapPrinter.getMapString(tmp));
+        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
+        System.out.print(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
+                tmp.getHappiness());
+        System.out.print(":");
+        if(tmp.getHappiness() > 50)
+            for(int i = 0; i < (tmp.getHappiness() - 50) / 10; i++)
+                System.out.print(")");
+        else
+            for(int i = 0; i <  5 - (tmp.getHappiness() / 10); i++)
+                System.out.print("(");
+        System.out.println("\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
+    }
     private static void showNotifications(Scanner scanner)
     {
         ArrayList<Notification> tmp = gameController.getPlayerTurn().getNotifications();
@@ -53,9 +91,7 @@ public class gameMenuView
         for(int i = 0; i < number; i++)
         {
             System.out.print((i + 1) + ":\n\t");
-            System.out.println(tmp.get(i).getSenderPlayer().getCivilization().name() + infoCommands.sendMessage.regex + tmp.get(i).getSendingTurn());
-            System.out.println("\t" + infoCommands.message.regex);
-            System.out.println("\t" + tmp.get(i).getMessage());
+            System.out.println(tmp.get(i).getMessage() + "\n\t" + infoCommands.sendMessage.regex + tmp.get(i).getSendingTurn());
         }
         System.out.println("\n1: " + infoCommands.backToGame.regex);
         getNumber(scanner, 1);
@@ -72,6 +108,11 @@ public class gameMenuView
         for(int i = number - 1; i >= 0; i--)
             System.out.println((number - i) + " - " + gameController.getPlayers().get(i).getCivilization().name().toLowerCase(Locale.ROOT)
              + ": " +  gameController.getPlayers().get(i).getScore());
+        int avg = 0;
+        for(Player player1 : gameController.getPlayers())
+            avg += player1.getScore();
+        System.out.println("----------------------");
+        System.out.println(infoCommands.averageScore.regex + ((double) avg / gameController.getPlayers().size()));
         System.out.println("1: " + infoCommands.backToGame.regex);
         getNumber(scanner, 1);
         showDemographic(player, scanner);
@@ -80,24 +121,21 @@ public class gameMenuView
     {
         int max = player.getUnits().size();
         if(max != 0)
-            System.out.println("unit type\t\tcoordinates\t\tpower\t\tMP\t\thealth\t\tis active\t\tis sleep");
-        for (int i = 0; i < player.getUnits().size(); i++)
+            System.out.println("unit type\t\tcoordinates\t\tpower\t\tMP\t\thealth\t\tunit state");
+        for (int i = 0; i < max; i++)
         {
-            Unit curr = player.getUnits().get(i);
-            System.out.print(" " + curr.toString().toLowerCase(Locale.ROOT));
-            printSpace(19 - curr.toString().length());
-            System.out.print(curr.getTile().getPosition().X + "," + curr.getTile().getPosition().Y);
+            Unit unit = player.getUnits().get(i);
+            System.out.print(" " + unit.toString().toLowerCase(Locale.ROOT));
+            printSpace(19 - unit.toString().length());
+            System.out.print(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y);
             printSpace(11);
-            System.out.print(curr.getPower());
-            printSpace(10 - numberOfDigits(curr.getPower()));
-            System.out.print(curr.getMovementPoints());
-            printSpace(10 - numberOfDigits(curr.getMovementPoints()));
-            System.out.print(curr.getHealth());
-            printSpace(12 - numberOfDigits(curr.getHealth()));
-            System.out.print(curr.isActive());
-            if(curr.isActive()) printSpace(11);
-            else printSpace(10);
-            System.out.println(curr.isSleep());
+            System.out.print(unit.getPower());
+            printSpace(10 - numberOfDigits(unit.getPower()));
+            System.out.print(unit.getMovementPoints());
+            printSpace(10 - numberOfDigits(unit.getMovementPoints()));
+            System.out.print(unit.getHealth());
+            printSpace(12 - numberOfDigits(unit.getHealth()));
+            System.out.println(unit.getUnitState().symbol);
         }
     }
     private static void showDemographic(Player tmp, Scanner scanner)
@@ -157,15 +195,14 @@ public class gameMenuView
         while (number != max + 1)
         {
             if(max != 0)
-                System.out.println("   unit type\t\tcoordinates\t\tis active");
+                System.out.println("   unit type\t\tcoordinates\t\tunit state");
             for (int i = 0; i < max; i++)
             {
-                Unit curr = gameController.getPlayerTurn().getUnits().get(i);
-                System.out.print((i + 1) + ": " + curr.toString().toLowerCase(Locale.ROOT));
-                printSpace(20 - curr.toString().length());
-                System.out.print(curr.getTile().getPosition().X + "," + curr.getTile().getPosition().Y);
-                if(curr.isActive()) System.out.println("\t\t\t Active");
-                else System.out.println("\t\t\tIn Active");
+                Unit unit = gameController.getPlayerTurn().getUnits().get(i);
+                System.out.print((i + 1) + ": " + unit.toString().toLowerCase(Locale.ROOT));
+                printSpace(20 - unit.toString().length());
+                System.out.print(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + "\t\t\t");
+                System.out.println(unit.getUnitState().symbol);
             }
             System.out.println((max + 1) + ": go to Military panel");
             System.out.println((max + 2) + infoCommands.backToGame.regex);
@@ -174,8 +211,8 @@ public class gameMenuView
                 showMilitary(scanner);
             else if(number == max + 2)
                 number = max + 1;
-            else
-                tmp.get(number - 1).changeActivate();
+            else //TODO: probable bug
+                tmp.get(number - 1).setUnitState(UnitState.ACTIVE);
         }
     }
     private static void showEconomics(Scanner scanner)
@@ -323,10 +360,12 @@ public class gameMenuView
         City tmp = gameController.getPlayerTurn().getSelectedCity();
 
         System.out.println(infoCommands.cityName.regex + tmp.getName());
-        System.out.println(gameEnum.foodYield.regex + gameController.getPlayerTurn().getSelectedCity().getFoodYield());
-        System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getSelectedCity().getProductionYield());
-        System.out.println(gameEnum.goldYield.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
-        System.out.println(gameEnum.cupYield.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
+        System.out.println(gameEnum.foodYield.regex + tmp.getFoodYield());
+        System.out.println(gameEnum.production.regex + tmp.getProductionYield());
+        System.out.println(gameEnum.goldYield.regex + tmp.getGoldYield());
+        System.out.println(gameEnum.cupYield.regex + tmp.getCupYield());
+        System.out.println(gameEnum.employedCitizens.regex + (tmp.employedCitizens()));
+        System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.totalPopulation() - tmp.employedCitizens()));
     }
     private static void showCivilizations()
     {
@@ -363,37 +402,41 @@ public class gameMenuView
     {
         Matcher matcher;
         ArrayList<User> tmpUsers = gameController.convertMapToArr(usersInfo); //Note: user[0] is loggedInUser! [loggedInUser, user1, user2, ...]
-        pickCivilizationAndCreatePlayers(scanner, tmpUsers);;
+        pickCivilizationAndCreatePlayers(scanner, tmpUsers);
         gameController.initGame();
+        gameController.setFirstHappiness();
 
         String command = null;
         do
         {
-            gameController.stayAlert();
+//            gameController.stayAlert(); // not in the right place
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
-            if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
-            {
-                gameController.addTurn(1);
-                gameController.addToTurnCounter(1);
-            }
-            System.out.println(gameController.getPlayerTurn().getUsername() + gameEnum.turn.regex);
-            System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
+            gameController.updateFortify();
 
+            showBaseFields();
+            System.out.println(gameController.getTurnCounter());
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
                 String techDone = gameController.checkTechnology();
                 if(techDone != null) System.out.println(techDone);
+                gameController.updateFortify();
 
                 //update tileStates for playerTurn
-//                gameController.getPlayerTurn().updateTileStates();
+                gameController.getPlayerTurn().updateTileStates();
+                
+                // alert some units. this method alerts all units that are in ALERT state for all players
+                gameController.stayAlert();
+                
+                // print map after before(after?) command
+                System.out.println(gameController.getMapString());
 
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     System.out.println(gameController.increaseGold(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null)
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //Almost done
                         System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
                     System.out.println(gameController.increaseFood(matcher));
@@ -401,9 +444,9 @@ public class gameMenuView
                     System.out.println(gameController.addTechnology(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseHappiness)) != null)
                     System.out.println(gameController.increaseHappiness(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.winBattle)) != null) //TODO
-                    System.out.println(gameController.winBattle(matcher));
-                else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null) //TODO
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.killEnemyUnit)) != null)
+                    System.out.println(gameController.killEnemyUnit(matcher));
+                else if ((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
                     System.out.println(gameController.moveUnit(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseHealth)) != null)
                     System.out.println(gameController.increaseHealth(matcher));
@@ -468,16 +511,25 @@ public class gameMenuView
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.fortify) != null)
-                    gameController.fortify(); //TODO
+                {
+                    System.out.println(gameController.fortify());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.fortifyHeal) != null)
-                    gameController.fortifyTilHeal(); //TODO
+                {
+                    System.out.println(gameController.fortifyTilHeal());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.garrison) != null)
-                    gameController.garrison(); //TODO
+                {
+                    System.out.println(gameController.garrison());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.setup) != null)
                     gameController.setup(); //TODO
-                else if(unitCommands.compareRegex(command, unitCommands.attack) != null)
+                else if((matcher = unitCommands.compareRegex(command, unitCommands.attack)) != null)
                 {
-                    System.out.println(gameController.attack());
+                    System.out.println(gameController.attack(matcher));
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
@@ -564,6 +616,17 @@ public class gameMenuView
                 else if(mapCommands.compareRegex(command, mapCommands.mapShow) != null)
                     System.out.println(gameController);
 
+                /*City*/
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.buildBuilding)) != null)
+                {
+                    if(gameController.isValidCoordinate(matcher))
+                    {
+                        BuildingType tmp = showValidBuildings(scanner);
+                        if(tmp != null)
+                            System.out.println(gameController.buildBuilding(matcher, tmp));
+                    }
+
+                }
                 /*others*/
                 else if(gameEnum.compareRegex(command, gameEnum.end) != null)
                 {
@@ -573,15 +636,15 @@ public class gameMenuView
                 } //end game
                 else if(command.equals("s"))
                 {
-                    MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45),12, 34);
-                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(54));
+                    MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45));
+                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(55));
                     Worker w = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(54));
-                    LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34),10, 23);
+                    LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34));
                     Settler m = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(1));
-                    MidRange o = new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(45),12, 34);
+                    MidRange o = new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(45));
                     Worker k = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(2));
-                    LongRange r = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(34),10, 23);
-                    LongRange l = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(34),10, 23);
+                    LongRange r = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(34));
+                    LongRange l = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(34));
                     n.createCity();
                     gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
                     m.createCity();
@@ -590,11 +653,31 @@ public class gameMenuView
                 }
                 else if(command.equals("t"))
                 {
-                    Notification n = new Notification(gameController.getPlayers().get(1), gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam eshgham, halet chetore? ");
+                    Notification n = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam usa, halet chetore? ");
+                    Notification m = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam arabian, halet chetore? ");
+
                 }
                 else if(command.equals("q"))
                 {
-                    System.out.println(((Worker) gameController.getPlayerTurn().getUnits().get(2)).getTurnsTillBuildRailRoad());
+                    City n = new City(gameController.getMap().get(53), gameController.getPlayerTurn());
+                }
+                else if(command.equals("f"))
+                {
+                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(53));
+                }
+                else if(command.equals("d"))
+                {
+                    LuxuryResource l = new LuxuryResource(ResourceType.GEMS);
+                    gameController.getPlayerTurn().addLuxuryResource(l);
+                }
+                else if(command.equals("v"))
+                {
+                    gameController.getPlayerTurn().setHappiness(gameController.getPlayerTurn().getHappiness() - 15);
+                }
+                else if(command.equals("p"))
+                {
+                    LuxuryResource l = new LuxuryResource(ResourceType.FURS);
+                    gameController.getPlayerTurn().addLuxuryResource(l);
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
@@ -608,6 +691,7 @@ public class gameMenuView
                     System.out.println(mainCommands.invalidCommand.regex);
                 String isTechDone = gameController.checkTechnology();
                 if(isTechDone != null) System.out.println(isTechDone);
+//                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.handleUnitCommands();

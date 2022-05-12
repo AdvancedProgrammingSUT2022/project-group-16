@@ -7,7 +7,7 @@ public class LongRange extends CombatUnit{
     private LongRangeType type;
     private boolean isSet = false;
 
-    public LongRange(Player rulerPlayer, LongRangeType longRangeType, Tile tile, int speed, int power){
+    public LongRange(Player rulerPlayer, LongRangeType longRangeType, Tile tile){
         this.setRulerPlayer(rulerPlayer);
         this.setType(longRangeType);
         this.setProductionCost(type.cost);
@@ -15,12 +15,8 @@ public class LongRange extends CombatUnit{
         this.setMovementPoints(type.movement);
         this.setTile(tile);
         tile.setCombatUnitInTile(this);
-        this.setHealth(100); //TODO what is the max health,speed,power?
-        this.setSpeed(speed);
-        this.setPower(power);
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
-        
     }
 
     public boolean isSet() {
@@ -53,7 +49,7 @@ public class LongRange extends CombatUnit{
         return type.name();
     }
     public LongRange clone(){
-        LongRange newLongRange = new LongRange(this.getRulerPlayer(),this.getType(),this.getTile(),this.getSpeed(),this.getPower());
+        LongRange newLongRange = new LongRange(this.getRulerPlayer(),this.getType(),this.getTile());
         newLongRange.setIsSet(this.isSet);
         newLongRange.setHealth(this.getHealth());
         return newLongRange;

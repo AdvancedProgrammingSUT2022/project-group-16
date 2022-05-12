@@ -34,6 +34,7 @@ public class City
 	
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
+		//TODO: check that we can't build a city in distance of 1 cities
 		this.capitalTile = capitalTile;
 		this.rulerPlayer = rulerPlayer;
 		territory.add(capitalTile);
@@ -64,6 +65,22 @@ public class City
 	}
 
 
+	public ArrayList<Citizen> getCitizens() {
+		return citizens;
+	}
+	public void addCitizen(Citizen citizen)
+	{
+		citizens.add(citizen);
+	}
+
+	public int employedCitizens()
+	{
+		int n = 0;
+		for(Citizen citizen : citizens)
+			if(citizen.getWorkingTile() != null)
+				n++;
+		return n;
+	}
 	public String getName() {
 		return name;
 	}
@@ -87,9 +104,10 @@ public class City
 		foodYield += amount;
 	}
 
-	public void createBuilding() //TODO
+	public void createBuilding(Building building) //TODO
 	{
-
+		buildings.add(building);
+		rulerPlayer.setHappiness(rulerPlayer.getHappiness() + building.happinessFromBuilding(building.getBuildingType())); //Increase happiness
 	}
 
 	public int getFoodYield() {
@@ -112,6 +130,10 @@ public class City
 		this.population += amount;
 		cupYield += amount;
 		rulerPlayer.setCup(rulerPlayer.getCup() + amount);
+	}
+
+	public ArrayList<Building> getBuildings() {
+		return buildings;
 	}
 
 	public void growCity() //TODO: this should increase the number of citizens of the city

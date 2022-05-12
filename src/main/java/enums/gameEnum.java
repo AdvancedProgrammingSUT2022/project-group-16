@@ -12,8 +12,10 @@ public enum gameEnum
     shortNewPlayer("^ -p(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
     next("^\\s*[nN]ext\\s*$"),
     end("^\\s*[eE]nd\\s*$"),
+    buildBuilding("^\\s*[bB]uild\\s+[bB]uilding\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
 
     //messages
+    invalidCommand("invalid command"),
     endGame("game has ended!"),
     numberOfPlayers("invalid number of players"),
     lessThanFour("please pick less than 4 players:)"),
@@ -50,11 +52,17 @@ public enum gameEnum
     health("health: "),
     power("power: "),
     population("population: "),
+    employedCitizens("employed citizens: "),
+    unEmployedCitizens("unemployed citizens : "),
     speed("speed: "),
     slept("unit slept"),
     productionCost("production cost: "),
     wokeUp("unit woke up"),
-    isSleep("unit already slept"),
+    fortifyActive("Fortify activated!"),
+    isSleep("unit already is asleep"),
+    isAlert("unit already alerted"),
+    isFortify("unit already fortified"),
+    isFortifyTilHeal("unit already fortified til heal"),
     awaken("unit is awake"),
     nonSelect("nothing has been selected");
 

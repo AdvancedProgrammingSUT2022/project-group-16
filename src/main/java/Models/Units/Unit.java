@@ -20,17 +20,16 @@ public abstract class Unit implements Constructable
 	private int productionCost;
 	private int movementPoints;
 	private Tile tile;
-	private int health;
+	public final int MAX_HEALTH = 10;
+	private int health = MAX_HEALTH;
 	private int speed;
 	private int power;
 	private Technology requiredTechnology; //TODO
 	private Resource requiredResource;
 	private ArrayList<Position> moves = new ArrayList<>();
 	private ArrayList<UnitCommands> commands = new ArrayList<>();
-	private boolean isActive = true;
-	private boolean isSleep = false;
-
-
+	private boolean hasArrived = false;
+	private UnitState unitState = UnitState.ACTIVE;
 
 	public Player getRulerPlayer() {
 		return rulerPlayer;
@@ -54,6 +53,13 @@ public abstract class Unit implements Constructable
 
 	public void setHealth(int health) {
 		this.health = health;
+	}
+
+	public UnitState getUnitState() {
+		return unitState;
+	}
+	public void setUnitState(UnitState unitState) {
+		this.unitState = unitState;
 	}
 
 	public int getSpeed() {
@@ -111,6 +117,13 @@ public abstract class Unit implements Constructable
 	public void setMoves(ArrayList<Position> moves) {
 		this.moves = moves;
 	}
+	public boolean isHasArrived() {
+		return hasArrived;
+	}
+
+	public void setHasArrived(boolean hasArrived) {
+		this.hasArrived = hasArrived;
+	}
 
 	public ArrayList<UnitCommands> getCommands() {
 		return commands;
@@ -118,24 +131,6 @@ public abstract class Unit implements Constructable
 
 	public void addCommand(UnitCommands command) {
 		commands.add(command);
-	}
-
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public void changeActivate()
-	{
-		isActive = !isActive;
-	}
-
-	public boolean isSleep() {
-		return isSleep;
-	}
-
-	public void changeSleepWake()
-	{
-		isSleep = !isSleep;
 	}
 
 	public void getReady(){
@@ -152,9 +147,6 @@ public abstract class Unit implements Constructable
 	}
 	public void cancelCommand(int i){
 		commands.remove(i);
-	}
-	public void awaken(){
-		isSleep = !isSleep;
 	}
 	public void removeUnit(){
 		rulerPlayer.getUnits().remove(this);
@@ -179,7 +171,7 @@ public abstract class Unit implements Constructable
 		if(this.moves.size() == 0){
 			if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
 			if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
-			this.commands.remove(0);
+			//this.commands.remove(0);
 		}
 
 		this.movementPoints -= destination.getTileType().movementCost;

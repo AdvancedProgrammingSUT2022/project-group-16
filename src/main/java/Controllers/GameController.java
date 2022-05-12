@@ -1,15 +1,18 @@
 package Controllers;
 
 import Controllers.Utilities.MapPrinter;
+import Models.City.Building;
 import Models.City.BuildingType;
+import Models.City.Citizen;
 import Models.City.City;
 import Models.Game.Position;
 import Models.Player.*;
 import Models.Menu.Menu;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Resources.ResourceType;
+import Models.Resources.*;
 import Models.Terrain.*;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
@@ -17,10 +20,10 @@ import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.CommandHandeling.UnitCommandsHandler;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
+import Models.Units.UnitState;
 import Models.User;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
-import enums.gameCommands.mapCommands;
 import enums.gameCommands.selectCommands;
 import enums.gameCommands.unitCommands;
 import enums.gameEnum;
@@ -42,21 +45,32 @@ public class GameController
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 
+	// private constructor to prevent instantiation
+	private GameController()
+	{
+		initGrid();
+		initMap();
+	}
+	// this method is called to get the GameController singleton instance
 	public static GameController getInstance()
 	{
 		if(instance == null)
-		{
 			instance = new GameController();
-			instance.initGrid();
-			instance.initMap();
-		}
 		return instance;
 	}
 
-	// this method checks that everything before changing turn is done. (i.e. check if all units have used their turns)
+	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns) //TODO: is this needed?
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
+		//happiness
+		if(totalPopulation() >= playerTurn.getMaxPopulation() + 10)
+		{
+			playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
+			playerTurn.setMaxPopulation(totalPopulation());
+		}
+		if(!playerTurn.getIsUnHappy() && playerTurn.getHappiness() < 0)
+			playerTurn.isUnHappy();
 		// if there is a unit which has not used its turn, it returns the unit's name with error message
 		for(Unit unit : playerTurn.getUnits())
 		{
@@ -69,10 +83,10 @@ public class GameController
 		changeTurn();
 		return null;
 	}
-	// this updates all turns at the end of each turn (i.e. reset all units turns and decrement researching technology turns)
+	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
-		// reset all units turns
+		// reset all units turns. TODO: is this needed?
 		for(Unit unit : playerTurn.getUnits())
 		{
 			// set their turns to default
@@ -81,8 +95,10 @@ public class GameController
 		playerTurn.setSelectedCity(null);
 
 		// consume food for this player (consumes 1 food for each citizen)
+/*
 		for(City city : playerTurn.getCities())
 			playerTurn.setFood(playerTurn.getFood() - city.getPopulation());
+*/
 		// decrement researching technology turns
 
 		// check for city growth
@@ -90,6 +106,13 @@ public class GameController
 
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+		//TODO: check that this is not a duplicate from runGame while loop
+		if(players.indexOf(playerTurn) == 0)
+		{
+			turnCounter++;
+			addTurn(1); //TODO: what does this do?
+			updateFortifyTilHeal();
+		}
 	}
 	public void initGame()
 	{
@@ -109,6 +132,7 @@ public class GameController
 		return MapPrinter.getMapString(player);
 	}
 
+	// this is called when GameController is created. this method only creates an array of Positions and fills grid with these positions
 	private void initGrid()
 	{
 		for(int i = 0; i < MAX_GRID_LENGTH; i++)
@@ -126,6 +150,7 @@ public class GameController
 		
 		return null;
 	}
+	// this method is called when GameController is created. this method creates an array of Tiles and fills map with these tiles. TODO: currently it creates a random map
 	private void initMap()
 	{
 		// TODO: select from a list of maps
@@ -141,13 +166,23 @@ public class GameController
 		for(int i = 0; i < MAP_SIZE; i++)
 			for(int j = 0; j < MAP_SIZE; j++)
 			{
+				Random resourceTypeRandom = new Random();
+				int resourceType = resourceTypeRandom.nextInt(3);
+				Resource resource = null;
+				if(resourceType == 0)
+					resource = new BonusResource(ResourceType.values()[resourceRandom.nextInt(5) + 1]);
+				else if(resourceType == 1)
+					resource = new LuxuryResource(ResourceType.values()[resourceRandom.nextInt(3) + 6]);
+				else
+					resource = new StrategicResource(ResourceType.values()[resourceRandom.nextInt(11) + 9]);
+				
 				BorderType[] borders = new BorderType[6];
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
-				// TODO: bug with the resource and unit. fix it!!!
-				map.add(new Tile(getPosition(i, j), TileType.PLAINS,
-						TileFeature.NONE, borders,
-						null));
+				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
+						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)],
+						borders,
+						resource));
 			}
 	}
 	// set playerTurn and set two units for each player and set their tileStates
@@ -159,11 +194,8 @@ public class GameController
 		{
 			Player player = players.get(i);
 			Tile startingTile = player.getTileByXY(startingPositions[i].X, startingPositions[i].Y);
-			// TODO: this units are temp. they should be modified in their constructors
-			MidRange warrior = new MidRange(player, MidRangeType.WARRIOR, startingTile, MidRangeType.WARRIOR.movement, MidRangeType.WARRIOR.combatStrength);
-			Settler settler = new Settler(player, startingTile);
-			startingTile.setCombatUnitInTile(warrior);
-			startingTile.setNonCombatUnitInTile(settler);
+			new MidRange(player, MidRangeType.WARRIOR, startingTile);
+			new Settler(player, startingTile);
 			player.updateTileStates();
 		}
 	}
@@ -300,11 +332,18 @@ public class GameController
 		else
 			return gameEnum.successfulStartGame.regex;
 	}
+	public int powerForce(Unit unit)
+	{
+		if(unit.getClass().equals(MidRange.class))
+			return ((MidRange) unit).getType().getCombatStrength();
+		if(unit.getClass().equals(LongRange.class))
+			return ((LongRange) unit).getType().getCombatStrength();
+		return 0;
+	}
 
 	//cheat codes
 	public String increaseGold(Matcher matcher)
 	{
-		//TODO: write try catch for catching invalid input
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setGold(playerTurn.getGold() + amount);
 		return (cheatCode.gold.regex + cheatCode.increaseSuccessful.regex);
@@ -323,31 +362,40 @@ public class GameController
 		addTurn(amount);
 		for(Player player : players)
 			for (int i = 0; i < amount; i++)
-				player.setCup(player.incomeCup());
+				player.setCup(player.getCup() + player.incomeCup());
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 
 	public String increaseHappiness(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		playerTurn.setHappiness(playerTurn.getHappiness() + amount);
+		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 1.2));
 		return (cheatCode.happiness.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseHealth(Matcher matcher)
 	{
 		int x = Integer.parseInt(matcher.group("x"));
 		int y = Integer.parseInt(matcher.group("y"));
-		for(Unit unit : playerTurn.getUnits())
-			if(unit.getTile().getPosition().X == x &&
-					unit.getTile().getPosition().Y == y &&
-					!unit.getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
-				unit.setHealth(100);
+		Tile tile = playerTurn.getTileByXY(x, y);
+		// validation
+		if(tile == null)
+			return mainCommands.invalidCommand.regex;
+		Unit unit = tile.getCombatUnitInTile();
+		if(unit == null)
+			return mainCommands.invalidCommand.regex;
+		
+		// increase health
+		unit.setHealth(100);
+		
 		return (cheatCode.health.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseScore(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
+		int index = Menu.allUsers.indexOf(registerController.getUserByUsername(playerTurn.getUsername()));
 		playerTurn.setScore(playerTurn.getScore() + amount);
+		Menu.allUsers.get(index).setScore(Menu.allUsers.get(index).getScore() + amount);
+		registerController.writeDataOnJson();
 		return cheatCode.score.regex + cheatCode.increaseSuccessful.regex;
 	}
 	public String addTechnology(Matcher matcher)
@@ -361,20 +409,65 @@ public class GameController
 			}
 		return mainCommands.invalidCommand.regex;
 	}
-	public String winBattle(Matcher matcher)
-	{
+	public String killEnemyUnit(Matcher matcher) //TODO: change to killUnit. with this cheat code, we can kill any opponent unit.
+	{ //TODO: check for bugs
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
-		//TODO:win battle
-		return cheatCode.addSuccessful.regex;
+		
+		Tile givenTile = getTileByXY(x, y);
+		
+		// validation
+		if(givenTile == null)
+			return mainCommands.invalidCommand.regex;
+		CombatUnit enemyCombatUnit = givenTile.getCombatUnitInTile();
+		NonCombatUnit enemyNonCombatUnit = givenTile.getNonCombatUnitInTile();
+		if (enemyCombatUnit == null && enemyNonCombatUnit == null)
+			return mainCommands.invalidCommand.regex;
+		
+		// kill enemy unit
+		if(enemyCombatUnit != null)
+			enemyCombatUnit.getRulerPlayer().removeUnit(enemyCombatUnit);
+		if(enemyNonCombatUnit != null)
+			enemyNonCombatUnit.getRulerPlayer().removeUnit(enemyNonCombatUnit);
+		
+		return cheatCode.unitKilled.regex;
 	}
 	public String moveUnit(Matcher matcher)
-	{
-		//TODO: move unit
+	{ //TODO: check for bugs
+		//TODO: add invalid output regexes instead of returning invalid command
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
+		
+		Tile originTile = getTileByXY(x, y);
+		Tile destinationTile = getTileByXY(newX, newY);
+		Unit unitToMove = playerTurn.getSelectedUnit();
+		
+		//validation
+		if(destinationTile == null)
+			return mainCommands.invalidCommand.regex;
+		if(destinationTile.getCombatUnitInTile() != null && destinationTile.getCombatUnitInTile().getRulerPlayer() != playerTurn)
+			return mainCommands.invalidCommand.regex;
+		if((unitToMove instanceof CombatUnit && destinationTile.getCombatUnitInTile() != null) ||
+				(unitToMove instanceof NonCombatUnit && destinationTile.getNonCombatUnitInTile() != null))
+			return mainCommands.invalidCommand.regex;
+		
+		// move unit
+		if(unitToMove instanceof CombatUnit)
+		{
+			CombatUnit combatUnit = (CombatUnit) unitToMove;
+			combatUnit.setTile(destinationTile);
+			destinationTile.setCombatUnitInTile(combatUnit);
+			originTile.setCombatUnitInTile(null);
+		}
+		else if(unitToMove instanceof NonCombatUnit)
+		{
+			NonCombatUnit nonCombatUnit = (NonCombatUnit) unitToMove;
+			nonCombatUnit.setTile(destinationTile);
+			destinationTile.setNonCombatUnitInTile(nonCombatUnit);
+			originTile.setNonCombatUnitInTile(null);
+		}
 		return cheatCode.addSuccessful.regex;
 	}
 	public static String enterMenu(Scanner scanner, Matcher matcher)
@@ -463,6 +556,13 @@ public class GameController
 		return true;
 	}
 
+	public int totalPopulation()
+	{
+		int n = 0;
+		for(City city : playerTurn.getCities())
+			n += city.getCitizens().size();
+		return n;
+	}
 	public void addTurn(int amount)
 	{
 		for(Player player : players)
@@ -703,16 +803,21 @@ public class GameController
 			}
 		}
 	}
+
 	public String moveUnit(int x, int y)
 	{
+		Tile tile = getTileByXY(x, y);
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
-			//TODO: add errors
+			else if(playerTurn.getSelectedUnit().move(tile) != null)
+				return playerTurn.getSelectedUnit().move(tile);
 			else
 			{
-				playerTurn.getSelectedUnit().move(getTileByXY(x,y));
+				playerTurn.getSelectedUnit().move(tile);
+				//TODO: probable bug
+				playerTurn.getSelectedUnit().setUnitState(UnitState.ACTIVE);
 				return unitCommands.moveSuccessfull.regex;
 			}
 		}
@@ -723,14 +828,17 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
+			// TODO: probably should be deleted. selected unit only should be yours, not other players
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else
 			{
-				if (playerTurn.getSelectedUnit().isSleep())
+				//TODO: this should be checked. probably a bug
+				if (playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
 					return gameEnum.isSleep.regex;
-				else {
-					playerTurn.getSelectedUnit().changeSleepWake();
+				else
+				{
+					playerTurn.getSelectedUnit().setUnitState(UnitState.SLEEPING);
 					return gameEnum.slept.regex;
 				}
 			}
@@ -739,63 +847,169 @@ public class GameController
 	}
 	public void stayAlert()
 	{
-		for (Unit tmp : playerTurn.getUnits())
-			for(Player player : players)
-				for(Unit unit : player.getUnits())
-					if(player != playerTurn &&
-							tmp.getTile().distanceTo(unit.getTile()) <= 2 &&
-							tmp.isSleep())
-						tmp.changeSleepWake();
+		for(Player player : players)
+			for(Unit unit : player.getUnits())
+			{
+				if(!unit.getUnitState().equals(UnitState.ALERT))
+					continue;
+				for(Tile adjacentTile : playerTurn.getAdjacentTiles(unit.getTile(), 2))
+				{
+					CombatUnit combatUnitInAdjacentTile = adjacentTile.getCombatUnitInTile();
+					NonCombatUnit nonCombatUnitInAdjacentTile = adjacentTile.getNonCombatUnitInTile();
+					if((combatUnitInAdjacentTile != null && combatUnitInAdjacentTile.getRulerPlayer() != playerTurn) ||
+							(nonCombatUnitInAdjacentTile != null && nonCombatUnitInAdjacentTile.getRulerPlayer() != playerTurn))
+						unit.setUnitState(UnitState.ACTIVE);
+				}
+			}
 	}
 	public String alert()
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
+			//TODO: probably should be deleted. selected unit only should be yours, not other players
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(playerTurn.getSelectedUnit() instanceof CombatUnit)
+				return unitCommands.isNotCombat.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().setUnitState(UnitState.ALERT);
+				return unitCommands.alerted.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
+	}
+	public void updateFortifyTilHeal()
+	{
+		//TODO: this method should be called every turn it gets to the first player
+		for(Player player : players)
+			for(Unit unit : player.getUnits())
+				if(unit.getUnitState().equals(UnitState.FORTIFIED_FOR_HEALING) && unit.getHealth() < unit.MAX_HEALTH)
+					unit.setHealth(unit.getHealth() + 1);
+	}
+	public void updateFortify()
+	{
+		//TODO: does fortify need to be updated?
+//		for(Player player : players)
+//			for(Unit unit : player.getUnits())
+//			{
+//				if(unit.getClass().equals(MidRange.class) && !unit.getIsFortify())
+//					unit.setPower(((MidRange) unit).getType().getCombatStrength());
+//				if(unit.getClass().equals(LongRange.class) && !unit.getIsFortify())
+//					unit.setPower(((LongRange) unit).getType().getCombatStrength());
+//			}
+
+	}
+	public String fortify()
+	{
+		Unit tmp = playerTurn.getSelectedUnit();
+		if(tmp != null)
+		{
+			//TODO: probably should be deleted. selected unit only should be yours, not other players
+			if(!playerTurn.getUnits().contains(tmp))
+				return unitCommands.notYours.regex;
+			else if(tmp instanceof CombatUnit)
+				return unitCommands.isNotCombat.regex;
+			else
+			{
+				if(tmp.getUnitState().equals(UnitState.FORTIFIED))
+					return gameEnum.isFortify.regex;
+				tmp.setUnitState(UnitState.FORTIFIED);
+				//tmp.setPower((int) (tmp.getPower() * 1.5)); TODO: this should be calculated when the unit is in combat
+				return unitCommands.fortifyActivated.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
+	}
+	public String fortifyTilHeal()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			// TODO: probably should be deleted. selected unit only should be yours, not other players
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
 				return unitCommands.isNotCombat.regex;
 			else
 			{
-				if (playerTurn.getSelectedUnit().isSleep())
-					return gameEnum.isSleep.regex;
-				else {
-					playerTurn.getSelectedUnit().changeSleepWake();
-					return unitCommands.standByUnit.regex;
-				}
+				playerTurn.getSelectedUnit().setUnitState(UnitState.FORTIFIED_FOR_HEALING);
+				return gameEnum.fortifyActive.regex;
 			}
 		}
 		return gameEnum.nonSelect.regex;
 	}
-	public void fortify()
-	{
-
-	}
-	public void fortifyTilHeal()
-	{
-
-	}
-	public void garrison()
-	{
-
+	//TODO: probably should be deleted. because whenever a combatUnit enters a city, it becomes a garrison for that city
+	public String garrison()
+	{ //TODO: check for bugs
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			//TODO: probably should be deleted. selected unit only should be yours, not other players
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(playerTurn.getSelectedUnit() instanceof CombatUnit)
+				return unitCommands.isNotCombat.regex;
+			City unitCity = playerTurn.getTileCity(playerTurn.getSelectedUnit().getTile());
+			if(unitCity == null)
+				return unitCommands.isNotInCity.regex;
+			else if(unitCity.getGarrison() != null)
+				return unitCommands.hasGarrison.regex;
+			else
+			{
+				unitCity.setGarrison((CombatUnit) playerTurn.getSelectedUnit());
+				playerTurn.getSelectedUnit().setUnitState(UnitState.ACTIVE);
+				return unitCommands.garissonSet.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	public void setup()
 	{
 
 	}
-	public String attack()
+	private boolean belongToPlayerTurn(Tile tile)
 	{
+		for (City city : playerTurn.getCities())
+			if(city.getTerritory().contains(tile))
+				return true;
+		return false;
+	}
+	private Tile belongToCity(Tile tile)
+	{
+		for(Player player : players)
+			for (City city : player.getCities())
+				for (Tile tmp : city.getTerritory())
+					if(tmp == tile)
+						return tmp;
+		return null;
+	}
+	public String attack(Matcher matcher)
+	{
+		if(Integer.parseInt(matcher.group("x")) > 9 || Integer.parseInt(matcher.group("x")) < 0 ||
+				Integer.parseInt(matcher.group("y")) > 9 || Integer.parseInt(matcher.group("y")) < 0)
+			return unitCommands.wrongCoordinates.regex;
+		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
 				return unitCommands.isNotCombat.regex;
-			//TODO: DOC
+			else if(belongToPlayerTurn(tile))
+				return unitCommands.playerTurnCity.regex;
+			else if(playerTurn.getSelectedUnit().getClass().equals(MidRange.class) &&
+						playerTurn.getSelectedUnit().getTile().distanceTo(tile) > 1)
+				return unitCommands.rangeError.regex;
+			else if(playerTurn.getSelectedUnit().getClass().equals(LongRange.class) &&
+					playerTurn.getSelectedUnit().getTile().distanceTo(tile) > ((LongRange) playerTurn.getSelectedUnit()).getType().getRange())
+				return unitCommands.rangeError.regex;
+			else if(tile.getImprovement().equals(Improvement.NONE))
+				return unitCommands.nothingInTile.regex;
 			else
 			{
-				//TODO: add more errors
 				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
+				//TODO: attack city
+				//playerTurn.getSelectedUnit().changeFortify(); TODO
+				tile.setIsPillaged(true);
 				return unitCommands.destroyImprovement.regex;
 			}
 		}
@@ -840,6 +1054,8 @@ public class GameController
 			else
 			{
 				((Settler) playerTurn.getSelectedUnit()).createCity();
+				if(playerTurn.getCities().size() != 1)
+					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 				return unitCommands.cityBuilt.regex;
 			}
 		}
@@ -865,14 +1081,15 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
+			// TODO: this should be deleted. only your units can be selected
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else
 			{
-				if (!playerTurn.getSelectedUnit().isSleep())
+				if (!playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
 					return gameEnum.awaken.regex;
 				else {
-					playerTurn.getSelectedUnit().changeSleepWake();
+					playerTurn.getSelectedUnit().setUnitState(UnitState.ACTIVE);
 					return gameEnum.wokeUp.regex;
 				}
 			}
@@ -915,6 +1132,7 @@ public class GameController
 			return unitCommands.notWorker.regex;
 		return null;
 	}
+
 	public String road()
 	{
 		if(playerTurn.getSelectedUnit() != null)
@@ -1146,10 +1364,66 @@ public class GameController
 		else
 			return gameEnum.nonSelect.regex;
 	}
-
+	public boolean isValidCoordinate(Matcher matcher)
+	{
+		int x = Integer.parseInt(matcher.group("x"));
+		int y = Integer.parseInt(matcher.group("y"));
+		if(x > 9 || x < 0 || y > 9 || y < 0)
+			return false;
+		return true;
+	}
+	private boolean hasBuilding(Tile tile)
+	{
+		for (Player player : players)
+			for (City city : player.getCities())
+				for (Building building : city.getBuildings())
+					if(tile == building.getTile())
+						return true;
+		return false;
+	}
+	public String buildBuilding(Matcher matcher, BuildingType buildingType)
+	{
+		if(playerTurn.getSelectedCity() != null)
+		{
+			if(!playerTurn.getCities().contains(playerTurn.getSelectedCity()))
+				return unitCommands.notYours.regex;
+			else
+			{
+				int x = Integer.parseInt(matcher.group("x"));
+				int y = Integer.parseInt(matcher.group("y"));
+				Tile tile = getTileByXY(x, y);
+				if(!playerTurn.getSelectedCity().getTerritory().contains(tile))
+					return unitCommands.belongTo.regex;
+				if(tile.getImprovement() != Improvement.NONE)
+					return unitCommands.hasImprovement.regex;
+				else if(hasBuilding(tile))
+					return unitCommands.hasBuilding.regex;
+				else if(belongToCity(tile) != null && !belongToPlayerTurn(tile))
+					return unitCommands.cantBuild.regex;
+				else
+				{
+					playerTurn.getSelectedCity().createBuilding(new Building(buildingType, tile));
+					return unitCommands.buildSuccessful.regex;
+				}
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+	}
 	public void resetSelectedObjects()
 	{
 		getPlayerTurn().setSelectedUnit(null);
 		getPlayerTurn().setSelectedCity(null);
+	}
+	public void setFirstHappiness()
+	{
+		for (Player player : players)
+			player.setHappiness(100 - players.size() * 5);
+	}
+
+	public void annexedCity(City annexedCity)
+	{
+		playerTurn.addAnnexedCity(annexedCity);
+		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 	}
 }

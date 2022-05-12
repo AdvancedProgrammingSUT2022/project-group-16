@@ -6,17 +6,15 @@ import Models.Terrain.Tile;
 public class MidRange extends CombatUnit{
     private MidRangeType type;
 
-    public MidRange(Player rulerPlayer, MidRangeType midRangeType, Tile tile, int speed, int power){
+    public MidRange(Player rulerPlayer, MidRangeType midRangeType, Tile tile){
         this.setRulerPlayer(rulerPlayer);
         this.setType(midRangeType);
         this.setProductionCost(type.cost);
         this.setRequiredTechnology(type.requiredTech);
         this.setMovementPoints(type.movement);
+        this.setPower(type.combatStrength);
         this.setTile(tile);
         tile.setCombatUnitInTile(this);
-        this.setHealth(100); //TODO what is the max health,speed,power?
-        this.setSpeed(speed);
-        this.setPower(power);
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
     }
@@ -39,7 +37,7 @@ public class MidRange extends CombatUnit{
         return type.name();
     }
     public MidRange clone(){
-        MidRange newMidRange = new MidRange(this.getRulerPlayer(),this.getType(),this.getTile(),this.getSpeed(),this.getPower());
+        MidRange newMidRange = new MidRange(this.getRulerPlayer(),this.getType(),this.getTile());
         newMidRange.setHealth(this.getHealth());
         return newMidRange;
     }
