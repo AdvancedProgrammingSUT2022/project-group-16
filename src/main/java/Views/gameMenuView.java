@@ -2,7 +2,6 @@ package Views;
 
 import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
-import Models.City.Building;
 import Models.City.BuildingType;
 import Models.City.City;
 import Models.Player.Notification;
@@ -10,11 +9,10 @@ import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.LuxuryResource;
 import Models.Resources.ResourceType;
-import Models.Terrain.Improvement;
-import Models.Terrain.Tile;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
+import Models.Units.UnitState;
 import Models.User;
 import enums.cheatCode;
 import enums.gameCommands.*;
@@ -114,24 +112,21 @@ public class gameMenuView
     {
         int max = player.getUnits().size();
         if(max != 0)
-            System.out.println("unit type\t\tcoordinates\t\tpower\t\tMP\t\thealth\t\tis active\t\tis sleep");
-        for (int i = 0; i < player.getUnits().size(); i++)
+            System.out.println("unit type\t\tcoordinates\t\tpower\t\tMP\t\thealth\t\tunit state");
+        for (int i = 0; i < max; i++)
         {
-            Unit curr = player.getUnits().get(i);
-            System.out.print(" " + curr.toString().toLowerCase(Locale.ROOT));
-            printSpace(19 - curr.toString().length());
-            System.out.print(curr.getTile().getPosition().X + "," + curr.getTile().getPosition().Y);
+            Unit unit = player.getUnits().get(i);
+            System.out.print(" " + unit.toString().toLowerCase(Locale.ROOT));
+            printSpace(19 - unit.toString().length());
+            System.out.print(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y);
             printSpace(11);
-            System.out.print(curr.getPower());
-            printSpace(10 - numberOfDigits(curr.getPower()));
-            System.out.print(curr.getMovementPoints());
-            printSpace(10 - numberOfDigits(curr.getMovementPoints()));
-            System.out.print(curr.getHealth());
-            printSpace(12 - numberOfDigits(curr.getHealth()));
-            System.out.print(curr.isActive());
-            if(curr.isActive()) printSpace(11);
-            else printSpace(10);
-            System.out.println(curr.isSleep());
+            System.out.print(unit.getPower());
+            printSpace(10 - numberOfDigits(unit.getPower()));
+            System.out.print(unit.getMovementPoints());
+            printSpace(10 - numberOfDigits(unit.getMovementPoints()));
+            System.out.print(unit.getHealth());
+            printSpace(12 - numberOfDigits(unit.getHealth()));
+            System.out.println(unit.getUnitState().symbol);
         }
     }
     private static void showDemographic(Player tmp, Scanner scanner)
@@ -191,15 +186,14 @@ public class gameMenuView
         while (number != max + 1)
         {
             if(max != 0)
-                System.out.println("   unit type\t\tcoordinates\t\tis active");
+                System.out.println("   unit type\t\tcoordinates\t\tunit state");
             for (int i = 0; i < max; i++)
             {
-                Unit curr = gameController.getPlayerTurn().getUnits().get(i);
-                System.out.print((i + 1) + ": " + curr.toString().toLowerCase(Locale.ROOT));
-                printSpace(20 - curr.toString().length());
-                System.out.print(curr.getTile().getPosition().X + "," + curr.getTile().getPosition().Y);
-                if(curr.isActive()) System.out.println("\t\t\t Active");
-                else System.out.println("\t\t\tIn Active");
+                Unit unit = gameController.getPlayerTurn().getUnits().get(i);
+                System.out.print((i + 1) + ": " + unit.toString().toLowerCase(Locale.ROOT));
+                printSpace(20 - unit.toString().length());
+                System.out.print(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + "\t\t\t");
+                System.out.println(unit.getUnitState().symbol);
             }
             System.out.println((max + 1) + ": go to Military panel");
             System.out.println((max + 2) + infoCommands.backToGame.regex);
@@ -208,8 +202,8 @@ public class gameMenuView
                 showMilitary(scanner);
             else if(number == max + 2)
                 number = max + 1;
-            else
-                tmp.get(number - 1).changeActivate();
+            else //TODO: probable bug
+                tmp.get(number - 1).setUnitState(UnitState.ACTIVE);
         }
     }
     private static void showEconomics(Scanner scanner)
@@ -397,14 +391,14 @@ public class gameMenuView
     {
         Matcher matcher;
         ArrayList<User> tmpUsers = gameController.convertMapToArr(usersInfo); //Note: user[0] is loggedInUser! [loggedInUser, user1, user2, ...]
-        pickCivilizationAndCreatePlayers(scanner, tmpUsers);;
+        pickCivilizationAndCreatePlayers(scanner, tmpUsers);
         gameController.initGame();
         gameController.setFirstHappiness();
 
         String command = null;
         do
         {
-            gameController.stayAlert();
+//            gameController.stayAlert(); // not in the right place
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
             //if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
             //{
@@ -426,6 +420,9 @@ public class gameMenuView
 
                 //update tileStates for playerTurn
                 gameController.getPlayerTurn().updateTileStates();
+                
+                // alert some units. this method alerts all units that are in ALERT state for all players
+                gameController.stayAlert();
                 
                 // print map after before(after?) command
                 System.out.println(gameController.getMapString());

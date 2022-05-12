@@ -79,11 +79,12 @@ public enum unitCommands
     repairedSuccessful("tile repaired successfully"),
     plantationBuild("plantation built"),
     isNotCombat("selected unit is not a combat unit"),
-    standByUnit("unit stand by"), //TODO: maybe change
+    alerted("unit is in ALERT now"),
     destroyImprovement("improvement destroyed"),
     moveSuccessfull("unit moved successfully"),
     gainGold("\nyou got "),
     isNotInCity("selected unit is not in a city"),
+    hasGarrison("this city already has a garrison"),
     garissonSet("garrison placed in the city"),
     gold(" gold"),
     fortifyActivated("fortify activated"),

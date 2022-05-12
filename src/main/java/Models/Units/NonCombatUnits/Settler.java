@@ -12,7 +12,6 @@ public class Settler extends NonCombatUnit{
         this.setMovementPoints(1);
         this.setTile(tile);
         tile.setNonCombatUnitInTile(this);
-        this.setHealth(100);
         this.setSpeed(1);
         this.setPower(0);
         this.setRequiredResource(null);
