@@ -359,44 +359,50 @@ public class Player extends User
 						}
 						if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
 						{
-							Tile northNeighbor = getTileByXY(unitPosition.X - 1, unitPosition.Y);
+							Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
 							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							if((northNeighbor != null && !northNeighbor.getTileType().isBlocker) || (northEastNeighbor != null && !northEastNeighbor.getTileFeature().isBlocker))
+							if((northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker) ||
+									(northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
 						{
 							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							Tile southWestNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
-							if((northEastNeighbor != null && !northEastNeighbor.getTileFeature().isBlocker) || (southWestNeighbor != null && !southWestNeighbor.getTileFeature().isBlocker))
+							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+							if((northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker) ||
+									(southEastNeighbor != null && !southEastNeighbor.getTileType().isBlocker && !southEastNeighbor.getTileFeature().isBlocker))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
 						{
 							Tile southWestNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
 							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker) || (southNeighbor != null && !southNeighbor.getTileType().isBlocker))
+							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker) ||
+									(southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
 						{
 							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
 							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
-							if((southNeighbor != null && !southNeighbor.getTileType().isBlocker) || (southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker))
+							if((southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker) ||
+									(southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
 						{
 							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
 							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
-							if((southWestNeighbor != null && !southWestNeighbor.getTileFeature().isBlocker) || (northWestNeighbor != null && !northWestNeighbor.getTileFeature().isBlocker))
+							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && ! southWestNeighbor.getTileFeature().isBlocker) ||
+									(northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
 						{
 							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
 							Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
-							if((northWestNeighbor != null && !northWestNeighbor.getTileFeature().isBlocker) || (northNeighbor != null && !northNeighbor.getTileFeature().isBlocker))
+							if((northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker) ||
+									(northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker))
 								tilesInSight.add(tile);
 						}
 					}
