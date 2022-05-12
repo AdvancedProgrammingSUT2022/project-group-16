@@ -225,8 +225,8 @@ public class gameMenuView
         {
             System.out.print(n.get(i).getName());
             printSpace(24 - n.get(i).getName().length());
-            System.out.print(n.get(i).getPopulation());
-            printSpace(17 - numberOfDigits(n.get(i).getPopulation()));
+            System.out.print(n.get(i).getCitizens().size());
+            printSpace(17 - numberOfDigits(n.get(i).getCitizens().size()));
             System.out.print(n.get(i).getPower());
             printSpace(16 - numberOfDigits(n.get(i).getPower()));
             System.out.print(n.get(i).getFoodYield());
@@ -235,8 +235,8 @@ public class gameMenuView
             printSpace(17 - numberOfDigits(n.get(i).getCupYield()));
             System.out.print(n.get(i).getGoldYield());
             printSpace(17 - numberOfDigits(n.get(i).getGoldYield()));
-            System.out.print(n.get(i).getPopulation());
-            printSpace(21 - numberOfDigits(n.get(i).getPopulation()));
+            System.out.print(n.get(i).getCitizens().size());
+            printSpace(21 - numberOfDigits(n.get(i).getCitizens().size()));
             System.out.println(n.get(i).getCapitalTile().getPosition().X + ","
                     + n.get(i).getCapitalTile().getPosition().Y);
         }
@@ -693,10 +693,11 @@ public class gameMenuView
                 if(isTechDone != null) System.out.println(isTechDone);
 //                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             }
-        } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.handleUnitCommands();
             gameController.updatePlayersUnitLocations();
-        }
+            gameController.updateWorkersConstructions();
+            gameController.updateCityConstructions();
+        } while (!Objects.equals(command, gameEnum.end.toString()));
     }
     public static void runGameMenu()
     {

@@ -175,7 +175,7 @@ public class GameController
 					resource = new LuxuryResource(ResourceType.values()[resourceRandom.nextInt(3) + 6]);
 				else
 					resource = new StrategicResource(ResourceType.values()[resourceRandom.nextInt(11) + 9]);
-				
+
 				BorderType[] borders = new BorderType[6];
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
@@ -361,8 +361,13 @@ public class GameController
 		turnCounter += amount;
 		addTurn(amount);
 		for(Player player : players)
-			for (int i = 0; i < amount; i++)
+			for (int i = 0; i < amount; i++){
 				player.setCup(player.getCup() + player.incomeCup());
+				handleUnitCommands();
+				updatePlayersUnitLocations();
+				updateWorkersConstructions();
+				updateCityConstructions();
+			}
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
 
@@ -383,10 +388,10 @@ public class GameController
 		Unit unit = tile.getCombatUnitInTile();
 		if(unit == null)
 			return mainCommands.invalidCommand.regex;
-		
+
 		// increase health
 		unit.setHealth(100);
-		
+
 		return (cheatCode.health.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseScore(Matcher matcher)
@@ -413,9 +418,9 @@ public class GameController
 	{ //TODO: check for bugs
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
-		
+
 		Tile givenTile = getTileByXY(x, y);
-		
+
 		// validation
 		if(givenTile == null)
 			return mainCommands.invalidCommand.regex;
@@ -423,13 +428,13 @@ public class GameController
 		NonCombatUnit enemyNonCombatUnit = givenTile.getNonCombatUnitInTile();
 		if (enemyCombatUnit == null && enemyNonCombatUnit == null)
 			return mainCommands.invalidCommand.regex;
-		
+
 		// kill enemy unit
 		if(enemyCombatUnit != null)
 			enemyCombatUnit.getRulerPlayer().removeUnit(enemyCombatUnit);
 		if(enemyNonCombatUnit != null)
 			enemyNonCombatUnit.getRulerPlayer().removeUnit(enemyNonCombatUnit);
-		
+
 		return cheatCode.unitKilled.regex;
 	}
 	public String moveUnit(Matcher matcher)
@@ -439,11 +444,11 @@ public class GameController
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
-		
+
 		Tile originTile = getTileByXY(x, y);
 		Tile destinationTile = getTileByXY(newX, newY);
 		Unit unitToMove = playerTurn.getSelectedUnit();
-		
+
 		//validation
 		if(destinationTile == null)
 			return mainCommands.invalidCommand.regex;
@@ -452,7 +457,7 @@ public class GameController
 		if((unitToMove instanceof CombatUnit && destinationTile.getCombatUnitInTile() != null) ||
 				(unitToMove instanceof NonCombatUnit && destinationTile.getNonCombatUnitInTile() != null))
 			return mainCommands.invalidCommand.regex;
-		
+
 		// move unit
 		if(unitToMove instanceof CombatUnit)
 		{
@@ -790,6 +795,11 @@ public class GameController
 				if(((Worker) unit).getImprovements().get(1).inLineTurn < ((Worker) unit).getImprovements().get(1).turnToConstruct)
 					((Worker) unit).buildMine();
 			}
+		}
+	}
+	public void updateCityConstructions(){
+		for (City city : this.getPlayerTurn().getCities()) {
+			city.construct(city.getCurrentConstruction());
 		}
 	}
 	public void handleUnitCommands(){
@@ -1421,9 +1431,9 @@ public class GameController
 			player.setHappiness(100 - players.size() * 5);
 	}
 
-	public void annexedCity(City annexedCity)
+	public void seizedCity(City seizedCity)
 	{
-		playerTurn.addAnnexedCity(annexedCity);
+		playerTurn.getSeizedCities().add(seizedCity);
 		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 	}
 }

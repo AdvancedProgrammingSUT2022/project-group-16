@@ -37,11 +37,12 @@ public class Player extends User
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
 	private ArrayList<City> cities = new ArrayList<>();
-	private ArrayList<City> annexedCities = new ArrayList<>();
+	private ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
 	private ArrayList<Unit> units = new ArrayList<>();
+	private int tilePurchaseCost = 10; //increases every time the player purchases a tile
 	private boolean isUnHappy = false;
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score)
@@ -72,12 +73,6 @@ public class Player extends User
 	{
 		this.selectedCity = city;
 	}
-	public ArrayList<City> getAnnexedCities() {
-		return annexedCities;
-	}
-	public void addAnnexedCity(City annexedCity) {
-		annexedCities.add(annexedCity);
-	}
 
 	public int getPopulation() {
 		return population;
@@ -99,6 +94,13 @@ public class Player extends User
 	public void setCapitalCity(City city)
 	{
 		currentCapitalCity = city;
+	}
+
+	public int getTilePurchaseCost() {
+		return tilePurchaseCost;
+	}
+	public void setTilePurchaseCost(int tilePurchaseCost) {
+		this.tilePurchaseCost = tilePurchaseCost;
 	}
 
 	public int getFood()
@@ -181,6 +183,10 @@ public class Player extends User
 	{
 		researchingTechCounter[index] += amount;
 	}
+	public ArrayList<City> getSeizedCities() {
+		return seizedCities;
+	}
+
 
 	public ArrayList<ResourceType> getAcquiredLuxuryResources() {
 		return acquiredLuxuryResources;
@@ -331,14 +337,14 @@ public class Player extends User
 			for(Tile tile : map.keySet())
 			{
 				int distance = tile.distanceTo(unit.getTile());
-				
+
 				if(distance == 0 || distance == 1)
 					tilesInSight.add(tile);
 				else if(distance == 2)
 				{
 						Position unitPosition = unit.getTile().getPosition();
 						Position tilePosition = tile.getPosition();
-						
+
 						if(unitPosition.Q == tilePosition.Q)
 						{
 							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
