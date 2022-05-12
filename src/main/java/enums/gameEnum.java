@@ -52,12 +52,17 @@ public enum gameEnum
     health("health: "),
     power("power: "),
     population("population: "),
+    employedCitizens("employed citizens: "),
+    unEmployedCitizens("unemployed citizens : "),
     speed("speed: "),
     slept("unit slept"),
     productionCost("production cost: "),
     wokeUp("unit woke up"),
     fortifyActive("Fortify activated!"),
     isSleep("unit already slept"),
+    isAlert("unit already alerted"),
+    isFortify("unit already fortified"),
+    isFortifyTilHeal("unit already fortified til heal"),
     awaken("unit is awake"),
     nonSelect("nothing has been selected");
 

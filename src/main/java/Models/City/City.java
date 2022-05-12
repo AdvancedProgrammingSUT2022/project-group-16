@@ -64,6 +64,22 @@ public class City
 	}
 
 
+	public ArrayList<Citizen> getCitizens() {
+		return citizens;
+	}
+	public void addCitizen(Citizen citizen)
+	{
+		citizens.add(citizen);
+	}
+
+	public int employedCitizens()
+	{
+		int n = 0;
+		for(Citizen citizen : citizens)
+			if(citizen.getWorkingTile() != null)
+				n++;
+		return n;
+	}
 	public String getName() {
 		return name;
 	}

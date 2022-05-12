@@ -4,6 +4,7 @@ import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
 import Models.City.Building;
 import Models.City.BuildingType;
+import Models.City.Citizen;
 import Models.City.City;
 import Models.Player.Notification;
 import Models.Player.Player;
@@ -72,8 +73,16 @@ public class gameMenuView
         System.out.println(tmp.getUsername() + gameEnum.turn.regex);
         System.out.println(MapPrinter.getMapString(tmp));
         System.out.println(tmp.getUsername() + gameEnum.turn.regex);
-        System.out.println(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
-                tmp.getHappiness() + "\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
+        System.out.print(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
+                tmp.getHappiness());
+        System.out.print(":");
+        if(tmp.getHappiness() > 50)
+            for(int i = 0; i < (tmp.getHappiness() - 50) / 10; i++)
+                System.out.print(")");
+        else
+            for(int i = 0; i <  5 - (tmp.getHappiness() / 10); i++)
+                System.out.print("(");
+        System.out.println("\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
     }
     private static void showNotifications(Scanner scanner)
     {
@@ -357,10 +366,12 @@ public class gameMenuView
         City tmp = gameController.getPlayerTurn().getSelectedCity();
 
         System.out.println(infoCommands.cityName.regex + tmp.getName());
-        System.out.println(gameEnum.foodYield.regex + gameController.getPlayerTurn().getSelectedCity().getFoodYield());
-        System.out.println(gameEnum.production.regex + gameController.getPlayerTurn().getSelectedCity().getProductionYield());
-        System.out.println(gameEnum.goldYield.regex + gameController.getPlayerTurn().getSelectedCity().getGoldYield());
-        System.out.println(gameEnum.cupYield.regex + gameController.getPlayerTurn().getSelectedCity().getCupYield());
+        System.out.println(gameEnum.foodYield.regex + tmp.getFoodYield());
+        System.out.println(gameEnum.production.regex + tmp.getProductionYield());
+        System.out.println(gameEnum.goldYield.regex + tmp.getGoldYield());
+        System.out.println(gameEnum.cupYield.regex + tmp.getCupYield());
+        System.out.println(gameEnum.employedCitizens.regex + (tmp.employedCitizens()));
+        System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.totalPopulation() - tmp.employedCitizens()));
     }
     private static void showCivilizations()
     {
@@ -406,17 +417,12 @@ public class gameMenuView
         {
             gameController.stayAlert();
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
-            //if(gameController.getPlayers().indexOf(gameController.getPlayerTurn()) == 0)
-            //{
-            //    gameController.addTurn(1);
-            //    gameController.addToTurnCounter(1);
-            //    gameController.updateFortifyTilHeal();
-            //}
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
             gameController.updateFortify();
 
             showBaseFields();
+            System.out.println(gameController.getTurnCounter());
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -656,11 +662,11 @@ public class gameMenuView
                 }
                 else if(command.equals("q"))
                 {
-                    System.out.println(((Worker) gameController.getPlayerTurn().getUnits().get(2)).getTurnsTillBuildRailRoad());
+                    City n = new City(gameController.getMap().get(53), gameController.getPlayerTurn());
                 }
                 else if(command.equals("f"))
                 {
-                    gameController.getPlayers().get(0).setPopulation(0);
+                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(53));
                 }
                 else if(command.equals("d"))
                 {
@@ -688,6 +694,7 @@ public class gameMenuView
                     System.out.println(mainCommands.invalidCommand.regex);
                 String isTechDone = gameController.checkTechnology();
                 if(isTechDone != null) System.out.println(isTechDone);
+//                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.handleUnitCommands();
