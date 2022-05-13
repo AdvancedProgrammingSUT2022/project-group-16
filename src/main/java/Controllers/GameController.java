@@ -830,7 +830,7 @@ public class GameController
 				return playerTurn.getSelectedUnit().move(tile);
 			else
 			{
-				playerTurn.getSelectedUnit().move(tile);
+//				playerTurn.getSelectedUnit().move(tile);
 				//TODO: probable bug
 				playerTurn.getSelectedUnit().setUnitState(UnitState.ACTIVE);
 				return unitCommands.moveSuccessfull.regex;
@@ -853,12 +853,22 @@ public class GameController
 					return gameEnum.isSleep.regex;
 				else
 				{
+					changePower(playerTurn.getSelectedUnit());
 					playerTurn.getSelectedUnit().setUnitState(UnitState.SLEEPING);
 					return gameEnum.slept.regex;
 				}
 			}
 		}
 		return gameEnum.nonSelect.regex;
+	}
+	private void changePower(Unit unit)
+	{
+		if(unit.getUnitState().equals(UnitState.FORTIFIED)) {
+			if (unit.getClass().equals(MidRange.class))
+				unit.setPower(((MidRange) unit).getType().combatStrength);
+			if (unit.getClass().equals(LongRange.class))
+				unit.setPower(((LongRange) unit).getType().combatStrength);
+		}
 	}
 	public void stayAlert()
 	{
@@ -881,13 +891,13 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			//TODO: probably should be deleted. selected unit only should be yours, not other players
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
-			else if(playerTurn.getSelectedUnit() instanceof CombatUnit)
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
 				return unitCommands.isNotCombat.regex;
 			else
 			{
+				changePower(playerTurn.getSelectedUnit());
 				playerTurn.getSelectedUnit().setUnitState(UnitState.ALERT);
 				return unitCommands.alerted.regex;
 			}
@@ -900,37 +910,29 @@ public class GameController
 		for(Player player : players)
 			for(Unit unit : player.getUnits())
 				if(unit.getUnitState().equals(UnitState.FORTIFIED_FOR_HEALING) && unit.getHealth() < unit.MAX_HEALTH)
-					unit.setHealth(unit.getHealth() + 1);
-	}
-	public void updateFortify()
-	{
-		//TODO: does fortify need to be updated?
-//		for(Player player : players)
-//			for(Unit unit : player.getUnits())
-//			{
-//				if(unit.getClass().equals(MidRange.class) && !unit.getIsFortify())
-//					unit.setPower(((MidRange) unit).getType().getCombatStrength());
-//				if(unit.getClass().equals(LongRange.class) && !unit.getIsFortify())
-//					unit.setPower(((LongRange) unit).getType().getCombatStrength());
-//			}
-
+				{
+					if(belongToPlayerTurn(unit.getTile()))
+						unit.setHealth(unit.getHealth() + 3);
+					else
+						unit.setHealth(unit.getHealth() + 1);
+					//TODO: different amounts for outside tiles
+				}
 	}
 	public String fortify()
 	{
 		Unit tmp = playerTurn.getSelectedUnit();
 		if(tmp != null)
 		{
-			//TODO: probably should be deleted. selected unit only should be yours, not other players
 			if(!playerTurn.getUnits().contains(tmp))
 				return unitCommands.notYours.regex;
-			else if(tmp instanceof CombatUnit)
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
 				return unitCommands.isNotCombat.regex;
 			else
 			{
 				if(tmp.getUnitState().equals(UnitState.FORTIFIED))
 					return gameEnum.isFortify.regex;
 				tmp.setUnitState(UnitState.FORTIFIED);
-				//tmp.setPower((int) (tmp.getPower() * 1.5)); TODO: this should be calculated when the unit is in combat
+				tmp.setPower((int) (tmp.getPower() * 1.5));
 				return unitCommands.fortifyActivated.regex;
 			}
 		}
@@ -940,25 +942,23 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			// TODO: probably should be deleted. selected unit only should be yours, not other players
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
 				return unitCommands.isNotCombat.regex;
 			else
 			{
+				changePower(playerTurn.getSelectedUnit());
 				playerTurn.getSelectedUnit().setUnitState(UnitState.FORTIFIED_FOR_HEALING);
-				return gameEnum.fortifyActive.regex;
+				return unitCommands.fortifyHeal.regex;
 			}
 		}
 		return gameEnum.nonSelect.regex;
 	}
-	//TODO: probably should be deleted. because whenever a combatUnit enters a city, it becomes a garrison for that city
 	public String garrison()
 	{ //TODO: check for bugs
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			//TODO: probably should be deleted. selected unit only should be yours, not other players
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
@@ -970,6 +970,7 @@ public class GameController
 				return unitCommands.hasGarrison.regex;
 			else
 			{
+				changePower(playerTurn.getSelectedUnit());
 				unitCity.setGarrison((CombatUnit) playerTurn.getSelectedUnit());
 				playerTurn.getSelectedUnit().setUnitState(UnitState.ACTIVE);
 				return unitCommands.garissonSet.regex;
@@ -1019,6 +1020,7 @@ public class GameController
 				return unitCommands.nothingInTile.regex;
 			else
 			{
+				changePower(playerTurn.getSelectedUnit());
 				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
 				playerTurn.getSelectedUnit().getTile().setIsPillaged(true);
 				return unitCommands.destroyImprovement.regex;
@@ -1061,8 +1063,10 @@ public class GameController
 				return unitCommands.rangeError.regex;
 			else if(isCityInTile(tile) == null)
 				return unitCommands.notCityInDestination.regex;
-			else
+			else {
+				changePower(playerTurn.getSelectedUnit());
 				return playerTurn.getSelectedUnit().attackToCity(isCityInTile(tile));
+			}
 		}
 		else
 			return gameEnum.nonSelect.regex;
@@ -1121,6 +1125,7 @@ public class GameController
 				return unitCommands.notYours.regex;
 			else
 			{
+				changePower(playerTurn.getSelectedUnit());
 				playerTurn.getSelectedUnit().getCommands().clear();
 				return unitCommands.cancelCommand.regex;
 			}
@@ -1132,14 +1137,15 @@ public class GameController
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
-			// TODO: this should be deleted. only your units can be selected
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
 			else
 			{
 				if (!playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
 					return gameEnum.awaken.regex;
-				else {
+				else
+				{
+					changePower(playerTurn.getSelectedUnit());
 					playerTurn.getSelectedUnit().setUnitState(UnitState.ACTIVE);
 					return gameEnum.wokeUp.regex;
 				}

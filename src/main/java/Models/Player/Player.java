@@ -27,6 +27,7 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 0;
 	private int happiness = 0;
+	private int XP = 0;
 	private int population = 0;
 	private int maxPopulation = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
@@ -84,6 +85,12 @@ public class Player extends User
 	}
 	public void setMaxPopulation(int maxPopulation) {
 		this.maxPopulation = maxPopulation;
+	}
+	public int getXP() {
+		return XP;
+	}
+	public void setXP(int XP) {
+		this.XP = XP;
 	}
 
 	public Civilization getCivilization()

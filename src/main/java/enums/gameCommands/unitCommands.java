@@ -96,6 +96,7 @@ public enum unitCommands
     garissonSet("garrison placed in the city"),
     gold(" gold"),
     fortifyActivated("fortify activated"),
+    fortifyHealActivated("fortify heal activated"),
     commandAdded("command added!");
 
     public final String regex;

@@ -3,6 +3,7 @@ package Models.City;
 import Controllers.GameController;
 import Models.Player.Player;
 import Models.Terrain.Tile;
+import Models.Terrain.TileType;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
@@ -266,9 +267,12 @@ public class City
 	}
 
 	public String destroyCity(){
-//		for (Player player : GameController.getInstance().getPlayers()) {
-//			if(this == player.getCurrentCapitalCity()) return"cannot destroy the capital of a civilization";
-//		}
+		for (Player player : GameController.getInstance().getPlayers()) {
+			if(this == player.getCurrentCapitalCity()) {
+				this.state = CityState.NONE;
+				return "cannot destroy the capital of a civilization";
+			}
+		}
 		rulerPlayer.getSeizedCities().remove(this);
 		this.state = CityState.DESTROYED;
 		return null;
@@ -288,14 +292,13 @@ public class City
 		int n = 10;
 		this.combatStrength = 10;
 		for (Tile tile : this.getTerritory()) {
-//			n += tile.getTileType().combatModifier * this.combatStrength / 100;
-//			n += tile.getTileFeature().combatModifier * this.combatStrength / 100;
 			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile().getClass().equals(MidRange.class) && tile != this.capitalTile)
 				n += tile.getTileType().combatModifier * ((MidRange) tile.getCombatUnitInTile()).getType().combatStrength / 100;
 			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile().getClass().equals(LongRange.class) && tile != this.capitalTile)
 				n += tile.getTileType().combatModifier * ((LongRange) tile.getCombatUnitInTile()).getType().combatStrength / 100;
 		}
 		n += (this.getTerritory().size() / 5) * 2; //strength increases 2 degrees for each 5 tiles
+		if(this.getCapitalTile().getTileType().equals(TileType.HILLS)) n += 5;
 		if(this.getGarrison() != null && this.getGarrison() instanceof LongRange)
 			n += ((LongRange) this.getGarrison()).getType().combatStrength;
 		else if(this.getGarrison() != null && this.getGarrison() instanceof MidRange)

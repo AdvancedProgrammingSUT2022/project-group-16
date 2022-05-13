@@ -506,7 +506,7 @@ public class gameMenuView
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
-            gameController.updateFortify();
+//            gameController.updateFortify();
 
             showBaseFields();
             while (scanner.hasNextLine())
@@ -514,7 +514,7 @@ public class gameMenuView
                 command = scanner.nextLine();
                 String techDone = gameController.checkTechnology();
                 if(techDone != null) System.out.println(techDone);
-                gameController.updateFortify();
+//                gameController.updateFortify();
 
                 //update tileStates for playerTurn
                 gameController.getPlayerTurn().updateTileStates();
