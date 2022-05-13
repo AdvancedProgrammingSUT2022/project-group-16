@@ -32,7 +32,7 @@ public class Player extends User
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
-	private ArrayList<Resource> resources;
+	private ArrayList<ResourceType> resources;
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
@@ -56,7 +56,7 @@ public class Player extends User
 		for(Tile tile : gameController.getMap())
 			this.map.put(tile, TileState.FOG_OF_WAR);
 	}
-	
+
 	public City getSelectedCity()
 	{
 		return selectedCity;
@@ -73,7 +73,6 @@ public class Player extends User
 	{
 		this.selectedCity = city;
 	}
-
 	public int getPopulation() {
 		return population;
 	}
@@ -223,15 +222,15 @@ public class Player extends User
 	}
 	//TODO: I deleted updateCup. I hope there is no problem with that :)
 
-	public ArrayList<Resource> getResources()
+	public ArrayList<ResourceType> getResources()
 	{
 		return resources;
 	}
-	public void setResources(ArrayList<Resource> resources)
+	public void setResources(ArrayList<ResourceType> resources)
 	{
 		this.resources = resources;
 	}
-	
+
 	// TODO: there should be a Map class which holds all the tiles and its methods like getTileByXY and getTileByQRS and ...
 	public HashMap<Tile, TileState> getMap()
 	{
@@ -258,14 +257,14 @@ public class Player extends User
 		for(Tile thisTile : map.keySet())
 			if(tile.distanceTo(thisTile) == 1)
 				adjacentTiles.add(thisTile);
-		
+
 		return adjacentTiles;
 	}
 	public void addCity(City newCity)
 	{
 		cities.add(newCity);
 	}
-//	public void setMap(ArrayList<Tile> map)
+	//	public void setMap(ArrayList<Tile> map)
 //	{
 //		this.map = new HashMap<>();
 //		for(Tile tile : map)
@@ -328,10 +327,10 @@ public class Player extends User
 	public void updateTileStates()
 	{
 		//iterate through all tiles and change their state based on their relative position to units and cities
-		
+
 		// this is all tiles that can be seen by the units and cities
 		HashSet<Tile> tilesInSight = new HashSet<>();
-		
+
 		//tiles in sight of units
 		for(Unit unit : units)
 			for(Tile tile : map.keySet())
@@ -420,7 +419,7 @@ public class Player extends User
 				tilesInSight.add(tile);
 				tilesInSight.addAll(getAdjacentTiles(tile, 1));
 			}
-		
+
 		/* update tileStates */
 		// tileStates that are in sight
 		HashSet<Tile> tilesToBeVisible = new HashSet<>();
@@ -437,7 +436,7 @@ public class Player extends User
 			map.put(visibleTile, TileState.VISIBLE);
 			tilesInSight.add(visibleTile);
 		}
-		
+
 		// collect all tiles that are not in sight and are not fog of war to make them REVEALED
 		HashSet<Tile> tilesToBeRevealed = new HashSet<Tile>();
 		for(Tile tile : map.keySet())

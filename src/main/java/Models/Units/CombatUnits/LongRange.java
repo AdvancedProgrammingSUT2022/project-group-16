@@ -15,6 +15,7 @@ public class LongRange extends CombatUnit{
         this.setMovementPoints(type.movement);
         this.setTile(tile);
         tile.setCombatUnitInTile(this);
+        this.setPower(type.combatStrength);
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
     }

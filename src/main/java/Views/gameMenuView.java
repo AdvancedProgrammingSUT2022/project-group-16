@@ -2,14 +2,14 @@ package Views;
 
 import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
-import Models.City.BuildingType;
-import Models.City.Citizen;
-import Models.City.City;
+import Models.City.*;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.LuxuryResource;
 import Models.Resources.ResourceType;
+import Models.Terrain.Improvement;
+import Models.Terrain.Tile;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
@@ -49,6 +49,66 @@ public class gameMenuView
         return tmp;
     }
 
+    private static int cityDestroy(Scanner scanner)
+    {
+        System.out.println(infoCommands.cityGot.regex);
+        System.out.println(infoCommands.destroy.regex);
+        System.out.println(infoCommands.attach.regex);
+        return getNumber(scanner, 2);
+    }
+    private void buyUnit(Scanner scanner)
+    {
+        MidRangeType tmp1 = null;
+        LongRangeType tmp2 = null;
+        System.out.println("1: mid range type");
+        System.out.println("2: long range type");
+        System.out.println(infoCommands.backToGame.regex);
+        int number = getNumber(scanner, 3);
+        if(number == 1)
+            tmp1 = showValidMidrange(scanner);
+        if(number == 2)
+            tmp2 = showValidLongranges(scanner);
+
+
+    }
+    private static MidRangeType showValidMidrange(Scanner scanner)
+    {
+        int max = 0;
+        ArrayList<MidRangeType> midType = new ArrayList<>();
+        for(int i = 0; i < MidRangeType.values().length; i++)
+        {
+            if(gameController.getPlayerTurn().getTechnologies().contains(MidRangeType.values()[i].requiredTech) &&
+                    gameController.getPlayerTurn().getResources().contains(MidRangeType.values()[i].requiredSource)) {
+                System.out.println((max + 1) + ": " + MidRangeType.values()[i].name() + " - " + MidRangeType.values()[i].cost);
+                midType.add(MidRangeType.values()[i]);
+                max++;
+            }
+        }
+        System.out.println(infoCommands.backToGame.regex);
+        int number = getNumber(scanner, max + 1);
+        if(number != max + 1)
+            return midType.get(number - 1);
+        return null;
+    }
+    private static LongRangeType showValidLongranges(Scanner scanner)
+    {
+        int max = 0;
+        ArrayList<LongRangeType> longType = new ArrayList<>();
+        for(int i = 0; i < LongRangeType.values().length; i++)
+        {
+            if(gameController.getPlayerTurn().getTechnologies().contains(LongRangeType.values()[i].requiredTech) &&
+                    gameController.getPlayerTurn().getResources().contains(LongRangeType.values()[i].requiredSource)) {
+                System.out.println((max + 1) + ": " + LongRangeType.values()[i].name() + " - " + LongRangeType.values()[i].cost);
+                longType.add(LongRangeType.values()[i]);
+                max++;
+            }
+        }
+        System.out.println(infoCommands.backToGame.regex);
+        int number = getNumber(scanner, max + 1);
+        if(number != max + 1)
+            return longType.get(number - 1);
+        return null;
+    }
     private static BuildingType showValidBuildings(Scanner scanner)
     {
         int max = 0;
@@ -171,9 +231,6 @@ public class gameMenuView
             showScoreBoard(scanner, tmp);
         else if(pickNum != number + 2)
             showDemographic(newArr.get(pickNum - 1), scanner);
-
-
-
     }
     private static void showMilitary(Scanner scanner)
     {
@@ -218,27 +275,32 @@ public class gameMenuView
     private static void showEconomics(Scanner scanner)
     {
         ArrayList<City> n = gameController.getPlayerTurn().getCities();
-        int max = gameController.getPlayerTurn().getCities().size();
+        for(City city : gameController.getPlayerTurn().getSeizedCities())
+            if(city.getState() == CityState.ATTACHED)
+                n.add(city);
         if(n.size() != 0)
-            System.out.println("city name\t\t\tpopulation\t\tpower force\t\tfood yield\t\tcup yield\t\tgold yield\t\tproduction yield\t\tposition");
-        for (int i = 0; i < max; i++)
-        {
-            System.out.print(n.get(i).getName());
-            printSpace(24 - n.get(i).getName().length());
-            System.out.print(n.get(i).getCitizens().size());
-            printSpace(17 - numberOfDigits(n.get(i).getCitizens().size()));
-            System.out.print(n.get(i).getPower());
-            printSpace(16 - numberOfDigits(n.get(i).getPower()));
-            System.out.print(n.get(i).getFoodYield());
-            printSpace(15 - numberOfDigits(n.get(i).getFoodYield()));
-            System.out.print(n.get(i).getCupYield());
-            printSpace(17 - numberOfDigits(n.get(i).getCupYield()));
-            System.out.print(n.get(i).getGoldYield());
-            printSpace(17 - numberOfDigits(n.get(i).getGoldYield()));
-            System.out.print(n.get(i).getCitizens().size());
-            printSpace(21 - numberOfDigits(n.get(i).getCitizens().size()));
-            System.out.println(n.get(i).getCapitalTile().getPosition().X + ","
-                    + n.get(i).getCapitalTile().getPosition().Y);
+            System.out.println("city name\t\t\tpopulation\t\tpower force\t\tfood yield\t\tcup yield\t\tgold yield\t\tproduction yield\t\tposition\t\tattached");
+        for (City city : n) {
+            System.out.print(city.getName());
+            printSpace(24 - city.getName().length());
+            System.out.print(city.getCitizens().size());
+            printSpace(17 - numberOfDigits(city.getCitizens().size()));
+            System.out.print(city.getCombatStrength());
+            printSpace(16 - numberOfDigits(city.getCombatStrength()));
+            System.out.print(city.getFoodYield());
+            printSpace(15 - numberOfDigits(city.getFoodYield()));
+            System.out.print(city.getCupYield());
+            printSpace(17 - numberOfDigits(city.getCupYield()));
+            System.out.print(city.getGoldYield());
+            printSpace(17 - numberOfDigits(city.getGoldYield()));
+            System.out.print(city.getCitizens().size());
+            printSpace(21 - numberOfDigits(city.getCitizens().size()));
+            System.out.print(city.getCapitalTile().getPosition().X + "," + city.getCapitalTile().getPosition().Y);
+            printSpace(10);
+            if (city.getState() == CityState.ATTACHED)
+                System.out.println("attached");
+            else
+                System.out.println("not attached");
         }
         System.out.println("1: " + infoCommands.searchCity.regex);
         System.out.println("2: " + infoCommands.backToGame.regex);
@@ -268,10 +330,10 @@ public class gameMenuView
         ArrayList<Technology> candidateTechs = new ArrayList<>();
         for(int i = 0; i < Technology.values().length; i++)
             if(tmp.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies) &&
-                !tmp.getTechnologies().contains(Technology.values()[i]))
+                    !tmp.getTechnologies().contains(Technology.values()[i]))
             {
                 if(tmp.getResearchingTechnology() != null &&
-                    Technology.values()[i].equals(tmp.getResearchingTechnology()))
+                        Technology.values()[i].equals(tmp.getResearchingTechnology()))
                 {
                     System.out.println((max + 1) + ": " + Technology.values()[i].toString() + infoCommands.currResearch.regex);
                     flag = max + 1;
@@ -307,23 +369,46 @@ public class gameMenuView
     }
     private static void printCities(Player player)
     {
-        int max = player.getCities().size();
-        if(max == 0)
+        int destroyedCities = 0;
+        for(City city : player.getSeizedCities())
+            if(city.getState() == CityState.DESTROYED)
+                destroyedCities++;
+        int size = player.getCities().size() + player.getSeizedCities().size() - destroyedCities;
+        System.out.println(infoCommands.cities.regex);
+        if(size == 0)
             System.out.println(infoCommands.nothing.regex);
         else
         {
-            for (int i = 0; i < max; i++)
+            for (int i = 0; i < player.getCities().size(); i++)
             {
                 if(player.getCities().get(i) == player.getCurrentCapitalCity())
                     System.out.println((i + 1) + ": " + player.getCities().get(i).getName() + " (capital city)");
                 else
                     System.out.println((i + 1) + ": " + player.getCities().get(i).getName());
             }
+            int attachedCities = 0;
+            for (int i = 0; i < player.getSeizedCities().size() - destroyedCities; i++)
+            {
+                if(player.getSeizedCities().get(i).getState() == CityState.ATTACHED) {
+                    System.out.println((attachedCities + player.getCities().size() + 1) + ": " + player.getSeizedCities().get(i).getName() + " (attached)");
+                    attachedCities++;
+                }
+            }
         }
     }
     private static void showAllCities(Scanner scanner)
     {
-        int max = gameController.getPlayerTurn().getCities().size();
+        int destroyedCities = 0;
+        for(City city : gameController.getPlayerTurn().getSeizedCities())
+            if(city.getState() == CityState.DESTROYED)
+                destroyedCities++;
+        ArrayList<City> tmp = new ArrayList<>();
+        for(City city : gameController.getPlayerTurn().getSeizedCities())
+            if(city.getState() == CityState.ATTACHED)
+                tmp.add(city);
+        int max = gameController.getPlayerTurn().getCities().size() +
+                gameController.getPlayerTurn().getSeizedCities().size() -
+                destroyedCities;
         printCities(gameController.getPlayerTurn());
         System.out.println((max + 1) + infoCommands.searchEconomic.regex);
         System.out.println((max + 2) + infoCommands.backToGame.regex);
@@ -332,8 +417,16 @@ public class gameMenuView
             showEconomics(scanner);
         else if(number != max + 2)
         {
-            gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(number - 1));
-            showCity();
+            if(number <= gameController.getPlayerTurn().getCities().size())
+            {
+                gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(number - 1));
+                showCity();
+            }
+            else
+            {
+                gameController.getPlayerTurn().setSelectedCity(tmp.get(number - gameController.getPlayerTurn().getCities().size() - 1));
+                showCity();
+            }
         }
     }
     private static void showUnit()
@@ -416,7 +509,6 @@ public class gameMenuView
             gameController.updateFortify();
 
             showBaseFields();
-            System.out.println(gameController.getTurnCounter());
             while (scanner.hasNextLine())
             {
                 command = scanner.nextLine();
@@ -437,7 +529,7 @@ public class gameMenuView
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     System.out.println(gameController.increaseGold(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //Almost done
-                        System.out.println(gameController.increaseTurns(matcher));
+                    System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
                     System.out.println(gameController.increaseFood(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
@@ -527,9 +619,36 @@ public class gameMenuView
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.setup) != null)
                     gameController.setup(); //TODO
+                else if((matcher = unitCommands.compareRegex(command, unitCommands.pillage)) != null)
+                {
+                    System.out.println(gameController.pillage());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.attack)) != null)
                 {
-                    System.out.println(gameController.attack(matcher));
+                    String tmp = gameController.attackCity(matcher);
+                    if(tmp !=null)
+                        System.out.println(tmp);
+                    else
+                    {
+                        City seizedCity = gameController.belongToCity(gameController.
+                                getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y"))));
+                        int number = cityDestroy(scanner); //number 1: destroy number 2: seized
+                        if(number == 1)
+                            System.out.println(gameController.destroyCity(seizedCity));
+                        if(number == 2)
+                            System.out.println(gameController.attachCity(seizedCity));
+                    }
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.buyTile)) != null)
+                {
+                    gameController.buyTile(matcher); //TODO
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.buyUnit)) != null)
+                {
+                    //TODO
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
@@ -663,21 +782,19 @@ public class gameMenuView
                 }
                 else if(command.equals("f"))
                 {
-                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(53));
+                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(54));
                 }
                 else if(command.equals("d"))
                 {
-                    LuxuryResource l = new LuxuryResource(ResourceType.GEMS);
-                    gameController.getPlayerTurn().addLuxuryResource(l);
+                    LongRange p = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(54));
                 }
                 else if(command.equals("v"))
                 {
-                    gameController.getPlayerTurn().setHappiness(gameController.getPlayerTurn().getHappiness() - 15);
+                    MidRange n = new MidRange(gameController.getPlayerTurn(), MidRangeType.RIFLEMAN, gameController.getMap().get(64));
                 }
                 else if(command.equals("p"))
                 {
-                    LuxuryResource l = new LuxuryResource(ResourceType.FURS);
-                    gameController.getPlayerTurn().addLuxuryResource(l);
+                    gameController.getPlayerTurn().getUnits().get(2).setHealth(5);
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {

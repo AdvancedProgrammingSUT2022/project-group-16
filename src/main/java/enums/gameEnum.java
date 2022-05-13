@@ -13,6 +13,8 @@ public enum gameEnum
     next("^\\s*[nN]ext\\s*$"),
     end("^\\s*[eE]nd\\s*$"),
     buildBuilding("^\\s*[bB]uild\\s+[bB]uilding\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    buyTile("^\\s*[pP]urchase\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    buyUnit("^\\s*[pP]urchase\\s+[uU]nit\\s*$"),
 
     //messages
     invalidCommand("invalid command"),
