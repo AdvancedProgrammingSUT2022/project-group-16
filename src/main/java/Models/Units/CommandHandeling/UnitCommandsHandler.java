@@ -35,7 +35,7 @@ public class UnitCommandsHandler {
         else if(commands.equals(UnitCommands.REMOVE_MARSH)) ((Worker) unit).removeMarsh();
         else if(commands.equals(UnitCommands.REMOVE_ROADS)) ((Worker) unit).removeRoads();
         else if(commands.equals(UnitCommands.REPAIR_TILE)) ((Worker) unit).repairTile();
-        else if(commands.equals(UnitCommands.CHANGE_ACTIVATE)) unit.changeActivate();
-        else if(commands.equals(UnitCommands.SLEEP)) unit.changeSleepWake();
+        //else if(commands.equals(UnitCommands.CHANGE_ACTIVATE)) unit.changeActivate();
+        //else if(commands.equals(UnitCommands.SLEEP)) unit.changeSleepWake();
     }
 }

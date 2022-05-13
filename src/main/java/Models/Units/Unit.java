@@ -1,5 +1,6 @@
 package Models.Units;
 
+import Models.City.City;
 import Models.City.Construction;
 import Models.Game.Position;
 import Models.Player.Player;
@@ -30,6 +31,8 @@ public abstract class Unit implements Construction
 	private ArrayList<UnitCommands> commands = new ArrayList<>();
 	private boolean hasArrived = false;
 	private UnitState unitState = UnitState.ACTIVE;
+	private Tile destination = null;
+
 
 	public Player getRulerPlayer() {
 		return rulerPlayer;
@@ -132,6 +135,13 @@ public abstract class Unit implements Construction
 	public void addCommand(UnitCommands command) {
 		commands.add(command);
 	}
+	public Tile getDestination() {
+		return destination;
+	}
+
+	public void setDestination(Tile destination) {
+		this.destination = destination;
+	}
 
 	public void getReady(){
 
@@ -153,34 +163,53 @@ public abstract class Unit implements Construction
 	}
 
 	public String move(Tile destination){
-		if(this.getTile().getPosition().equals(destination.getPosition())) return "the unit is in destination Tile";
-		this.moves = FindWay.getInstance(destination).getMoves();
-		if(this.moves.size() == 0) return "the unit can't go to destination";
-		Tile nextTile = rulerPlayer.getTileByXY(moves.get(0).X, moves.get(0).Y);
-		if((nextTile.getTileType().equals(TileType.OCEAN) && (!nextTile.hasRoad() || !this.getTile().hasRoad()))){
-			return "the unit can't go to destination";
+		if(destination == null) return "no destination";
+		this.destination = destination;
+		FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
+		this.moves = FindWay.getInstance().getMoves();
+		return updateUnitMovements();
+	}
+	public String updateUnitMovements(){
+		if(this.getMovementPoints() == 0) return "no movementPoints";
+		if(this.moves.size() == 0 && !this.getTile().equals(this.destination)) return "cannot move to destination";
+		if(this.moves.size() == 0 && this.getTile().equals(this.destination)){
+			if(!isTileEnemy(this.destination)){
+				if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
+				else if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
+			}
+			this.destination = null;
 		}
-		if(this.moves.size() == 1 && isThereAnotherUnitInTile(nextTile)) return "there is another unit of this type at destination";
-		if(this.movementPoints == 0) {
-			return "the unit doesn't have any MPs";
-		}
-		if(this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this) this.getTile().setCombatUnitInTile(null);
-		if(this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this) this.getTile().setNonCombatUnitInTile(null);
-			this.tile = nextTile;
-		this.moves.remove(0);
-		if(this.moves.size() == 0){
-			if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
-			if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
-			//this.commands.remove(0);
-		}
-
+		Tile nextTile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
+		if(this.movementPoints < nextTile.getTileType().movementCost && !canUnitStayInTile(nextTile))
+			return"cannot stay in destination Tile";
+		if(this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this)
+			this.getTile().setCombatUnitInTile(null);
+		else if(this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
+			this.getTile().setNonCombatUnitInTile(null);
+		this.setTile(nextTile);
+		this.getMoves().remove(0);
 		this.movementPoints -= destination.getTileType().movementCost;
-		if(nextTile.getBorders().equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
-			if(this.movementPoints < 0) this.movementPoints = 0;
+		//if(nextTile.getBorders()[0].equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
+		if(this.movementPoints < 0) this.movementPoints = 0;
 		//TODO check for railroad penalty
 		return null;
+
 	}
-	private boolean isThereAnotherUnitInTile(Tile tile){
+	private boolean canUnitStayInTile(Tile destination){
+		if((destination.getTileType().equals(TileType.OCEAN) && (!destination.hasRoad() || !this.getTile().hasRoad()))){
+			return false;
+		}
+		if(this.moves.size() == 1 && isThereAnotherUnitInTile(destination) && !isTileEnemy(destination))
+			return false;
+		return true;
+	}
+	private boolean isTileEnemy(Tile destination){
+		for (City city : this.getRulerPlayer().getCities()) {
+			if(city.getTerritory().contains(destination)) return false;
+		}
+		return true;
+	}
+	public boolean isThereAnotherUnitInTile(Tile tile){
 		if(tile.getCombatUnitInTile() != null && (this instanceof CombatUnit)) return true;
 		if(tile.getNonCombatUnitInTile() != null && (this instanceof NonCombatUnit)) return true;
 		return false;

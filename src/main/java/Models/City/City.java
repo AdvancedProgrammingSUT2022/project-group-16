@@ -6,6 +6,7 @@ import Models.Terrain.Tile;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
+import Models.Units.UnitState;
 
 import java.util.ArrayList;
 
@@ -288,31 +289,33 @@ public class City
 		else if(this.getGarrison() != null && this.getGarrison() instanceof MidRange)
 			this.combatStrength += ((MidRange) this.getGarrison()).getType().combatStrength;
 	}
-	//TODO check if the units are active;
+
 	public String attackCityWithMidRange(City enemy){
 		MidRange unit = null;
 		if(enemy.getRulerPlayer() == this.getRulerPlayer()) return "cannot attack your city";
 		for (Tile tile : this.getTerritory()) {
-			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile() instanceof MidRange){
+			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile() instanceof MidRange &&
+					((MidRange) tile.getCombatUnitInTile()).getUnitState().equals(UnitState.ACTIVE)){
 				unit = (MidRange) tile.getCombatUnitInTile();
 				break;
 			}
 		}
 		if(unit == null) return"do not have any melee unit to attack";
-		//TODO move melee to enemy tile;
+		//unit.attack(enemy);
 		return null;
 	}
 	public String attackCityWithLongRange(City enemy){
 		LongRange unit = null;
 		if(enemy.getRulerPlayer() == this.getRulerPlayer()) return "cannot attack your city";
 		for (Tile tile : this.getTerritory()) {
-			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile() instanceof LongRange){
+			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile() instanceof LongRange &&
+					((LongRange) tile.getCombatUnitInTile()).getUnitState().equals(UnitState.ACTIVE)){
 				unit = (LongRange) tile.getCombatUnitInTile();
 				break;
 			}
 		}
 		if(unit == null) return"do not have any melee unit to attack";
-		//TODO calculate hit points;
+		//unit.attack(enemy);
 		return null;
 	}
 
