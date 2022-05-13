@@ -86,6 +86,11 @@ public class GameController
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
+		//update cities combat strength
+		for(Player player : players)
+			for (City city : player.getCities())
+				city.updateCityCombatStrength();
+
 		// reset all units turns. TODO: is this needed?
 		for(Unit unit : playerTurn.getUnits())
 		{
@@ -143,18 +148,18 @@ public class GameController
 	{
 		if(x < 0 || y < 0 || x >= MAX_GRID_LENGTH || y >= MAX_GRID_LENGTH)
 			return null;
-		
+
 		for(Position position : grid)
 			if(position.X == x && position.Y == y)
 				return position;
-		
+
 		return null;
 	}
 	// this method is called when GameController is created. this method creates an array of Tiles and fills map with these tiles. TODO: currently it creates a random map
 	private void initMap()
 	{
 		// TODO: select from a list of maps
-		
+
 		// create sample maps
 		Random borderRandom = new Random();
 		Random tileTypeRandom = new Random();
@@ -162,7 +167,7 @@ public class GameController
 		Random improvementRandom = new Random();
 		Random resourceRandom = new Random();
 		Random CUnitRandom = new Random();
-		
+
 		for(int i = 0; i < MAP_SIZE; i++)
 			for(int j = 0; j < MAP_SIZE; j++)
 			{
@@ -390,7 +395,7 @@ public class GameController
 			return mainCommands.invalidCommand.regex;
 
 		// increase health
-		unit.setHealth(100);
+		unit.setHealth(10);
 
 		return (cheatCode.health.regex + cheatCode.increaseSuccessful.regex);
 	}
@@ -956,7 +961,7 @@ public class GameController
 			//TODO: probably should be deleted. selected unit only should be yours, not other players
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
-			else if(playerTurn.getSelectedUnit() instanceof CombatUnit)
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
 				return unitCommands.isNotCombat.regex;
 			City unitCity = playerTurn.getTileCity(playerTurn.getSelectedUnit().getTile());
 			if(unitCity == null)
@@ -983,16 +988,58 @@ public class GameController
 				return true;
 		return false;
 	}
-	private Tile belongToCity(Tile tile)
+	private City isCityInTile(Tile tile)
+	{
+		for(Player player : players)
+			for (City city : player.getCities())
+				if(city.getCapitalTile() == tile)
+					return city;
+		return null;
+	}
+	public City belongToCity(Tile tile)
 	{
 		for(Player player : players)
 			for (City city : player.getCities())
 				for (Tile tmp : city.getTerritory())
 					if(tmp == tile)
-						return tmp;
+						return city;
 		return null;
 	}
-	public String attack(Matcher matcher)
+	public String pillage()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(playerTurn.getSelectedUnit().getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				return unitCommands.isNotCombat.regex;
+			else if(belongToPlayerTurn(playerTurn.getSelectedUnit().getTile()))
+				return unitCommands.playerTurnCity.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.NONE))
+				return unitCommands.nothingInTile.regex;
+			else
+			{
+				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
+				playerTurn.getSelectedUnit().getTile().setIsPillaged(true);
+				return unitCommands.destroyImprovement.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+
+	}
+	public String destroyCity(City city)
+	{
+		city.destroyCity();
+		return unitCommands.destroyCity.regex;
+	}
+
+	public String attachCity(City city)
+	{
+		city.attachCity();
+		return unitCommands.attachCity.regex;
+	}
+	public String attackCity(Matcher matcher)
 	{
 		if(Integer.parseInt(matcher.group("x")) > 9 || Integer.parseInt(matcher.group("x")) < 0 ||
 				Integer.parseInt(matcher.group("y")) > 9 || Integer.parseInt(matcher.group("y")) < 0)
@@ -1007,21 +1054,15 @@ public class GameController
 			else if(belongToPlayerTurn(tile))
 				return unitCommands.playerTurnCity.regex;
 			else if(playerTurn.getSelectedUnit().getClass().equals(MidRange.class) &&
-						playerTurn.getSelectedUnit().getTile().distanceTo(tile) > 1)
+					playerTurn.getSelectedUnit().getTile().distanceTo(tile) > 1)
 				return unitCommands.rangeError.regex;
 			else if(playerTurn.getSelectedUnit().getClass().equals(LongRange.class) &&
 					playerTurn.getSelectedUnit().getTile().distanceTo(tile) > ((LongRange) playerTurn.getSelectedUnit()).getType().getRange())
 				return unitCommands.rangeError.regex;
-			else if(tile.getImprovement().equals(Improvement.NONE))
-				return unitCommands.nothingInTile.regex;
+			else if(isCityInTile(tile) == null)
+				return unitCommands.notCityInDestination.regex;
 			else
-			{
-				playerTurn.getSelectedUnit().getTile().setImprovement(Improvement.NONE);
-				//TODO: attack city
-				//playerTurn.getSelectedUnit().changeFortify(); TODO
-				tile.setIsPillaged(true);
-				return unitCommands.destroyImprovement.regex;
-			}
+				return playerTurn.getSelectedUnit().attackToCity(isCityInTile(tile));
 		}
 		else
 			return gameEnum.nonSelect.regex;
@@ -1033,7 +1074,7 @@ public class GameController
 		for(Player player : players)
 			for (City city : player.getCities())
 				if(city.getCapitalTile().getPosition().X == x &&
-					city.getCapitalTile().getPosition().Y == y)
+						city.getCapitalTile().getPosition().Y == y)
 					return true;
 		return false;
 	}
@@ -1045,7 +1086,7 @@ public class GameController
 			for(City city : player.getCities())
 				for(Tile tmp : city.getTerritory())
 					if(tmp.getPosition().X == x &&
-						tmp.getPosition().Y == y)
+							tmp.getPosition().Y == y)
 						return true;
 		return false;
 	}
@@ -1185,7 +1226,7 @@ public class GameController
 				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.FARM))
 				return unitCommands.hasFarm.regex;
-			//TODO: cant build(reasons)
+				//TODO: cant build(reasons)
 			else
 			{
 				((Worker) playerTurn.getSelectedUnit()).buildFarm();
@@ -1435,5 +1476,17 @@ public class GameController
 	{
 		playerTurn.getSeizedCities().add(seizedCity);
 		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
+	}
+	public String buyTile(Matcher matcher)
+	{
+		if(Integer.parseInt(matcher.group("x")) > 9 || Integer.parseInt(matcher.group("x")) < 0 ||
+				Integer.parseInt(matcher.group("y")) > 9 || Integer.parseInt(matcher.group("y")) < 0)
+			return unitCommands.wrongCoordinates.regex;
+		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		return null;
+	}
+	public void buyUnit(Unit unit)
+	{
+
 	}
 }

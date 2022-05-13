@@ -33,6 +33,7 @@ public class Settler extends NonCombatUnit{
         if(!theTileIsInAnotherCity()) {
             new City(this.getTile(), this.getRulerPlayer());
             this.removeUnit();
+            this.getTile().setNonCombatUnitInTile(null);
         }
     }
 

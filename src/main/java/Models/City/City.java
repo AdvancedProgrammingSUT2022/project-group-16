@@ -17,7 +17,7 @@ public class City
 	private int productionYield = 0;
 	private int goldYield = 0;
 	private int cupYield = 0;
-	private int power = 0;
+	private int hitPoints = 20;
 	private  ArrayList<Building> buildings = new ArrayList<>();
 	private  ArrayList<Citizen> citizens = new ArrayList<>();
 	private Construction currentConstruction = null;
@@ -71,6 +71,10 @@ public class City
 		citizens.add(citizen);
 	}
 
+	public CityState getState() {
+		return state;
+	}
+
 	public int employedCitizens()
 	{
 		int n = 0;
@@ -86,11 +90,11 @@ public class City
 	{
 		return territory;
 	}
-	public int getPower() {
-		return power;
+	public int getCombatStrength() {
+		return combatStrength;
 	}
-	public void addPower(int amount) {
-		power += amount;
+	public void setCombatStrength(int power) {
+		this.combatStrength = power;
 	}
 	public Construction getCurrentConstruction() {
 		return currentConstruction;
@@ -103,6 +107,12 @@ public class City
 	}
 	public void addFood(int amount) {
 		foodYield += amount;
+	}
+	public int getHitPoints() {
+		return hitPoints;
+	}
+	public void setHitPoints(int hitPoints) {
+		this.hitPoints = hitPoints;
 	}
 
 	public void createBuilding(Building building) //TODO
@@ -144,7 +154,7 @@ public class City
 
 	public void growCity() //TODO: this should increase the number of citizens of the city
 	{
-	
+
 	}
 	public CombatUnit getGarrison() {
 		return garrison;
@@ -256,19 +266,16 @@ public class City
 	}
 
 	public String destroyCity(){
-		if(!rulerPlayer.getSeizedCities().contains(this)) return"cannot destroy this city";
-		for (Player player : GameController.getInstance().getPlayers()) {
-			if(this == player.getCurrentCapitalCity()) return"cannot destroy the capital of a civilization";
-		}
+//		for (Player player : GameController.getInstance().getPlayers()) {
+//			if(this == player.getCurrentCapitalCity()) return"cannot destroy the capital of a civilization";
+//		}
 		rulerPlayer.getSeizedCities().remove(this);
 		this.state = CityState.DESTROYED;
 		return null;
 	}
 
-	public String attachCity(){
-		if(!rulerPlayer.getSeizedCities().contains(this)) return"cannot attach this city";
-		if(this.state.equals(CityState.SEIZED)) this.state = CityState.ATTACHED;
-		return null;
+	public void attachCity(){
+		this.state = CityState.ATTACHED;
 	}
 	public void seizeCity(Player winner){
 		this.rulerPlayer = winner;
@@ -276,17 +283,24 @@ public class City
 		winner.getSeizedCities().add(this);
 	}
 
-	public void updateCityCombatStrength(){
+	public void updateCityCombatStrength()
+	{
+		int n = 10;
 		this.combatStrength = 10;
 		for (Tile tile : this.getTerritory()) {
-			this.combatStrength += tile.getTileType().combatModifier * this.combatStrength;
-			this.combatStrength += tile.getTileFeature().combatModifier * this.combatStrength;
+//			n += tile.getTileType().combatModifier * this.combatStrength / 100;
+//			n += tile.getTileFeature().combatModifier * this.combatStrength / 100;
+			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile().getClass().equals(MidRange.class) && tile != this.capitalTile)
+				n += tile.getTileType().combatModifier * ((MidRange) tile.getCombatUnitInTile()).getType().combatStrength / 100;
+			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile().getClass().equals(LongRange.class) && tile != this.capitalTile)
+				n += tile.getTileType().combatModifier * ((LongRange) tile.getCombatUnitInTile()).getType().combatStrength / 100;
 		}
-		this.combatStrength += (this.getTerritory().size() / 5) * 2; //strength increases 2 degrees for each 5 tiles
+		n += (this.getTerritory().size() / 5) * 2; //strength increases 2 degrees for each 5 tiles
 		if(this.getGarrison() != null && this.getGarrison() instanceof LongRange)
-			this.combatStrength += ((LongRange) this.getGarrison()).getType().combatStrength;
+			n += ((LongRange) this.getGarrison()).getType().combatStrength;
 		else if(this.getGarrison() != null && this.getGarrison() instanceof MidRange)
-			this.combatStrength += ((MidRange) this.getGarrison()).getType().combatStrength;
+			n += ((MidRange) this.getGarrison()).getType().combatStrength;
+		this.combatStrength = n;
 	}
 	//TODO check if the units are active;
 	public String attackCityWithMidRange(City enemy){
@@ -317,7 +331,6 @@ public class City
 	}
 
 }
-
 
 
 

@@ -1,5 +1,6 @@
 package Models.Units;
 
+import Models.City.City;
 import Models.City.Construction;
 import Models.Game.Position;
 import Models.Player.Player;
@@ -9,8 +10,11 @@ import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.LongRange;
+import Models.Units.CombatUnits.MidRange;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.NonCombatUnits.NonCombatUnit;
+import enums.gameCommands.unitCommands;
 
 import java.util.ArrayList;
 
@@ -144,6 +148,54 @@ public abstract class Unit implements Construction
 	}
 	public void getSet(){
 
+	}
+	public String attackToCity(City city)
+	{
+		if(city.getHitPoints() == 1 && this.getClass().equals(MidRange.class))
+		{
+			//seized city
+			city.seizeCity(this.rulerPlayer);
+			return unitCommands.citySeized.regex;
+		}
+		else if(city.getHitPoints() == 1)
+			return unitCommands.longRangeSeizedCity.regex;
+		else if(this.getClass().equals(MidRange.class)) //midrange attack
+		{
+			int y = ((MidRange) this).getType().getCombatStrength();
+			double x = (double) (10 + this.getHealth()) / 20;
+			int cityDamage = (city.getCombatStrength() - (int) (x * y));
+			int unitDamage = ((((MidRange) this).getType().getCombatStrength()) - city.getCombatStrength());
+			if(cityDamage < 0)
+			{
+				city.setHitPoints(city.getHitPoints() + cityDamage);
+				if(city.getHitPoints() < 1) {
+					city.seizeCity(rulerPlayer);
+					return null;
+				}
+			}
+			if(unitDamage < 0)
+			{
+				this.setHealth(this.getHealth() + unitDamage);
+				if(this.getHealth() <= 0)
+				{
+					removeUnit();
+					return unitCommands.unitDestroy.regex;
+				}
+			}
+		}
+		else //long range attack
+		{
+			int cityDamage = (city.getCombatStrength() - (((LongRange) this).getType().getCombatStrength() * ((10 - this.getHealth()) / 20)));
+			if(cityDamage < 0)
+			{
+				city.setHitPoints(city.getHitPoints() + cityDamage);
+				if(city.getHitPoints() < 1) {
+					city.setHitPoints(1);
+					return unitCommands.longRangeSeizedCity.regex;
+				}
+			}
+		}
+		return unitCommands.successfullAttack.regex;
 	}
 	public void cancelCommand(int i){
 		commands.remove(i);

@@ -46,7 +46,11 @@ public enum infoCommands
     averageScore("Average: "),
     unitName("unit name"),
     sendMessage("Turn: "),
-    message("message: ");
+    message("message: "),
+    cityGot("you got the city!\nwhat do you want to do?"),
+    destroy("1: destroy"),
+    attach("2: attach"),
+    attachedCities("attached city/cities: ");
 
     public final String regex;
 

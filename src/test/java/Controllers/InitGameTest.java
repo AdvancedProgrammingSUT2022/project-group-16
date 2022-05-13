@@ -16,7 +16,7 @@ class InitGameTest
 {
 	GameController gameController;
 	Player playerTurn;
-	
+
 	@BeforeEach
 	void setUp()
 	{
@@ -24,21 +24,20 @@ class InitGameTest
 		gameController.addPlayer(new Player(Civilization.AMERICAN, "Player 1", "p1", "123", 0));
 		gameController.addPlayer(new Player(Civilization.ARABIAN, "Player 2", "p2", "123", 0));
 	}
-	
+
 	@Test
 	void testInitGame()
 	{
 		gameController.initGame();
 		playerTurn = gameController.getPlayerTurn();
-		
+
 		playerTurn.getUnits().get(0).setUnitState(UnitState.ACTIVE);
 		City city = new City(playerTurn.getTileByXY(5, 5), playerTurn);
 		playerTurn.getTileByXY(5, 5).setImprovement(Improvement.PLANTATION);
-		
+
 		System.out.println(gameController.getMapString());
 	}
 }
-
 
 
 
