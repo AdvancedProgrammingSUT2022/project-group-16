@@ -1,7 +1,7 @@
 package Models.Units;
 
 import Models.City.Constructable;
-import Models.Game.Position;
+import Models.Terrain.Position;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.Resource;

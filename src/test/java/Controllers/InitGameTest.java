@@ -5,6 +5,7 @@ import Models.City.City;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Terrain.Improvement;
+import Models.Terrain.Position;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.LongRangeType;
 import Models.Units.Unit;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.Test;
 class InitGameTest
 {
 	GameController gameController;
-	Player playerTurn;
 	
 	@BeforeEach
 	void setUp()
@@ -29,12 +29,15 @@ class InitGameTest
 	void testInitGame()
 	{
 		gameController.initGame();
-		playerTurn = gameController.getPlayerTurn();
 		
-		playerTurn.getUnits().get(0).setUnitState(UnitState.ACTIVE);
-		City city = new City(playerTurn.getTileByXY(5, 5), playerTurn);
-		playerTurn.getTileByXY(5, 5).setImprovement(Improvement.PLANTATION);
+		System.out.println("food: " + gameController.getPlayerTurn().getFood() + " gold: " + gameController.getPlayerTurn().getGold());
 		
+		// make a city in the middle of the map
+		new City(gameController.getPlayerTurn().getTileByXY(5, 5), gameController.getPlayerTurn());
+		new City(gameController.getPlayerTurn().getTileByXY(2, 5), gameController.getPlayers().get(1));
+		
+		
+
 		System.out.println(gameController.getMapString());
 	}
 }

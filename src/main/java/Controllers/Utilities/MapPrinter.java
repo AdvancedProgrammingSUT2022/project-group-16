@@ -1,7 +1,6 @@
 package Controllers.Utilities;
 
 import Controllers.GameController;
-import Models.City.City;
 import Models.Player.Player;
 import Models.Player.TileState;
 import Models.Resources.Resource;
@@ -508,10 +507,16 @@ public class MapPrinter
 			printFog(14);
 		else
 		{
-			if(player.getTileCity(tile) != null)
-				mapString.append(Ansi.colorize(String.format("   %-8s   ", player.getCivilization()), tile.getTileType().attribute, Attribute.BLACK_TEXT()));
-			else
-				mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
+			for(Player player : GameController.getInstance().getPlayers())
+			{
+				if(player.getTileCity(tile) != null)
+				{
+					mapString.append(Ansi.colorize(String.format("   %-8s   ", player.getCivilization()), tile.getTileType().attribute, Attribute.BLACK_TEXT()));
+					break;
+				}
+				if(GameController.getInstance().getPlayers().indexOf(player) == GameController.getInstance().getPlayers().size() - 1)
+					mapString.append(Ansi.colorize("              ", tile.getTileType().attribute));
+			}
 		}
 	}
 	// print name of the city if tile is inside a city
@@ -521,10 +526,18 @@ public class MapPrinter
 			printFog(16);
 		else
 		{
+			//			String cityName = "";
+			//			City tileCity = player.getTileCity(tile);
+			//			if(tileCity != null)
+			//				cityName = tileCity.getName();
+			//			mapString.append(Ansi.colorize(String.format("%-16s", cityName), tile.getTileType().attribute, Attribute.BLACK_TEXT()));
 			String cityName = "";
-			City tileCity = player.getTileCity(tile);
-			if(tileCity != null)
-				cityName = tileCity.getName();
+			for(Player player : GameController.getInstance().getPlayers())
+				if(player.getTileCity(tile) != null)
+				{
+					cityName = player.getTileCity(tile).getName();
+					break;
+				}
 			mapString.append(Ansi.colorize(String.format("%-16s", cityName), tile.getTileType().attribute, Attribute.BLACK_TEXT()));
 		}
 	}
@@ -548,7 +561,7 @@ public class MapPrinter
 				else
 					unitAttribute = tile.getTileType().attribute;
 				
-				mapString.append(Ansi.colorize(String.format("%-10s%s❤%2d", tile.getCombatUnitInTile().toString(),
+				mapString.append(Ansi.colorize(String.format("%-10s%s❤%-2d", tile.getCombatUnitInTile().toString(),
 						combatUnit.getUnitState().symbol, combatUnit.getHealth()), unitAttribute, Attribute.BLACK_TEXT()));
 			}
 		}

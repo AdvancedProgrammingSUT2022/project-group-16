@@ -2,7 +2,7 @@ package Models.Player;
 
 import Controllers.GameController;
 import Models.City.*;
-import Models.Game.Position;
+import Models.Terrain.Position;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
@@ -23,9 +23,9 @@ public class Player extends User
 	private Unit selectedUnit = null;
 	private City selectedCity = null;
 	private final Civilization civilization;
-	private int food = 0;
+	private int food = 100;
 	private int cup = 0;
-	private int gold = 0;
+	private int gold = 100;
 	private int happiness = 0;
 	private int population = 0;
 	private int maxPopulation = 0;
@@ -269,6 +269,13 @@ public class Player extends User
 	public ArrayList<City> getCities()
 	{
 		return cities;
+	}
+	public int getTotalPopulation()
+	{
+		int n = 0;
+		for(City city : cities)
+			n += city.getPopulation();
+		return n;
 	}
 	// this method gets a tile and returns the city it is in. (or null if it is not in a city)
 	public City getTileCity(Tile tile)

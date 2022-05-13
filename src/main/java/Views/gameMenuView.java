@@ -365,7 +365,7 @@ public class gameMenuView
         System.out.println(gameEnum.goldYield.regex + tmp.getGoldYield());
         System.out.println(gameEnum.cupYield.regex + tmp.getCupYield());
         System.out.println(gameEnum.employedCitizens.regex + (tmp.employedCitizens()));
-        System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.totalPopulation() - tmp.employedCitizens()));
+        System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.getPlayerTurn().getTotalPopulation() - tmp.employedCitizens()));
     }
     private static void showCivilizations()
     {
@@ -409,7 +409,6 @@ public class gameMenuView
         String command = null;
         do
         {
-//            gameController.stayAlert(); // not in the right place
             gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
             String doesTechDone = gameController.checkTechnology();
             if(doesTechDone != null) System.out.println(doesTechDone);
@@ -422,14 +421,12 @@ public class gameMenuView
                 command = scanner.nextLine();
                 String techDone = gameController.checkTechnology();
                 if(techDone != null) System.out.println(techDone);
-                gameController.updateFortify();
+                gameController.updateFortify(); //TODO: what is this???
 
                 //update tileStates for playerTurn
                 gameController.getPlayerTurn().updateTileStates();
-                
                 // alert some units. this method alerts all units that are in ALERT state for all players
                 gameController.stayAlert();
-                
                 // print map after before(after?) command
                 System.out.println(gameController.getMapString());
 

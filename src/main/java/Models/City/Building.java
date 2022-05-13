@@ -1,6 +1,5 @@
 package Models.City;
 
-import Models.Game.Position;
 import Models.Terrain.Tile;
 
 public class Building implements Constructable

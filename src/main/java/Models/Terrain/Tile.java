@@ -1,6 +1,5 @@
 package Models.Terrain;
 
-import Models.Game.Position;
 import Models.Resources.Resource;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.NonCombatUnits.NonCombatUnit;

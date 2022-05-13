@@ -38,7 +38,7 @@ public class City
 		this.capitalTile = capitalTile;
 		this.rulerPlayer = rulerPlayer;
 		territory.add(capitalTile);
-		territory.addAll(GameController.getInstance().getAdjacentTiles(capitalTile));
+		territory.addAll(rulerPlayer.getAdjacentTiles(capitalTile, 1));
 		this.name = setCityName();
 		rulerPlayer.addCity(this);
 		if(rulerPlayer.getCities().size() == 1)
