@@ -8,29 +8,25 @@ import java.util.ArrayList;
 
 
     public class FindWay {
-        private ArrayList<Position> moves;
-        private Tile destination;
         private static FindWay findWay;
+        private ArrayList<Position> moves = new ArrayList<>();
 
-        public static FindWay getInstance(Tile destination){
+        public static FindWay getInstance(){
             if(findWay == null){
-                findWay = new FindWay(destination);
+                findWay = new FindWay();
             }
             return findWay;
         }
 
-        private FindWay(Tile destination) {
-            this.moves = new ArrayList<>();
-            this.destination = destination;
-        }
+        public ArrayList<Position> getMoves(){return this.moves;}
 
-        private double calculateDistance(Position a, Position b) {
+        public double calculateDistance(Position a, Position b) {
             double c = Math.pow(a.X - b.X, 2) + Math.pow(a.Y - b.Y, 2);
             double ans = Math.pow(c, 0.5);
             return ans;
         }
 
-        private Position getDirection(Position current, Position destination, int flg) {
+        public Position getDirection(Position current, Position destination, int flg) {
             int xAns = 0, yAns = 0;
             ArrayList<Position> directions = new ArrayList<>();
             int x = current.X;
@@ -43,8 +39,8 @@ import java.util.ArrayList;
             directions.add(new Position(x + (flg % 2), y - 1));
             double distance = 10000;
             for (Position direction : directions) {
-                if ((direction.X >= 0 && direction.X < 10 && direction.Y >= 0 && direction.Y < 10) &&
-                        GameController.getInstance().isTileInPlayerTerritory(direction)) {
+                if ((direction.X >= 0 && direction.X < 10 && direction.Y >= 0 && direction.Y < 10) /*&&
+                        GameController.getInstance().isTileInPlayerTerritory(direction)*/) {
                     if (distance > calculateDistance(direction, destination)) {
                         distance = calculateDistance(direction, destination);
                         xAns = direction.X;
@@ -66,8 +62,5 @@ import java.util.ArrayList;
 
         }
 
-        public ArrayList<Position> getMoves() {
-            return moves;
-        }
     }
 
