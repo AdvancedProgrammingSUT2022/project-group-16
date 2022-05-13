@@ -7,7 +7,7 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 public class Tile
 {
 	private final Position position;
-	private final TileType tileType;
+	private TileType tileType;
 	private  TileFeature tileFeature;
 
 	// 6 borders, starting from the north border from 0. (counterclockwise)
@@ -31,6 +31,10 @@ public class Tile
 		this.resource = resource;
 	}
 
+	public void setTileType(TileType tileType)
+	{
+		this.tileType = tileType;
+	}
 	public void setTileFeature(TileFeature tileFeature) {
 		this.tileFeature = tileFeature;
 	}
@@ -114,6 +118,12 @@ public class Tile
 		isRuined = ruined;
 	}
 
+	public boolean isBlocker()
+	{
+		if(tileType.isBlocker || tileFeature.isBlocker)
+			return true;
+		return false;
+	}
 	public int distanceTo(Tile tile)
 	{
 		if(tile == null)

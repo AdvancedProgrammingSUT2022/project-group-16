@@ -3,7 +3,6 @@ package Views;
 import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
 import Models.City.BuildingType;
-import Models.City.Citizen;
 import Models.City.City;
 import Models.Player.Notification;
 import Models.Player.Player;
@@ -65,22 +64,23 @@ public class gameMenuView
             return tmp.get(number - 1);
         return null;
     }
-    private static void showBaseFields()
+    // this method prints some information about the game like map and food and...
+    public static void showBaseFields()
     {
-        Player tmp = gameController.getPlayerTurn();
-        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
-        System.out.println(MapPrinter.getMapString(tmp));
-        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
-        System.out.print(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
-                tmp.getHappiness());
+        System.out.println("Turn: " + gameController.getTurnCounter());
+        Player playerTurn = gameController.getPlayerTurn();
+        System.out.println(playerTurn.getUsername() + gameEnum.turn.regex);
+        System.out.println(GameController.getInstance().getMapString());
+        System.out.print(gameEnum.gold.regex + playerTurn.getGold() + "\t\t\t" + gameEnum.happiness.regex +
+                playerTurn.getHappiness());
         System.out.print(":");
-        if(tmp.getHappiness() > 50)
-            for(int i = 0; i < (tmp.getHappiness() - 50) / 10; i++)
+        if(playerTurn.getHappiness() > 50)
+            for(int i = 0; i < (playerTurn.getHappiness() - 50) / 10; i++)
                 System.out.print(")");
         else
-            for(int i = 0; i <  5 - (tmp.getHappiness() / 10); i++)
+            for(int i = 0; i <  5 - (playerTurn.getHappiness() / 10); i++)
                 System.out.print("(");
-        System.out.println("\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
+        System.out.println("\t\t\t" + gameEnum.food.regex + playerTurn.getFood() + "\t\t\t" + gameEnum.population.regex + playerTurn.getTotalPopulation());
     }
     private static void showNotifications(Scanner scanner)
     {
@@ -144,7 +144,7 @@ public class gameMenuView
         System.out.println(infoCommands.cities.regex);
         printCities(tmp);
         System.out.println();
-        System.out.println(gameEnum.population.regex + tmp.getPopulation());
+        System.out.println(gameEnum.population.regex + tmp.getTotalPopulation());
         System.out.println(gameEnum.happiness.regex + tmp.getHappiness());
 //        System.out.println(tmp.get); //TODO: resource
         System.out.println(gameEnum.food.regex + tmp.getFood());
@@ -409,26 +409,16 @@ public class gameMenuView
         String command = null;
         do
         {
-            gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
-            String doesTechDone = gameController.checkTechnology();
-            if(doesTechDone != null) System.out.println(doesTechDone);
-            gameController.updateFortify();
-
-            showBaseFields();
-            System.out.println(gameController.getTurnCounter());
             while (scanner.hasNextLine())
             {
-                command = scanner.nextLine();
-                String techDone = gameController.checkTechnology();
-                if(techDone != null) System.out.println(techDone);
-                gameController.updateFortify(); //TODO: what is this???
-
-                //update tileStates for playerTurn
-                gameController.getPlayerTurn().updateTileStates();
+                showBaseFields();
                 // alert some units. this method alerts all units that are in ALERT state for all players
                 gameController.stayAlert();
-                // print map after before(after?) command
-                System.out.println(gameController.getMapString());
+                //update tileStates for playerTurn
+                for(Player player : gameController.getPlayers())
+                    player.updateTileStates();
+                
+                command = scanner.nextLine();
 
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
@@ -686,9 +676,6 @@ public class gameMenuView
                 }
                 else
                     System.out.println(mainCommands.invalidCommand.regex);
-                String isTechDone = gameController.checkTechnology();
-                if(isTechDone != null) System.out.println(isTechDone);
-//                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             }
         } while (!Objects.equals(command, gameEnum.end.toString())) ;{
             gameController.handleUnitCommands();

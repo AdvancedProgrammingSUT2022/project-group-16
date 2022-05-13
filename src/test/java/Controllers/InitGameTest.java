@@ -4,12 +4,14 @@ import Controllers.Utilities.MapPrinter;
 import Models.City.City;
 import Models.Player.Civilization;
 import Models.Player.Player;
-import Models.Terrain.Improvement;
-import Models.Terrain.Position;
+import Models.Player.TileState;
+import Models.Terrain.*;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.LongRangeType;
 import Models.Units.Unit;
 import Models.Units.UnitState;
+import Views.gameMenuView;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,15 +32,11 @@ class InitGameTest
 	{
 		gameController.initGame();
 		
-		System.out.println("food: " + gameController.getPlayerTurn().getFood() + " gold: " + gameController.getPlayerTurn().getGold());
+		for(Tile tile : gameController.getMap())
+			tile.setTileType(TileType.MOUNTAIN);
+		gameController.getPlayerTurn().updateTileStates();
 		
-		// make a city in the middle of the map
-		new City(gameController.getPlayerTurn().getTileByXY(5, 5), gameController.getPlayerTurn());
-		new City(gameController.getPlayerTurn().getTileByXY(2, 5), gameController.getPlayers().get(1));
-		
-		
-
-		System.out.println(gameController.getMapString());
+		gameMenuView.showBaseFields();
 	}
 }
 

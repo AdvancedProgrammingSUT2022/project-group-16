@@ -27,7 +27,6 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 100;
 	private int happiness = 0;
-	private int population = 0;
 	private int maxPopulation = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
@@ -79,12 +78,6 @@ public class Player extends User
 		annexedCities.add(annexedCity);
 	}
 
-	public int getPopulation() {
-		return population;
-	}
-	public void setPopulation(int population) {
-		this.population = population;
-	}
 	public int getMaxPopulation() {
 		return maxPopulation;
 	}
@@ -176,10 +169,6 @@ public class Player extends User
 	public int[] getResearchingTechCounter()
 	{
 		return researchingTechCounter;
-	}
-	public void addResearchingTechCounter(int index, int amount)
-	{
-		researchingTechCounter[index] += amount;
 	}
 
 	public ArrayList<ResourceType> getAcquiredLuxuryResources() {
@@ -349,42 +338,42 @@ public class Player extends User
 						if(unitPosition.Q == tilePosition.Q)
 						{
 							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							if(!tileBetween.isBlocker())
 								tilesInSight.add(tile);
 						}
 						else if(unitPosition.R == tilePosition.R)
 						{
 							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							if(!tileBetween.isBlocker())
 								tilesInSight.add(tile);
 						}
 						else if(unitPosition.S == tilePosition.S)
 						{
 							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
-							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							if(!tileBetween.isBlocker())
 								tilesInSight.add(tile);
-						}
+						} //----------------
 						if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
 						{
 							Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
 							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							if((northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker) ||
-									(northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker))
+							if((northNeighbor != null && !northNeighbor.isBlocker()) ||
+									(northEastNeighbor != null && !northEastNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
 						{
 							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
 							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
-							if((northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker) ||
-									(southEastNeighbor != null && !southEastNeighbor.getTileType().isBlocker && !southEastNeighbor.getTileFeature().isBlocker))
+							if((northEastNeighbor != null && !northEastNeighbor.isBlocker()) ||
+									(southEastNeighbor != null && !southEastNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
 						{
-							Tile southWestNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
 							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker) ||
+							if((southEastNeighbor != null && !) ||
 									(southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker))
 								tilesInSight.add(tile);
 						}

@@ -1,6 +1,7 @@
 package Controllers.Utilities;
 
 import Controllers.GameController;
+import Models.City.City;
 import Models.Player.Player;
 import Models.Player.TileState;
 import Models.Resources.Resource;
@@ -23,7 +24,6 @@ public class MapPrinter
 	private static int mapSize;
 	private static StringBuilder mapString;
 	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.BACK_COLOR(255, 255, 255); // JColor.Attribute of fog of war
-	private final static String REVEALED_SYMBOL = "*REVEALED*";
 	
 	public static String getMapString(Player player)
 	{
@@ -149,6 +149,7 @@ public class MapPrinter
 		Arrays.asList(UnitState.values()).forEach((unitState)->{
 			mapString.append(String.format("%s:%-6s", unitState, unitState.symbol));
 		});
+		mapString.append("\n\n");
 	}
 	private static void printFirstLine()
 	{
@@ -452,18 +453,12 @@ public class MapPrinter
 		{
 			mapString.append(Ansi.colorize(String.format(" (%-2d,%2d)", tile.getPosition().X, tile.getPosition().Y),
 					tile.getTileType().attribute, Attribute.BLACK_TEXT()));
-			for(int i = 0; i < player.getCities().size(); i++)
-			{
-				if(player.getCities().get(i).getCapitalTile().equals(tile))
-				{
-					mapString.append(Ansi.colorize("⭐", tile.getTileType().attribute, Attribute.BLACK_TEXT()));
-					break;
-				}
-				if(i == player.getCities().size() - 1)
-					mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
-			}
-			//			if(player.getCities().size() == 0)
-			//				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			
+			City tileCity = player.getTileCity(tile);
+			if(tileCity == null || !tileCity.getCapitalTile().equals(tile))
+				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
+			else
+				mapString.append(Ansi.colorize("⭐", tile.getTileType().attribute, Attribute.BLACK_TEXT()));
 		}
 	}
 	// Prints tileFeature and resource and improvement
@@ -526,11 +521,6 @@ public class MapPrinter
 			printFog(16);
 		else
 		{
-			//			String cityName = "";
-			//			City tileCity = player.getTileCity(tile);
-			//			if(tileCity != null)
-			//				cityName = tileCity.getName();
-			//			mapString.append(Ansi.colorize(String.format("%-16s", cityName), tile.getTileType().attribute, Attribute.BLACK_TEXT()));
 			String cityName = "";
 			for(Player player : GameController.getInstance().getPlayers())
 				if(player.getTileCity(tile) != null)

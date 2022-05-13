@@ -62,16 +62,9 @@ public class GameController
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
+		// if there is a unit which has not used its turn, it returns the unit's name with error message //TODO: is this needed?
+		//TODO: check if unit has used its turn
 		
-		// if there is a unit which has not used its turn, it returns the unit's name with error message
-		for(Unit unit : playerTurn.getUnits())
-		{
-			//TODO: check if unit has used its turn
-			if(false)
-			{
-				return "unit in " + unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + " has not used its turn";
-			}
-		}
 		changeTurn();
 		return null; //TODO: return: "turn changed successfully"
 	}
@@ -83,8 +76,8 @@ public class GameController
 		playerTurn.setSelectedUnit(null);
 		playerTurn.setSelectedCity(null);
 		
+		processResearchingTechnology();
 		processFoodForChangingTurn();
-		// gain gold
 		gainGold();
 		// gain production (maybe?)
 		
@@ -97,6 +90,10 @@ public class GameController
 		if(!playerTurn.getIsUnHappy() && playerTurn.getHappiness() < 0)
 			playerTurn.isUnHappy();
 		
+		// update cups
+		playerTurn.setCup(playerTurn.getCup() + playerTurn.incomeCup());
+		
+		
 		// decrement researching technology turns
 		
 		// check for city growth
@@ -108,8 +105,7 @@ public class GameController
 		if(players.indexOf(playerTurn) == 0)
 		{
 			turnCounter++;
-			addTurn(1); //TODO: what does this do?
-			updateFortifyTilHeal();
+			updateFortifyTilHeal(); //TODO
 		}
 	}
 	private void processFoodForChangingTurn()
@@ -134,10 +130,6 @@ public class GameController
 	public String getMapString()
 	{
 		return MapPrinter.getMapString(playerTurn);
-	}
-	public String getMapString(Player player)
-	{
-		return MapPrinter.getMapString(player);
 	}
 	
 	// this is called when GameController is created. this method only creates an array of Positions and fills grid with these positions
@@ -176,7 +168,7 @@ public class GameController
 			{
 				Random resourceTypeRandom = new Random();
 				int resourceType = resourceTypeRandom.nextInt(3);
-				Resource resource = null;
+				Resource resource;
 				if(resourceType == 0)
 					resource = new BonusResource(ResourceType.values()[resourceRandom.nextInt(5) + 1]);
 				else if(resourceType == 1)
@@ -226,31 +218,6 @@ public class GameController
 				return tile;
 		return null;
 	}
-	public Tile getTileByQRS(int Q, int R, int S)
-	{
-		for(Tile tile : map)
-			if(tile.getPosition().Q == Q && tile.getPosition().R == R && tile.getPosition().S == S)
-				return tile;
-		return null;
-	}
-	public ArrayList<Tile> getAdjacentTiles(Tile tile)
-	{
-		ArrayList<Tile> adjacentTiles = new ArrayList<>();
-		int Q = tile.getPosition().Q;
-		int R = tile.getPosition().R;
-		int S = tile.getPosition().S;
-		
-		int[][] distances = {{0, 1, -1}, {0, -1, 1}, {1, 0, -1}, {-1, 0, 1}, {1, -1, 0}, {-1, 1, 0}};
-		Tile adjacentTile;
-		for(int i = 0; i < 6; i++)
-		{
-			adjacentTile = getTileByQRS(Q + distances[i][0], R + distances[i][1], S + distances[i][2]);
-			if(adjacentTile != null)
-				adjacentTiles.add(adjacentTile);
-		}
-		
-		return adjacentTiles;
-	}
 	public void addPlayer(Player player)
 	{
 		players.add(player);
@@ -288,10 +255,6 @@ public class GameController
 	{
 		return turnCounter;
 	}
-	public void addToTurnCounter(int amount)
-	{
-		turnCounter += amount;
-	}
 	public ArrayList<Player> getPlayers()
 	{
 		return players;
@@ -303,7 +266,7 @@ public class GameController
 	}
 	
 	private boolean existingPlayers(HashMap<String, String> players)
-	{
+	{ //TODO: probable bug
 		for(Object key : players.keySet())
 		{
 			Object value = players.get(key);
@@ -437,18 +400,17 @@ public class GameController
 	public String increaseTurns(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		turnCounter += amount;
-		addTurn(amount);
-		for(Player player : players)
-			for(int i = 0; i < amount; i++)
-				player.setCup(player.getCup() + player.incomeCup());
+		for(int i = 0; i < amount; i++)
+			for(int j = 0; j < players.size(); j++)
+				changeTurn();
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
-	
 	public String increaseHappiness(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 1.2));
+		playerTurn.setHappiness(playerTurn.getHappiness() + amount);
+		if(playerTurn.getHappiness() > 100)
+			playerTurn.setHappiness(100);
 		return (cheatCode.happiness.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseHealth(Matcher matcher)
@@ -635,33 +597,36 @@ public class GameController
 		}
 		return true;
 	}
-	public void addTurn(int amount)
-	{
-		for(Player player : players)
-		{
-			int flg = -1;
-			for(int i = 0; i < Technology.values().length; i++)
-				if(Technology.values()[i] == player.getResearchingTechnology())
-					flg = i;
-			if(flg != -1)
-				player.addResearchingTechCounter(flg, amount);
-		}
-	}
 	
-	public String checkTechnology()
+	// this method is called every turn to update the technologyCounter of the player
+	public String processResearchingTechnology()
 	{
-		int flg = -1;
-		for(int i = 0; i < Technology.values().length; i++)
-			if(Technology.values()[i] == playerTurn.getResearchingTechnology())
-				flg = i;
-		if(playerTurn.getResearchingTechnology() != null &&
-				playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg] <= 0)
+		Technology researchingTechnology = playerTurn.getResearchingTechnology();
+		if(researchingTechnology == null)
+			return null;
+		
+		int technologyIndex = -1;
+		for(int i =0;i<Technology.values().length;i++)
+			if(researchingTechnology.equals(Technology.values()[i]))
+			{
+				technologyIndex = i;
+				break;
+			}
+		if(technologyIndex == -1)
 		{
-			Technology tmp = playerTurn.getResearchingTechnology();
-			playerTurn.addTechnology(tmp);
-			playerTurn.setResearchingTechnology(null);
-			return infoCommands.successGainTech.regex + tmp.name();
+			System.err.println("technologyIndex is -1 :(");
+			System.exit(1);
 		}
+		
+		playerTurn.getResearchingTechCounter()[technologyIndex]++;
+		//TODO: probably should change how many turns it takes to get the researchingTechnology
+		if(playerTurn.getResearchingTechCounter()[technologyIndex] >= researchingTechnology.cost / 10)
+		{
+			playerTurn.addTechnology(researchingTechnology);
+			playerTurn.setResearchingTechnology(null);
+			return infoCommands.successGainTech.regex;
+		}
+		//TODO: maybe change to "return "";"
 		return null;
 	}
 	//DOC commands
@@ -969,19 +934,6 @@ public class GameController
 			for(Unit unit : player.getUnits())
 				if(unit.getUnitState().equals(UnitState.FORTIFIED_FOR_HEALING) && unit.getHealth() < unit.MAX_HEALTH)
 					unit.setHealth(unit.getHealth() + 1);
-	}
-	public void updateFortify()
-	{
-		//TODO: does fortify need to be updated?
-		//		for(Player player : players)
-		//			for(Unit unit : player.getUnits())
-		//			{
-		//				if(unit.getClass().equals(MidRange.class) && !unit.getIsFortify())
-		//					unit.setPower(((MidRange) unit).getType().getCombatStrength());
-		//				if(unit.getClass().equals(LongRange.class) && !unit.getIsFortify())
-		//					unit.setPower(((LongRange) unit).getType().getCombatStrength());
-		//			}
-		
 	}
 	public String fortify()
 	{
@@ -1456,9 +1408,7 @@ public class GameController
 	{
 		int x = Integer.parseInt(matcher.group("x"));
 		int y = Integer.parseInt(matcher.group("y"));
-		if(x > 9 || x < 0 || y > 9 || y < 0)
-			return false;
-		return true;
+		return x <= 9 && x >= 0 && y <= 9 && y >= 0;
 	}
 	private boolean hasBuilding(Tile tile)
 	{
