@@ -313,6 +313,10 @@ public class Player extends User
 	{
 		return notifications;
 	}
+	public void addNotification(Notification notification)
+	{
+		notifications.add(notification);
+	}
 	public ArrayList<Unit> getUnits()
 	{
 		return units;

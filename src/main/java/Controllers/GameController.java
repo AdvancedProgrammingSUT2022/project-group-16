@@ -114,7 +114,7 @@ public class GameController
 		if(players.indexOf(playerTurn) == 0)
 		{
 			turnCounter++;
-			updateFortifyTilHeal(); //TODO
+			updateFortifyTilHeal();
 		}
 	}
 	private void processFoodForChangingTurn()
@@ -546,6 +546,7 @@ public class GameController
 		if(playerTurn.getResearchingTechCounter()[technologyIndex] >= researchingTechnology.cost / 10)
 		{
 			playerTurn.addTechnology(researchingTechnology);
+			new Notification(playerTurn, turnCounter, "you got " + researchingTechnology.name());
 			playerTurn.setResearchingTechnology(null);
 			return infoCommands.successGainTech.regex + researchingTechnology.name();
 		}
@@ -579,19 +580,19 @@ public class GameController
 			Improvement requiredImprovement = requiredTechForImprovement(playerTurn.getResearchingTechnology());
 			if(requiredBuilding != null && requiredImprovement != null)
 				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
-						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost / 10 - playerTurn.getResearchingTechCounter()[flg]) + "\n"
 						+ requiredBuilding.name() + " and " + requiredImprovement.name() + infoCommands.gainAfterGetTechnology.regex;
 			else if(requiredBuilding != null)
 				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
-						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost / 10 - playerTurn.getResearchingTechCounter()[flg]) + "\n"
 						+ requiredBuilding.name() + infoCommands.gainAfterGetTechnology.regex;
 			else if(requiredImprovement != null)
 				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
-						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost / 10 - playerTurn.getResearchingTechCounter()[flg]) + "\n"
 						+ requiredImprovement.name() + infoCommands.gainAfterGetTechnology.regex;
 			else
 				return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + playerTurn.getResearchingTechnology().toString().toLowerCase(Locale.ROOT) + "\n" +
-						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
+						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost / 10 - playerTurn.getResearchingTechCounter()[flg]) + "\n"
 						+ infoCommands.notGain.regex;
 		}
 		return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + ": " + infoCommands.nothing.regex;
@@ -801,20 +802,7 @@ public class GameController
 					return mainCommands.invalidCommand.regex;
 
 				// move unit
-				if(unitToMove instanceof CombatUnit)
-				{
-					CombatUnit combatUnit = (CombatUnit) unitToMove;
-					combatUnit.setTile(destinationTile);
-					destinationTile.setCombatUnitInTile(combatUnit);
-					originTile.setCombatUnitInTile(null);
-				}
-				else if(unitToMove instanceof NonCombatUnit)
-				{
-					NonCombatUnit nonCombatUnit = (NonCombatUnit) unitToMove;
-					nonCombatUnit.setTile(destinationTile);
-					destinationTile.setNonCombatUnitInTile(nonCombatUnit);
-					originTile.setNonCombatUnitInTile(null);
-				}
+				unitToMove.move(destinationTile);
 				return unitCommands.moveSuccessfull.regex;
 			}
 		}
@@ -977,7 +965,7 @@ public class GameController
 			if (unit.getClass().equals(LongRange.class) && unit.getUnitState().equals(UnitState.IS_SET)
 					&& ((LongRange) unit).getSetCounter() == 1 && ((LongRange) unit).getTargetCity() != null) {
 				((LongRange) unit).setSet(0);
-				String tmp = unit.attackToCity(((LongRange) unit).getTargetCity());
+				String tmp = unit.attackToCity(((LongRange) unit).getTargetCity(), this);
 				((LongRange) unit).setTargetCity(null);
 				((LongRange) unit).setUnitState(UnitState.ACTIVE);
 			}
@@ -1098,7 +1086,7 @@ public class GameController
 			else
 			{
 				changePower(playerTurn.getSelectedUnit());
-				return playerTurn.getSelectedUnit().attackToCity(isCityInTile(tile));
+				return playerTurn.getSelectedUnit().attackToCity(isCityInTile(tile), this);
 			}
 		}
 		else
@@ -1145,8 +1133,8 @@ public class GameController
 				if(playerTurn.getCities().size() != 1)
 					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 				City tmp = playerTurn.getCities().get(playerTurn.getCities().size() - 1);
-				for(int i = 0; i < 5; i++)
-					tmp.addCitizen(new Citizen(tmp));
+				new Notification(playerTurn, turnCounter, "city " + tmp.getName() + " built");
+				tmp.addCitizen(new Citizen(tmp));
 				return unitCommands.cityBuilt.regex;
 			}
 		}
@@ -1479,7 +1467,7 @@ public class GameController
 						return true;
 		return false;
 	}
-	public String buildBuilding(Matcher matcher, BuildingType buildingType)
+	public String buildUnit(String type)
 	{
 		if(playerTurn.getSelectedCity() != null)
 		{
@@ -1487,22 +1475,15 @@ public class GameController
 				return unitCommands.notYours.regex;
 			else
 			{
-				int x = Integer.parseInt(matcher.group("x"));
-				int y = Integer.parseInt(matcher.group("y"));
-				Tile tile = getTileByXY(x, y);
-				if(!playerTurn.getSelectedCity().getTerritory().contains(tile))
-					return unitCommands.belongTo.regex;
-				if(tile.getImprovement() != Improvement.NONE)
-					return unitCommands.hasImprovement.regex;
-				else if(hasBuilding(tile))
-					return unitCommands.hasBuilding.regex;
-				else if(belongToCity(tile) != null && !belongToPlayerTurn(tile))
-					return unitCommands.cantBuild.regex;
-				else
-				{
-					playerTurn.getSelectedCity().createBuilding(new Building(buildingType, tile));
-					return unitCommands.buildSuccessful.regex;
-				}
+				if(containTypeMid(type))
+					return playerTurn.getSelectedCity().construct(new MidRange(playerTurn, MidRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				else if(containTypeLong(type))
+					return playerTurn.getSelectedCity().construct(new LongRange(playerTurn, LongRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				else if(type.equals("SETTLER"))
+					return playerTurn.getSelectedCity().construct(new Settler(playerTurn, playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				else if(type.equals("WORKER"))
+					return playerTurn.getSelectedCity().construct(new Worker(playerTurn, playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				return null;
 			}
 		}
 		else

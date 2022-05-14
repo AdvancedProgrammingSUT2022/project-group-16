@@ -12,7 +12,7 @@ public enum gameEnum
     shortNewPlayer("^ -p(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
     next("^\\s*[nN]ext\\s*$"),
     end("^\\s*[eE]nd\\s*$"),
-    buildBuilding("^\\s*[bB]uild\\s+[bB]uilding\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    buildUnit("^\\s*[bB]uild\\s+[uU]nit\\s*$"),
     lockCitizenToTile("^\\s*[lL]ock\\s+[cC]itizen\\s+[tT]o\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     unLockCitizenToTile("^\\s*[uU]nlock\\s+[cC]itizen\\s+[fF]rom\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
 
@@ -49,6 +49,7 @@ public enum gameEnum
     foodYield("food yield: "),
     food("food: "),
     cupYield("cup yield: "),
+    currentConstruction("current construction: "),
     cup("cup: "),
     cupIncome("cup income: "),
     health("health: "),

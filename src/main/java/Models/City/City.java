@@ -66,6 +66,10 @@ public class City
 	}
 
 
+	public int getInLineConstructionTurn() {
+		return inLineConstructionTurn;
+	}
+
 	public ArrayList<Citizen> getCitizens() {
 		return citizens;
 	}

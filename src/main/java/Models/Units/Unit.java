@@ -1,7 +1,9 @@
 package Models.Units;
 
+import Controllers.GameController;
 import Models.City.City;
 import Models.City.Construction;
+import Models.Player.Notification;
 import Models.Terrain.Position;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -158,7 +160,7 @@ public abstract class Unit implements Construction
 	public void getSet(){
 
 	}
-	public String attackToCity(City city)
+	public String attackToCity(City city, GameController gameController)
 	{
 		if(city.getHitPoints() == 1 && this.getClass().equals(MidRange.class))
 		{
@@ -184,6 +186,7 @@ public abstract class Unit implements Construction
 				{
 					rulerPlayer.getSelectedUnit().setTile(city.getCapitalTile());
 					city.seizeCity(rulerPlayer);
+					new Notification(rulerPlayer, gameController.getTurnCounter(), "you seized " + city.getName());
 					return null;
 				}
 			}
@@ -193,6 +196,7 @@ public abstract class Unit implements Construction
 				if(this.getHealth() <= 0)
 				{
 					removeUnit();
+					new Notification(rulerPlayer, gameController.getTurnCounter(), "your unit destroyed:(");
 					return unitCommands.unitDestroy.regex;
 				}
 			}
@@ -221,7 +225,6 @@ public abstract class Unit implements Construction
 	}
 
 	public String move(Tile destination){
-		if(destination == null) return "no destination";
 		this.destination = destination;
 		FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
 		this.moves = FindWay.getInstance().getMoves();
@@ -237,18 +240,19 @@ public abstract class Unit implements Construction
 			}
 			this.destination = null;
 		}
-		Tile nextTile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
-		if(this.movementPoints < nextTile.getTileType().movementCost && !canUnitStayInTile(nextTile))
-			return"cannot stay in destination Tile";
-		if(this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this)
+		Tile nextTile;
+		nextTile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
+		if (this.movementPoints < nextTile.getTileType().movementCost && !canUnitStayInTile(nextTile))
+			return "cannot stay in destination Tile";
+		if (this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this)
 			this.getTile().setCombatUnitInTile(null);
-		else if(this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
+		else if (this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
 			this.getTile().setNonCombatUnitInTile(null);
 		this.setTile(nextTile);
 		this.getMoves().remove(0);
 		this.movementPoints -= destination.getTileType().movementCost;
 		//if(nextTile.getBorders()[0].equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
-		if(this.movementPoints < 0) this.movementPoints = 0;
+		if (this.movementPoints < 0) this.movementPoints = 0;
 		//TODO check for railroad penalty
 		return null;
 	}
