@@ -56,7 +56,6 @@ public enum unitCommands
     playerTurnCity("this tile is in your territory!"),
     hasBuilding("there is a building in the selected tile!"),
     cantBuild("you can not build anything here"),
-    notYourCity("selected city is not yours"),
     notCityInDestination("there is no city in the selected tile"),
     successfullAttack("attacked successfully"),
     buildSuccessful("building built successfully"),
@@ -99,7 +98,8 @@ public enum unitCommands
     garissonSet("garrison placed in the city"),
     gold(" gold"),
     fortifyActivated("fortify activated"),
-    fortifyHealActivated("fortify heal activated");
+    fortifyHealActivated("fortify heal activated"),
+    movedSuccessful("unit moved successfully");
 
     public final String regex;
 

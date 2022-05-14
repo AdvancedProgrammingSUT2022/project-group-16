@@ -222,6 +222,14 @@ public class Player extends User
 	}
 	//TODO: I deleted updateCup. I hope there is no problem with that :)
 
+
+	public int getPopulation() {
+		int n = 0;
+		for (City city : cities)
+			n += city.getCitizens().size();
+		return n;
+	}
+
 	public ArrayList<Resource> getResources()
 	{
 		return resources;

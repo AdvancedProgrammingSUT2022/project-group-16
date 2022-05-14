@@ -625,8 +625,7 @@ public class gameMenuView
                 /*unit*/
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.moveTo)) != null)
                 {
-                    int x = Integer.parseInt(matcher.group("x")), y = Integer.parseInt(matcher.group("y"));
-                    System.out.println(gameController.moveUnit(x, y));
+                    System.out.println(gameController.moveUnit(matcher));
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.sleep) != null)
@@ -825,35 +824,6 @@ public class gameMenuView
                     m.createCity();
                     gameController.getPlayerTurn().getCities().get(1).addPopulation(12);
                     gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
-                }
-                else if(command.equals("t"))
-                {
-                    Notification n = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam usa, halet chetore? ");
-                    Notification m = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam arabian, halet chetore? ");
-
-                }
-                else if(command.equals("q"))
-                {
-                    City n = new City(gameController.getMap().get(53), gameController.getPlayerTurn());
-                }
-                else if(command.equals("f"))
-                {
-                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(54));
-                }
-                else if(command.equals("d"))
-                {
-                    LongRange p = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(54));
-                }
-                else if(command.equals("v"))
-                {
-                    gameController.getPlayerTurn().addTechnology(Technology.HORSEBACK_RIDING);
-                    gameController.getPlayerTurn().addResource(ResourceType.HORSES);
-                }
-                else if(command.equals("p"))
-                {
-                    LongRange c = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(64));
-                    LongRange d = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(53));
-                    LongRange e = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(43));
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {

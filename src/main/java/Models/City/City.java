@@ -5,6 +5,8 @@ import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.NonCombatUnits.Settler;
+import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import com.sun.nio.sctp.Notification;
@@ -196,14 +198,19 @@ public class City
 		}
 		return false;
 	}
-	public String buyProduct(Unit product, Tile destination){
+	public String buyProduct(Unit product){
 		//TODO: add purchasing buildings for phase 2
 
-		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - GameController.getInstance().getCost((Unit) product));
-		((Unit) product).setTile(destination);
-		if(product instanceof CombatUnit) destination.setCombatUnitInTile((CombatUnit) product);
-		if(product instanceof NonCombatUnit) destination.setNonCombatUnitInTile((NonCombatUnit) product);
+		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getCost((Unit) product));
 		return gameEnum.unitBought.regex;
+	}
+	private int getCost(Unit unit)
+	{
+		if(unit instanceof MidRange) return ((MidRange) unit).getType().getCost();
+		if(unit instanceof LongRange) return ((LongRange) unit).getType().getCost();
+		if(unit.getClass().equals(Settler.class)) return 89;
+		if(unit.getClass().equals(Worker.class)) return 70;
+		return 0;
 	}
 	public Tile findTileWithNoCUnit(){
 		for (City city : this.getRulerPlayer().getCities())
@@ -280,12 +287,12 @@ public class City
 	}
 
 	public String destroyCity(){
-		for (Player player : GameController.getInstance().getPlayers()) {
-			if(this == player.getCurrentCapitalCity()) {
-				this.state = CityState.NONE;
-				return "cannot destroy the capital of a civilization";
-			}
-		}
+//		for (Player player : GameController.getPlayers()) {
+//			if(this == player.getCurrentCapitalCity()) {
+//				this.state = CityState.NONE;
+//				return "cannot destroy the capital of a civilization";
+//			}
+//		}
 		rulerPlayer.getSeizedCities().remove(this);
 		this.state = CityState.DESTROYED;
 		return null;
