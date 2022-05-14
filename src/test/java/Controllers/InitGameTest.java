@@ -32,9 +32,9 @@ class InitGameTest
 	{
 		gameController.initGame();
 		
-		for(Tile tile : gameController.getMap())
-			tile.setTileType(TileType.MOUNTAIN);
-		gameController.getPlayerTurn().updateTileStates();
+//		for(Tile tile : gameController.getMap())
+//			tile.setTileType(TileType.MOUNTAIN);
+//		gameController.getPlayerTurn().updateTileStates();
 		
 		gameMenuView.showBaseFields();
 	}

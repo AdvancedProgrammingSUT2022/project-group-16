@@ -179,7 +179,8 @@ public class GameController
 				BorderType[] borders = new BorderType[6];
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
-				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
+				map.add(new Tile(getPosition(i, j),
+						TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
 						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)],
 						borders,
 						resource));
@@ -606,7 +607,7 @@ public class GameController
 			return null;
 		
 		int technologyIndex = -1;
-		for(int i =0;i<Technology.values().length;i++)
+		for(int i = 0; i < Technology.values().length; i++)
 			if(researchingTechnology.equals(Technology.values()[i]))
 			{
 				technologyIndex = i;

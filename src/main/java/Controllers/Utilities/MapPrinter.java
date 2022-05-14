@@ -149,7 +149,7 @@ public class MapPrinter
 		Arrays.asList(UnitState.values()).forEach((unitState)->{
 			mapString.append(String.format("%s:%-6s", unitState, unitState.symbol));
 		});
-		mapString.append("\n\n");
+		mapString.append(Ansi.colorize("\n-----------------------------------------------------------------------------------------------------\n"));
 	}
 	private static void printFirstLine()
 	{
@@ -590,24 +590,4 @@ public class MapPrinter
 			mapString.append(Ansi.colorize("            ", tile.getTileType().attribute));
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

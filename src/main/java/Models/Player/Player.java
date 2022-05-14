@@ -373,32 +373,32 @@ public class Player extends User
 						{
 							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
 							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							if((southEastNeighbor != null && !) ||
-									(southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker))
+							if((southEastNeighbor != null && !southEastNeighbor.isBlocker()) ||
+									(southNeighbor != null && !southNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
 						{
 							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
 							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
-							if((southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker) ||
-									(southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker))
+							if((southNeighbor != null && !southNeighbor.isBlocker()) ||
+									(southWestNeighbor != null && !southWestNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
 						{
 							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
 							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
-							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && ! southWestNeighbor.getTileFeature().isBlocker) ||
-									(northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker))
+							if((southWestNeighbor != null && !southWestNeighbor.isBlocker()) ||
+									(northWestNeighbor != null && !northWestNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
 						{
 							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
 							Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
-							if((northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker) ||
-									(northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker))
+							if((northWestNeighbor != null && !northWestNeighbor.isBlocker()) ||
+									(northNeighbor != null && !northNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 					}
