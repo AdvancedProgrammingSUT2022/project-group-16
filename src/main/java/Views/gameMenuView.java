@@ -1,7 +1,6 @@
 package Views;
 
 import Controllers.GameController;
-import Controllers.Utilities.MapPrinter;
 import Models.City.*;
 import Models.City.BuildingType;
 import Models.City.City;
@@ -9,10 +8,6 @@ import Models.Player.Civilization;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Resources.LuxuryResource;
-import Models.Resources.ResourceType;
-import Models.Terrain.Improvement;
-import Models.Terrain.Tile;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
@@ -576,7 +571,13 @@ public class gameMenuView
                 System.out.println(gameController.increaseScore(matcher));
             else if (cheatCode.compareRegex(command, cheatCode.winGame) != null)
                 break; //TODO: calculate scores
-        
+            else if(cheatCode.compareRegex(command, cheatCode.gainBonusResource) != null)
+                System.out.println(gameController.gainBonusResourceCheat());
+            else if(cheatCode.compareRegex(command, cheatCode.gainStrategicResource) != null)
+                System.out.println(gameController.gainStrategicResourceCheat());
+            else if(cheatCode.compareRegex(command, cheatCode.gainLuxuryResource) != null)
+                System.out.println(gameController.gainLuxuryResourceCheat());
+            
                 /*Info*/
             else if(infoCommands.compareRegex(command, infoCommands.infoResearch) != null)
                 System.out.println(gameController.showResearch());
@@ -782,7 +783,9 @@ public class gameMenuView
             /*map*/
             else if(mapCommands.compareRegex(command, mapCommands.mapShow) != null)
                 System.out.println(gameController.getMapString());
-        
+            else if(mapCommands.compareRegex(command, mapCommands.showRawMap) != null)
+                System.out.println(gameController.getRawMapString());
+            
                 /*City*/
             else if((matcher = gameEnum.compareRegex(command, gameEnum.buildBuilding)) != null)
             {

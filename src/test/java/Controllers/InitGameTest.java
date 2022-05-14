@@ -3,6 +3,11 @@ package Controllers;
 import Models.City.City;
 import Models.Player.Civilization;
 import Models.Player.Player;
+import Models.Player.Technology;
+import Models.Terrain.BorderType;
+import Models.Terrain.Tile;
+import Models.Terrain.TileFeature;
+import Models.Terrain.TileType;
 import Views.gameMenuView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +28,8 @@ class InitGameTest
 	void testInitGame()
 	{
 		gameController.initGame();
-	
-		new City(gameController.getPlayerTurn().getTileByXY(5, 5), gameController.getPlayerTurn());
 		
-		gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(0));
+		System.out.println(gameController.getRawMapString());
 	}
 }
 

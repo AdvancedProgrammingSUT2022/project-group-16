@@ -16,7 +16,10 @@ public enum cheatCode
     increaseHealth("hesoyam\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*"),
     winGame("^\\s*win\\s+this\\s+game\\s*$"),
     moveUnit("^\\s*move\\s+from\\s+(?<positionX>[0-9]+)\\s+(?<positionY>[0-9]+)\\s+to\\s+(?<newPositionX>[0-9]+)\\s+(?<newPositionY>[0-9]+)\\s*$"),
-
+    gainBonusResource("\\s*gain\\s+bonus\\s+resource\\s*"),
+    gainStrategicResource("\\s*gain\\s+strategic\\s+resource\\s*"),
+    gainLuxuryResource("\\s*gain\\s+luxury\\s+resource\\s*"),
+    
     //messages
     gold("gold"),
     score("score"),

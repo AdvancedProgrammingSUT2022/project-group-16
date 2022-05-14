@@ -12,14 +12,15 @@ public enum mapCommands
     shortNewName("^ -n\\s+(?<name>\\S+)\\s*$"),
     newPos("^ --coordinates\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
     shortNewPos("^ -c\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
+    visible("you can not see this tile/city"),
+    showRawMap("^\\s*show\\s+raw\\s+map\\s*$"),
 
     //messages
     invalidRange("please pick numbers between 0 and "),
     selected("selected"),
     invalidCommand("invalid command"),
     successful("successful"),
-    positiveNum("please enter positive number"),
-    visible("you can not see this tile/city");
+    positiveNum("please enter positive number");
 
     public final String regex;
 
