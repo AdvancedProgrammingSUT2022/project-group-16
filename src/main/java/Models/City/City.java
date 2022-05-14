@@ -1,6 +1,5 @@
 package Models.City;
 
-import Controllers.GameController;
 import Models.Player.Player;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 public class City
 {
 	private final ArrayList<Tile> territory = new ArrayList<>();
-	private Tile capitalTile;
+	private final Tile capitalTile;
 	private int foodYield = 0;
 	private int productionYield = 0;
 	private int goldYield = 0;
@@ -31,7 +30,7 @@ public class City
 	private NonCombatUnit nonCombatUnit = null;
 	private int combatStrength = 10;//this amount is default and may change later
 	private Player rulerPlayer;
-	private String name;
+	private final String name;
 	private CityState state = CityState.NONE;
 
 	public City(Tile capitalTile, Player rulerPlayer)
@@ -40,7 +39,7 @@ public class City
 		this.capitalTile = capitalTile;
 		this.rulerPlayer = rulerPlayer;
 		territory.add(capitalTile);
-		territory.addAll(GameController.getInstance().getAdjacentTiles(capitalTile));
+		territory.addAll(rulerPlayer.getAdjacentTiles(capitalTile, 1));
 		this.name = setCityName();
 		rulerPlayer.addCity(this);
 		if(rulerPlayer.getCities().size() == 1)
@@ -142,6 +141,10 @@ public class City
 	public void setRulerPlayer(Player rulerPlayer) {
 		this.rulerPlayer =  rulerPlayer;
 	}
+	public int getPopulation()
+	{
+		return citizens.size();
+	}
 	public void addPopulation(int amount)
 	{
 		for(int i = 0; i < amount; i++){
@@ -157,7 +160,6 @@ public class City
 
 	public void growCity() //TODO: this should increase the number of citizens of the city
 	{
-
 	}
 	public CombatUnit getGarrison() {
 		return garrison;
@@ -185,7 +187,7 @@ public class City
 		}
 		return gameEnum.cantBuyTile.regex;
 	}
-	private boolean isTileNeighbor(Tile newTile){
+	private boolean isTileNeighbor(Tile newTile){ //TODO: should be deleted
 		for (Tile tile : territory) {
 			if(tile.getPosition().Q - newTile.getPosition().Q == 1 || tile.getPosition().Q - newTile.getPosition().Q == -1 ||
 					tile.getPosition().R - newTile.getPosition().R == 1 || tile.getPosition().R - newTile.getPosition().R == -1 ||

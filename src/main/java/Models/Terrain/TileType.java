@@ -6,9 +6,9 @@ public enum TileType
 {
 	DESERT(0, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(180, 180, 80)),
 	GRASSLAND(2, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(50, 210, 0)),
-	HILLS(0, 2, 0, 25, 2, true, true, Attribute.BACK_COLOR(130, 210, 50)),
+	HILLS(0, 2, 3, 25, 2, true, true, Attribute.BACK_COLOR(130, 210, 50)),
 	MOUNTAIN(0, 0, 0, 25, 0, false, true, Attribute.BACK_COLOR(100, 100, 90)),
-	OCEAN(0, 0, 0, 25, 0, false, false, Attribute.BACK_COLOR(30, 100, 180)),
+	OCEAN(0, 0, 2, 25, 0, false, false, Attribute.BACK_COLOR(30, 100, 180)),
 	PLAINS(1, 1, 0, -33, 1, true, false, Attribute.BACK_COLOR(120, 230, 100)),
 	SNOW(0, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(240, 240, 240)),
 	TUNDRA(1, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(180, 180, 240));

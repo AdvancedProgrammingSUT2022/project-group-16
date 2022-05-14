@@ -5,11 +5,11 @@ import enums.gameEnum;
 
 public class Citizen
 {
-	private City City;
+	private final City city;
 	private Tile workingTile;
 
 	public Citizen(City city) {
-		this.City = city;
+		this.city = city;
 		workingTile = null;
 	}
 
@@ -17,7 +17,7 @@ public class Citizen
 		return workingTile;
 	}
 	public City getCity() {
-		return City;
+		return city;
 	}
 
 	public String setCitizenOnTile(Tile workingTile)
@@ -46,7 +46,7 @@ public class Citizen
 	}
 
 	private boolean doesAnotherCitizenWorkOnTile(Tile workingTile){
-		for (Models.City.City city : this.City.getRulerPlayer().getCities()) {
+		for (City city : this.city.getRulerPlayer().getCities()) {
 			for (Citizen citizen : city.getCitizens()) {
 				if(citizen.workingTile == workingTile) return true;
 			}

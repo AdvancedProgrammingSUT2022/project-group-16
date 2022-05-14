@@ -1,7 +1,7 @@
 package Models.Units;
 
 import Controllers.GameController;
-import Models.Game.Position;
+import Models.Terrain.Position;
 import Models.Terrain.Tile;
 
 import java.util.ArrayList;

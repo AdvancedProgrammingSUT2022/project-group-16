@@ -17,7 +17,7 @@ public enum TileFeature
 	public final int movementCost;
 	public final boolean isBlocker;
 	public final String symbol;
-	public int inLineTurn;
+	public final int inLineTurn;
 	
 	TileFeature(int food, int production, int gold, int combatModifier, int movementCost, boolean isPassable, boolean isBlocker, String symbol, int inLineTurn)
 	{

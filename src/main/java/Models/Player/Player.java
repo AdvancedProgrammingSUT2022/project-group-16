@@ -2,7 +2,7 @@ package Models.Player;
 
 import Controllers.GameController;
 import Models.City.*;
-import Models.Game.Position;
+import Models.Terrain.Position;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
@@ -19,30 +19,30 @@ import java.util.*;
 
 public class Player extends User
 {
-	GameController gameController;
+	final GameController gameController;
 	private Unit selectedUnit = null;
 	private City selectedCity = null;
 	private final Civilization civilization;
-	private int food = 0;
+	private int food = 100;
 	private int cup = 0;
-	private int gold = 0;
-	private int happiness = 0;
+	private int gold = 100;
+	private int happiness;
 	private int XP = 0;
 	private int population = 0;
 	private int maxPopulation = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
-	private ArrayList<ResourceType> resources = new ArrayList<>();
+	private ArrayList<Resource> resources = new ArrayList<>();
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
-	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
-	private ArrayList<City> cities = new ArrayList<>();
-	private ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
+	private final HashMap<Tile, TileState> map;
+	private final ArrayList<City> cities = new ArrayList<>();
+	private final ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
-	private ArrayList<Unit> units = new ArrayList<>();
+	private final ArrayList<Unit> units = new ArrayList<>();
 	private int tilePurchaseCost = 10; //increases every time the player purchases a tile
 	private boolean isUnHappy = false;
 
@@ -74,12 +74,7 @@ public class Player extends User
 	{
 		this.selectedCity = city;
 	}
-	public int getPopulation() {
-		return population;
-	}
-	public void setPopulation(int population) {
-		this.population = population;
-	}
+
 	public int getMaxPopulation() {
 		return maxPopulation;
 	}
@@ -185,15 +180,9 @@ public class Player extends User
 	{
 		return researchingTechCounter;
 	}
-	public void addResearchingTechCounter(int index, int amount)
-	{
-		researchingTechCounter[index] += amount;
-	}
 	public ArrayList<City> getSeizedCities() {
 		return seizedCities;
 	}
-
-
 	public ArrayList<ResourceType> getAcquiredLuxuryResources() {
 		return acquiredLuxuryResources;
 	}
@@ -219,9 +208,9 @@ public class Player extends User
 			n += city.getCupYield();
 		return n;
 	}
-	public void addResource(ResourceType resourceType)
+	public void addResource(Resource resource)
 	{
-		resources.add(resourceType);
+		resources.add(resource);
 	}
 	public void reduceCup()
 	{
@@ -233,11 +222,11 @@ public class Player extends User
 	}
 	//TODO: I deleted updateCup. I hope there is no problem with that :)
 
-	public ArrayList<ResourceType> getResources()
+	public ArrayList<Resource> getResources()
 	{
 		return resources;
 	}
-	public void setResources(ArrayList<ResourceType> resources)
+	public void setResources(ArrayList<Resource> resources)
 	{
 		this.resources = resources;
 	}
@@ -275,7 +264,7 @@ public class Player extends User
 	{
 		cities.add(newCity);
 	}
-	//	public void setMap(ArrayList<Tile> map)
+//	public void setMap(ArrayList<Tile> map)
 //	{
 //		this.map = new HashMap<>();
 //		for(Tile tile : map)
@@ -285,6 +274,13 @@ public class Player extends User
 	public ArrayList<City> getCities()
 	{
 		return cities;
+	}
+	public int getTotalPopulation()
+	{
+		int n = 0;
+		for(City city : cities)
+			n += city.getPopulation();
+		return n;
 	}
 	// this method gets a tile and returns the city it is in. (or null if it is not in a city)
 	public City getTileCity(Tile tile)
@@ -358,67 +354,67 @@ public class Player extends User
 						if(unitPosition.Q == tilePosition.Q)
 						{
 							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							if(!tileBetween.isBlocker())
 								tilesInSight.add(tile);
 						}
 						else if(unitPosition.R == tilePosition.R)
 						{
 							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							if(!tileBetween.isBlocker())
 								tilesInSight.add(tile);
 						}
 						else if(unitPosition.S == tilePosition.S)
 						{
 							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
-							if(!tileBetween.getTileType().isBlocker && !tileBetween.getTileFeature().isBlocker)
+							if(!tileBetween.isBlocker())
 								tilesInSight.add(tile);
-						}
+						} //----------------
 						if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
 						{
 							Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
 							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							if((northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker) ||
-									(northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker))
+							if((northNeighbor != null && !northNeighbor.isBlocker()) ||
+									(northEastNeighbor != null && !northEastNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
 						{
 							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
 							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
-							if((northEastNeighbor != null && !northEastNeighbor.getTileType().isBlocker && !northEastNeighbor.getTileFeature().isBlocker) ||
-									(southEastNeighbor != null && !southEastNeighbor.getTileType().isBlocker && !southEastNeighbor.getTileFeature().isBlocker))
+							if((northEastNeighbor != null && !northEastNeighbor.isBlocker()) ||
+									(southEastNeighbor != null && !southEastNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
 						{
-							Tile southWestNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
 							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker) ||
-									(southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker))
+							if((southEastNeighbor != null && !southEastNeighbor.isBlocker()) ||
+									(southNeighbor != null && !southNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
 						{
 							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
 							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
-							if((southNeighbor != null && !southNeighbor.getTileType().isBlocker && !southNeighbor.getTileFeature().isBlocker) ||
-									(southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && !southWestNeighbor.getTileFeature().isBlocker))
+							if((southNeighbor != null && !southNeighbor.isBlocker()) ||
+									(southWestNeighbor != null && !southWestNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
 						{
 							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
 							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
-							if((southWestNeighbor != null && !southWestNeighbor.getTileType().isBlocker && ! southWestNeighbor.getTileFeature().isBlocker) ||
-									(northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker))
+							if((southWestNeighbor != null && !southWestNeighbor.isBlocker()) ||
+									(northWestNeighbor != null && !northWestNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
 						{
 							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
 							Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
-							if((northWestNeighbor != null && !northWestNeighbor.getTileType().isBlocker && !northWestNeighbor.getTileFeature().isBlocker) ||
-									(northNeighbor != null && !northNeighbor.getTileType().isBlocker && !northNeighbor.getTileFeature().isBlocker))
+							if((northWestNeighbor != null && !northWestNeighbor.isBlocker()) ||
+									(northNeighbor != null && !northNeighbor.isBlocker()))
 								tilesInSight.add(tile);
 						}
 					}

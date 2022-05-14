@@ -1,6 +1,6 @@
 package unitTest;
 
-import Models.Game.Position;
+import Models.Terrain.Position;
 import Models.Units.FindWay;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
