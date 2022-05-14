@@ -1,5 +1,6 @@
 package Controllers;
 
+import Models.City.City;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Views.gameMenuView;
@@ -22,7 +23,11 @@ class InitGameTest
 	void testInitGame()
 	{
 		gameController.initGame();
+	
+		new City(gameController.getPlayerTurn().getTileByXY(5, 5), gameController.getPlayerTurn());
 		
+		gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(0));
+		gameMenuView.showCity();
 	}
 }
 

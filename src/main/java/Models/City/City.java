@@ -4,6 +4,7 @@ import Models.Player.Player;
 import Models.Terrain.Tile;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 
@@ -99,15 +100,6 @@ public class City
 	public Construction getCurrentConstruction() {
 		return currentConstruction;
 	}
-	public void addProduction(int amount) {
-		productionYield += amount;
-	}
-	public void addGold(int amount) {
-		goldYield += amount;
-	}
-	public void addFood(int amount) {
-		foodYield += amount;
-	}
 	public int getHitPoints() {
 		return hitPoints;
 	}
@@ -121,11 +113,44 @@ public class City
 		rulerPlayer.setHappiness(rulerPlayer.getHappiness() + building.happinessFromBuilding(building.getBuildingType())); //Increase happiness
 	}
 
-	public int getFoodYield() {
-		return foodYield;
+	public int getFoodYield()
+	{
+		int gainingFood = 0;
+		int consumingFood = 0;
+		for(Citizen citizen : citizens)
+		{
+			consumingFood++;
+			if(citizen.getWorkingTile() == null)
+				continue;
+			Tile workingTile = citizen.getWorkingTile();
+			gainingFood += workingTile.getTileType().food + workingTile.getTileFeature().food + workingTile.getImprovement().foodYield;
+			if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
+				gainingFood += workingTile.getResource().getRESOURCE_TYPE().food;
+		}
+		for(Unit unit : rulerPlayer.getUnits())
+			if(unit instanceof Settler)
+				consumingFood += 2;
+		
+		return gainingFood - consumingFood;
 	}
-	public int getGoldYield() {
-		return goldYield;
+	public int getGoldYield()
+	{
+		int gainingGold = 0;
+		int goldConsumption = 0;
+		for(Citizen citizen : citizens)
+		{
+			if(citizen.getWorkingTile() == null)
+				continue;
+			Tile workingTile = citizen.getWorkingTile();
+			gainingGold += workingTile.getTileType().gold + workingTile.getTileFeature().gold + workingTile.getImprovement().goldYield;
+			if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
+				gainingGold += workingTile.getResource().getRESOURCE_TYPE().gold;
+		}
+		for(Unit unit : rulerPlayer.getUnits())
+			if(unit instanceof CombatUnit)
+				goldConsumption += 1;
+		
+		return gainingGold - goldConsumption;
 	}
 	public int getProductionYield() {
 		return productionYield;

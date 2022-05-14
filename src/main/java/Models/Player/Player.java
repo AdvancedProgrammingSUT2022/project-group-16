@@ -252,12 +252,6 @@ public class Player extends User
 	{
 		cities.add(newCity);
 	}
-//	public void setMap(ArrayList<Tile> map)
-//	{
-//		this.map = new HashMap<>();
-//		for(Tile tile : map)
-//			this.map.put(tile, TileState.FOG_OF_WAR);
-//	}
 	//TODO: set tile states maybe????!!!
 	public ArrayList<City> getCities()
 	{

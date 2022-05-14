@@ -452,8 +452,10 @@ public class gameMenuView
         System.out.println(gameEnum.power.regex + tmp.getPower());
         System.out.println(gameEnum.health.regex + tmp.getHealth());
     }
-    private static void showCity()
+    public static void showCity()
     {
+        if(gameController.getPlayerTurn().getSelectedCity() == null)
+            return;
         City tmp = gameController.getPlayerTurn().getSelectedCity();
 
         System.out.println(infoCommands.cityName.regex + tmp.getName());

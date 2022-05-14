@@ -83,7 +83,7 @@ public class GameController
 		
 		processResearchingTechnology();
 		processFoodForChangingTurn();
-		gainGold();
+		processGoldForChangingTurn();
 		// gain production (maybe?)
 		
 		//happiness
@@ -120,13 +120,25 @@ public class GameController
 	}
 	private void processFoodForChangingTurn()
 	{
-		// gain food
-		gainFood();
-		// consume food for this player (consumes 1 food for each citizen)
-		consumeFood();
+		int foodYieldOfPlayerTurn = 0;
+		for(City city : playerTurn.getCities())
+				foodYieldOfPlayerTurn += city.getFoodYield();
+		//TODO: if foodYield is negative, some citizens should starve to death :')
+		playerTurn.setFood(playerTurn.getFood() + foodYieldOfPlayerTurn);
+		
 		// food penalty when citizens are unhappy (our food *= 33%)
-		if(playerTurn.getHappiness() < 0)
+		if(playerTurn.getHappiness() < 0 && playerTurn.getFood() > 0)
 			playerTurn.setFood((int) (playerTurn.getFood() * 0.33));
+	}
+	//TODO: gaining food should be optimized
+	// this method gains food based on citizens that are working on tiles (and maybe other things)
+	private void processGoldForChangingTurn()
+	{
+		int goldYieldOfPlayerTurn = 0;
+		for(City city : playerTurn.getCities())
+			goldYieldOfPlayerTurn += city.getGoldYield();
+		
+		playerTurn.setGold(playerTurn.getGold() + goldYieldOfPlayerTurn);
 	}
 	public void initGame()
 	{
@@ -332,50 +344,6 @@ public class GameController
 			return ((LongRange) unit).getType().getCombatStrength();
 		return 0;
 	}
-	// this method gains food based on citizens that are working on tiles (and maybe other things)
-	private void gainFood()
-	{
-		// total food yield of this turn for playerTurn
-		int totalFoodYield = 0;
-		for(City city : playerTurn.getCities())
-		{
-			for(Citizen citizen : city.getCitizens())
-			{
-				Tile workingTile = citizen.getWorkingTile();
-				if(workingTile == null)
-					continue;
-				// maybe this isn't reasonable :)
-				totalFoodYield += workingTile.getTileType().food;
-				totalFoodYield += workingTile.getTileFeature().food;
-				totalFoodYield += workingTile.getImprovement().foodYield;
-				if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
-					totalFoodYield += workingTile.getResource().getRESOURCE_TYPE().food;
-			}
-		}
-		
-		playerTurn.setFood(playerTurn.getFood() + totalFoodYield);
-	}
-	private void gainGold()
-	{
-		int toatlGoldYield = 0;
-		for(City city : playerTurn.getCities())
-		{
-			for(Citizen citizen : city.getCitizens())
-			{
-				Tile workingTile = citizen.getWorkingTile();
-				if(workingTile == null)
-					continue;
-				
-				toatlGoldYield += workingTile.getTileType().gold;
-				toatlGoldYield += workingTile.getTileFeature().gold;
-				toatlGoldYield += workingTile.getImprovement().goldYield; //TODO: no improvement has gold yield :(
-				if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
-					toatlGoldYield += workingTile.getResource().getRESOURCE_TYPE().gold;
-			}
-		}
-		
-		playerTurn.setGold(playerTurn.getGold() + toatlGoldYield);
-	}
 	
 	//cheat codes
 	public String increaseGold(Matcher matcher)
@@ -389,30 +357,6 @@ public class GameController
 		int amount = Integer.parseInt(matcher.group("amount"));
 		playerTurn.setFood(playerTurn.getFood() + amount);
 		return (cheatCode.food.regex + cheatCode.increaseSuccessful.regex);
-	}
-	private void consumeFood()
-	{
-		//per citizen: 1, per settler: 2
-		int numberOfCitizens = 0;
-		//feed settlers :\
-		for(Unit unit : playerTurn.getUnits())
-			if(unit instanceof Settler)
-				numberOfCitizens += 2;
-		
-		for(City city : playerTurn.getCities())
-			numberOfCitizens += city.getCitizens().size();
-		
-		// validation if we don't have enough food
-		if(numberOfCitizens > playerTurn.getFood())
-		{
-			playerTurn.setFood(0);
-			//TODO: kill a citizen
-		}
-		else
-		{
-			// now consume food TODO: should I feed settlers?
-			playerTurn.setFood(playerTurn.getFood() - numberOfCitizens);
-		}
 	}
 	//TODO: this should be shorter. it should not do anything with cups.
 	public String increaseTurns(Matcher matcher)
