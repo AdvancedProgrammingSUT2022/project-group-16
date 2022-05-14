@@ -1,5 +1,6 @@
 package Models.City;
 
+import Controllers.GameController;
 import Models.Player.Player;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
@@ -23,7 +24,7 @@ public class City
 	private int hitPoints = 20;
 	private  ArrayList<Building> buildings = new ArrayList<>();
 	private  ArrayList<Citizen> citizens = new ArrayList<>();
-	private Construction currentConstruction = null;
+	private String currentConstruction = null;
 	private int inLineConstructionTurn = 4; //how many turns are left till the construction is ready
 	private Product currentProduct = null; //what the city is producing
 	private CombatUnit garrison = null;
@@ -103,7 +104,7 @@ public class City
 	public void setCombatStrength(int power) {
 		this.combatStrength = power;
 	}
-	public Construction getCurrentConstruction() {
+	public String getCurrentConstruction() {
 		return currentConstruction;
 	}
 	public int getHitPoints() {
@@ -262,38 +263,60 @@ public class City
 		return null;
 	}
 
-	public String construct(Construction construction){
-		if(inLineConstructionTurn == 0) {
-			if(construction instanceof Unit) {
-				Tile destination;
-				if((destination = (findTileWithNoUnit((Unit) construction))) == null) return"there is no tile without unit";
-				this.getRulerPlayer().addUnit((Unit) construction);
-				((Unit) construction).move(destination);
+	public String construct(String type, GameController gameController)
+	{
+		if(currentConstruction == null || !(currentConstruction.equals(type)))
+		{
+			if(type != null && gameController.containTypeMid(type))
+				rulerPlayer.setGold(rulerPlayer.getGold() - MidRangeType.valueOf(type).getCost());
+			if(type != null && gameController.containTypeLong(type))
+				rulerPlayer.setGold(rulerPlayer.getGold() - LongRangeType.valueOf(type).getCost());
+			if(type != null && type.equals("SETTLER"))
+				rulerPlayer.setGold(rulerPlayer.getGold() - 89);
+			if(type != null && type.equals("WORKER"))
+				rulerPlayer.setGold(rulerPlayer.getGold() - 70);
+			currentConstruction = type;
+			inLineConstructionTurn = 4;
+			return null;
+		}
+		if(inLineConstructionTurn == 1)
+		{
+			Tile destination;
+			System.out.println(currentConstruction);
+			if(gameController.containTypeMid(currentConstruction)) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction), destination);
+			}
+			else if(gameController.containTypeLong(currentConstruction)) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction), destination);
+			}
+			else if(currentConstruction.equals("SETTLER")) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new Settler(rulerPlayer, destination);
+			}
+			else if(currentConstruction.equals("WORKER")) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new Worker(rulerPlayer, destination);
 			}
 			inLineConstructionTurn = 4;
 			currentConstruction = null;
 			return null;
 		}
-		if(inLineConstructionTurn < 4) {
-			inLineConstructionTurn --;
+		if(inLineConstructionTurn <= 4 && currentConstruction != null) {
+			inLineConstructionTurn--;
 			return null;
 		}
-		if(currentConstruction == null && construction != null){
-			if(constructionCanBeBuilt(construction)) {
-				currentConstruction = construction;
-				inLineConstructionTurn--;
-				return null;
-			}
-			return "the construction can't be built";
-		}
-
 		return "something else is being constructed or there is nothing to construct";
 	}
 
 	private boolean constructionCanBeBuilt(Construction construction){
 		if(construction instanceof Unit) {
 			if (this.getRulerPlayer().getGold() >= ((Unit) construction).getProductionCost()) {
-				this.getRulerPlayer().getUnits().add((Unit) construction);
 				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) construction).getProductionCost());
 				return true;
 			}
@@ -307,7 +330,7 @@ public class City
 		//TODO save previous construction;
 		if(currentConstruction == null) return "nothing is being built";
 		if(constructionCanBeBuilt(construction)){
-			currentConstruction = construction;
+//			currentConstruction = construction;
 			inLineConstructionTurn = 3;
 			return null;
 		}

@@ -65,8 +65,8 @@ public class gameMenuView
         LongRangeType tmp2 = null;
         System.out.println("1: mid range type");
         System.out.println("2: long range type");
-        System.out.println("3: Settler");
-        System.out.println("4: Worker");
+        System.out.println("3: Settler - 89");
+        System.out.println("4: Worker - 70");
         System.out.println("5: " + infoCommands.backToGame.regex);
         int number = getNumber(scanner, 5);
         if(number == 1) tmp1 = showValidMidrange(scanner);
@@ -799,14 +799,12 @@ public class gameMenuView
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.buildUnit) != null)
                 {
-                    if(gameController.getPlayerTurn().getSelectedCity() != null) {
-                        String type = buyUnit(scanner);
-                        if(type != null)
-                            System.out.println(gameController.buildUnit(type));
-                        gameController.getPlayerTurn().setSelectedCity(null);
-                    }
-                    else
-                        System.out.println(gameEnum.nonSelect.regex);
+                    String tmp, buildResult;
+                    if((tmp = buyUnit(scanner)) != null)
+                        if((buildResult = gameController.buildUnit(tmp)) != null) {
+                            System.out.println(buildResult);
+                            gameController.getPlayerTurn().setSelectedCity(null);
+                        }
                 }
                 /*others*/
                 else if(gameEnum.compareRegex(command, gameEnum.end) != null)
@@ -846,7 +844,6 @@ public class gameMenuView
             gameController.handleUnitCommands();
             gameController.updatePlayersUnitLocations();
             gameController.updateWorkersConstructions();
-            gameController.updateCityConstructions();
         } while (!Objects.equals(command, gameEnum.end.toString()));
     }
     public static void runGameMenu()

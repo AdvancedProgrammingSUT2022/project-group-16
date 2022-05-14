@@ -101,21 +101,22 @@ public class GameController
 		handleUnitCommands();
 		updatePlayersUnitLocations();
 		updateWorkersConstructions();
-		updateCityConstructions();
-		
+
 		// decrement researching technology turns
 		
 		// check for city growth
 		
 		
-		// change playerTurn
-		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 		//TODO: check that this is not a duplicate from runGame while loop
 		if(players.indexOf(playerTurn) == 0)
 		{
 			turnCounter++;
 			updateFortifyTilHeal();
+			updateCityConstructions();
 		}
+
+		// change playerTurn
+		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 	}
 	private void processFoodForChangingTurn()
 	{
@@ -761,8 +762,8 @@ public class GameController
 			}
 	}
 	public void updateCityConstructions(){
-		for (City city : this.getPlayerTurn().getCities()) {
-			city.construct(city.getCurrentConstruction());
+		for (City city : playerTurn.getCities()) {
+			city.construct(city.getCurrentConstruction(), this);
 		}
 	}
 	public void handleUnitCommands(){
@@ -1476,13 +1477,37 @@ public class GameController
 			else
 			{
 				if(containTypeMid(type))
-					return playerTurn.getSelectedCity().construct(new MidRange(playerTurn, MidRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				{
+					if (playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
+						return gameEnum.notEnoughGold.regex;
+					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
+						return gameEnum.noEmptyTile.regex;
+					return playerTurn.getSelectedCity().construct(type, this);
+				}
 				else if(containTypeLong(type))
-					return playerTurn.getSelectedCity().construct(new LongRange(playerTurn, LongRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				{
+					if (playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
+						return gameEnum.notEnoughGold.regex;
+					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
+						return gameEnum.noEmptyTile.regex;
+					return playerTurn.getSelectedCity().construct(type, this);
+				}
 				else if(type.equals("SETTLER"))
-					return playerTurn.getSelectedCity().construct(new Settler(playerTurn, playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				{
+					if(playerTurn.getGold() < 89)
+						return gameEnum.notEnoughGold.regex;
+					else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
+						return gameEnum.noEmptyTile.regex;
+					return playerTurn.getSelectedCity().construct(type, this);
+				}
 				else if(type.equals("WORKER"))
-					return playerTurn.getSelectedCity().construct(new Worker(playerTurn, playerTurn.getSelectedCity().findTileWithNoCUnit()));
+				{
+					if(playerTurn.getGold() < 70)
+						return gameEnum.notEnoughGold.regex;
+					else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
+						return gameEnum.noEmptyTile.regex;
+					return playerTurn.getSelectedCity().construct(type, this);
+				}
 				return null;
 			}
 		}
@@ -1509,14 +1534,14 @@ public class GameController
 			return playerTurn.getSelectedCity().purchaseTile(tile);
 		return gameEnum.nonSelect.regex;
 	}
-	private boolean containTypeMid(String type)
+	public boolean containTypeMid(String type)
 	{
 		for(MidRangeType midRangeType : MidRangeType.values())
 			if(midRangeType.name().equals(type))
 				return true;
 		return false;
 	}
-	private boolean containTypeLong(String type)
+	public boolean containTypeLong(String type)
 	{
 		for(LongRangeType longRangeType : LongRangeType.values())
 			if(longRangeType.name().equals(type))
@@ -1527,7 +1552,7 @@ public class GameController
 	{
 		if(containTypeMid(type))
 		{
-			if(playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
+			if (playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
@@ -1535,7 +1560,7 @@ public class GameController
 		}
 		else if(containTypeLong(type))
 		{
-			if(playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
+			if (playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
