@@ -118,7 +118,6 @@ public class City
 	public void setHitPoints(int hitPoints) {
 		this.hitPoints = hitPoints;
 	}
-
 	public void createBuilding(Building building) //TODO
 	{
 		buildings.add(building);

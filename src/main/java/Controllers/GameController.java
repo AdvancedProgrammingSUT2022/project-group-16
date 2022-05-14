@@ -1154,6 +1154,9 @@ public class GameController
 				((Settler) playerTurn.getSelectedUnit()).createCity();
 				if(playerTurn.getCities().size() != 1)
 					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
+				City tmp = playerTurn.getCities().get(playerTurn.getCities().size() - 1);
+				for(int i = 0; i < 5; i++)
+					tmp.addCitizen(new Citizen(tmp));
 				return unitCommands.cityBuilt.regex;
 			}
 		}
@@ -1602,5 +1605,50 @@ public class GameController
 				(type.getRequiredTech() != null && playerTurn.getTechnologies().contains(type.getRequiredTech()))) &&
 				(type.getRequiredSource() == null ||
 				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
+	}
+
+	private Citizen isUnemployed(City city)
+	{
+		for(Citizen citizen : city.getCitizens())
+			if(citizen.getWorkingTile() == null)
+				return citizen;
+		return null;
+	}
+	public String lockCitizenToTile(Matcher matcher)
+	{
+		if(isValidCoordinate(matcher) == null)
+			return unitCommands.wrongCoordinates.regex;
+		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		if(playerTurn.getSelectedCity() != null)
+		{
+			if(isUnemployed(playerTurn.getSelectedCity()) == null)
+				return gameEnum.noUnemployed.regex;
+			else
+				return Objects.requireNonNull(isUnemployed(playerTurn.getSelectedCity())).setCitizenOnTile(tile);
+		}
+		return gameEnum.nonSelect.regex;
+	}
+	private Citizen hasCitizenOnTile(Tile tile)
+	{
+		for(Citizen citizen : playerTurn.getSelectedCity().getCitizens())
+			if(citizen.getWorkingTile() == tile)
+				return citizen;
+		return null;
+	}
+	public String unLockCitizenToTile(Matcher matcher)
+	{
+		if(isValidCoordinate(matcher) == null)
+			return unitCommands.wrongCoordinates.regex;
+		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		if(playerTurn.getSelectedCity() != null)
+		{
+			if(hasCitizenOnTile(tile) == null)
+				return gameEnum.noCitizenHere.regex;
+			else {
+				Objects.requireNonNull(hasCitizenOnTile(tile)).unEmployCitizen();
+				return gameEnum.removeFromWork.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 }

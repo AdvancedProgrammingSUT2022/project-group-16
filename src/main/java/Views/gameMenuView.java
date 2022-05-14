@@ -430,6 +430,7 @@ public class gameMenuView
             {
                 gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(number - 1));
                 showCity();
+                gameController.getPlayerTurn().setSelectedCity(null);
             }
             else
             {
@@ -684,6 +685,16 @@ public class gameMenuView
                     }
                     else
                         System.out.println(gameEnum.nonSelect.regex);
+                }
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.lockCitizenToTile)) != null)
+                {
+                    System.out.println(gameController.lockCitizenToTile(matcher));
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.unLockCitizenToTile)) != null)
+                {
+                    System.out.println(gameController.unLockCitizenToTile(matcher));
+                    gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
                 {
