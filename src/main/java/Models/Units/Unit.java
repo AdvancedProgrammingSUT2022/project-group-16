@@ -239,6 +239,7 @@ public abstract class Unit implements Construction
 				else if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
 			}
 			this.destination = null;
+			return null;
 		}
 		Tile nextTile;
 		nextTile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
@@ -248,12 +249,12 @@ public abstract class Unit implements Construction
 			this.getTile().setCombatUnitInTile(null);
 		else if (this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
 			this.getTile().setNonCombatUnitInTile(null);
+		//this.movementPoints -= destination.getTileType().movementCost;
+		if(nextTile.getBoarderType(this.getTile()).equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
+		//if (this.movementPoints < 0) this.movementPoints = 0;
+		//TODO check for railroad penalty
 		this.setTile(nextTile);
 		this.getMoves().remove(0);
-		this.movementPoints -= destination.getTileType().movementCost;
-		//if(nextTile.getBorders()[0].equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
-		if (this.movementPoints < 0) this.movementPoints = 0;
-		//TODO check for railroad penalty
 		return null;
 	}
 	private boolean canUnitStayInTile(Tile destination){
@@ -265,10 +266,15 @@ public abstract class Unit implements Construction
 		return true;
 	}
 	private boolean isTileEnemy(Tile destination){
-		for (City city : this.getRulerPlayer().getCities()) {
-			if(city.getTerritory().contains(destination)) return false;
+		for (Player player : GameController.getInstance().getPlayers()) {
+			for (City city : player.getCities()) {
+				for (Tile tile : city.getTerritory()) {
+					if(destination.getPosition().equals(tile.getPosition()) && player != this.getRulerPlayer())
+						return true;
+				}
+			}
 		}
-		return true;
+		return false;
 	}
 	public boolean isThereAnotherUnitInTile(Tile tile){
 		if(tile.getCombatUnitInTile() != null && (this instanceof CombatUnit)) return true;

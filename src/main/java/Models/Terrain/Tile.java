@@ -153,6 +153,22 @@ public class Tile
 		newTile.isRuined = isRuined;
 		return newTile;
 	}
+
+	public BorderType getBoarderType(Tile tile) {
+		if(this.getPosition().Q - tile.getPosition().Q == 0){
+			if(tile.getPosition().R - this.getPosition().R == 1) return this.borders[3];
+			else if(tile.getPosition().R - this.getPosition().R == -1) return this.borders[0];
+		}
+		else if(this.getPosition().R - tile.getPosition().R == 0){
+			if(tile.getPosition().Q - this.getPosition().Q == 1) return this.borders[4];
+			else if(tile.getPosition().Q - this.getPosition().Q == -1) return this.borders[1];
+		}
+		else if(this.getPosition().S - tile.getPosition().S == 0){
+			if(tile.getPosition().R - this.getPosition().R == 1) return this.borders[2];
+			else if(tile.getPosition().R - this.getPosition().R == -1) return this.borders[5];
+		}
+		return null;
+	}
 }
 
 

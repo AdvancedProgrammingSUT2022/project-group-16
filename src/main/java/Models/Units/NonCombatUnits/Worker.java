@@ -103,7 +103,11 @@ public class Worker extends NonCombatUnit{
             removeForest();
             removeJungle();
             removeMarsh();
-            this.getCommands().remove(0);
+            //this.getCommands().remove(0);
+            return null;
+        }
+        if(this.improvements.get(0).turnToConstruct < this.improvements.get(0).turnToConstruct){
+            this.improvements.get(0).inLineTurn -- ;
             return null;
         }
 
@@ -137,6 +141,10 @@ public class Worker extends NonCombatUnit{
             removeJungle();
             removeMarsh();
             this.getCommands().remove(0);
+            return null;
+        }
+        if(this.improvements.get(1).turnToConstruct < this.improvements.get(1).turnToConstruct){
+            this.improvements.get(1).inLineTurn -- ;
             return null;
         }
 
