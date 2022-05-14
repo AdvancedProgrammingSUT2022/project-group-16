@@ -12,7 +12,7 @@ public enum unitCommands
     fortify("^\\s*[uU]nit\\s+[fF]ortify\\s*$"),
     fortifyHeal("^\\s*[uU]nit\\s+[fF]ortify\\s+[hH]eal\\s*$"),
     garrison("^\\s*[uU]nit\\s+[gG]arrison\\s*$"),
-    setup("^\\s*[uU]nit\\s+[sS]etup\\s+[rR]anged\\s*$"),
+    setup("^\\s*[uU]nit\\s+[sS]etup\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     attack("^\\s*[uU]nit\\s+[aA]ttack\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     pillage("^\\s*[uU]nit\\s+[pP]illage\\s*$"),
     foundCity("^\\s*[uU]nit\\s+[fF]ound\\s+[cC]ity\\s*$"),
@@ -87,8 +87,11 @@ public enum unitCommands
     destroyCity("city destroyed"),
     attachCity("city attached"),
     longRangeSeizedCity("long range units can not seize city"),
+    isNotLongRange("selected unit is not long range unit"),
+    isNotSiege("selected unit is not siege unit"),
     unitDestroy("unit destroyed"),
     citySeized("city seized"),
+    setupSuccessful("unit setup seccessfully"),
     moveSuccessfull("unit moved successfully"),
     gainGold("\nyou got "),
     isNotInCity("selected unit is not in a city"),
@@ -96,8 +99,7 @@ public enum unitCommands
     garissonSet("garrison placed in the city"),
     gold(" gold"),
     fortifyActivated("fortify activated"),
-    fortifyHealActivated("fortify heal activated"),
-    commandAdded("command added!");
+    fortifyHealActivated("fortify heal activated");
 
     public final String regex;
 

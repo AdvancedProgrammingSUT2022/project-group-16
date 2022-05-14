@@ -7,7 +7,7 @@ public enum UnitState
 	FORTIFIED("🛡"),
 	ALERT("🔔"),
 	FORTIFIED_FOR_HEALING("\uD83D\uDC89"),
-	IS_SET("\uD83D\uDCAF"), // used for siege units
+	IS_SET("🎯"), // used for siege units
 	IS_WORKING("\uD83D\uDEE0️");
 	//TODO: add more states if needed
 	

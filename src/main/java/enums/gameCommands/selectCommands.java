@@ -13,6 +13,8 @@ public enum selectCommands
     shortNewName("^ -n\\s+(?<name>.+)\\s*$"),
     newPos("^ --coordinates\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
     shortNewPos("^ -c\\s+(?<x>-{0,1}[0-9]+)\\s*,\\s*(?<y>-{0,1}[0-9]+)\\s*$"),
+    buyTile("^\\s*[pP]urchase\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    buyUnit("^\\s*[pP]urchase\\s+[uU]nit\\s*$"),
 
     //messages
     invalidRange("please pick numbers between 0 and "),

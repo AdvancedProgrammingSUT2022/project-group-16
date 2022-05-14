@@ -33,7 +33,7 @@ public class Player extends User
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
-	private ArrayList<ResourceType> resources;
+	private ArrayList<ResourceType> resources = new ArrayList<>();
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
@@ -218,6 +218,10 @@ public class Player extends User
 		for(City city : cities)
 			n += city.getCupYield();
 		return n;
+	}
+	public void addResource(ResourceType resourceType)
+	{
+		resources.add(resourceType);
 	}
 	public void reduceCup()
 	{

@@ -1,10 +1,7 @@
 package Controllers;
 
 import Controllers.Utilities.MapPrinter;
-import Models.City.Building;
-import Models.City.BuildingType;
-import Models.City.Citizen;
-import Models.City.City;
+import Models.City.*;
 import Models.Game.Position;
 import Models.Player.*;
 import Models.Menu.Menu;
@@ -12,10 +9,7 @@ import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.*;
 import Models.Terrain.*;
-import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.LongRange;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.CombatUnits.*;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.CommandHandeling.UnitCommandsHandler;
 import Models.Units.NonCombatUnits.*;
@@ -484,11 +478,11 @@ public class GameController
 	{
 		String menuName = matcher.group("menuName");
 
-		if((matcher = mainCommands.compareRegex(menuName, mainCommands.profileName)) != null)
+		if(mainCommands.compareRegex(menuName, mainCommands.profileName) != null)
 			return mainCommands.navigationError.regex;
-		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.loginMenu)) != null)
+		else if(mainCommands.compareRegex(menuName, mainCommands.loginMenu) != null)
 			return mainCommands.navigationError.regex;
-		else if((matcher = mainCommands.compareRegex(menuName, mainCommands.mainMenu)) != null)
+		else if(mainCommands.compareRegex(menuName, mainCommands.mainMenu) != null)
 			return "1";
 		return mainCommands.invalidCommand.regex;
 	}
@@ -916,7 +910,7 @@ public class GameController
 						unit.setHealth(unit.getHealth() + 3);
 					else
 						unit.setHealth(unit.getHealth() + 1);
-					//TODO: different amounts for outside tiles
+					//TODO: different amounts for other tiles
 				}
 	}
 	public String fortify()
@@ -979,9 +973,56 @@ public class GameController
 		}
 		return gameEnum.nonSelect.regex;
 	}
-	public void setup()
+	private boolean isSiege(LongRange unit)
 	{
-
+		if(unit.getType().equals(LongRangeType.ARTILLERY)) return true;
+		if(unit.getType().equals(LongRangeType.CANON)) return true;
+		if(unit.getType().equals(LongRangeType.TREBUCHET)) return true;
+		if(unit.getType().equals(LongRangeType.CATAPULT)) return true;
+		return false;
+	}
+	public void checkSetupAttack()
+	{
+		for(Unit unit : playerTurn.getUnits()) {
+			if (unit.getClass().equals(LongRange.class) && unit.getUnitState().equals(UnitState.IS_SET)
+					&& ((LongRange) unit).getSetCounter() == 1 && ((LongRange) unit).getTargetCity() != null) {
+				((LongRange) unit).setSet(0);
+				String tmp = unit.attackToCity(((LongRange) unit).getTargetCity());
+				((LongRange) unit).setTargetCity(null);
+				((LongRange) unit).setUnitState(UnitState.ACTIVE);
+			}
+			else if(unit.getClass().equals(LongRange.class) && unit.getUnitState().equals(UnitState.IS_SET)
+					&& ((LongRange) unit).getSetCounter() == 0)
+				((LongRange) unit).setSet(1);
+		}
+	}
+	public String setup(Matcher matcher)
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
+				return unitCommands.notYours.regex;
+			else if(isValidCoordinate(matcher) == null)
+				return unitCommands.rangeError.regex;
+			else if(!playerTurn.getSelectedUnit().getClass().equals(LongRange.class))
+				return unitCommands.isNotLongRange.regex;
+			else if(!isSiege(((LongRange) playerTurn.getSelectedUnit())))
+				return unitCommands.isNotSiege.regex;
+			else if(belongToCity(isValidCoordinate(matcher)) == null)
+				return unitCommands.notCityInDestination.regex;
+			else if(belongToPlayerTurn(isValidCoordinate(matcher)))
+				return unitCommands.playerTurnCity.regex;
+			else
+			{
+				Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+				LongRange tmp = ((LongRange) playerTurn.getSelectedUnit());
+				tmp.setUnitState(UnitState.IS_SET);
+				tmp.setTargetCity(belongToCity(tile));
+				changePower(playerTurn.getSelectedUnit());
+				return unitCommands.setupSuccessful.regex;
+			}
+		}
+		return gameEnum.nonSelect.regex;
 	}
 	private boolean belongToPlayerTurn(Tile tile)
 	{
@@ -1027,25 +1068,25 @@ public class GameController
 				return unitCommands.destroyImprovement.regex;
 			}
 		}
-		else
-			return gameEnum.nonSelect.regex;
+		return gameEnum.nonSelect.regex;
 
 	}
 	public String destroyCity(City city)
 	{
 		city.destroyCity();
+		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 1.1));
 		return unitCommands.destroyCity.regex;
 	}
 
 	public String attachCity(City city)
 	{
 		city.attachCity();
+		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 		return unitCommands.attachCity.regex;
 	}
 	public String attackCity(Matcher matcher)
 	{
-		if(Integer.parseInt(matcher.group("x")) > 9 || Integer.parseInt(matcher.group("x")) < 0 ||
-				Integer.parseInt(matcher.group("y")) > 9 || Integer.parseInt(matcher.group("y")) < 0)
+		if(isValidCoordinate(matcher) == null)
 			return unitCommands.wrongCoordinates.regex;
 		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
 		if(playerTurn.getSelectedUnit() != null)
@@ -1064,7 +1105,8 @@ public class GameController
 				return unitCommands.rangeError.regex;
 			else if(isCityInTile(tile) == null)
 				return unitCommands.notCityInDestination.regex;
-			else {
+			else
+			{
 				changePower(playerTurn.getSelectedUnit());
 				return playerTurn.getSelectedUnit().attackToCity(isCityInTile(tile));
 			}
@@ -1422,13 +1464,13 @@ public class GameController
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public boolean isValidCoordinate(Matcher matcher)
+	public Tile isValidCoordinate(Matcher matcher)
 	{
 		int x = Integer.parseInt(matcher.group("x"));
 		int y = Integer.parseInt(matcher.group("y"));
 		if(x > 9 || x < 0 || y > 9 || y < 0)
-			return false;
-		return true;
+			return null;
+		return getTileByXY(x,y);
 	}
 	private boolean hasBuilding(Tile tile)
 	{
@@ -1479,21 +1521,86 @@ public class GameController
 			player.setHappiness(100 - players.size() * 5);
 	}
 
-	public void seizedCity(City seizedCity)
-	{
-		playerTurn.getSeizedCities().add(seizedCity);
-		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
-	}
 	public String buyTile(Matcher matcher)
 	{
-		if(Integer.parseInt(matcher.group("x")) > 9 || Integer.parseInt(matcher.group("x")) < 0 ||
-				Integer.parseInt(matcher.group("y")) > 9 || Integer.parseInt(matcher.group("y")) < 0)
+		if(isValidCoordinate(matcher) == null)
 			return unitCommands.wrongCoordinates.regex;
 		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		if(playerTurn.getSelectedCity() != null)
+			return playerTurn.getSelectedCity().purchaseTile(tile);
+		return gameEnum.nonSelect.regex;
+	}
+	private boolean containTypeMid(String type)
+	{
+		for(MidRangeType midRangeType : MidRangeType.values())
+			if(midRangeType.name().equals(type))
+				return true;
+		return false;
+	}
+	private boolean containTypeLong(String type)
+	{
+		for(LongRangeType longRangeType : LongRangeType.values())
+			if(longRangeType.name().equals(type))
+				return true;
+		return false;
+	}
+	public String buyUnit(String type)
+	{
+		if(containTypeMid(type))
+		{
+			if(playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
+				return gameEnum.notEnoughGold.regex;
+			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
+				return gameEnum.noEmptyTile.regex;
+			return playerTurn.getSelectedCity().buyProduct(new MidRange(playerTurn,MidRangeType.valueOf(type), playerTurn.getSelectedCity().getCapitalTile()), playerTurn.getSelectedCity().findTileWithNoCUnit());
+		}
+		else if(containTypeLong(type))
+		{
+			if(playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
+				return gameEnum.notEnoughGold.regex;
+			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
+				return gameEnum.noEmptyTile.regex;
+			return playerTurn.getSelectedCity().buyProduct(new LongRange(playerTurn,LongRangeType.valueOf(type), playerTurn.getSelectedCity().getCapitalTile()), playerTurn.getSelectedCity().findTileWithNoCUnit());
+		}
+		else if(type.equals("SETTLER"))
+		{
+			if(playerTurn.getGold() < 89)
+				return gameEnum.notEnoughGold.regex;
+			else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
+				return gameEnum.noEmptyTile.regex;
+			return playerTurn.getSelectedCity().buyProduct(new Settler(playerTurn, playerTurn.getSelectedCity().getCapitalTile()), playerTurn.getSelectedCity().findTileWithNoNCUnit());
+		}
+		else if(type.equals("WORKER"))
+		{
+			if(playerTurn.getGold() < 70)
+				return gameEnum.notEnoughGold.regex;
+			else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
+				return gameEnum.noEmptyTile.regex;
+			return playerTurn.getSelectedCity().buyProduct(new Worker(playerTurn, playerTurn.getSelectedCity().getCapitalTile()), playerTurn.getSelectedCity().findTileWithNoNCUnit());
+		}
 		return null;
 	}
-	public void buyUnit(Unit unit)
+	public int getCost(Unit unit)
 	{
+		if(unit instanceof MidRange) return ((MidRange) unit).getType().getCost();
+		if(unit instanceof LongRange) return ((LongRange) unit).getType().getCost();
+		if(unit.getClass().equals(Settler.class)) return 89;
+		if(unit.getClass().equals(Worker.class)) return 70;
+		return 0;
+	}
 
+	public boolean validMidRange(MidRangeType type)
+	{
+		return (type.getRequiredTech() == null ||
+				(type.getRequiredTech() != null && playerTurn.getTechnologies().contains(type.getRequiredTech()))) &&
+				(type.getRequiredSource() == null ||
+				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
+	}
+	public boolean validLongRange(LongRangeType type)
+	{
+		return (type.getRequiredTech() == null ||
+				(type.getRequiredTech() != null && playerTurn.getTechnologies().contains(type.getRequiredTech()))) &&
+				(type.getRequiredSource() == null ||
+				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
 	}
 }

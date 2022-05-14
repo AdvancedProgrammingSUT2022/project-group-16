@@ -163,6 +163,7 @@ public abstract class Unit implements Construction
 		if(city.getHitPoints() == 1 && this.getClass().equals(MidRange.class))
 		{
 			//seized city
+			rulerPlayer.getSelectedUnit().setTile(city.getCapitalTile());
 			city.seizeCity(this.rulerPlayer);
 			return unitCommands.citySeized.regex;
 		}
@@ -179,7 +180,9 @@ public abstract class Unit implements Construction
 			if(cityDamage < 0)
 			{
 				city.setHitPoints(city.getHitPoints() + cityDamage);
-				if(city.getHitPoints() < 1) {
+				if(city.getHitPoints() < 1)
+				{
+					rulerPlayer.getSelectedUnit().setTile(city.getCapitalTile());
 					city.seizeCity(rulerPlayer);
 					return null;
 				}

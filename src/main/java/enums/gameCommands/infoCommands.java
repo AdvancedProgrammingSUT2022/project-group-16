@@ -50,7 +50,8 @@ public enum infoCommands
     cityGot("you got the city!\nwhat do you want to do?"),
     destroy("1: destroy"),
     attach("2: attach"),
-    attachedCities("attached city/cities: ");
+    attachedCities("attached city/cities: "),
+    size("territory size: ");
 
     public final String regex;
 

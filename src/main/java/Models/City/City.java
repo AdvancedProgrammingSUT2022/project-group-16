@@ -8,6 +8,8 @@ import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import Models.Units.UnitState;
+import com.sun.nio.sctp.Notification;
+import enums.gameEnum;
 
 import java.util.ArrayList;
 
@@ -173,13 +175,16 @@ public class City
 	public Tile getCapitalTile() {
 		return capitalTile;
 	}
-	public void purchaseTile(Tile tile){
-		if(isTileNeighbor(tile) && getRulerPlayer().getGold() >= getRulerPlayer().getTilePurchaseCost()) {
+	public String purchaseTile(Tile tile){
+		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
+			return gameEnum.notEnoughGold.regex;
+		else if(isTileNeighbor(tile) && getRulerPlayer().getGold() >= getRulerPlayer().getTilePurchaseCost()) {
 			this.territory.add(tile);
 			this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getRulerPlayer().getTilePurchaseCost());
 			this.getRulerPlayer().setTilePurchaseCost((int) (1.2 * getRulerPlayer().getTilePurchaseCost()));
+			return gameEnum.buyTile.regex;
 		}
-
+		return gameEnum.cantBuyTile.regex;
 	}
 	private boolean isTileNeighbor(Tile newTile){
 		for (Tile tile : territory) {
@@ -190,31 +195,37 @@ public class City
 		}
 		return false;
 	}
-	public String buyProduct(Product product){
-		//TODO add purchasing buildings for phase 2
-		if( product instanceof Unit){
-			if(this.getRulerPlayer().getGold() >= ((Unit) product).getProductionCost()) {
-				Tile destination;
-				if((destination = (findTileWithNoUnit((Unit) product))) == null) return"there is no tile without unit";
-				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) product).getProductionCost());
-				this.getRulerPlayer().getUnits().add((Unit) product);
-				((Unit) product).move(destination);//TODO if using command list, add move command to arraylist
-			}else{
-				return "not enough money";
-			}
-		}
+	public String buyProduct(Unit product, Tile destination){
+		//TODO: add purchasing buildings for phase 2
+
+		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - GameController.getInstance().getCost((Unit) product));
+		((Unit) product).setTile(destination);
+		if(product instanceof CombatUnit) destination.setCombatUnitInTile((CombatUnit) product);
+		if(product instanceof NonCombatUnit) destination.setNonCombatUnitInTile((NonCombatUnit) product);
+		return gameEnum.unitBought.regex;
+	}
+	public Tile findTileWithNoCUnit(){
+		for (City city : this.getRulerPlayer().getCities())
+			for (Tile tile : city.getTerritory())
+				if(tile.getCombatUnitInTile() == null) return tile;
 		return null;
 	}
-	private Tile findTileWithNoUnit(Unit unit){
-		for (City city : this.getRulerPlayer().getCities()) {
-			for (Tile tile : city.getTerritory()) {
-				if(tile.getNonCombatUnitInTile() == null && unit instanceof NonCombatUnit) return tile;
-				else if(tile.getCombatUnitInTile() == null && unit instanceof CombatUnit) return tile;
-			}
-		}
+	public Tile findTileWithNoNCUnit(){
+		for (City city : this.getRulerPlayer().getCities())
+			for (Tile tile : city.getTerritory())
+				if(tile.getNonCombatUnitInTile() == null) return tile;
 		return null;
 	}
 
+	private Tile findTileWithNoUnit(Unit unit)
+	{
+		for (City city : this.getRulerPlayer().getCities())
+			for (Tile tile : city.getTerritory()) {
+				if (tile.getCombatUnitInTile() != null && unit instanceof CombatUnit) return tile;
+				else if(tile.getNonCombatUnitInTile() != null && unit instanceof NonCombatUnit) return tile;
+			}
+		return null;
+	}
 	public String construct(Construction construction){
 		if(inLineConstructionTurn == 0) {
 			if(construction instanceof Unit) {

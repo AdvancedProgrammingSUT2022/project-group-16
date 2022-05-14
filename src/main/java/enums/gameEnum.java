@@ -13,8 +13,6 @@ public enum gameEnum
     next("^\\s*[nN]ext\\s*$"),
     end("^\\s*[eE]nd\\s*$"),
     buildBuilding("^\\s*[bB]uild\\s+[bB]uilding\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
-    buyTile("^\\s*[pP]urchase\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
-    buyUnit("^\\s*[pP]urchase\\s+[uU]nit\\s*$"),
 
     //messages
     invalidCommand("invalid command"),
@@ -66,7 +64,12 @@ public enum gameEnum
     isFortify("unit already fortified"),
     isFortifyTilHeal("unit already fortified til heal"),
     awaken("unit is awake"),
-    nonSelect("nothing has been selected");
+    nonSelect("nothing has been selected"),
+    buyTile("tile bought successfully"),
+    cantBuyTile("you can not buy this tile"),
+    notEnoughGold("your gold is not enough"),
+    unitBought("unit bought successfully"),
+    noEmptyTile("there is no empty tile");
 
     public final String regex;
 
