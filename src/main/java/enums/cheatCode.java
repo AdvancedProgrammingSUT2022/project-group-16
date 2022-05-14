@@ -26,7 +26,8 @@ public enum cheatCode
     happiness("happiness"),
     increaseSuccessful(" increased Successfuly"),
     addSuccessful(" added Successfully"),
-    unitKilled("Unit killed successfully");
+    unitKilled("Unit killed successfully"),
+    youWin("you win!!");
 
     public final String regex;
 

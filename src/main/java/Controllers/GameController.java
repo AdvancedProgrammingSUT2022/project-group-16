@@ -401,6 +401,14 @@ public class GameController
 		registerController.writeDataOnJson();
 		return cheatCode.score.regex + cheatCode.increaseSuccessful.regex;
 	}
+	public String winGame()
+	{
+		int index = Menu.allUsers.indexOf(registerController.getUserByUsername(playerTurn.getUsername()));
+		playerTurn.setScore(playerTurn.getScore() + 5);
+		Menu.allUsers.get(index).setScore(Menu.allUsers.get(index).getScore() + 5);
+		registerController.writeDataOnJson();
+		return cheatCode.youWin.regex;
+	}
 	public String addTechnology(Matcher matcher)
 	{
 		for(int i = 0; i < Technology.values().length; i++)

@@ -293,24 +293,29 @@ public class gameMenuView
             if(city.getState() == CityState.ATTACHED)
                 n.add(city);
         if(n.size() != 0)
-            System.out.println("city name\t\t\tpopulation\t\tpower force\t\tfood yield\t\tcup yield\t\tgold yield\t\tproduction yield\t\tposition\t\tattached");
+            System.out.println("  city name  \tpopulation\tpower force\tfood yield\tcup " +
+                    "yield\tgold yield\tproduction yield\tposition\tcurrent Construction\tturns\tattached");
         for (City city : n) {
             System.out.print(city.getName());
-            printSpace(24 - city.getName().length());
+            printSpace(18 - city.getName().length());
             System.out.print(city.getCitizens().size());
-            printSpace(17 - numberOfDigits(city.getCitizens().size()));
+            printSpace(14 - numberOfDigits(city.getCitizens().size()));
             System.out.print(city.getCombatStrength());
-            printSpace(16 - numberOfDigits(city.getCombatStrength()));
+            printSpace(11 - numberOfDigits(city.getCombatStrength()));
             System.out.print(city.getFoodYield());
-            printSpace(15 - numberOfDigits(city.getFoodYield()));
+            printSpace(11 - numberOfDigits(city.getFoodYield()));
             System.out.print(city.getCupYield());
-            printSpace(17 - numberOfDigits(city.getCupYield()));
+            printSpace(12 - numberOfDigits(city.getCupYield()));
             System.out.print(city.getGoldYield());
-            printSpace(17 - numberOfDigits(city.getGoldYield()));
+            printSpace(13 - numberOfDigits(city.getGoldYield()));
             System.out.print(city.getCitizens().size());
-            printSpace(21 - numberOfDigits(city.getCitizens().size()));
+            printSpace(16 - numberOfDigits(city.getCitizens().size()));
             System.out.print(city.getCapitalTile().getPosition().X + "," + city.getCapitalTile().getPosition().Y);
-            printSpace(10);
+            printSpace(13);
+            System.out.print(city.getCurrentConstruction());
+            printSpace(15);
+            System.out.print(city.getInLineConstructionTurn());
+            printSpace(3);
             if (city.getState() == CityState.ATTACHED)
                 System.out.println("attached");
             else
@@ -556,7 +561,7 @@ public class gameMenuView
         String command = null;
         do
         {
-            while (true) //TODO: this should be scanner.hasNextLine(). but it had bug :(
+            while (gameController.getPlayers().size() > 0)
             {
                 // alert some units. this method alerts all units that are in ALERT state for all players
                 gameController.stayAlert();
@@ -587,8 +592,11 @@ public class gameMenuView
                     System.out.println(gameController.increaseHealth(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseScore)) != null)
                     System.out.println(gameController.increaseScore(matcher));
-                else if (cheatCode.compareRegex(command, cheatCode.winGame) != null)
-                    break; //TODO: calculate scores
+                else if (cheatCode.compareRegex(command, cheatCode.winGame) != null) {
+                    gameController.removeAllPlayers();
+                    System.out.println(gameController.winGame());
+                    break;
+                }
 
                 /*Info*/
                 else if(infoCommands.compareRegex(command, infoCommands.infoResearch) != null)
@@ -603,7 +611,7 @@ public class gameMenuView
                     showNotifications(scanner);
                 else if(infoCommands.compareRegex(command, infoCommands.infoMilitary) != null)
                     showMilitary(scanner);
-                else if(infoCommands.compareRegex(command, infoCommands.infoEconomic) != null) //TODO: add current construction (and turns til end) later
+                else if(infoCommands.compareRegex(command, infoCommands.infoEconomic) != null)
                     showEconomics(scanner);
                 else if(infoCommands.compareRegex(command, infoCommands.infoTechnologies) != null)
                     showTechnologies(scanner);
@@ -818,23 +826,6 @@ public class gameMenuView
                     System.out.println(gameEnum.endGame.regex);
                     break;
                 } //end game
-                else if(command.equals("s"))
-                {
-                    MidRange z = new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(45));
-                    Settler n = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(55));
-                    Worker w = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(54));
-                    LongRange q = new LongRange(gameController.getPlayerTurn(), LongRangeType.CATAPULT, gameController.getMap().get(34));
-                    Settler m = new Settler(gameController.getPlayerTurn(),gameController.getMap().get(1));
-                    MidRange o = new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(45));
-                    Worker k = new Worker(gameController.getPlayerTurn(),gameController.getMap().get(2));
-                    LongRange r = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARTILLERY, gameController.getMap().get(34));
-                    LongRange l = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(34));
-                    n.createCity();
-                    gameController.getPlayerTurn().setCapitalCity(gameController.getPlayerTurn().getCities().get(0));
-                    m.createCity();
-                    gameController.getPlayerTurn().getCities().get(1).addPopulation(12);
-                    gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
-                }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {
                     String changeTurnResult = gameController.checkChangeTurn();
@@ -849,7 +840,7 @@ public class gameMenuView
             gameController.handleUnitCommands();
             gameController.updatePlayersUnitLocations();
             gameController.updateWorkersConstructions();
-        } while (!Objects.equals(command, gameEnum.end.toString()));
+        } while (gameController.getPlayers().size() > 0);
     }
     public static void runGameMenu()
     {
