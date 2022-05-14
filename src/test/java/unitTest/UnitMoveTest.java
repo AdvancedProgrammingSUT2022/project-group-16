@@ -1,12 +1,11 @@
 package unitTest;
-import Models.Game.Position;
 import Models.Player.Player;
+import Models.Terrain.Position;
 import Models.Terrain.Tile;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.FindWay;
-import Models.Units.NonCombatUnits.Settler;
-import Models.Units.NonCombatUnits.Worker;
+import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

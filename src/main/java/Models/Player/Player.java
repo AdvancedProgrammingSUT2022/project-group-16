@@ -72,12 +72,6 @@ public class Player extends User
 	{
 		this.selectedCity = city;
 	}
-	public ArrayList<City> getAnnexedCities() {
-		return annexedCities;
-	}
-	public void addAnnexedCity(City annexedCity) {
-		annexedCities.add(annexedCity);
-	}
 
 	public int getMaxPopulation() {
 		return maxPopulation;

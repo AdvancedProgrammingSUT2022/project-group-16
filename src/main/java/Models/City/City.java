@@ -139,6 +139,10 @@ public class City
 	public void setRulerPlayer(Player rulerPlayer) {
 		this.rulerPlayer =  rulerPlayer;
 	}
+	public int getPopulation()
+	{
+		return citizens.size();
+	}
 	public void addPopulation(int amount)
 	{
 		for(int i = 0; i < amount; i++){

@@ -41,7 +41,7 @@ public class Citizen
 	}
 
 	private boolean doesAnotherCitizenWorkOnTile(Tile workingTile){
-		for (Models.City.City city : this.City.getRulerPlayer().getCities()) {
+		for (City city : this.city.getRulerPlayer().getCities()) {
 			for (Citizen citizen : city.getCitizens()) {
 				if(citizen.workingTile == workingTile) return true;
 			}
