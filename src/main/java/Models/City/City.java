@@ -255,7 +255,6 @@ public class City
 				if (tile.getCombatUnitInTile() != null && unit instanceof CombatUnit) return tile;
 				else if(tile.getNonCombatUnitInTile() != null && unit instanceof NonCombatUnit) return tile;
 			}
-		}
 		return null;
 	}
 

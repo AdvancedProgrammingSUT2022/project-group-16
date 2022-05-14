@@ -27,7 +27,6 @@ class InitGameTest
 		new City(gameController.getPlayerTurn().getTileByXY(5, 5), gameController.getPlayerTurn());
 		
 		gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(0));
-		gameMenuView.showCity();
 	}
 }
 
