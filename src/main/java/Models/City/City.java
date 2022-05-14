@@ -1,8 +1,6 @@
 package Models.City;
 
-import Controllers.GameController;
 import Models.Player.Player;
-import Models.Resources.Resource;
 import Models.Terrain.Tile;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.NonCombatUnits.NonCombatUnit;
@@ -12,7 +10,7 @@ import java.util.ArrayList;
 public class City
 {
 	private final ArrayList<Tile> territory = new ArrayList<>();
-	private Tile capitalTile;
+	private final Tile capitalTile;
 	private int foodYield = 0;
 	private int productionYield = 0;
 	private int goldYield = 0;
@@ -30,7 +28,7 @@ public class City
 	private NonCombatUnit nonCombatUnit = null;
 	private int combatStrength;
 	private Player rulerPlayer;
-	private String name;
+	private final String name;
 	
 	public City(Tile capitalTile, Player rulerPlayer)
 	{

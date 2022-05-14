@@ -100,7 +100,7 @@ public class MapPrinter
 				neighborTile = player.getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S);
 			else if(borderIndex == 4)
 				neighborTile = player.getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1);
-			else if(borderIndex == 5)
+			else //if(borderIndex == 5)
 				neighborTile = player.getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S);
 			
 			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
@@ -109,7 +109,7 @@ public class MapPrinter
 			{
 				if(borderIndex == 1 || borderIndex == 4)
 					mapString.append(Ansi.colorize("/", borders[borderIndex].attribute));
-				else if(borderIndex == 2 || borderIndex == 5)
+				else //if(borderIndex == 2 || borderIndex == 5)
 					mapString.append(Ansi.colorize("\\", borders[borderIndex].attribute));
 			}
 		}
@@ -122,7 +122,7 @@ public class MapPrinter
 		
 		mapString.append(String.format("%-15s    ", "Tile types:"));
 		Arrays.asList(TileType.values()).forEach((tileType)->{
-			mapString.append(tileType + ":");
+			mapString.append(tileType).append(":");
 			mapString.append(Ansi.colorize("    ", tileType.attribute));
 			mapString.append("    ");
 		});
@@ -471,12 +471,6 @@ public class MapPrinter
 			TileFeature tileFeature = tile.getTileFeature();
 			Resource resource = tile.getResource();
 			Improvement improvement = tile.getImprovement();
-			//			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
-			//			if(tile.getTileFeature() != TileFeature.NONE)
-			//				mapString.append(String.format("%2s", tile.getTileFeature().symbol));
-			//			else
-			//				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
-			//			mapString.append(Ansi.colorize("     ", tile.getTileType().attribute));
 			mapString.append(Ansi.colorize(" ", tile.getTileType().attribute));
 			if(tile.getTileFeature() != TileFeature.NONE)
 				mapString.append(String.format("%2s", tileFeature.symbol));
@@ -575,7 +569,7 @@ public class MapPrinter
 					unitAttribute = Attribute.YELLOW_BACK();
 				else
 					unitAttribute = tile.getTileType().attribute;
-				mapString.append(Ansi.colorize(String.format("%-14s", nonCombatUnit.toString()), unitAttribute,
+				mapString.append(Ansi.colorize(String.format("%-14s", nonCombatUnit), unitAttribute,
 						Attribute.BLACK_TEXT()));
 			}
 		}

@@ -19,28 +19,28 @@ import java.util.*;
 
 public class Player extends User
 {
-	GameController gameController;
+	final GameController gameController;
 	private Unit selectedUnit = null;
 	private City selectedCity = null;
 	private final Civilization civilization;
 	private int food = 100;
 	private int cup = 0;
 	private int gold = 100;
-	private int happiness = 0;
+	private int happiness;
 	private int maxPopulation = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
-	private int[] researchingTechCounter = new int[50];
+	private final int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
 	private ArrayList<Resource> resources;
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
-	private HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
-	private ArrayList<City> cities = new ArrayList<>();
-	private ArrayList<City> annexedCities = new ArrayList<>();
+	private final HashMap<Tile, TileState> map; //TODO: make this final when no change is needed
+	private final ArrayList<City> cities = new ArrayList<>();
+	private final ArrayList<City> annexedCities = new ArrayList<>();
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
-	private ArrayList<Unit> units = new ArrayList<>();
+	private final ArrayList<Unit> units = new ArrayList<>();
 	private boolean isUnHappy = false;
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score)

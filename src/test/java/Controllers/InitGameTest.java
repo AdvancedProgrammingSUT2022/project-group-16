@@ -1,17 +1,8 @@
 package Controllers;
 
-import Controllers.Utilities.MapPrinter;
-import Models.City.City;
 import Models.Player.Civilization;
 import Models.Player.Player;
-import Models.Player.TileState;
-import Models.Terrain.*;
-import Models.Units.CombatUnits.LongRange;
-import Models.Units.CombatUnits.LongRangeType;
-import Models.Units.Unit;
-import Models.Units.UnitState;
 import Views.gameMenuView;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,11 +23,6 @@ class InitGameTest
 	{
 		gameController.initGame();
 		
-//		for(Tile tile : gameController.getMap())
-//			tile.setTileType(TileType.MOUNTAIN);
-//		gameController.getPlayerTurn().updateTileStates();
-		
-		gameMenuView.showBaseFields();
 	}
 }
 

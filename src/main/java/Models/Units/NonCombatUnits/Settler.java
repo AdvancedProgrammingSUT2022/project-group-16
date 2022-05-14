@@ -21,7 +21,7 @@ public class Settler extends NonCombatUnit{
     private boolean theTileIsInAnotherCity(){
         for (City city : this.getRulerPlayer().getCities()) {
             for (Tile tile : city.getTerritory()) {
-                if(tile.getPosition().equals(this.getTile()))
+                if(tile.getPosition().equals(this.getTile().getPosition())) //TODO: not with equals
                     return true;
             }
         }

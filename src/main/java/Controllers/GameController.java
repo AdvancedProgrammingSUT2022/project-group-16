@@ -16,7 +16,6 @@ import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.CommandHandeling.UnitCommandsHandler;
-import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.Units.UnitState;
@@ -379,9 +378,13 @@ public class GameController
 	}
 	private void consumeFood()
 	{
-		//TODO: is it needed to feed settlers?
-		
+		//per citizen: 1, per settler: 2
 		int numberOfCitizens = 0;
+		//feed settlers :\
+		for(Unit unit : playerTurn.getUnits())
+			if(unit instanceof Settler)
+				numberOfCitizens += 2;
+		
 		for(City city : playerTurn.getCities())
 			numberOfCitizens += city.getCitizens().size();
 		
@@ -577,7 +580,7 @@ public class GameController
 		}
 		return false;
 	}
-	public int getNum(Scanner scanner, int min, int max)
+	public int getNum(Scanner scanner, int min, int max) //TODO: should be deleted
 	{
 		int number = 0;
 		String tmpNumber = scanner.nextLine();

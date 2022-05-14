@@ -14,7 +14,7 @@ public enum Civilization
 	RUSSIAN("Catherine", new String[]{"Moscow", "Saint Petersburg", "Samara", "Kazan", "Omsk", "Ozersk"});
 
 	public final String leaderName;
-	public String[] cities;
+	public final String[] cities;
 	
 	Civilization(String leaderName, String[] cities)
 	{

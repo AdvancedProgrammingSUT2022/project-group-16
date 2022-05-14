@@ -4,11 +4,11 @@ import Models.Terrain.Tile;
 
 public class Citizen
 {
-	private City City;
+	private final City city;
 	private Tile workingTile;
 
 	public Citizen(City city) {
-		this.City = city;
+		this.city = city;
 		workingTile = null;
 	}
 
@@ -16,7 +16,7 @@ public class Citizen
 		return workingTile;
 	}
 	public City getCity() {
-		return City;
+		return city;
 	}
 	public void setCitizenOnTile(Tile workingTile) {
 		this.workingTile = workingTile;

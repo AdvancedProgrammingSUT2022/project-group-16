@@ -120,9 +120,7 @@ public class Tile
 
 	public boolean isBlocker()
 	{
-		if(tileType.isBlocker || tileFeature.isBlocker)
-			return true;
-		return false;
+		return tileType.isBlocker || tileFeature.isBlocker;
 	}
 	public int distanceTo(Tile tile)
 	{

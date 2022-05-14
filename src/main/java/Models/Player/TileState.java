@@ -4,5 +4,5 @@ public enum TileState
 {
 	VISIBLE,
 	REVEALED,
-	FOG_OF_WAR;
+	FOG_OF_WAR
 }

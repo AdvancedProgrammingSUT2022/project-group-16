@@ -1,9 +1,6 @@
 package Models.Units.CommandHandeling;
 
 import Models.Terrain.Tile;
-import Models.Units.Unit;
-
-import java.security.PublicKey;
 
 public enum UnitCommands {
     GET_READY(),
