@@ -5,9 +5,8 @@ import Models.City.Building;
 import Models.City.BuildingType;
 import Models.City.Citizen;
 import Models.City.City;
-import Models.Game.Position;
-import Models.Player.*;
 import Models.Menu.Menu;
+import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.*;
@@ -44,7 +43,7 @@ public class GameController
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
-
+	
 	// private constructor to prevent instantiation
 	private GameController()
 	{
@@ -58,30 +57,16 @@ public class GameController
 			instance = new GameController();
 		return instance;
 	}
-
+	
 	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns) //TODO: is this needed?
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
 	{
-		//happiness
-		if(totalPopulation() >= playerTurn.getMaxPopulation() + 10)
-		{
-			playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
-			playerTurn.setMaxPopulation(totalPopulation());
-		}
-		if(!playerTurn.getIsUnHappy() && playerTurn.getHappiness() < 0)
-			playerTurn.isUnHappy();
-		// if there is a unit which has not used its turn, it returns the unit's name with error message
-		for(Unit unit : playerTurn.getUnits())
-		{
-			//TODO: check if unit has used its turn
-			if(false)
-			{
-				return "unit in " + unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + " has not used its turn";
-			}
-		}
+		// if there is a unit which has not used its turn, it returns the unit's name with error message //TODO: is this needed?
+		//TODO: check if unit has used its turn
+		
 		changeTurn();
-		return null;
+		return null; //TODO: return: "turn changed successfully"
 	}
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
@@ -92,32 +77,56 @@ public class GameController
 				city.updateCityCombatStrength();
 
 		// reset all units turns. TODO: is this needed?
-		for(Unit unit : playerTurn.getUnits())
-		{
-			// set their turns to default
-		}
+		
 		playerTurn.setSelectedUnit(null);
 		playerTurn.setSelectedCity(null);
-
-		// consume food for this player (consumes 1 food for each citizen)
-/*
-		for(City city : playerTurn.getCities())
-			playerTurn.setFood(playerTurn.getFood() - city.getPopulation());
-*/
+		
+		processResearchingTechnology();
+		processFoodForChangingTurn();
+		gainGold();
+		// gain production (maybe?)
+		
+		//happiness
+		if(playerTurn.getTotalPopulation() >= playerTurn.getMaxPopulation() + 10)
+		{
+			playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
+			playerTurn.setMaxPopulation(playerTurn.getTotalPopulation());
+		}
+		if(!playerTurn.getIsUnHappy() && playerTurn.getHappiness() < 0)
+			playerTurn.isUnHappy();
+		
+		// update cups
+		playerTurn.setCup(playerTurn.getCup() + playerTurn.incomeCup());
+		
+		// handle units
+		handleUnitCommands();
+		updatePlayersUnitLocations();
+		updateWorkersConstructions();
+		updateCityConstructions();
+		
 		// decrement researching technology turns
-
+		
 		// check for city growth
-
-
+		
+		
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 		//TODO: check that this is not a duplicate from runGame while loop
 		if(players.indexOf(playerTurn) == 0)
 		{
 			turnCounter++;
-			addTurn(1); //TODO: what does this do?
-			updateFortifyTilHeal();
+			updateFortifyTilHeal(); //TODO
 		}
+	}
+	private void processFoodForChangingTurn()
+	{
+		// gain food
+		gainFood();
+		// consume food for this player (consumes 1 food for each citizen)
+		consumeFood();
+		// food penalty when citizens are unhappy (our food *= 33%)
+		if(playerTurn.getHappiness() < 0)
+			playerTurn.setFood((int) (playerTurn.getFood() * 0.33));
 	}
 	public void initGame()
 	{
@@ -148,18 +157,18 @@ public class GameController
 	{
 		if(x < 0 || y < 0 || x >= MAX_GRID_LENGTH || y >= MAX_GRID_LENGTH)
 			return null;
-
+		
 		for(Position position : grid)
 			if(position.X == x && position.Y == y)
 				return position;
-
+		
 		return null;
 	}
 	// this method is called when GameController is created. this method creates an array of Tiles and fills map with these tiles. TODO: currently it creates a random map
 	private void initMap()
 	{
 		// TODO: select from a list of maps
-
+		
 		// create sample maps
 		Random borderRandom = new Random();
 		Random tileTypeRandom = new Random();
@@ -167,24 +176,25 @@ public class GameController
 		Random improvementRandom = new Random();
 		Random resourceRandom = new Random();
 		Random CUnitRandom = new Random();
-
+		
 		for(int i = 0; i < MAP_SIZE; i++)
 			for(int j = 0; j < MAP_SIZE; j++)
 			{
 				Random resourceTypeRandom = new Random();
 				int resourceType = resourceTypeRandom.nextInt(3);
-				Resource resource = null;
+				Resource resource;
 				if(resourceType == 0)
 					resource = new BonusResource(ResourceType.values()[resourceRandom.nextInt(5) + 1]);
 				else if(resourceType == 1)
 					resource = new LuxuryResource(ResourceType.values()[resourceRandom.nextInt(3) + 6]);
 				else
 					resource = new StrategicResource(ResourceType.values()[resourceRandom.nextInt(11) + 9]);
-
+				
 				BorderType[] borders = new BorderType[6];
 				for(int k = 0; k < 6; k++)
 					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
-				map.add(new Tile(getPosition(i, j), TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
+				map.add(new Tile(getPosition(i, j),
+						TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
 						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)],
 						borders,
 						resource));
@@ -204,12 +214,15 @@ public class GameController
 			player.updateTileStates();
 		}
 	}
-	public boolean isTileInPlayerTerritory(Position position){
-		for (City city : playerTurn.getCities()) {
-			for (Tile tile : city.getTerritory()) {
-				if(tile.getPosition().equals(position)) return true;
+	public boolean isTileInPlayerTerritory(Position position)
+	{
+		for(City city : playerTurn.getCities())
+			for(Tile tile : city.getTerritory())
+			{
+				if(tile.getPosition().equals(position))
+					return true;
 			}
-		}
+		
 		return false;
 	}
 	public Tile getTileByXY(int X, int Y)
@@ -218,31 +231,6 @@ public class GameController
 			if(tile.getPosition().X == X && tile.getPosition().Y == Y)
 				return tile;
 		return null;
-	}
-	public Tile getTileByQRS(int Q, int R, int S)
-	{
-		for(Tile tile : map)
-			if(tile.getPosition().Q == Q && tile.getPosition().R == R && tile.getPosition().S == S)
-				return tile;
-		return null;
-	}
-	public ArrayList<Tile> getAdjacentTiles(Tile tile)
-	{
-		ArrayList<Tile> adjacentTiles = new ArrayList<>();
-		int Q = tile.getPosition().Q;
-		int R = tile.getPosition().R;
-		int S = tile.getPosition().S;
-
-		int[][] distances = {{0, 1, -1}, {0, -1, 1}, {1, 0, -1}, {-1, 0, 1}, {1, -1, 0}, {-1, 1, 0}};
-		Tile adjacentTile;
-		for(int i = 0; i < 6; i++)
-		{
-			adjacentTile = getTileByQRS(Q + distances[i][0], R + distances[i][1], S + distances[i][2]);
-			if(adjacentTile != null)
-				adjacentTiles.add(adjacentTile);
-		}
-
-		return adjacentTiles;
 	}
 	public void addPlayer(Player player)
 	{
@@ -254,7 +242,7 @@ public class GameController
 	}
 	///////////////////////////
 	//menu methods
-	private static boolean numberOfPlayers(HashMap<String,String> players)
+	private static boolean numberOfPlayers(HashMap<String, String> players)
 	{
 		for(int i = 0; i < players.size(); i++)
 		{
@@ -277,24 +265,23 @@ public class GameController
 	{
 		return playerTurn;
 	}
-	public int getTurnCounter() {
+	public int getTurnCounter()
+	{
 		return turnCounter;
 	}
-	public void addToTurnCounter(int amount) {
-		turnCounter += amount;
-	}
-	public ArrayList<Player> getPlayers() {
+	public ArrayList<Player> getPlayers()
+	{
 		return players;
 	}
 	public void removeAllPlayers()
 	{
-		if (players.size() > 0)
+		if(players.size() > 0)
 			players.subList(0, players.size()).clear();
 	}
-
-	private boolean existingPlayers(HashMap<String,String> players)
-	{
-		for (Object key : players.keySet())
+	
+	private boolean existingPlayers(HashMap<String, String> players)
+	{ //TODO: probable bug
+		for(Object key : players.keySet())
 		{
 			Object value = players.get(key);
 			if(!doesUsernameExist(value.toString()))
@@ -310,13 +297,13 @@ public class GameController
 		{
 			Matcher matcher1 = gameEnum.compareRegex(command.substring(i), gameEnum.newPlayer);
 			Matcher matcher2 = gameEnum.compareRegex(command.substring(i), gameEnum.shortNewPlayer);
-
-			if (matcher1 != null && !matcher1.group("username").equals(Menu.loggedInUser.getUsername()))
+			
+			if(matcher1 != null && !matcher1.group("username").equals(Menu.loggedInUser.getUsername()))
 			{
 				players.put(matcher1.group("number"), matcher1.group("username"));
 				flag = 1;
 			}
-			else if (matcher2 != null && !matcher2.group("username").equals(Menu.loggedInUser.getUsername()))
+			else if(matcher2 != null && !matcher2.group("username").equals(Menu.loggedInUser.getUsername()))
 			{
 				players.put(matcher2.group("number"), matcher2.group("username"));
 				flag = 1;
@@ -345,7 +332,51 @@ public class GameController
 			return ((LongRange) unit).getType().getCombatStrength();
 		return 0;
 	}
-
+	// this method gains food based on citizens that are working on tiles (and maybe other things)
+	private void gainFood()
+	{
+		// total food yield of this turn for playerTurn
+		int totalFoodYield = 0;
+		for(City city : playerTurn.getCities())
+		{
+			for(Citizen citizen : city.getCitizens())
+			{
+				Tile workingTile = citizen.getWorkingTile();
+				if(workingTile == null)
+					continue;
+				// maybe this isn't reasonable :)
+				totalFoodYield += workingTile.getTileType().food;
+				totalFoodYield += workingTile.getTileFeature().food;
+				totalFoodYield += workingTile.getImprovement().foodYield;
+				if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
+					totalFoodYield += workingTile.getResource().getRESOURCE_TYPE().food;
+			}
+		}
+		
+		playerTurn.setFood(playerTurn.getFood() + totalFoodYield);
+	}
+	private void gainGold()
+	{
+		int toatlGoldYield = 0;
+		for(City city : playerTurn.getCities())
+		{
+			for(Citizen citizen : city.getCitizens())
+			{
+				Tile workingTile = citizen.getWorkingTile();
+				if(workingTile == null)
+					continue;
+				
+				toatlGoldYield += workingTile.getTileType().gold;
+				toatlGoldYield += workingTile.getTileFeature().gold;
+				toatlGoldYield += workingTile.getImprovement().goldYield; //TODO: no improvement has gold yield :(
+				if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
+					toatlGoldYield += workingTile.getResource().getRESOURCE_TYPE().gold;
+			}
+		}
+		
+		playerTurn.setGold(playerTurn.getGold() + toatlGoldYield);
+	}
+	
 	//cheat codes
 	public String increaseGold(Matcher matcher)
 	{
@@ -359,27 +390,45 @@ public class GameController
 		playerTurn.setFood(playerTurn.getFood() + amount);
 		return (cheatCode.food.regex + cheatCode.increaseSuccessful.regex);
 	}
+	private void consumeFood()
+	{
+		//per citizen: 1, per settler: 2
+		int numberOfCitizens = 0;
+		//feed settlers :\
+		for(Unit unit : playerTurn.getUnits())
+			if(unit instanceof Settler)
+				numberOfCitizens += 2;
+		
+		for(City city : playerTurn.getCities())
+			numberOfCitizens += city.getCitizens().size();
+		
+		// validation if we don't have enough food
+		if(numberOfCitizens > playerTurn.getFood())
+		{
+			playerTurn.setFood(0);
+			//TODO: kill a citizen
+		}
+		else
+		{
+			// now consume food TODO: should I feed settlers?
+			playerTurn.setFood(playerTurn.getFood() - numberOfCitizens);
+		}
+	}
 	//TODO: this should be shorter. it should not do anything with cups.
 	public String increaseTurns(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		turnCounter += amount;
-		addTurn(amount);
-		for(Player player : players)
-			for (int i = 0; i < amount; i++){
-				player.setCup(player.getCup() + player.incomeCup());
-				handleUnitCommands();
-				updatePlayersUnitLocations();
-				updateWorkersConstructions();
-				updateCityConstructions();
-			}
+		for(int i = 0; i < amount; i++)
+			for(int j = 0; j < players.size(); j++)
+				changeTurn();
 		return (cheatCode.turn.regex + cheatCode.increaseSuccessful.regex);
 	}
-
 	public String increaseHappiness(Matcher matcher)
 	{
 		int amount = Integer.parseInt(matcher.group("amount"));
-		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 1.2));
+		playerTurn.setHappiness(playerTurn.getHappiness() + amount);
+		if(playerTurn.getHappiness() > 100)
+			playerTurn.setHappiness(100);
 		return (cheatCode.happiness.regex + cheatCode.increaseSuccessful.regex);
 	}
 	public String increaseHealth(Matcher matcher)
@@ -393,7 +442,7 @@ public class GameController
 		Unit unit = tile.getCombatUnitInTile();
 		if(unit == null)
 			return mainCommands.invalidCommand.regex;
-
+		
 		// increase health
 		unit.setHealth(10);
 
@@ -415,7 +464,7 @@ public class GameController
 					playerTurn.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies))
 			{
 				playerTurn.addTechnology(Technology.values()[i]);
-				return  matcher.group("name") + cheatCode.addSuccessful.regex;
+				return matcher.group("name") + cheatCode.addSuccessful.regex;
 			}
 		return mainCommands.invalidCommand.regex;
 	}
@@ -423,23 +472,23 @@ public class GameController
 	{ //TODO: check for bugs
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
-
+		
 		Tile givenTile = getTileByXY(x, y);
-
+		
 		// validation
 		if(givenTile == null)
 			return mainCommands.invalidCommand.regex;
 		CombatUnit enemyCombatUnit = givenTile.getCombatUnitInTile();
 		NonCombatUnit enemyNonCombatUnit = givenTile.getNonCombatUnitInTile();
-		if (enemyCombatUnit == null && enemyNonCombatUnit == null)
+		if(enemyCombatUnit == null && enemyNonCombatUnit == null)
 			return mainCommands.invalidCommand.regex;
-
+		
 		// kill enemy unit
 		if(enemyCombatUnit != null)
 			enemyCombatUnit.getRulerPlayer().removeUnit(enemyCombatUnit);
 		if(enemyNonCombatUnit != null)
 			enemyNonCombatUnit.getRulerPlayer().removeUnit(enemyNonCombatUnit);
-
+		
 		return cheatCode.unitKilled.regex;
 	}
 	public String moveUnit(Matcher matcher)
@@ -449,11 +498,11 @@ public class GameController
 		int y = Integer.parseInt(matcher.group("positionY"));
 		int newX = Integer.parseInt(matcher.group("newPositionX"));
 		int newY = Integer.parseInt(matcher.group("newPositionY"));
-
+		
 		Tile originTile = getTileByXY(x, y);
 		Tile destinationTile = getTileByXY(newX, newY);
 		Unit unitToMove = playerTurn.getSelectedUnit();
-
+		
 		//validation
 		if(destinationTile == null)
 			return mainCommands.invalidCommand.regex;
@@ -462,7 +511,7 @@ public class GameController
 		if((unitToMove instanceof CombatUnit && destinationTile.getCombatUnitInTile() != null) ||
 				(unitToMove instanceof NonCombatUnit && destinationTile.getNonCombatUnitInTile() != null))
 			return mainCommands.invalidCommand.regex;
-
+		
 		// move unit
 		if(unitToMove instanceof CombatUnit)
 		{
@@ -502,7 +551,7 @@ public class GameController
 	}
 	public Civilization findCivilByNumber(int number)
 	{
-		switch (number % 10)
+		switch(number % 10)
 		{
 			case 1:
 				return Civilization.AMERICAN;
@@ -538,13 +587,14 @@ public class GameController
 	}
 	public boolean inArr(Civilization n)
 	{
-		for (Player value : players) {
-			if (value.getCivilization() == n)
+		for(Player value : players)
+		{
+			if(value.getCivilization() == n)
 				return true;
 		}
 		return false;
 	}
-	public int getNum(Scanner scanner, int min, int max)
+	public int getNum(Scanner scanner, int min, int max) //TODO: should be deleted
 	{
 		int number = 0;
 		String tmpNumber = scanner.nextLine();
@@ -565,59 +615,59 @@ public class GameController
 		}
 		return true;
 	}
-
-	public int totalPopulation()
+	
+	// this method is called every turn to update the technologyCounter of the player
+	public String processResearchingTechnology()
 	{
-		int n = 0;
-		for(City city : playerTurn.getCities())
-			n += city.getCitizens().size();
-		return n;
-	}
-	public void addTurn(int amount)
-	{
-		for(Player player : players)
-		{
-			int flg = -1;
-			for(int i = 0; i < Technology.values().length; i++)
-				if(Technology.values()[i] == player.getResearchingTechnology()) flg = i;
-			if(flg != -1)
-				player.addResearchingTechCounter(flg, amount);
-		}
-	}
-
-	public String checkTechnology()
-	{
-		int flg = -1;
+		Technology researchingTechnology = playerTurn.getResearchingTechnology();
+		if(researchingTechnology == null)
+			return null;
+		
+		int technologyIndex = -1;
 		for(int i = 0; i < Technology.values().length; i++)
-			if(Technology.values()[i] == playerTurn.getResearchingTechnology()) flg = i;
-		if(playerTurn.getResearchingTechnology() != null &&
-				playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg] <= 0)
+			if(researchingTechnology.equals(Technology.values()[i]))
+			{
+				technologyIndex = i;
+				break;
+			}
+		if(technologyIndex == -1)
 		{
-			Technology tmp = playerTurn.getResearchingTechnology();
-			playerTurn.addTechnology(tmp);
-			playerTurn.setResearchingTechnology(null);
-			return infoCommands.successGainTech.regex + tmp.name();
+			System.err.println("technologyIndex is -1 :(");
+			System.exit(1);
 		}
+		
+		playerTurn.getResearchingTechCounter()[technologyIndex]++;
+		//TODO: probably should change how many turns it takes to get the researchingTechnology
+		if(playerTurn.getResearchingTechCounter()[technologyIndex] >= researchingTechnology.cost / 10)
+		{
+			playerTurn.addTechnology(researchingTechnology);
+			playerTurn.setResearchingTechnology(null);
+			return infoCommands.successGainTech.regex + researchingTechnology.name();
+		}
+		//TODO: maybe change to "return "";"
 		return null;
 	}
 	//DOC commands
 	public BuildingType requiredTechForBuilding(Technology technology)
 	{
 		for(int i = 0; i < BuildingType.values().length; i++)
-			if(BuildingType.values()[i].requiredTechnology == technology) return BuildingType.values()[i];
+			if(BuildingType.values()[i].requiredTechnology == technology)
+				return BuildingType.values()[i];
 		return null;
 	}
 	public Improvement requiredTechForImprovement(Technology technology)
 	{
 		for(int i = 0; i < Improvement.values().length; i++)
-			if(Improvement.values()[i].requiredTechnology == technology) return Improvement.values()[i];
+			if(Improvement.values()[i].requiredTechnology == technology)
+				return Improvement.values()[i];
 		return null;
 	}
 	public String showResearch()
 	{
 		int flg = -1;
 		for(int i = 0; i < Technology.values().length; i++)
-			if(Technology.values()[i] == playerTurn.getResearchingTechnology()) flg = i;
+			if(Technology.values()[i] == playerTurn.getResearchingTechnology())
+				flg = i;
 		if(playerTurn.getResearchingTechnology() != null)
 		{
 			BuildingType requiredBuilding = requiredTechForBuilding(playerTurn.getResearchingTechnology());
@@ -639,7 +689,7 @@ public class GameController
 						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost - playerTurn.getResearchingTechCounter()[flg]) + "\n"
 						+ infoCommands.notGain.regex;
 		}
-		return infoCommands.researchInfo.regex+infoCommands.currentResearching.regex + ": " + infoCommands.nothing.regex;
+		return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + ": " + infoCommands.nothing.regex;
 	}
 
 
@@ -674,7 +724,7 @@ public class GameController
 							playerTurn.setSelectedUnit(player.getUnits().get(j));
 							return selectCommands.selected.regex;
 						}
-				return selectCommands.coordinatesDoesntExistCUnit.regex+ x + selectCommands.and.regex + y;
+				return selectCommands.coordinatesDoesntExistCUnit.regex + x + selectCommands.and.regex + y;
 			}
 		}
 		return selectCommands.invalidCommand.regex;
@@ -711,7 +761,7 @@ public class GameController
 							playerTurn.setSelectedUnit(player.getUnits().get(j));
 							return selectCommands.selected.regex;
 						}
-				return selectCommands.coordinatesDoesntExistNUnit.regex+ x + selectCommands.and.regex + y;
+				return selectCommands.coordinatesDoesntExistNUnit.regex + x + selectCommands.and.regex + y;
 			}
 		}
 		return selectCommands.invalidCommand.regex;
@@ -774,7 +824,7 @@ public class GameController
 							playerTurn.setSelectedCity(player.getCities().get(j));
 							return selectCommands.selected.regex;
 						}
-				return selectCommands.coordinatesDoesntExistCity.regex+ x + selectCommands.and.regex + y;
+				return selectCommands.coordinatesDoesntExistCity.regex + x + selectCommands.and.regex + y;
 			}
 		}
 		return selectCommands.invalidCommand.regex;
@@ -787,9 +837,11 @@ public class GameController
 			}
 		}
 	}
-	public void updateWorkersConstructions(){
-		for (Unit unit : this.getPlayerTurn().getUnits()) {
-			if(unit instanceof Worker){
+	public void updateWorkersConstructions()
+	{
+		for(Unit unit : this.getPlayerTurn().getUnits())
+			if(unit instanceof Worker)
+			{
 				if(((Worker) unit).getTurnsTillBuildRoad() < 3)
 					((Worker) unit).buildRoad();
 				if(((Worker) unit).getTurnsTillBuildRailRoad() < 3)
@@ -801,7 +853,6 @@ public class GameController
 				if(((Worker) unit).getImprovements().get(1).inLineTurn < ((Worker) unit).getImprovements().get(1).turnToConstruct)
 					((Worker) unit).buildMine();
 			}
-		}
 	}
 	public void updateCityConstructions(){
 		for (City city : this.getPlayerTurn().getCities()) {
@@ -850,7 +901,7 @@ public class GameController
 			else
 			{
 				//TODO: this should be checked. probably a bug
-				if (playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
+				if(playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
 					return gameEnum.isSleep.regex;
 				else
 				{
@@ -902,19 +953,6 @@ public class GameController
 			for(Unit unit : player.getUnits())
 				if(unit.getUnitState().equals(UnitState.FORTIFIED_FOR_HEALING) && unit.getHealth() < unit.MAX_HEALTH)
 					unit.setHealth(unit.getHealth() + 1);
-	}
-	public void updateFortify()
-	{
-		//TODO: does fortify need to be updated?
-//		for(Player player : players)
-//			for(Unit unit : player.getUnits())
-//			{
-//				if(unit.getClass().equals(MidRange.class) && !unit.getIsFortify())
-//					unit.setPower(((MidRange) unit).getType().getCombatStrength());
-//				if(unit.getClass().equals(LongRange.class) && !unit.getIsFortify())
-//					unit.setPower(((LongRange) unit).getType().getCombatStrength());
-//			}
-
 	}
 	public String fortify()
 	{
@@ -980,11 +1018,11 @@ public class GameController
 	}
 	public void setup()
 	{
-
+	
 	}
 	private boolean belongToPlayerTurn(Tile tile)
 	{
-		for (City city : playerTurn.getCities())
+		for(City city : playerTurn.getCities())
 			if(city.getTerritory().contains(tile))
 				return true;
 		return false;
@@ -1000,8 +1038,8 @@ public class GameController
 	public City belongToCity(Tile tile)
 	{
 		for(Player player : players)
-			for (City city : player.getCities())
-				for (Tile tmp : city.getTerritory())
+			for(City city : player.getCities())
+				for(Tile tmp : city.getTerritory())
 					if(tmp == tile)
 						return city;
 		return null;
@@ -1073,7 +1111,7 @@ public class GameController
 		int x = tile.getPosition().X;
 		int y = tile.getPosition().Y;
 		for(Player player : players)
-			for (City city : player.getCities())
+			for(City city : player.getCities())
 				if(city.getCapitalTile().getPosition().X == x &&
 						city.getCapitalTile().getPosition().Y == y)
 					return true;
@@ -1083,7 +1121,7 @@ public class GameController
 	{
 		int x = tile.getPosition().X;
 		int y = tile.getPosition().Y;
-		for (Player player : players)
+		for(Player player : players)
 			for(City city : player.getCities())
 				for(Tile tmp : city.getTerritory())
 					if(tmp.getPosition().X == x &&
@@ -1138,9 +1176,10 @@ public class GameController
 				return unitCommands.notYours.regex;
 			else
 			{
-				if (!playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
+				if(!playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
 					return gameEnum.awaken.regex;
-				else {
+				else
+				{
 					playerTurn.getSelectedUnit().setUnitState(UnitState.ACTIVE);
 					return gameEnum.wokeUp.regex;
 				}
@@ -1152,10 +1191,14 @@ public class GameController
 	private int getGoldOfUnit(Unit unit)
 	{
 		int number = 0;
-		if(unit.getClass().equals(Settler.class)) number = 89;
-		if(unit.getClass().equals(Worker.class)) number = 40;
-		if(unit.getClass().equals(LongRange.class)) number = ((LongRange) unit).getType().getCost();
-		if(unit.getClass().equals(MidRange.class)) number = ((MidRange) unit).getType().getCost();
+		if(unit.getClass().equals(Settler.class))
+			number = 89;
+		if(unit.getClass().equals(Worker.class))
+			number = 40;
+		if(unit.getClass().equals(LongRange.class))
+			number = ((LongRange) unit).getType().getCost();
+		if(unit.getClass().equals(MidRange.class))
+			number = ((MidRange) unit).getType().getCost();
 		return number / 10;
 	}
 	public String delete()
@@ -1202,7 +1245,7 @@ public class GameController
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public String  railRoad()
+	public String railRoad()
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
@@ -1237,7 +1280,7 @@ public class GameController
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public String  mine()
+	public String mine()
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
@@ -1420,15 +1463,13 @@ public class GameController
 	{
 		int x = Integer.parseInt(matcher.group("x"));
 		int y = Integer.parseInt(matcher.group("y"));
-		if(x > 9 || x < 0 || y > 9 || y < 0)
-			return false;
-		return true;
+		return x <= 9 && x >= 0 && y <= 9 && y >= 0;
 	}
 	private boolean hasBuilding(Tile tile)
 	{
-		for (Player player : players)
-			for (City city : player.getCities())
-				for (Building building : city.getBuildings())
+		for(Player player : players)
+			for(City city : player.getCities())
+				for(Building building : city.getBuildings())
 					if(tile == building.getTile())
 						return true;
 		return false;
@@ -1469,7 +1510,7 @@ public class GameController
 	}
 	public void setFirstHappiness()
 	{
-		for (Player player : players)
+		for(Player player : players)
 			player.setHappiness(100 - players.size() * 5);
 	}
 

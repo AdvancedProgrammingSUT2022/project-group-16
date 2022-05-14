@@ -12,5 +12,5 @@ public enum Info
 	MILITARY,
 	ECONOMIC,
 	DIPLOMATIC,
-	DEALS;
+	DEALS
 }

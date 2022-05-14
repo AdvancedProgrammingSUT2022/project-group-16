@@ -3,6 +3,9 @@ package Views;
 import Controllers.GameController;
 import Controllers.Utilities.MapPrinter;
 import Models.City.*;
+import Models.City.BuildingType;
+import Models.City.City;
+import Models.Player.Civilization;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -125,22 +128,23 @@ public class gameMenuView
             return tmp.get(number - 1);
         return null;
     }
-    private static void showBaseFields()
+    // this method prints some information about the game like map and food and...
+    public static void showBaseFields()
     {
-        Player tmp = gameController.getPlayerTurn();
-        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
-        System.out.println(MapPrinter.getMapString(tmp));
-        System.out.println(tmp.getUsername() + gameEnum.turn.regex);
-        System.out.print(gameEnum.gold.regex + tmp.getGold() + "\t\t\t" + gameEnum.happiness.regex +
-                tmp.getHappiness());
+        Player playerTurn = gameController.getPlayerTurn();
+        System.out.println(GameController.getInstance().getMapString());
+        System.out.println("Turn: " + gameController.getTurnCounter());
+        System.out.println(playerTurn.getUsername() + gameEnum.turn.regex);
+        System.out.print(gameEnum.gold.regex + playerTurn.getGold() + "\t\t\t" + gameEnum.happiness.regex +
+                playerTurn.getHappiness());
         System.out.print(":");
-        if(tmp.getHappiness() > 50)
-            for(int i = 0; i < (tmp.getHappiness() - 50) / 10; i++)
+        if(playerTurn.getHappiness() > 50)
+            for(int i = 0; i < (playerTurn.getHappiness() - 50) / 10; i++)
                 System.out.print(")");
         else
-            for(int i = 0; i <  5 - (tmp.getHappiness() / 10); i++)
+            for(int i = 0; i <  5 - (playerTurn.getHappiness() / 10); i++)
                 System.out.print("(");
-        System.out.println("\t\t\t" + gameEnum.food.regex + tmp.getFood() + "\t\t\t" + gameEnum.population.regex + tmp.getPopulation());
+        System.out.println("\t\t\t" + gameEnum.food.regex + playerTurn.getFood() + "\t\t\t" + gameEnum.population.regex + playerTurn.getTotalPopulation());
     }
     private static void showNotifications(Scanner scanner)
     {
@@ -204,7 +208,7 @@ public class gameMenuView
         System.out.println(infoCommands.cities.regex);
         printCities(tmp);
         System.out.println();
-        System.out.println(gameEnum.population.regex + tmp.getPopulation());
+        System.out.println(gameEnum.population.regex + tmp.getTotalPopulation());
         System.out.println(gameEnum.happiness.regex + tmp.getHappiness());
 //        System.out.println(tmp.get); //TODO: resource
         System.out.println(gameEnum.food.regex + tmp.getFood());
@@ -458,38 +462,50 @@ public class gameMenuView
         System.out.println(gameEnum.goldYield.regex + tmp.getGoldYield());
         System.out.println(gameEnum.cupYield.regex + tmp.getCupYield());
         System.out.println(gameEnum.employedCitizens.regex + (tmp.employedCitizens()));
-        System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.totalPopulation() - tmp.employedCitizens()));
+        System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.getPlayerTurn().getTotalPopulation() - tmp.employedCitizens()));
     }
     private static void showCivilizations()
     {
-        System.out.println(gameEnum.AMERICAN.regex);
-        System.out.println(gameEnum.ARABIAN.regex);
-        System.out.println(gameEnum.ASSYRIAN.regex);
-        System.out.println(gameEnum.CHINESE.regex);
-        System.out.println(gameEnum.GERMAN.regex);
-        System.out.println(gameEnum.GREEK.regex);
-        System.out.println(gameEnum.MAYAN.regex);
-        System.out.println(gameEnum.PERSIAN.regex);
-        System.out.println(gameEnum.OTTOMAN.regex);
-        System.out.println(gameEnum.RUSSIAN.regex);
+        for(int i = 0; i < Civilization.values().length; i++)
+        {
+            Civilization civilization = Civilization.values()[i];
+            System.out.println((i + 1) + "-" + civilization + ": " + civilization.leaderName);
+        }
     }
     private static void pickCivilizationAndCreatePlayers(Scanner scanner, ArrayList<User> usersToPlay) // and create players
     {
-        for (User user : usersToPlay)
+        for(User user : usersToPlay)
         {
-            //TODO: this should be fixed: printing civilizations should be dynamic
             System.out.println(user.getUsername() + gameEnum.pickCivilization.regex);
             showCivilizations();
-            int number;
-            do
+            outerLoop:
+            while(gameController.getPlayers().size() < usersToPlay.size())
             {
-                number = getNumber(scanner, 10);
-                System.out.println(gameController.pickCivilization(number));
-            } while (gameController.inArr(gameController.findCivilByNumber(number)));
-
-            gameController.addPlayer(new Player(gameController.findCivilByNumber(number), user.getUsername(),
-                    user.getNickname(), user.getPassword(), user.getScore()));
+                String chosenNumberStr = scanner.nextLine();
+                if(!chosenNumberStr.matches("^[-+]?\\d+$"))
+                {
+                    System.out.println("invalid input");
+                    continue;
+                }
+                int chosenNumber = Integer.parseInt(chosenNumberStr);
+                if(chosenNumber < 1 || chosenNumber > Civilization.values().length)
+                {
+                    System.out.println("invalid number");
+                    continue;
+                }
+                for(Player player : gameController.getPlayers())
+                    if(player.getCivilization().equals(Civilization.values()[chosenNumber - 1]))
+                    {
+                        System.out.println("already taken by another player");
+                        continue outerLoop;
+                    }
+                
+                gameController.addPlayer(new Player(Civilization.values()[chosenNumber - 1], user.getUsername(),
+                        user.getNickname(), user.getPassword(), user.getScore()));
+                break;
+            }
         }
+        System.out.println("game started !!!!!!");
     }
     public static void runGame(Scanner scanner, HashMap<String, String> usersInfo)
     {
@@ -502,34 +518,23 @@ public class gameMenuView
         String command = null;
         do
         {
-//            gameController.stayAlert(); // not in the right place
-            gameController.getPlayerTurn().setCup(gameController.getPlayerTurn().getCup() + gameController.getPlayerTurn().incomeCup());
-            String doesTechDone = gameController.checkTechnology();
-            if(doesTechDone != null) System.out.println(doesTechDone);
-            gameController.updateFortify();
-
-            showBaseFields();
-            while (scanner.hasNextLine())
+            while (true) //TODO: this should be scanner.hasNextLine(). but it had bug :(
             {
-                command = scanner.nextLine();
-                String techDone = gameController.checkTechnology();
-                if(techDone != null) System.out.println(techDone);
-                gameController.updateFortify();
-
-                //update tileStates for playerTurn
-                gameController.getPlayerTurn().updateTileStates();
-                
                 // alert some units. this method alerts all units that are in ALERT state for all players
                 gameController.stayAlert();
+                //update tileStates for playerTurn
+                for(Player player : gameController.getPlayers())
+                    player.updateTileStates();
                 
-                // print map after before(after?) command
-                System.out.println(gameController.getMapString());
+                showBaseFields();
+                
+                command = scanner.nextLine();
 
                 /*cheat codes*/
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     System.out.println(gameController.increaseGold(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //Almost done
-                    System.out.println(gameController.increaseTurns(matcher));
+                        System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
                     System.out.println(gameController.increaseFood(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
@@ -568,8 +573,8 @@ public class gameMenuView
                 /*Select*/
                 else if(selectCommands.compareRegex(command, selectCommands.selectCombat) != null)
                 {
-                    System.out.println(gameController.selectCUnit(command));
-                    if(gameController.selectCUnit(command).equals(selectCommands.selected.regex))
+                    String selectCUnitResult = gameController.selectCUnit(command);
+                    if(selectCUnitResult.equals(selectCommands.selected.regex))
                         showUnit();
                 }
                 else if(selectCommands.compareRegex(command, selectCommands.selectNonCombat) != null)
@@ -733,7 +738,7 @@ public class gameMenuView
 
                 /*map*/
                 else if(mapCommands.compareRegex(command, mapCommands.mapShow) != null)
-                    System.out.println(gameController);
+                    System.out.println(gameController.getMapString());
 
                 /*City*/
                 else if((matcher = gameEnum.compareRegex(command, gameEnum.buildBuilding)) != null)
@@ -806,14 +811,11 @@ public class gameMenuView
                 }
                 else
                     System.out.println(mainCommands.invalidCommand.regex);
-                String isTechDone = gameController.checkTechnology();
-                if(isTechDone != null) System.out.println(isTechDone);
-//                System.out.println(MapPrinter.getMapString(gameController.getPlayerTurn()));
             }
-            gameController.handleUnitCommands();
-            gameController.updatePlayersUnitLocations();
-            gameController.updateWorkersConstructions();
-            gameController.updateCityConstructions();
+//TODO: is this right?            gameController.handleUnitCommands();
+//            gameController.updatePlayersUnitLocations();
+//            gameController.updateWorkersConstructions();
+//            gameController.updateCityConstructions();
         } while (!Objects.equals(command, gameEnum.end.toString()));
     }
     public static void runGameMenu()
@@ -828,7 +830,7 @@ public class gameMenuView
             if(gameEnum.compareRegex(command, gameEnum.startGame) != null)
             {
                 HashMap<String, String> players = new HashMap<>();
-                System.out.println(gameController.startNewGame(command, players));
+                gameController.startNewGame(command, players);
                 if(gameController.startNewGame(command, players).equals(gameEnum.successfulStartGame.regex))
                     runGame(scanner, players);
             }

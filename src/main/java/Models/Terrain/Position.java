@@ -1,7 +1,4 @@
-package Models.Game;
-
-import Controllers.GameController;
-import Models.Terrain.Tile;
+package Models.Terrain;
 
 import java.util.Objects;
 

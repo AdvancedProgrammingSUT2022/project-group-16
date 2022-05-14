@@ -1,6 +1,5 @@
 package Models.Terrain;
 
-import Models.Game.Position;
 import Models.Resources.Resource;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.NonCombatUnits.NonCombatUnit;
@@ -8,7 +7,7 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 public class Tile
 {
 	private final Position position;
-	private final TileType tileType;
+	private TileType tileType;
 	private  TileFeature tileFeature;
 
 	// 6 borders, starting from the north border from 0. (counterclockwise)
@@ -32,6 +31,10 @@ public class Tile
 		this.resource = resource;
 	}
 
+	public void setTileType(TileType tileType)
+	{
+		this.tileType = tileType;
+	}
 	public void setTileFeature(TileFeature tileFeature) {
 		this.tileFeature = tileFeature;
 	}
@@ -115,6 +118,10 @@ public class Tile
 		isRuined = ruined;
 	}
 
+	public boolean isBlocker()
+	{
+		return tileType.isBlocker || tileFeature.isBlocker;
+	}
 	public int distanceTo(Tile tile)
 	{
 		if(tile == null)

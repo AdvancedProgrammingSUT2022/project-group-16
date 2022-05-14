@@ -3,6 +3,8 @@ package Models.Units;
 import Models.City.City;
 import Models.City.Construction;
 import Models.Game.Position;
+import Models.City.Constructable;
+import Models.Terrain.Position;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.Resource;
@@ -60,14 +62,14 @@ public abstract class Unit implements Construction
 	public void setHealth(int health) {
 		this.health = health;
 	}
-
+	
 	public UnitState getUnitState() {
 		return unitState;
 	}
 	public void setUnitState(UnitState unitState) {
 		this.unitState = unitState;
 	}
-
+	
 	public int getSpeed() {
 		return speed;
 	}
@@ -244,7 +246,6 @@ public abstract class Unit implements Construction
 		if(this.movementPoints < 0) this.movementPoints = 0;
 		//TODO check for railroad penalty
 		return null;
-
 	}
 	private boolean canUnitStayInTile(Tile destination){
 		if((destination.getTileType().equals(TileType.OCEAN) && (!destination.hasRoad() || !this.getTile().hasRoad()))){

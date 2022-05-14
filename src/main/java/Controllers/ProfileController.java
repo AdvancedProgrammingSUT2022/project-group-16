@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 
 public class ProfileController
 {
-	RegisterController registerController = new RegisterController();
+	final RegisterController registerController = new RegisterController();
 	public int doesUsernameExist(String username)
 	{
 		for(int i = 0; i < Menu.allUsers.toArray().length; i++)
