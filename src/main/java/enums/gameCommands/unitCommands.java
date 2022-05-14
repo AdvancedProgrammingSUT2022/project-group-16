@@ -29,6 +29,7 @@ public enum unitCommands
     buildCamp("^\\s*[uU]nit\\s+[bB]uild\\s+[cC]amp\\s*$"),
     buildPlantation("^\\s*[uU]nit\\s+[bB]uild\\s+[pP]lantation\\s*$"),
     buildQuarry("^\\s*[uU]nit\\s+[bB]uild\\s+[qQ]uarry\\s*$"),
+    buildFactory("^\\s*[uU]nit\\s+[bB]uild\\s+[fF]actory\\s*$"),
     removeJungle("^\\s*[uU]nit\\s+[rR]emove\\s+[jJ]ungle\\s*$"),
     removeRoute("^\\s*[uU]nit\\s+[rR]emove\\s+[rR]oute\\s*$"),
     repair("^\\s*[uU]nit\\s+[rR]epair\\s*$"),
@@ -44,6 +45,7 @@ public enum unitCommands
     hasPasture("there is a pasture here!"),
     hasCamp("there is a camp here!"),
     hasQuarry("there is a quarry here!"),
+    hasFactory("there is a factory here!"),
     hasPlantation("there is a plantation here!"),
     hasImprovement("there is an Improvement here!"),
     isCapitalCity("there is a city here!"),
@@ -76,6 +78,7 @@ public enum unitCommands
     pastureBuild("pasture built"),
     campBuild("camp built"),
     quarryBuild("quarry built"),
+    factoryBuild("factory built"),
     jungleRemoved("jungle removed"),
     roadRemoved("road removed"),
     repairedSuccessful("tile repaired successfully"),
@@ -99,7 +102,8 @@ public enum unitCommands
     gold(" gold"),
     fortifyActivated("fortify activated"),
     fortifyHealActivated("fortify heal activated"),
-    movedSuccessful("unit moved successfully");
+    movedSuccessful("unit moved successfully"),
+    dontGainRequiredTech("you dont have the required technology");
 
     public final String regex;
 

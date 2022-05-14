@@ -1260,12 +1260,15 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.FARM.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.FARM))
 				return unitCommands.hasFarm.regex;
-				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildFarm();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildFarm()) != null)
+					return tmp;
 				return unitCommands.farmBuild.regex;
 			}
 		}
@@ -1278,12 +1281,16 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.MINE.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.MINE))
 				return unitCommands.hasMine.regex;
 				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildMine();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildMine()) != null)
+					return tmp;
 				return unitCommands.mineBuild.regex;
 			}
 		}
@@ -1296,12 +1303,16 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.TRADING_POST.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.TRADING_POST))
 				return unitCommands.hasTradingPost.regex;
 				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildTradingPost();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildTradingPost()) != null)
+					return tmp;
 				return unitCommands.tradingPostBuild.regex;
 			}
 		}
@@ -1314,12 +1325,16 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.LUMBER_MILL.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.LUMBER_MILL))
 				return unitCommands.hasLumberMill.regex;
 				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildLumberMill();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildLumberMill()) != null)
+					return tmp;
 				return unitCommands.lumberMillBuild.regex;
 			}
 		}
@@ -1332,12 +1347,16 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.PASTURE.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.PASTURE))
 				return unitCommands.hasPasture.regex;
 				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildPasture();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildPasture()) != null)
+					return tmp;
 				return unitCommands.pastureBuild.regex;
 			}
 		}
@@ -1350,12 +1369,16 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.CAMP.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.CAMP))
 				return unitCommands.hasCamp.regex;
 				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildCamp();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildCamp()) != null)
+					return tmp;
 				return unitCommands.campBuild.regex;
 			}
 		}
@@ -1368,12 +1391,16 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.PLANTATION.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.PLANTATION))
 				return unitCommands.hasPlantation.regex;
 				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildPlantation();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildPlantation()) != null)
+					return tmp;
 				return unitCommands.plantationBuild.regex;
 			}
 		}
@@ -1386,13 +1413,39 @@ public class GameController
 		{
 			if(buildErrors() != null)
 				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.QUARRY.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
 			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.QUARRY))
 				return unitCommands.hasQuarry.regex;
 				//TODO: cant build(reasons)
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).buildQuarry();
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildQuarry()) != null)
+					return tmp;
 				return unitCommands.quarryBuild.regex;
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+	}
+	public String factory()
+	{
+		if(playerTurn.getSelectedUnit() != null)
+		{
+			if(buildErrors() != null)
+				return buildErrors();
+			else if(!playerTurn.getTechnologies().contains(Improvement.FACTORY.requiredTechnology))
+				return unitCommands.dontGainRequiredTech.regex;
+			else if(playerTurn.getSelectedUnit().getTile().getImprovement().equals(Improvement.FACTORY))
+				return unitCommands.hasFactory.regex;
+				//TODO: cant build(reasons)
+			else
+			{
+				String tmp;
+				if((tmp = ((Worker) playerTurn.getSelectedUnit()).buildFactory()) != null)
+					return tmp;
+				return unitCommands.factoryBuild.regex;
 			}
 		}
 		else

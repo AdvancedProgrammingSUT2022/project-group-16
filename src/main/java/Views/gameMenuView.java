@@ -760,6 +760,11 @@ public class gameMenuView
                     System.out.println(gameController.quarry());
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
+                else if(unitCommands.compareRegex(command, unitCommands.buildFactory) != null)
+                {
+                    System.out.println(gameController.factory());
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
                 else if(unitCommands.compareRegex(command, unitCommands.removeJungle) != null)
                 {
                     System.out.println(gameController.removeJungle());
