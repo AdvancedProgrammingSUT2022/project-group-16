@@ -163,6 +163,7 @@ public abstract class Unit implements Construction
 		if(city.getHitPoints() == 1 && this.getClass().equals(MidRange.class))
 		{
 			//seized city
+			rulerPlayer.getSelectedUnit().setTile(city.getCapitalTile());
 			city.seizeCity(this.rulerPlayer);
 			return unitCommands.citySeized.regex;
 		}
@@ -174,10 +175,14 @@ public abstract class Unit implements Construction
 			double x = (double) (10 + this.getHealth()) / 20;
 			int cityDamage = (city.getCombatStrength() - (int) (x * y));
 			int unitDamage = ((((MidRange) this).getType().getCombatStrength()) - city.getCombatStrength());
+			rulerPlayer.setXP(rulerPlayer.getXP() + 1);
+			city.getRulerPlayer().setXP(rulerPlayer.getXP() + 1);
 			if(cityDamage < 0)
 			{
 				city.setHitPoints(city.getHitPoints() + cityDamage);
-				if(city.getHitPoints() < 1) {
+				if(city.getHitPoints() < 1)
+				{
+					rulerPlayer.getSelectedUnit().setTile(city.getCapitalTile());
 					city.seizeCity(rulerPlayer);
 					return null;
 				}
@@ -195,6 +200,8 @@ public abstract class Unit implements Construction
 		else //long range attack
 		{
 			int cityDamage = (city.getCombatStrength() - (((LongRange) this).getType().getCombatStrength() * ((10 - this.getHealth()) / 20)));
+			rulerPlayer.setXP(rulerPlayer.getXP() + 1);
+			city.getRulerPlayer().setXP(rulerPlayer.getXP() + 1);
 			if(cityDamage < 0)
 			{
 				city.setHitPoints(city.getHitPoints() + cityDamage);

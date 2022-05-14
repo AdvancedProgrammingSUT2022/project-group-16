@@ -1,6 +1,7 @@
 package Models.City;
 
 import Models.Terrain.Tile;
+import enums.gameEnum;
 
 public class Citizen
 {
@@ -18,15 +19,19 @@ public class Citizen
 	public City getCity() {
 		return city;
 	}
-	public String setCitizenOnTile(Tile workingTile) {
-		if(!doesAnotherCitizenWorkOnTile(workingTile)) {
-			if(isCityNearTile(workingTile)) {
+
+	public String setCitizenOnTile(Tile workingTile)
+	{
+		if (!doesAnotherCitizenWorkOnTile(workingTile))
+		{
+			if (isCityNearTile(workingTile))
+			{
 				this.workingTile = workingTile;
-				return null;
+				return gameEnum.successfulLock.regex;
 			}
-			return"the tile is far from city";
+			return gameEnum.farTile.regex;
 		}
-		return "another citizen is working in tile";
+		return gameEnum.anotherCitizenWorking.regex;
 	}
 
 	private boolean isCityNearTile(Tile workingTile) {

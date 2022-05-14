@@ -59,20 +59,25 @@ public class gameMenuView
         System.out.println(infoCommands.attach.regex);
         return getNumber(scanner, 2);
     }
-    private void buyUnit(Scanner scanner)
+    private static String buyUnit(Scanner scanner)
     {
         MidRangeType tmp1 = null;
         LongRangeType tmp2 = null;
         System.out.println("1: mid range type");
         System.out.println("2: long range type");
-        System.out.println(infoCommands.backToGame.regex);
-        int number = getNumber(scanner, 3);
-        if(number == 1)
-            tmp1 = showValidMidrange(scanner);
-        if(number == 2)
-            tmp2 = showValidLongranges(scanner);
-
-
+        System.out.println("3: Settler");
+        System.out.println("4: Worker");
+        System.out.println("5: " + infoCommands.backToGame.regex);
+        int number = getNumber(scanner, 5);
+        if(number == 1) tmp1 = showValidMidrange(scanner);
+        if(number == 2) tmp2 = showValidLongranges(scanner);
+        if(number == 3) return "SETTLER";
+        if(number == 4) return "WORKER";
+        if(tmp1 != null)
+            return tmp1.name();
+        if(tmp2 != null)
+            return tmp2.name();
+        return null;
     }
     private static MidRangeType showValidMidrange(Scanner scanner)
     {
@@ -80,14 +85,14 @@ public class gameMenuView
         ArrayList<MidRangeType> midType = new ArrayList<>();
         for(int i = 0; i < MidRangeType.values().length; i++)
         {
-            if(gameController.getPlayerTurn().getTechnologies().contains(MidRangeType.values()[i].requiredTech) &&
-                    gameController.getPlayerTurn().getResources().contains(MidRangeType.values()[i].requiredSource)) {
+            if(gameController.validMidRange(MidRangeType.values()[i]))
+            {
                 System.out.println((max + 1) + ": " + MidRangeType.values()[i].name() + " - " + MidRangeType.values()[i].cost);
                 midType.add(MidRangeType.values()[i]);
                 max++;
             }
         }
-        System.out.println(infoCommands.backToGame.regex);
+        System.out.println((max + 1) + ": " + infoCommands.backToGame.regex);
         int number = getNumber(scanner, max + 1);
         if(number != max + 1)
             return midType.get(number - 1);
@@ -99,14 +104,14 @@ public class gameMenuView
         ArrayList<LongRangeType> longType = new ArrayList<>();
         for(int i = 0; i < LongRangeType.values().length; i++)
         {
-            if(gameController.getPlayerTurn().getTechnologies().contains(LongRangeType.values()[i].requiredTech) &&
-                    gameController.getPlayerTurn().getResources().contains(LongRangeType.values()[i].requiredSource)) {
+            if(gameController.validLongRange(LongRangeType.values()[i]))
+            {
                 System.out.println((max + 1) + ": " + LongRangeType.values()[i].name() + " - " + LongRangeType.values()[i].cost);
                 longType.add(LongRangeType.values()[i]);
                 max++;
             }
         }
-        System.out.println(infoCommands.backToGame.regex);
+        System.out.println((max + 1) + ": " + infoCommands.backToGame.regex);
         int number = getNumber(scanner, max + 1);
         if(number != max + 1)
             return longType.get(number - 1);
@@ -198,7 +203,7 @@ public class gameMenuView
             System.out.print(unit.getMovementPoints());
             printSpace(10 - numberOfDigits(unit.getMovementPoints()));
             System.out.print(unit.getHealth());
-            printSpace(12 - numberOfDigits(unit.getHealth()));
+            printSpace(14 - numberOfDigits(unit.getHealth()));
             System.out.println(unit.getUnitState().symbol);
         }
     }
@@ -262,7 +267,7 @@ public class gameMenuView
                 Unit unit = gameController.getPlayerTurn().getUnits().get(i);
                 System.out.print((i + 1) + ": " + unit.toString().toLowerCase(Locale.ROOT));
                 printSpace(20 - unit.toString().length());
-                System.out.print(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + "\t\t\t");
+                System.out.print(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y + "\t\t\t\t");
                 System.out.println(unit.getUnitState().symbol);
             }
             System.out.println((max + 1) + ": go to Military panel");
@@ -272,8 +277,13 @@ public class gameMenuView
                 showMilitary(scanner);
             else if(number == max + 2)
                 number = max + 1;
-            else //TODO: probable bug
-                tmp.get(number - 1).setUnitState(UnitState.ACTIVE);
+            else
+            {
+                if(tmp.get(number - 1).getUnitState().equals(UnitState.ACTIVE))
+                    tmp.get(number - 1).setUnitState(UnitState.SLEEPING);
+                else
+                    tmp.get(number - 1).setUnitState(UnitState.ACTIVE);
+            }
         }
     }
     private static void showEconomics(Scanner scanner)
@@ -425,6 +435,7 @@ public class gameMenuView
             {
                 gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(number - 1));
                 showCity();
+                gameController.getPlayerTurn().setSelectedCity(null);
             }
             else
             {
@@ -452,17 +463,31 @@ public class gameMenuView
         System.out.println(gameEnum.power.regex + tmp.getPower());
         System.out.println(gameEnum.health.regex + tmp.getHealth());
     }
-    public static void showCity()
+    private static void showCity()
     {
-        if(gameController.getPlayerTurn().getSelectedCity() == null)
-            return;
-        City tmp = gameController.getPlayerTurn().getSelectedCity();
-
+        Player player = gameController.getPlayerTurn();
+        City tmp = player.getSelectedCity();
+        int flg = -1;
+        for(int i = 0; i < Technology.values().length; i++)
+            if(Technology.values()[i] == player.getResearchingTechnology()) flg = i;
         System.out.println(infoCommands.cityName.regex + tmp.getName());
         System.out.println(gameEnum.foodYield.regex + tmp.getFoodYield());
         System.out.println(gameEnum.production.regex + tmp.getProductionYield());
         System.out.println(gameEnum.goldYield.regex + tmp.getGoldYield());
         System.out.println(gameEnum.cupYield.regex + tmp.getCupYield());
+        System.out.println(infoCommands.size.regex + tmp.getTerritory().size());
+        System.out.println(gameEnum.population.regex + tmp.getCitizens().size());
+        System.out.println(gameEnum.power.regex + tmp.getCombatStrength());
+        if(flg > -1)
+        {
+            System.out.println(infoCommands.currentResearching.regex + gameController.getPlayerTurn().getResearchingTechnology().name());
+            System.out.println(infoCommands.remainingTurns.regex + (player.getResearchingTechnology().cost - player.getResearchingTechCounter()[flg]));
+        }
+        else
+        {
+            System.out.println(infoCommands.currentResearching.regex + infoCommands.nothing.regex);
+            System.out.println(infoCommands.remainingTurns.regex + "-");
+        }
         System.out.println(gameEnum.employedCitizens.regex + (tmp.employedCitizens()));
         System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.getPlayerTurn().getTotalPopulation() - tmp.employedCitizens()));
     }
@@ -536,7 +561,7 @@ public class gameMenuView
                 if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     System.out.println(gameController.increaseGold(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //Almost done
-                        System.out.println(gameController.increaseTurns(matcher));
+                    System.out.println(gameController.increaseTurns(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
                     System.out.println(gameController.increaseFood(matcher));
                 else if ((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
@@ -595,8 +620,7 @@ public class gameMenuView
                 /*unit*/
                 else if((matcher = unitCommands.compareRegex(command, unitCommands.moveTo)) != null)
                 {
-                    int x = Integer.parseInt(matcher.group("x")), y = Integer.parseInt(matcher.group("y"));
-                    System.out.println(gameController.moveUnit(x, y));
+                    System.out.println(gameController.moveUnit(matcher));
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.sleep) != null)
@@ -624,9 +648,12 @@ public class gameMenuView
                     System.out.println(gameController.garrison());
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
-                else if(unitCommands.compareRegex(command, unitCommands.setup) != null)
-                    gameController.setup(); //TODO
-                else if((matcher = unitCommands.compareRegex(command, unitCommands.pillage)) != null)
+                else if((matcher = unitCommands.compareRegex(command, unitCommands.setup)) != null)
+                {
+                    System.out.println(gameController.setup(matcher));
+                    gameController.getPlayerTurn().setSelectedUnit(null);
+                }
+                else if(unitCommands.compareRegex(command, unitCommands.pillage) != null)
                 {
                     System.out.println(gameController.pillage());
                     gameController.getPlayerTurn().setSelectedUnit(null);
@@ -648,14 +675,30 @@ public class gameMenuView
                     }
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
-                else if((matcher = gameEnum.compareRegex(command, gameEnum.buyTile)) != null)
+                else if((matcher = selectCommands.compareRegex(command, selectCommands.buyTile)) != null)
                 {
-                    gameController.buyTile(matcher); //TODO
+                    System.out.println(gameController.buyTile(matcher));
+                    gameController.getPlayerTurn().setSelectedCity(null);
+                }
+                else if(selectCommands.compareRegex(command, selectCommands.buyUnit) != null)
+                {
+                    if(gameController.getPlayerTurn().getSelectedCity() != null) {
+                        String type = buyUnit(scanner);
+                        if(type != null)
+                            System.out.println(gameController.buyUnit(type));
+                        gameController.getPlayerTurn().setSelectedCity(null);
+                    }
+                    else
+                        System.out.println(gameEnum.nonSelect.regex);
+                }
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.lockCitizenToTile)) != null)
+                {
+                    System.out.println(gameController.lockCitizenToTile(matcher));
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
-                else if((matcher = gameEnum.compareRegex(command, gameEnum.buyUnit)) != null)
+                else if((matcher = gameEnum.compareRegex(command, gameEnum.unLockCitizenToTile)) != null)
                 {
-                    //TODO
+                    System.out.println(gameController.unLockCitizenToTile(matcher));
                     gameController.getPlayerTurn().setSelectedUnit(null);
                 }
                 else if(unitCommands.compareRegex(command, unitCommands.foundCity) != null)
@@ -745,7 +788,7 @@ public class gameMenuView
                 /*City*/
                 else if((matcher = gameEnum.compareRegex(command, gameEnum.buildBuilding)) != null)
                 {
-                    if(gameController.isValidCoordinate(matcher))
+                    if(gameController.isValidCoordinate(matcher) != null)
                     {
                         BuildingType tmp = showValidBuildings(scanner);
                         if(tmp != null)
@@ -776,32 +819,6 @@ public class gameMenuView
                     m.createCity();
                     gameController.getPlayerTurn().getCities().get(1).addPopulation(12);
                     gameController.getPlayerTurn().getCities().get(0).addPopulation(7);
-                }
-                else if(command.equals("t"))
-                {
-                    Notification n = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam usa, halet chetore? ");
-                    Notification m = new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "salam arabian, halet chetore? ");
-
-                }
-                else if(command.equals("q"))
-                {
-                    City n = new City(gameController.getMap().get(53), gameController.getPlayerTurn());
-                }
-                else if(command.equals("f"))
-                {
-                    Settler n = new Settler(gameController.getPlayerTurn(), gameController.getMap().get(54));
-                }
-                else if(command.equals("d"))
-                {
-                    LongRange p = new LongRange(gameController.getPlayerTurn(), LongRangeType.ARCHER, gameController.getMap().get(54));
-                }
-                else if(command.equals("v"))
-                {
-                    MidRange n = new MidRange(gameController.getPlayerTurn(), MidRangeType.RIFLEMAN, gameController.getMap().get(64));
-                }
-                else if(command.equals("p"))
-                {
-                    gameController.getPlayerTurn().getUnits().get(2).setHealth(5);
                 }
                 else if(gameEnum.compareRegex(command, gameEnum.next) != null)
                 {

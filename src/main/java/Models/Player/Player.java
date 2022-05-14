@@ -27,11 +27,13 @@ public class Player extends User
 	private int cup = 0;
 	private int gold = 100;
 	private int happiness;
+	private int XP = 0;
+	private int population = 0;
 	private int maxPopulation = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
-	private final int[] researchingTechCounter = new int[50];
+	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
-	private ArrayList<Resource> resources; //TODO: there was a conflict here. ArrayList of type ResourceType
+	private ArrayList<Resource> resources = new ArrayList<>();
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private final HashMap<Tile, TileState> map;
@@ -55,7 +57,7 @@ public class Player extends User
 		for(Tile tile : gameController.getMap())
 			this.map.put(tile, TileState.FOG_OF_WAR);
 	}
-	
+
 	public City getSelectedCity()
 	{
 		return selectedCity;
@@ -78,6 +80,12 @@ public class Player extends User
 	}
 	public void setMaxPopulation(int maxPopulation) {
 		this.maxPopulation = maxPopulation;
+	}
+	public int getXP() {
+		return XP;
+	}
+	public void setXP(int XP) {
+		this.XP = XP;
 	}
 
 	public Civilization getCivilization()
@@ -200,6 +208,10 @@ public class Player extends User
 			n += city.getCupYield();
 		return n;
 	}
+	public void addResource(Resource resource)
+	{
+		resources.add(resource);
+	}
 	public void reduceCup()
 	{
 		this.cup = 0;
@@ -210,6 +222,14 @@ public class Player extends User
 	}
 	//TODO: I deleted updateCup. I hope there is no problem with that :)
 
+
+	public int getPopulation() {
+		int n = 0;
+		for (City city : cities)
+			n += city.getCitizens().size();
+		return n;
+	}
+
 	public ArrayList<Resource> getResources()
 	{
 		return resources;
@@ -218,7 +238,7 @@ public class Player extends User
 	{
 		this.resources = resources;
 	}
-	
+
 	// TODO: there should be a Map class which holds all the tiles and its methods like getTileByXY and getTileByQRS and ...
 	public HashMap<Tile, TileState> getMap()
 	{
@@ -245,7 +265,7 @@ public class Player extends User
 		for(Tile thisTile : map.keySet())
 			if(tile.distanceTo(thisTile) == 1)
 				adjacentTiles.add(thisTile);
-		
+
 		return adjacentTiles;
 	}
 	public void addCity(City newCity)
@@ -316,23 +336,23 @@ public class Player extends User
 	public void updateTileStates()
 	{
 		//iterate through all tiles and change their state based on their relative position to units and cities
-		
+
 		// this is all tiles that can be seen by the units and cities
 		HashSet<Tile> tilesInSight = new HashSet<>();
-		
+
 		//tiles in sight of units
 		for(Unit unit : units)
 			for(Tile tile : map.keySet())
 			{
 				int distance = tile.distanceTo(unit.getTile());
-				
+
 				if(distance == 0 || distance == 1)
 					tilesInSight.add(tile);
 				else if(distance == 2)
 				{
 						Position unitPosition = unit.getTile().getPosition();
 						Position tilePosition = tile.getPosition();
-						
+
 						if(unitPosition.Q == tilePosition.Q)
 						{
 							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
@@ -408,7 +428,7 @@ public class Player extends User
 				tilesInSight.add(tile);
 				tilesInSight.addAll(getAdjacentTiles(tile, 1));
 			}
-		
+
 		/* update tileStates */
 		// tileStates that are in sight
 		HashSet<Tile> tilesToBeVisible = new HashSet<>();
@@ -425,7 +445,7 @@ public class Player extends User
 			map.put(visibleTile, TileState.VISIBLE);
 			tilesInSight.add(visibleTile);
 		}
-		
+
 		// collect all tiles that are not in sight and are not fog of war to make them REVEALED
 		HashSet<Tile> tilesToBeRevealed = new HashSet<Tile>();
 		for(Tile tile : map.keySet())

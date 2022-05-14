@@ -44,4 +44,12 @@ public enum LongRangeType {
     public int getRange() {
         return range;
     }
+
+    public Technology getRequiredTech() {
+        return requiredTech;
+    }
+
+    public ResourceType getRequiredSource() {
+        return requiredSource;
+    }
 }

@@ -2,11 +2,13 @@ package Models.City;
 
 import Models.Player.Player;
 import Models.Terrain.Tile;
+import Models.Terrain.TileType;
 import Models.Units.CombatUnits.*;
-import Models.Units.NonCombatUnits.NonCombatUnit;
-import Models.Units.NonCombatUnits.Settler;
+import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.Units.UnitState;
+import com.sun.nio.sctp.Notification;
+import enums.gameEnum;
 
 import java.util.ArrayList;
 
@@ -199,13 +201,16 @@ public class City
 	public Tile getCapitalTile() {
 		return capitalTile;
 	}
-	public void purchaseTile(Tile tile){
-		if(isTileNeighbor(tile) && getRulerPlayer().getGold() >= getRulerPlayer().getTilePurchaseCost()) {
+	public String purchaseTile(Tile tile){
+		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
+			return gameEnum.notEnoughGold.regex;
+		else if(isTileNeighbor(tile) && getRulerPlayer().getGold() >= getRulerPlayer().getTilePurchaseCost()) {
 			this.territory.add(tile);
 			this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getRulerPlayer().getTilePurchaseCost());
 			this.getRulerPlayer().setTilePurchaseCost((int) (1.2 * getRulerPlayer().getTilePurchaseCost()));
+			return gameEnum.buyTile.regex;
 		}
-
+		return gameEnum.cantBuyTile.regex;
 	}
 	private boolean isTileNeighbor(Tile newTile){ //TODO: should be deleted
 		for (Tile tile : territory) {
@@ -216,26 +221,39 @@ public class City
 		}
 		return false;
 	}
-	public String buyProduct(Product product){
-		//TODO add purchasing buildings for phase 2
-		if( product instanceof Unit){
-			if(this.getRulerPlayer().getGold() >= ((Unit) product).getProductionCost()) {
-				Tile destination;
-				if((destination = (findTileWithNoUnit((Unit) product))) == null) return"there is no tile without unit";
-				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) product).getProductionCost());
-				this.getRulerPlayer().getUnits().add((Unit) product);
-				((Unit) product).move(destination);//TODO if using command list, add move command to arraylist
-			}else{
-				return "not enough money";
-			}
-		}
+	public String buyProduct(Unit product){
+		//TODO: add purchasing buildings for phase 2
+
+		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getCost((Unit) product));
+		return gameEnum.unitBought.regex;
+	}
+	private int getCost(Unit unit)
+	{
+		if(unit instanceof MidRange) return ((MidRange) unit).getType().getCost();
+		if(unit instanceof LongRange) return ((LongRange) unit).getType().getCost();
+		if(unit.getClass().equals(Settler.class)) return 89;
+		if(unit.getClass().equals(Worker.class)) return 70;
+		return 0;
+	}
+	public Tile findTileWithNoCUnit(){
+		for (City city : this.getRulerPlayer().getCities())
+			for (Tile tile : city.getTerritory())
+				if(tile.getCombatUnitInTile() == null) return tile;
 		return null;
 	}
-	private Tile findTileWithNoUnit(Unit unit){
-		for (City city : this.getRulerPlayer().getCities()) {
+	public Tile findTileWithNoNCUnit(){
+		for (City city : this.getRulerPlayer().getCities())
+			for (Tile tile : city.getTerritory())
+				if(tile.getNonCombatUnitInTile() == null) return tile;
+		return null;
+	}
+
+	private Tile findTileWithNoUnit(Unit unit)
+	{
+		for (City city : this.getRulerPlayer().getCities())
 			for (Tile tile : city.getTerritory()) {
-				if(tile.getNonCombatUnitInTile() == null && unit instanceof NonCombatUnit) return tile;
-				else if(tile.getCombatUnitInTile() == null && unit instanceof CombatUnit) return tile;
+				if (tile.getCombatUnitInTile() != null && unit instanceof CombatUnit) return tile;
+				else if(tile.getNonCombatUnitInTile() != null && unit instanceof NonCombatUnit) return tile;
 			}
 		}
 		return null;
@@ -294,8 +312,11 @@ public class City
 	}
 
 	public String destroyCity(){
-//		for (Player player : GameController.getInstance().getPlayers()) {
-//			if(this == player.getCurrentCapitalCity()) return"cannot destroy the capital of a civilization";
+//		for (Player player : GameController.getPlayers()) {
+//			if(this == player.getCurrentCapitalCity()) {
+//				this.state = CityState.NONE;
+//				return "cannot destroy the capital of a civilization";
+//			}
 //		}
 		rulerPlayer.getSeizedCities().remove(this);
 		this.state = CityState.DESTROYED;
@@ -316,14 +337,13 @@ public class City
 		int n = 10;
 		this.combatStrength = 10;
 		for (Tile tile : this.getTerritory()) {
-//			n += tile.getTileType().combatModifier * this.combatStrength / 100;
-//			n += tile.getTileFeature().combatModifier * this.combatStrength / 100;
 			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile().getClass().equals(MidRange.class) && tile != this.capitalTile)
 				n += tile.getTileType().combatModifier * ((MidRange) tile.getCombatUnitInTile()).getType().combatStrength / 100;
 			if(tile.getCombatUnitInTile() != null && tile.getCombatUnitInTile().getClass().equals(LongRange.class) && tile != this.capitalTile)
 				n += tile.getTileType().combatModifier * ((LongRange) tile.getCombatUnitInTile()).getType().combatStrength / 100;
 		}
 		n += (this.getTerritory().size() / 5) * 2; //strength increases 2 degrees for each 5 tiles
+		if(this.getCapitalTile().getTileType().equals(TileType.HILLS)) n += 5;
 		if(this.getGarrison() != null && this.getGarrison() instanceof LongRange)
 			n += ((LongRange) this.getGarrison()).getType().combatStrength;
 		else if(this.getGarrison() != null && this.getGarrison() instanceof MidRange)

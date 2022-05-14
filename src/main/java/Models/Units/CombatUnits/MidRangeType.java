@@ -45,4 +45,12 @@ public enum MidRangeType {
     public int getCombatStrength() {
         return combatStrength;
     }
+
+    public ResourceType getRequiredSource() {
+        return requiredSource;
+    }
+
+    public Technology getRequiredTech() {
+        return requiredTech;
+    }
 }
