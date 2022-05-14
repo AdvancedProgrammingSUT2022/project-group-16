@@ -72,7 +72,7 @@ public class GameController
 	{
 		//update cities combat strength
 		for(Player player : players)
-			for (City city : player.getCities())
+			for(City city : player.getCities())
 				city.updateCityCombatStrength();
 
 		// reset all units turns. TODO: is this needed?
@@ -83,6 +83,7 @@ public class GameController
 		processResearchingTechnology();
 		processFoodForChangingTurn();
 		processGoldForChangingTurn();
+		processResourcesForChangingTurn();
 		// gain production (maybe?)
 		
 		//happiness
@@ -140,6 +141,23 @@ public class GameController
 		
 		playerTurn.setGold(playerTurn.getGold() + goldYieldOfPlayerTurn);
 	}
+	private void processResourcesForChangingTurn()
+	{
+		for(City city : playerTurn.getCities())
+		{
+			for(Citizen citizen : city.getCitizens())
+			{
+				if(citizen.getWorkingTile() == null)
+					continue;
+				if(citizen.getWorkingTile().getResource() == null)
+					continue;
+				if(!citizen.getWorkingTile().getResource().getRESOURCE_TYPE().requiredImprovement.equals(citizen.getWorkingTile().getImprovement()))
+					continue;
+				
+				playerTurn.addResource(citizen.getWorkingTile().getResource().clone());
+			}
+		}
+	}
 	public void initGame()
 	{
 		initPlayers();
@@ -157,7 +175,14 @@ public class GameController
 	{
 		return MapPrinter.getMapString(player);
 	}
-
+	// this method returns a mapString that all it's tiles are visible
+	public String getRawMapString()
+	{
+		Player tmpPlayer = new Player(Civilization.PERSIAN, "tmpPlayer", "tmpPlayer", "tmpPlayer", 0);
+		tmpPlayer.getMap().replaceAll((k, v) -> TileState.VISIBLE);
+		
+		return MapPrinter.getMapString(tmpPlayer);
+	}
 	// this is called when GameController is created. this method only creates an array of Positions and fills grid with these positions
 	private void initGrid()
 	{
@@ -179,38 +204,112 @@ public class GameController
 	// this method is called when GameController is created. this method creates an array of Tiles and fills map with these tiles. TODO: currently it creates a random map
 	private void initMap()
 	{
-		// TODO: select from a list of maps
+		makeMap1();
+	}
+	private void makeMap1()
+	{
+		map.clear();
 		
-		// create sample maps
-		Random borderRandom = new Random();
-		Random tileTypeRandom = new Random();
-		Random tileFeatureRandom = new Random();
-		Random improvementRandom = new Random();
-		Random resourceRandom = new Random();
-		Random CUnitRandom = new Random();
-		
-		for(int i = 0; i < MAP_SIZE; i++)
-			for(int j = 0; j < MAP_SIZE; j++)
-			{
-				Random resourceTypeRandom = new Random();
-				int resourceType = resourceTypeRandom.nextInt(3);
-				Resource resource = null;
-				if(resourceType == 0)
-					resource = new BonusResource(ResourceType.values()[resourceRandom.nextInt(5) + 1]);
-				else if(resourceType == 1)
-					resource = new LuxuryResource(ResourceType.values()[resourceRandom.nextInt(3) + 6]);
-				else
-					resource = new StrategicResource(ResourceType.values()[resourceRandom.nextInt(11) + 9]);
-				
-				BorderType[] borders = new BorderType[6];
-				for(int k = 0; k < 6; k++)
-					borders[k] = BorderType.values()[borderRandom.nextInt(2)];
-				map.add(new Tile(getPosition(i, j),
-						TileType.values()[tileTypeRandom.nextInt(TileType.values().length)],
-						TileFeature.values()[tileFeatureRandom.nextInt(TileFeature.values().length)],
-						borders,
-						resource));
-			}
+		map.add(new Tile(getPosition(0, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 2), TileType.DESERT, TileFeature.FLOOD_PLAIN, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 3), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(0, 4), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE}, new StrategicResource(ResourceType.IRON)));
+		map.add(new Tile(getPosition(0, 5), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 6), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new StrategicResource(ResourceType.HORSES)));
+		map.add(new Tile(getPosition(0, 7), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.DEER)));
+		map.add(new Tile(getPosition(0, 8), TileType.SNOW, TileFeature.ICE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new StrategicResource(ResourceType.IRON)));
+		map.add(new Tile(getPosition(0, 9), TileType.SNOW, TileFeature.ICE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER}, new StrategicResource(ResourceType.IRON)));
+		map.add(new Tile(getPosition(1, 0), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.SHEEP)));
+		map.add(new Tile(getPosition(1, 1), TileType.GRASSLAND, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.CATTLE)));
+		map.add(new Tile(getPosition(1, 2), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new StrategicResource(ResourceType.COAL)));
+		map.add(new Tile(getPosition(1, 3), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 4), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(1, 5), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 6), TileType.GRASSLAND, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.CATTLE)));
+		map.add(new Tile(getPosition(1, 7), TileType.HILLS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.BANANA)));
+		map.add(new Tile(getPosition(1, 8), TileType.TUNDRA, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 9), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER}, new BonusResource(ResourceType.DEER)));
+		map.add(new Tile(getPosition(2, 0), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 1), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.CATTLE)));
+		map.add(new Tile(getPosition(2, 2), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.SILVER)));
+		map.add(new Tile(getPosition(2, 3), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 4), TileType.GRASSLAND, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER}, new StrategicResource(ResourceType.COAL)));
+		map.add(new Tile(getPosition(2, 5), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER}, new BonusResource(ResourceType.WHEAT)));
+		map.add(new Tile(getPosition(2, 6), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 7), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 8), TileType.HILLS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE}, new StrategicResource(ResourceType.COAL)));
+		map.add(new Tile(getPosition(2, 9), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(3, 0), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 1), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 2), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 3), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.CATTLE)));
+		map.add(new Tile(getPosition(3, 4), TileType.GRASSLAND, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.BANANA)));
+		map.add(new Tile(getPosition(3, 5), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.NONE}, new BonusResource(ResourceType.WHEAT)));
+		map.add(new Tile(getPosition(3, 6), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER}, new BonusResource(ResourceType.CATTLE)));
+		map.add(new Tile(getPosition(3, 7), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 8), TileType.TUNDRA, TileFeature.FOREST, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER}, new LuxuryResource(ResourceType.MARBLE)));
+		map.add(new Tile(getPosition(3, 9), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(4, 0), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 1), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.NONE}, new BonusResource(ResourceType.CATTLE)));
+		map.add(new Tile(getPosition(4, 2), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.SILK)));
+		map.add(new Tile(getPosition(4, 3), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 4), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.NONE}, new BonusResource(ResourceType.WHEAT)));
+		map.add(new Tile(getPosition(4, 5), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER}, new LuxuryResource(ResourceType.FURS)));
+		map.add(new Tile(getPosition(4, 6), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 7), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.WHEAT)));
+		map.add(new Tile(getPosition(4, 8), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 9), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 0), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.NONE}, new BonusResource(ResourceType.BANANA)));
+		map.add(new Tile(getPosition(5, 1), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 2), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(5, 3), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.IVORY)));
+		map.add(new Tile(getPosition(5, 4), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.DYES)));
+		map.add(new Tile(getPosition(5, 5), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(5, 7), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE}, new LuxuryResource(ResourceType.GOLD)));
+		map.add(new Tile(getPosition(5, 8), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(5, 9), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 0), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 1), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 2), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(6, 3), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(6, 4), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 5), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.CATTLE)));
+		map.add(new Tile(getPosition(6, 6), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(6, 7), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 8), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 9), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 0), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.SHEEP)));
+		map.add(new Tile(getPosition(7, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 2), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.RIVER, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 4), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.WHEAT)));
+		map.add(new Tile(getPosition(7, 5), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.INCENSE)));
+		map.add(new Tile(getPosition(7, 6), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 7), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 8), TileType.GRASSLAND, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.BANANA)));
+		map.add(new Tile(getPosition(7, 9), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new StrategicResource(ResourceType.COAL)));
+		map.add(new Tile(getPosition(8, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 2), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER}, new LuxuryResource(ResourceType.COTTON)));
+		map.add(new Tile(getPosition(8, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.RIVER, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.GEMS)));
+		map.add(new Tile(getPosition(8, 4), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 5), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 6), TileType.SNOW, TileFeature.ICE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new StrategicResource(ResourceType.IRON)));
+		map.add(new Tile(getPosition(8, 7), TileType.PLAINS, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.SUGAR)));
+		map.add(new Tile(getPosition(8, 8), TileType.GRASSLAND, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 9), TileType.PLAINS, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.WHEAT)));
+		map.add(new Tile(getPosition(9, 0), TileType.DESERT, TileFeature.FLOOD_PLAIN, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new LuxuryResource(ResourceType.COTTON)));
+		map.add(new Tile(getPosition(9, 1), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.SHEEP)));
+		map.add(new Tile(getPosition(9, 2), TileType.PLAINS, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.RIVER, BorderType.RIVER}, null));
+		map.add(new Tile(getPosition(9, 3), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.RIVER, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 4), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 5), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 6), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 7), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 8), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 9), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.DEER)));
 	}
 	// set playerTurn and set two units for each player and set their tileStates
 	private void initPlayers()
@@ -331,7 +430,7 @@ public class GameController
 			return gameEnum.numberOfPlayers.regex;
 		else if(!existingPlayers(players))
 			return gameEnum.playerExist.regex;
-		else if(players.size()  > 3)
+		else if(players.size() > 3)
 			return gameEnum.lessThanFour.regex;
 		else
 			return gameEnum.successfulStartGame.regex;
@@ -443,6 +542,28 @@ public class GameController
 		
 		return cheatCode.unitKilled.regex;
 	}
+	public String gainBonusResourceCheat()
+	{
+		for(int i = 0; i < 5; i++)
+			playerTurn.addResource(new BonusResource(ResourceType.values()[i + 1]));
+		
+		return "bonus resources added successfully";
+	}
+	public String gainStrategicResourceCheat()
+	{
+		for(int i = 0; i < 3; i++)
+			playerTurn.addResource(new StrategicResource(ResourceType.values()[i + 6]));
+		
+		return "strategic resources added successfully";
+	}
+	public String gainLuxuryResourceCheat()
+	{
+		for(int i = 0; i < 11; i++)
+			playerTurn.addResource(new LuxuryResource(ResourceType.values()[i + 9]));
+		
+		return "luxury resources added successfully";
+	}
+	
 	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{
 		String menuName = matcher.group("menuName");
@@ -744,9 +865,12 @@ public class GameController
 		}
 		return selectCommands.invalidCommand.regex;
 	}
-	public void updatePlayersUnitLocations(){
-		for (Unit unit : this.getPlayerTurn().getUnits()) {
-			if(unit.getMoves() != null && unit.getMoves().size() >= 0){
+	public void updatePlayersUnitLocations()
+	{
+		for(Unit unit : this.getPlayerTurn().getUnits())
+		{
+			if(unit.getMoves() != null && unit.getMoves().size() >= 0)
+			{
 				//unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
 				unit.updateUnitMovements();
 			}
@@ -774,9 +898,12 @@ public class GameController
 			city.construct(city.getCurrentConstruction(), this);
 		}
 	}
-	public void handleUnitCommands(){
-		for (Unit unit : playerTurn.getUnits()) {
-			if(unit.getCommands().size() > 0){
+	public void handleUnitCommands()
+	{
+		for(Unit unit : playerTurn.getUnits())
+		{
+			if(unit.getCommands().size() > 0)
+			{
 				UnitCommandsHandler.handleCommands(unit, unit.getCommands().get(0));
 				if(!unit.getCommands().get(0).equals(UnitCommands.REPAIR_TILE) &&
 						!unit.getCommands().get(0).equals(UnitCommands.MOVE) && !unit.getCommands().get(0).equals(UnitCommands.BUILD_FARM) &&
@@ -826,7 +953,7 @@ public class GameController
 			else
 			{
 				//TODO: this should be checked. probably a bug
-				if (playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
+				if(playerTurn.getSelectedUnit().getUnitState().equals(UnitState.SLEEPING))
 					return gameEnum.isSleep.regex;
 				else
 				{
@@ -840,10 +967,11 @@ public class GameController
 	}
 	private void changePower(Unit unit)
 	{
-		if(unit.getUnitState().equals(UnitState.FORTIFIED)) {
-			if (unit.getClass().equals(MidRange.class))
+		if(unit.getUnitState().equals(UnitState.FORTIFIED))
+		{
+			if(unit.getClass().equals(MidRange.class))
 				unit.setPower(((MidRange) unit).getType().combatStrength);
-			if (unit.getClass().equals(LongRange.class))
+			if(unit.getClass().equals(LongRange.class))
 				unit.setPower(((LongRange) unit).getType().combatStrength);
 		}
 	}
@@ -962,17 +1090,23 @@ public class GameController
 	}
 	private boolean isSiege(LongRange unit)
 	{
-		if(unit.getType().equals(LongRangeType.ARTILLERY)) return true;
-		if(unit.getType().equals(LongRangeType.CANON)) return true;
-		if(unit.getType().equals(LongRangeType.TREBUCHET)) return true;
-		if(unit.getType().equals(LongRangeType.CATAPULT)) return true;
+		if(unit.getType().equals(LongRangeType.ARTILLERY))
+			return true;
+		if(unit.getType().equals(LongRangeType.CANON))
+			return true;
+		if(unit.getType().equals(LongRangeType.TREBUCHET))
+			return true;
+		if(unit.getType().equals(LongRangeType.CATAPULT))
+			return true;
 		return false;
 	}
 	public void checkSetupAttack()
 	{
-		for(Unit unit : playerTurn.getUnits()) {
-			if (unit.getClass().equals(LongRange.class) && unit.getUnitState().equals(UnitState.IS_SET)
-					&& ((LongRange) unit).getSetCounter() == 1 && ((LongRange) unit).getTargetCity() != null) {
+		for(Unit unit : playerTurn.getUnits())
+		{
+			if(unit.getClass().equals(LongRange.class) && unit.getUnitState().equals(UnitState.IS_SET)
+					&& ((LongRange) unit).getSetCounter() == 1 && ((LongRange) unit).getTargetCity() != null)
+			{
 				((LongRange) unit).setSet(0);
 				String tmp = unit.attackToCity(((LongRange) unit).getTargetCity(), this);
 				((LongRange) unit).setTargetCity(null);
@@ -1021,7 +1155,7 @@ public class GameController
 	private City isCityInTile(Tile tile)
 	{
 		for(Player player : players)
-			for (City city : player.getCities())
+			for(City city : player.getCities())
 				if(city.getCapitalTile() == tile)
 					return city;
 		return null;
@@ -1518,7 +1652,7 @@ public class GameController
 		int y = Integer.parseInt(matcher.group("y"));
 		if(x > 9 || x < 0 || y > 9 || y < 0)
 			return null;
-		return getTileByXY(x,y);
+		return getTileByXY(x, y);
 	}
 	private boolean hasBuilding(Tile tile)
 	{
@@ -1613,19 +1747,19 @@ public class GameController
 	{
 		if(containTypeMid(type))
 		{
-			if (playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
+			if(playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
-			return playerTurn.getSelectedCity().buyProduct(new MidRange(playerTurn,MidRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+			return playerTurn.getSelectedCity().buyProduct(new MidRange(playerTurn, MidRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
 		}
 		else if(containTypeLong(type))
 		{
-			if (playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
+			if(playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
-			return playerTurn.getSelectedCity().buyProduct(new LongRange(playerTurn,LongRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+			return playerTurn.getSelectedCity().buyProduct(new LongRange(playerTurn, LongRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
 		}
 		else if(type.equals("SETTLER"))
 		{
@@ -1697,7 +1831,8 @@ public class GameController
 		{
 			if(hasCitizenOnTile(tile) == null)
 				return gameEnum.noCitizenHere.regex;
-			else {
+			else
+			{
 				Objects.requireNonNull(hasCitizenOnTile(tile)).unEmployCitizen();
 				return gameEnum.removeFromWork.regex;
 			}
