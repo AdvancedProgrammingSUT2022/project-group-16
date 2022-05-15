@@ -842,8 +842,6 @@ public class gameMenuView
                 String changeTurnResult = gameController.checkChangeTurn();
                 if(changeTurnResult != null)
                     System.out.println(changeTurnResult);
-                else // change turn was successful
-                    break;
             }
             else
                 System.out.println(mainCommands.invalidCommand.regex);
