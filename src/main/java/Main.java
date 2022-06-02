@@ -1,9 +1,15 @@
-import Views.registerAndLoginView;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
-public class Main
+public class Main extends Application
 {
-	public static void main(String[] args)
-	{
-		registerAndLoginView.run();
+	@Override
+	public void start(Stage stage) throws Exception {
+		WelcomePage welcomePage = new WelcomePage();
+		welcomePage.start(stage);
 	}
+	public static void main(String[] args) {
+		launch(args);
+	}
+
 }

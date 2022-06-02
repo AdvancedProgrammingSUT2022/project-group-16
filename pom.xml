@@ -9,17 +9,11 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.8.1</junit.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>hu.blackbelt.bundles.jcolor</groupId>
-            <artifactId>com.diogonunes.jcolor</artifactId>
-            <version>5.2.0_1</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -27,9 +21,26 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>hu.blackbelt.bundles.jcolor</groupId>
+            <artifactId>com.diogonunes.jcolor</artifactId>
+            <version>5.2.0_1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>11</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.9.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -44,7 +55,6 @@
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
@@ -56,36 +66,25 @@
             <version>4.0.0</version>
             <scope>test</scope>
         </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>com.googlecode.json-simple</groupId>-->
-        <!--            <artifactId>json-simple</artifactId>-->
-        <!--            <version>{version}</version>-->
-        <!--        </dependency>-->
-        <!--                <dependency>-->
-        <!--                    <groupId>com.thoughtworks.feature</groupId>-->
-        <!--                    <artifactId>override_2.11</artifactId>-->
-        <!--                    <version>1.1.0</version>-->
-        <!--                    <scope>system</scope>-->
-        <!--                </dependency>-->
-
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.1</version>
+                <configuration>
+                    <mainClass>HelloFX</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.9.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>3.2.2</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

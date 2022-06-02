@@ -1,0 +1,67 @@
+.background {
+    -fx-background-image: url("../photos/backgrounds/loginPage.png"); /*by www.britannica.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+.Label {
+    -fx-background-color: #ff7300;
+    -fx-text-fill: #690404;
+    -fx-font-size: 30;
+    -fx-border-width: 5;
+    -fx-border-color: black;
+    -fx-pref-width: 300;
+    -fx-alignment: center;
+    -fx-pref-height: 70;
+    -fx-border-radius: 5;
+    -fx-background-radius: 8;
+}
+
+.frontBackground {
+    -fx-background-color: rgba(187, 178, 178, 0.66);
+    -fx-border-color: black;
+    -fx-border-width: 5;
+    -fx-max-height: 400;
+    -fx-border-radius: 200;
+    -fx-background-radius: 200;
+}
+
+.subLabel {
+    -fx-font-size: 20;
+    -fx-text-fill: black;
+}
+
+.Box {
+    -fx-background-color: rgba(255, 77, 0, 0.31);
+    -fx-border-color: black;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+    -fx-pref-height: 40;
+    -fx-border-width: 3;
+    -fx-prompt-text-fill: rgba(0, 0, 0, 0.47);
+}
+
+.Button {
+    -fx-max-width: 150;
+    -fx-max-height: 45;
+    -fx-background-color: #ff7300;
+    -fx-border-width: 3;
+    -fx-border-color: black;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+    -fx-font-size: 20;
+}
+.Button:hover {
+    -fx-max-width: 150;
+    -fx-max-height: 45;
+    -fx-background-color: #ff4d00;
+    -fx-border-width: 3;
+    -fx-border-color: black;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+}
+.link{
+    -fx-text-fill: rgba(0, 42, 255, 0.84);
+}
+.link:hover{
+    -fx-text-fill: rgb(0, 146, 255);
+}
