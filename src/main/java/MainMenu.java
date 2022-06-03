@@ -1,5 +1,4 @@
 import Models.Menu.Menu;
-import Models.User;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -7,7 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-
 import java.net.URL;
 
 public class MainMenu extends Application {
@@ -36,6 +34,8 @@ public class MainMenu extends Application {
         profileMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
-    public void newGame(MouseEvent mouseEvent) { //TODO: new game menu
+    public void newGame(MouseEvent mouseEvent) throws Exception {
+        NewGame newGame = new NewGame();
+        newGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 }

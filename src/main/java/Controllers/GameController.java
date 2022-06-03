@@ -44,7 +44,7 @@ public class GameController
 	private int turnCounter = 0;
 	
 	// private constructor to prevent instantiation
-	private GameController()
+	public GameController()
 	{
 		initGrid();
 		initMap();

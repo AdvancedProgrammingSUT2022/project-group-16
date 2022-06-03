@@ -1,0 +1,20 @@
+.background {
+    -fx-background-image: url("../photos/backgrounds/panels.jpg"); /*by www.reddit.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+.label {
+    -fx-text-fill: red;
+    -fx-font-size: 25;
+    -fx-background-color: gray;
+}
+
+.Circle {
+    -fx-fill: #0800ff;
+    -fx-stroke: black;
+    -fx-stroke-width: 3;
+}
+.text {
+    -fx-font-size: 25;
+    -fx-fill: white;
+}
