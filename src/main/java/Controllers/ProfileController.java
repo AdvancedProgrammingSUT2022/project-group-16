@@ -28,9 +28,8 @@ public class ProfileController
 		}
 		return -1;
 	}
-	public String changeNickname(Matcher matcher)
+	public String changeNickname(String nickname)
 	{
-		String nickname = matcher.group("newName");
 
 		if(doesNicknameExist(nickname) != -1)
 			return (mainCommands.specificNickname.regex + nickname + mainCommands.alreadyExist.regex);
@@ -87,5 +86,21 @@ public class ProfileController
 		else if(mainCommands.compareRegex(menuName, mainCommands.mainMenu) != null)
 			return "1";
 		return mainCommands.invalidCommand.regex;
+	}
+
+	public String matchNewPassword(String currPass, String newPass) {
+		if(!Menu.loggedInUser.getPassword().equals(currPass))
+			return profileEnum.invalidOldPass.regex;
+		else if(currPass.equals(newPass))
+			return profileEnum.commonPasswords.regex;
+		else if(registerController.checkWeaknessOfPassword(newPass) != null)
+			return mainCommands.weakNewPass.regex;
+		else
+		{
+			Menu.loggedInUser.setPassword(newPass);
+			Menu.allUsers.get(doesUsernameExist(Menu.loggedInUser.getUsername())).setPassword(newPass);
+			registerController.writeDataOnJson();
+			return profileEnum.successfulPassChange.regex;
+		}
 	}
 }
