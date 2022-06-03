@@ -10,9 +10,6 @@
             fx:controller="loginPage"
             prefHeight="720" prefWidth="1280"
             stylesheets="@../styles/loginPage.css" styleClass="background">
-    <Pane>
-        <Label layoutX="490" layoutY="50" alignment="CENTER" text="please login first" styleClass="Label"/>
-    </Pane>
     <center>
         <VBox fx:id="borderPane" spacing="10" alignment="CENTER" maxWidth="700" styleClass="frontBackground">
             <Label text="enter your username: " styleClass="subLabel"/>
@@ -23,4 +20,7 @@
             <Button text="login" styleClass="Button" onMouseClicked="#checkInputs"/>
         </VBox>
     </center>
+    <Pane>
+        <Label  layoutX="490" layoutY="120" alignment="CENTER" text="login menu" styleClass="Label"/>
+    </Pane>
 </BorderPane>

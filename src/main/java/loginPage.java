@@ -1,5 +1,4 @@
 import Controllers.RegisterController;
-import Models.Menu.Menu;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

@@ -18,7 +18,6 @@ public class RegisterPage extends Application {
     public TextField password;
     public VBox VBox;
     public TextField nickname;
-    private String message;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -32,6 +31,7 @@ public class RegisterPage extends Application {
     }
 
     public void checkInputs(MouseEvent mouseEvent) throws Exception {
+        String message;
         if(username.getText().equals("")) {
             if(VBox.getChildren().size() == 8) {
                 Text text = new Text();

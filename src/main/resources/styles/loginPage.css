@@ -17,7 +17,7 @@
 }
 
 .frontBackground {
-    -fx-background-color: rgba(187, 178, 178, 0.66);
+    -fx-background-color: rgba(255, 115, 0, 0.62);
     -fx-border-color: black;
     -fx-border-width: 5;
     -fx-max-height: 400;
@@ -27,17 +27,17 @@
 
 .subLabel {
     -fx-font-size: 20;
-    -fx-text-fill: black;
+    -fx-text-fill: #ffffff;
 }
 
 .Box {
-    -fx-background-color: rgba(255, 77, 0, 0.31);
-    -fx-border-color: black;
+    -fx-background-color: rgb(255, 77, 0);
+    -fx-border-color: #ffffff;
     -fx-border-radius: 4;
     -fx-background-radius: 6;
     -fx-pref-height: 40;
     -fx-border-width: 3;
-    -fx-prompt-text-fill: rgba(0, 0, 0, 0.47);
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.73);
 }
 
 .Button {
@@ -45,19 +45,21 @@
     -fx-max-height: 45;
     -fx-background-color: #ff7300;
     -fx-border-width: 3;
-    -fx-border-color: black;
+    -fx-border-color: #ffffff;
     -fx-border-radius: 4;
     -fx-background-radius: 6;
     -fx-font-size: 20;
+    -fx-text-fill: white;
 }
 .Button:hover {
     -fx-max-width: 150;
     -fx-max-height: 45;
     -fx-background-color: #ff4d00;
     -fx-border-width: 3;
-    -fx-border-color: black;
+    -fx-border-color: #ffffff;
     -fx-border-radius: 4;
     -fx-background-radius: 6;
+    -fx-text-fill: white;
 }
 .link{
     -fx-text-fill: rgba(0, 42, 255, 0.84);

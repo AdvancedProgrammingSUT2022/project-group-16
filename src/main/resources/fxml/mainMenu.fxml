@@ -7,4 +7,5 @@
             fx:controller="MainMenu"
             prefHeight="720.0" prefWidth="1280.0"
             stylesheets="@../styles/mainMenu.css" styleClass="Background">
+
 </Pane>
