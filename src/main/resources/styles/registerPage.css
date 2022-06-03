@@ -44,3 +44,14 @@
     -fx-font-size: 20;
     -fx-text-fill: white;
 }
+.button:hover {
+    -fx-max-width: 150;
+    -fx-max-height: 45;
+    -fx-background-color: #ff3c00;
+    -fx-border-width: 3;
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+}

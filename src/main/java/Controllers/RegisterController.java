@@ -126,7 +126,7 @@ public class RegisterController {
 			return mainCommands.invalidCommand.regex;
 	}
 
-	private String createUser(String username, String password, String nickname)
+	public String createUser(String username, String password, String nickname)
 	{
 		if (getUserByUsername(username) != null)
 			return (mainCommands.specificUsername.regex + username + mainCommands.alreadyExist.regex);
