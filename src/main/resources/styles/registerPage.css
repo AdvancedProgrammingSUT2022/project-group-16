@@ -1,0 +1,46 @@
+.Background {
+    -fx-background-image: url("../photos/backgrounds/registerPage.jpg"); /*by wallpaperBetter.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+
+.FrontBackground {
+    -fx-image: url("../photos/backgrounds/icons/registerFrontPaper.jpg"); /*by freePik.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 700 400;
+}
+
+.Rectangle {
+    -fx-fill: red;
+    -fx-arc-width: 20;
+    -fx-arc-height: 0;
+}
+
+.box {
+    -fx-background-color: rgba(255, 77, 0, 0.62);
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+    -fx-pref-height: 40;
+    -fx-border-width: 3;
+    -fx-pref-width: 300;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.56);
+    -fx-text-fill: white;
+}
+
+.SubLabel {
+    -fx-font-size: 20;
+    -fx-text-fill: #ffffff;
+}
+
+.button {
+    -fx-max-width: 150;
+    -fx-max-height: 45;
+    -fx-background-color: #ff7300;
+    -fx-border-width: 3;
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+}
