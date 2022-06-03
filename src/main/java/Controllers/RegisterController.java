@@ -62,7 +62,7 @@ public class RegisterController {
 		return null;
 	}
 
-	private boolean isPasswordCorrect(String username, String password)
+	public boolean isPasswordCorrect(String username, String password)
 	{
 		for (int i = 0; i < Menu.allUsers.size(); i++)
 			if (Menu.allUsers.get(i).getUsername().equals(username) && !Menu.allUsers.get(i).getPassword().equals(password))

@@ -14,13 +14,13 @@
         <Label layoutX="490" layoutY="50" alignment="CENTER" text="please login first" styleClass="Label"/>
     </Pane>
     <center>
-        <VBox spacing="10" alignment="CENTER" maxWidth="700" styleClass="frontBackground">
+        <VBox fx:id="borderPane" spacing="10" alignment="CENTER" maxWidth="700" styleClass="frontBackground">
             <Label text="enter your username: " styleClass="subLabel"/>
-            <TextField promptText="username" maxWidth="300" styleClass="Box"/>
+            <TextField fx:id="username" promptText="username" maxWidth="300" styleClass="Box"/>
             <Label text="enter your password: " styleClass="subLabel"/>
-            <TextField promptText="password" maxWidth="300" styleClass="Box"/> <Label/>
+            <TextField fx:id="password" promptText="password" maxWidth="300" styleClass="Box"/> <Label/>
             <Label styleClass="link" text="don't have account? sign-up here" onMouseClicked="#enterRegisterPage"/>
-            <Button text="login" styleClass="Button"/>
+            <Button text="login" styleClass="Button" onMouseClicked="#checkInputs"/>
         </VBox>
     </center>
 </BorderPane>

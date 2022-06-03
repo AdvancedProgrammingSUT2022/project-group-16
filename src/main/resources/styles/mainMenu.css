@@ -1,0 +1,5 @@
+.Background {
+    -fx-background-image: url("../photos/backgrounds/mainMenu.jpg"); /*by wallpaperBetter.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
