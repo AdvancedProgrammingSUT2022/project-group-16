@@ -30,7 +30,9 @@ public class MainMenu extends Application {
         loginPage.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
-    public void profileMenu(MouseEvent mouseEvent) { //TODO: profile menu enter
+    public void profileMenu(MouseEvent mouseEvent) throws Exception {
+        ProfileMenu profileMenu = new ProfileMenu();
+        profileMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
     public void newGame(MouseEvent mouseEvent) { //TODO: new game menu
