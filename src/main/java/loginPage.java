@@ -3,6 +3,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import Models.Menu.Menu;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -83,6 +84,7 @@ public class loginPage extends Application {
         else {
             if(borderPane.getChildren().size() == 8)
                 borderPane.getChildren().remove(borderPane.getChildren().size() - 1);
+            Menu.loggedInUser = registerController.getUserByUsername(username.getText());
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             mainMenu.start(stage);

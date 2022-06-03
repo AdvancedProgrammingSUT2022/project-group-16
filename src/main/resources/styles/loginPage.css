@@ -38,6 +38,7 @@
     -fx-pref-height: 40;
     -fx-border-width: 3;
     -fx-prompt-text-fill: rgba(255, 255, 255, 0.73);
+    -fx-text-fill: white;
 }
 
 .Button {
