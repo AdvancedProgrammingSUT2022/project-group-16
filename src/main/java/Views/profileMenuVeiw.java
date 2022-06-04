@@ -19,9 +19,9 @@ public class profileMenuVeiw
             command = scanner.nextLine();
 
             if((matcher = profileEnum.compareRegex(command, profileEnum.changeNickname)) != null)
-                System.out.println(profileController.changeNickname(matcher));
+                System.out.println(profileController.changeNickname(matcher.group("nickname")));
             else if((matcher = profileEnum.compareRegex(command, profileEnum.shortChangeNickname)) != null)
-                System.out.println(profileController.changeNickname(matcher));
+                System.out.println(profileController.changeNickname(matcher.group("nickname")));
             else if(profileEnum.compareRegex(command, profileEnum.changePassword) != null)
                     System.out.println(profileController.changePassword(command));
             else if(mainCommands.compareRegex(command, mainCommands.showCurrentMenu) != null)

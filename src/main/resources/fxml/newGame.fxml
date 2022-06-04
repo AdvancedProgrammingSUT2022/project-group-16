@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+<Pane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="NewGame"
+      prefHeight="720.0" prefWidth="1280.0" fx:id="list"
+      stylesheets="@../styles/newGame.css" styleClass="background">
+        <VBox layoutX="400" layoutY="100" spacing="6" alignment="CENTER">
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+                <Circle radius="23.5" styleClass="Circle"/>
+        </VBox>
+        <VBox layoutX="412" layoutY="110" spacing="26" alignment="CENTER">
+                <Text text="1" styleClass="text"/>
+                <Text text="2" styleClass="text"/>
+                <Text text="3" styleClass="text"/>
+                <Text text="4" styleClass="text"/>
+                <Text text="5" styleClass="text"/>
+                <Text text="6" styleClass="text"/>
+                <Text text="7" styleClass="text"/>
+                <Text text="8" styleClass="text"/>
+                <Text text="9" styleClass="text"/>
+                <Text text="10" styleClass="text"/>
+        </VBox>
+</Pane>

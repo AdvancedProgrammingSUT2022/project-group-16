@@ -1,0 +1,56 @@
+.background {
+    -fx-background-image: url("../photos/backgrounds/profileMenu.png"); /*by wallpaperCave.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+
+.button {
+    -fx-background-color: #004c6b;
+    -fx-pref-height: 45;
+    -fx-pref-width: 300;
+    -fx-text-fill: white;
+    -fx-font-size: 25;
+    -fx-alignment: center;
+    -fx-border-color: black;
+    -fx-border-radius: 100;
+    -fx-border-width: 3;
+    -fx-background-radius: 100;
+}
+.button:hover {
+    -fx-background-color: #0075a8;
+    -fx-pref-height: 45;
+    -fx-pref-width: 310;
+    -fx-text-fill: white;
+    -fx-font-size: 25;
+    -fx-alignment: center;
+    -fx-border-color: black;
+    -fx-border-radius: 100;
+    -fx-border-width: 3;
+    -fx-background-radius: 100;
+
+}
+
+.mainLabel {
+    -fx-background-color: #004c6b;
+    -fx-pref-height: 65;
+    -fx-pref-width: 300;
+    -fx-text-fill: white;
+    -fx-font-size: 25;
+    -fx-alignment: center;
+    -fx-border-color: black;
+    -fx-border-radius: 100;
+    -fx-border-width: 3;
+    -fx-background-radius: 100;
+}
+.frontBackground {
+    -fx-background-image: url("../photos/backgrounds/icons/profileFrontPaper.jpg"); /*by vistaCreate.com*/
+    -fx-border-color: #03039f;
+    -fx-border-width: 20;
+    -fx-pref-width: 500;
+    -fx-pref-height: 300;
+}
+.changeNicknamePanel {
+    -fx-background-color: red;
+    -fx-pref-width: 500;
+    -fx-pref-height: 500;
+}
