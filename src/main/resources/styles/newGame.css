@@ -3,12 +3,6 @@
     -fx-background-repeat: no-repeat;
     -fx-background-size: 1280 720;
 }
-.label {
-    -fx-text-fill: red;
-    -fx-font-size: 25;
-    -fx-background-color: gray;
-}
-
 .Circle {
     -fx-fill: #0800ff;
     -fx-stroke: black;
@@ -17,4 +11,11 @@
 .text {
     -fx-font-size: 25;
     -fx-fill: white;
+}
+.backgroundRec {
+    -fx-stroke-width: 3;
+    -fx-stroke: black;
+    -fx-fill: #0800ff;
+    -fx-arc-height: 20;
+    -fx-arc-width: 20;
 }
