@@ -4,10 +4,7 @@ import Models.City.City;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Terrain.BorderType;
-import Models.Terrain.Tile;
-import Models.Terrain.TileFeature;
-import Models.Terrain.TileType;
+import Models.Terrain.*;
 import Views.gameMenuView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +26,9 @@ class InitGameTest
 	{
 		gameController.initGame();
 		
-		System.out.println(gameController.getRawMapString());
+		gameController.getTileByXY(5, 5).setImprovement(Improvement.PLANTATION);
+		
+		System.out.println(gameController.getMapString());
 	}
 }
 

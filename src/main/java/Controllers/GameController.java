@@ -123,7 +123,7 @@ public class GameController
 	{
 		int foodYieldOfPlayerTurn = 0;
 		for(City city : playerTurn.getCities())
-				foodYieldOfPlayerTurn += city.getFoodYield();
+			foodYieldOfPlayerTurn += city.getFoodYield();
 		//TODO: if foodYield is negative, some citizens should starve to death :')
 		playerTurn.setFood(playerTurn.getFood() + foodYieldOfPlayerTurn);
 		
