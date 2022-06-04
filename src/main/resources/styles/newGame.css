@@ -19,3 +19,25 @@
     -fx-arc-height: 20;
     -fx-arc-width: 20;
 }
+.Button {
+    -fx-background-color: #0800ff;
+    -fx-text-fill: white;
+    -fx-pref-width: 100;
+    -fx-pref-height: 35;
+    -fx-font-size: 20;
+    -fx-border-width: 3;
+    -fx-border-color: black;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+}
+.Button:hover {
+    -fx-background-color: #060085;
+    -fx-text-fill: white;
+    -fx-font-size: 20;
+    -fx-pref-width: 100;
+    -fx-pref-height: 35;
+    -fx-border-width: 3;
+    -fx-border-color: black;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+}

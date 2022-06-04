@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import Models.Menu.Menu;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -37,15 +38,49 @@ public class NewGame extends Application {
         }
     }
 
+    private void setGoButtonStyle(Button button) {
+        button.setStyle("-fx-background-color: #2525fd;" +
+                "-fx-text-fill: white;" +
+                "-fx-pref-width: 100;" +
+                "-fx-max-height: 35;" +
+                "-fx-font-size: 20;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: black;" +
+                "-fx-border-radius: 4;" +
+                "-fx-background-radius: 6; ");
+    }
+    private void setHoverGoButtonStyle(Button button) {
+        button.setStyle("-fx-background-color: #0000a6;" +
+                "-fx-text-fill: white;" +
+                "-fx-pref-width: 100;" +
+                "-fx-max-height: 35;" +
+                "-fx-font-size: 20;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: black;" +
+                "-fx-border-radius: 4;" +
+                "-fx-background-radius: 6; ");
+    }
     private void setButtonStyle(Button button) {
-        button.setStyle("-fx-background-color: #2525fd; -fx-pref-width: 400; -fx-pref-height: 35;" +
-                "-fx-border-color: black; -fx-border-width: 3; -fx-border-radius: 10; -fx-background-radius: 11;" +
-                " -fx-text-fill: white; -fx-font-size: 20; ");
+        button.setStyle("-fx-background-color: #2525fd; " +
+                "-fx-pref-width: 400; " +
+                "-fx-pref-height: 35;" +
+                "-fx-border-color: black; " +
+                "-fx-border-width: 3; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 11;" +
+                " -fx-text-fill: white; " +
+                "-fx-font-size: 20; ");
     }
     private void setHoverButtonStyle(Button button) {
-        button.setStyle("-fx-background-color: #0000a6; -fx-pref-width: 400; -fx-pref-height: 35;" +
-                "-fx-border-color: black; -fx-border-width: 3; -fx-border-radius: 10; -fx-background-radius: 11;" +
-                " -fx-text-fill: white; -fx-font-size: 20; ");
+        button.setStyle("-fx-background-color: #0000a6; " +
+                "-fx-pref-width: 400; " +
+                "-fx-pref-height: 35;" +
+                "-fx-border-color: black; " +
+                "-fx-border-width: 3; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 11;" +
+                " -fx-text-fill: white; " +
+                "-fx-font-size: 20; ");
     }
 
     public void initialize() throws MalformedURLException {
@@ -76,11 +111,11 @@ public class NewGame extends Application {
         for(Button button : buttons)
         {
             button.setOnMouseMoved(mouseEvent -> {
-                if(button.isHover() && button.getStyle().charAt(23) != '0')
+                if(button.getStyle().charAt(23) != '0')
                     setHoverButtonStyle(button);
             });
             button.setOnMouseExited(mouseEvent -> {
-                if(!button.isHover() && button.getStyle().charAt(23) == '0')
+                if(button.getStyle().charAt(23) == '0')
                     setButtonStyle(button);
             });
             button.setOnMousePressed(mouseEvent -> {
@@ -95,11 +130,11 @@ public class NewGame extends Application {
                             getChildren().get(i);
                     int flag = i;
                     tmp.setOnMouseMoved(mouseEvent1 -> {
-                        if (tmp.isHover() && tmp.getStyle().charAt(23) != '0')
+                        if (tmp.getStyle().charAt(23) != '0')
                             setHoverButtonStyle(tmp);
                     });
                     tmp.setOnMouseExited(mouseEvent12 -> {
-                        if (!tmp.isHover() && tmp.getStyle().charAt(23) == '0')
+                        if (tmp.getStyle().charAt(23) == '0')
                             setButtonStyle(tmp);
                     });
                     tmp.setOnMousePressed(mouseEvent13 -> {
@@ -122,9 +157,17 @@ public class NewGame extends Application {
                         if(((Text) list.getChildren().get(4)).getText().equals("3")) {
                             Button start = new Button();
                             start.setText("go");
-                            start.setStyle("-fx-pref-width: 100; -fx-text-fill: black");
+                            setGoButtonStyle(start);
                             start.setLayoutX(1100);
-                            start.setLayoutY(650);
+                            start.setLayoutY(640);
+                            start.setOnMouseMoved(mouseEvent131 -> {
+                                if(start.getStyle().charAt(23) != '0')
+                                    setHoverGoButtonStyle(start);
+                            });
+                            start.setOnMouseExited(mouseEvent131 -> {
+                                if(start.getStyle().charAt(23) == '0')
+                                    setGoButtonStyle(start);
+                            });
                             start.setOnMousePressed(mouseEvent131 -> {
                                 Game game = new Game();
                                 try {
@@ -175,5 +218,10 @@ public class NewGame extends Application {
     }
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void backToMenu(MouseEvent mouseEvent) throws Exception {
+        MainMenu mainMenu = new MainMenu();
+        mainMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 }

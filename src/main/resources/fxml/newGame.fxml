@@ -5,6 +5,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.Button?>
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="NewGame"
@@ -14,6 +15,7 @@
         <Text layoutX="100" layoutY="224" text="player     : " styleClass="text"/>
         <Text layoutX="170" layoutY="224" text="1" styleClass="text"/>
         <Text layoutX="200"  layoutY="224" styleClass="text"/>
+        <Button layoutX="20" layoutY="640" text="back" styleClass="Button" onMouseClicked="#backToMenu"/>
         <VBox layoutX="400" layoutY="100" spacing="6" alignment="CENTER">
                 <Circle radius="23.5" styleClass="Circle"/>
                 <Circle radius="23.5" styleClass="Circle"/>
