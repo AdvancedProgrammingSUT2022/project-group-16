@@ -41,7 +41,11 @@ public class MainMenu extends Application {
         loginPage loginPage = new loginPage();
         loginPage.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
+    public void chatMenu(MouseEvent mouseEvent) throws Exception {
+        ChatMenu chatMenu = new ChatMenu();
+        chatMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
 
+    }
     public void profileMenu(MouseEvent mouseEvent) throws Exception {
         ProfileMenu profileMenu = new ProfileMenu();
         profileMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
@@ -112,5 +116,7 @@ public class MainMenu extends Application {
         list.getChildren().get(2).setDisable(e);
         list.getChildren().get(3).setDisable(e);
         list.getChildren().get(4).setDisable(e);
+        list.getChildren().get(5).setDisable(e);
     }
+
 }
