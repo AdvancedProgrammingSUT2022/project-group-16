@@ -20,7 +20,8 @@ public class loginPage extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        registerController.updateDatabase(); //update arraylist of users and get old users
+        if(Menu.allUsers.size() == 0)
+            registerController.updateDatabase(); //update arraylist of users and get old users
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/loginPage.fxml").toExternalForm()))));
         stage.show();
