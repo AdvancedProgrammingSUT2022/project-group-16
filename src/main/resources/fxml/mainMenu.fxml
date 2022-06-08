@@ -6,10 +6,12 @@
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="MainMenu"
-      prefHeight="720.0" prefWidth="1280.0"
+      prefHeight="720.0" prefWidth="1280.0" fx:id="list"
       stylesheets="@../styles/mainMenu.css" styleClass="Background">
-    <Button layoutX="300" layoutY="250" text="new game" styleClass="icons" onMouseClicked="#newGame"/>
-    <Button layoutX="300" layoutY="320" text="profile menu" styleClass="icons" onMouseClicked="#profileMenu"/>
-    <Button layoutX="300" layoutY="390" text="logout" styleClass="icons" onMouseClicked="#logout"/>
-    <Button layoutX="300" layoutY="460" text="exit" styleClass="icons" onMouseClicked="#exit"/>
+    <Button layoutX="300" layoutY="200" text="new game" styleClass="icons" onMouseClicked="#newGame"/>
+    <Button layoutX="300" layoutY="270" text="profile menu" styleClass="icons" onMouseClicked="#profileMenu"/>
+    <Button layoutX="300" layoutY="340" text="score board" styleClass="icons" onMouseClicked="#scoreBoard"/>
+    <Button layoutX="300" layoutY="410" text="chat menu" styleClass="icons" onMouseClicked="#chatMenu"/>
+    <Button layoutX="300" layoutY="480" text="logout" styleClass="icons" onMouseClicked="#logout"/>
+    <Button layoutX="300" layoutY="550" text="exit" styleClass="icons" onMouseClicked="#exit"/>
 </Pane>
