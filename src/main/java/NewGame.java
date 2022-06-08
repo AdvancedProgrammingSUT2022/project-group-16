@@ -244,7 +244,7 @@ public class NewGame extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         stage.setScene(new Scene(FXMLLoader.load(new URL(Objects.requireNonNull(getClass().
-                getResource("fxml/NewGame.fxml")).toExternalForm()))));
+                getResource("fxml/newGame.fxml")).toExternalForm()))));
         stage.show();
     }
     public static void main(String[] args) {
