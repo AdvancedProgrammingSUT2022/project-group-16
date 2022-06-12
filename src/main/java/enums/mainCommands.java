@@ -22,6 +22,7 @@ public enum mainCommands
     specificNickname("user with nickname "),
     specificUsername("user with username "),
     weakPass("password is weak"),
+    loadImage("please upload a photo for your profile"),
     weakNewPass("new password is weak"),
     navigationError("menu navigation is not possible"),
     and(" and "),

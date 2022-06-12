@@ -7,7 +7,6 @@
 .FrontBackground {
     -fx-image: url("../photos/backgrounds/icons/registerFrontPaper.jpg"); /*by freePik.com*/
     -fx-background-repeat: no-repeat;
-    -fx-background-size: 700 400;
 }
 
 .Rectangle {

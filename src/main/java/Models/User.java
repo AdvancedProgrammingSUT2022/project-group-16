@@ -1,17 +1,21 @@
 package Models;
 
+import java.net.URL;
+
 public class User
 {
 	private final String username;
 	private String nickname;
 	private String password;
+	private URL photo;
 	private int score;
 	
-	public User(String username, String nickname, String password)
+	public User(String username, String nickname, String password, URL photo)
 	{
 		this.username = username;
 		this.nickname = nickname;
 		this.password = password;
+		this.photo = photo;
 		this.score = 0;
 	}
 	
@@ -34,6 +38,12 @@ public class User
 	public void setPassword(String password)
 	{
 		this.password = password;
+	}
+	public URL getPhoto() {
+		return photo;
+	}
+	public void setPhoto(URL photo) {
+		this.photo = photo;
 	}
 	public int getScore()
 	{

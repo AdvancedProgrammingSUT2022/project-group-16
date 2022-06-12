@@ -14,6 +14,8 @@ import Models.Units.CombatUnits.MidRange;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import Models.User;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.util.*;
 
@@ -48,7 +50,7 @@ public class Player extends User
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score)
 	{
-		super(username, nickname, password);
+		super(username, nickname, password, null);
 		this.civilization = civilization;
 		this.happiness = 100;
 		gameController = GameController.getInstance();

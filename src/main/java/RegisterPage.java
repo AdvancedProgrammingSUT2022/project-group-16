@@ -6,11 +6,19 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import Models.Menu.Menu;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.scene.image.ImageView;
 
+import javax.swing.*;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class RegisterPage extends Application {
@@ -19,6 +27,8 @@ public class RegisterPage extends Application {
     public TextField password;
     public VBox VBox;
     public TextField nickname;
+    public Pane list;
+    private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.png");
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -67,7 +77,7 @@ public class RegisterPage extends Application {
                         setText("please enter password");
         }
         else if(!(message = registerController.createUser(username.getText(), password.getText(),
-                nickname.getText())).equals(registerEnum.successfulCreate.regex)) {
+                nickname.getText(), guestImage)).equals(registerEnum.successfulCreate.regex)) {
             if(VBox.getChildren().size() == 8) {
                 Text text = new Text();
                 text.setText(message);

@@ -3,13 +3,21 @@ package Controllers;
 import Models.Menu.Menu;
 import Models.User;
 import com.google.gson.*;
+import com.sun.jna.platform.win32.WinGDI;
 import enums.mainCommands;
 import enums.registerEnum;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.Matcher;
 
 public class RegisterController {
+
+	private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.png");
 
 	public void updateDatabase()
 	{
@@ -102,8 +110,7 @@ public class RegisterController {
 		return matcher;
 	}
 
-	public String checkLineForRegister(String command)
-	{
+	public String checkLineForRegister(String command) throws MalformedURLException {
 		Matcher usernameMatcher = null;
 		Matcher passwordMatcher = null;
 		Matcher nicknameMatcher = null;
@@ -120,14 +127,13 @@ public class RegisterController {
 		if(usernameMatcher != null && nicknameMatcher != null && passwordMatcher != null)
 		{
 			return createUser(usernameMatcher.group("username"),
-					passwordMatcher.group("password"), nicknameMatcher.group("nickname"));
+					passwordMatcher.group("password"), nicknameMatcher.group("nickname"), guestImage);
 		}
 		else
 			return mainCommands.invalidCommand.regex;
 	}
 
-	public String createUser(String username, String password, String nickname)
-	{
+	public String createUser(String username, String password, String nickname, URL photo) {
 		if (getUserByUsername(username) != null)
 			return (mainCommands.specificUsername.regex + username + mainCommands.alreadyExist.regex);
 		else if (doesNicknameExist(nickname))
@@ -136,7 +142,7 @@ public class RegisterController {
 			return mainCommands.weakPass.regex;
 		else
 		{
-			Menu.allUsers.add(new User(username, nickname, password));
+			Menu.allUsers.add(new User(username, nickname, password, photo));
 			writeDataOnJson();
 			return registerEnum.successfulCreate.regex;
 		}
