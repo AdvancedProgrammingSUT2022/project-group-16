@@ -2,23 +2,17 @@ import Models.Menu.Menu;
 import Models.User;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import javafx.scene.image.ImageView;
-import java.awt.*;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Comparator;
 
 public class MainMenu extends Application {
@@ -58,29 +52,9 @@ public class MainMenu extends Application {
         newGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
-    public void scoreBoard(MouseEvent mouseEvent) {
-        disableMenu(true);
-        VBox vBox = new VBox();
-        Menu.allUsers.sort(Comparator.comparing(User::getScore));
-        for(int i = Menu.allUsers.size() - 1; i >= 0; i--) {
-            User user = Menu.allUsers.get(i);
-            Label label = new Label();
-            label.setText((Menu.allUsers.size() - i) + ": " + user.getUsername() + " - " + user.getScore());
-            label.setStyle("-fx-background-color: #ff7300; -fx-alignment: center;-fx-text-fill: white; -fx-border-color: black; -fx-border-width: 5; -fx-border-radius: 5; -fx-background-radius: 7;-fx-pref-width: 250");
-            vBox.getChildren().add(label);
-        }
-        Button button = new Button();
-        button.setText("back");
-        setButtonStyle(button);
-        button.setOnMouseMoved(mouseEvent1 -> setHoverButtonStyle(button));
-        button.setOnMouseExited(mouseEvent12 -> setButtonStyle(button));
-        button.setOnMousePressed(mouseEvent1 -> {
-            list.getChildren().remove(list.getChildren().size() - 1);
-            disableMenu(false);
-        });
-        vBox.getChildren().add(button);
-        setVboxStyle(vBox);
-        list.getChildren().add(vBox);
+    public void scoreBoard(MouseEvent mouseEvent) throws Exception {
+        ScoreBoard scoreBoard = new ScoreBoard();
+        scoreBoard.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
     private void setVboxStyle(VBox vBox) {
         vBox.setLayoutX(700);

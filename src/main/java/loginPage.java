@@ -86,6 +86,8 @@ public class loginPage extends Application {
             if(borderPane.getChildren().size() == 8)
                 borderPane.getChildren().remove(borderPane.getChildren().size() - 1);
             Menu.loggedInUser = registerController.getUserByUsername(username.getText());
+            Menu.loggedInUser.setLastLogin(Menu.loggedInUser.getLastLogin() + Main.timerCounter);
+            registerController.writeDataOnJson();
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             mainMenu.start(stage);

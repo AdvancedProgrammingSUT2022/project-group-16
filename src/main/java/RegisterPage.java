@@ -92,6 +92,8 @@ public class RegisterPage extends Application {
             if(VBox.getChildren().size() == 9)
                 VBox.getChildren().remove(VBox.getChildren().size() - 1);
             Menu.loggedInUser = registerController.getUserByUsername(username.getText());
+            Menu.loggedInUser.setLastLogin(Menu.loggedInUser.getLastLogin() + Main.timerCounter);
+            registerController.writeDataOnJson();
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             mainMenu.start(stage);

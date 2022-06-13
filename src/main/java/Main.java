@@ -9,11 +9,21 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main extends Application
 {
+	public static Timer timer = new Timer();
+	public static long timerCounter = 0;
 	@Override
 	public void start(Stage stage) throws Exception {
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				timerCounter++;
+			}
+		}, 1, 1000);
 		AudioClip audioClip = new AudioClip(Main.class.getResource("audio/1.mp3").toExternalForm());
 		audioClip.play();
 		WelcomePage welcomePage = new WelcomePage();

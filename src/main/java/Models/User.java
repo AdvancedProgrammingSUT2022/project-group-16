@@ -8,7 +8,9 @@ public class User
 	private String nickname;
 	private String password;
 	private URL photo;
-	private int score;
+	private long lastTimeOfWin = 0;
+	private long lastLogin = 0;
+	private int score = 0;
 	
 	public User(String username, String nickname, String password, URL photo)
 	{
@@ -16,7 +18,6 @@ public class User
 		this.nickname = nickname;
 		this.password = password;
 		this.photo = photo;
-		this.score = 0;
 	}
 	
 	public String getUsername()
@@ -44,6 +45,18 @@ public class User
 	}
 	public void setPhoto(URL photo) {
 		this.photo = photo;
+	}
+	public long getLastTimeOfWin() {
+		return lastTimeOfWin;
+	}
+	public void setLastTimeOfWin(long lastTimeOfWin) {
+		this.lastTimeOfWin = lastTimeOfWin;
+	}
+	public long getLastLogin() {
+		return lastLogin;
+	}
+	public void setLastLogin(long lastLogin) {
+		this.lastLogin = lastLogin;
 	}
 	public int getScore()
 	{
