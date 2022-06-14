@@ -28,7 +28,7 @@ public class MainMenu extends Application {
         launch(args);
     }
 
-    public void exit(MouseEvent mouseEvent) {
+    public void exit() {
         Platform.exit();
     }
 
@@ -56,43 +56,4 @@ public class MainMenu extends Application {
         ScoreBoard scoreBoard = new ScoreBoard();
         scoreBoard.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
-    private void setVboxStyle(VBox vBox) {
-        vBox.setLayoutX(700);
-        vBox.setLayoutY(100);
-        vBox.setSpacing(5);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.setStyle("-fx-background-color: rgb(255,166,0); " +
-                "-fx-font-size: 25;" +
-                "-fx-border-color: black; " +
-                "-fx-border-width: 7; " +
-                "-fx-border-radius: 100; " +
-                "-fx-background-radius: 110;" +
-                "-fx-pref-width: 450;" +
-                "-fx-pref-height: 550");
-    }
-    private void setButtonStyle(Button button) {
-        button.setStyle("-fx-background-color: #ff7300;" +
-                "-fx-text-fill: white;" +
-                "-fx-border-color: #111111;" +
-                "-fx-border-width: 4;" +
-                "-fx-border-radius: 5;" +
-                "-fx-background-radius: 8");
-    }
-    private void setHoverButtonStyle(Button button) {
-        button.setStyle("-fx-background-color: rgb(255,47,0);" +
-                "-fx-text-fill: white;" +
-                "-fx-border-color: #111111;" +
-                "-fx-border-width: 4;" +
-                "-fx-border-radius: 5;" +
-                "-fx-background-radius: 8");
-    }
-    public void disableMenu(boolean e) {
-        list.getChildren().get(0).setDisable(e);
-        list.getChildren().get(1).setDisable(e);
-        list.getChildren().get(2).setDisable(e);
-        list.getChildren().get(3).setDisable(e);
-        list.getChildren().get(4).setDisable(e);
-        list.getChildren().get(5).setDisable(e);
-    }
-
 }

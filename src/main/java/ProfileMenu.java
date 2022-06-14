@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -19,8 +20,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -28,6 +32,12 @@ public class ProfileMenu extends Application {
     public Pane list;
     private final RegisterController registerController = new RegisterController();
 
+    public void initialize() {
+        list.getChildren().get(0).setOnMouseMoved(mouseEvent1 ->
+                ((Node) mouseEvent1.getSource()).getScene().setCursor(Cursor.HAND));
+        list.getChildren().get(0).setOnMouseExited(mouseEvent1 ->
+                ((Node) mouseEvent1.getSource()).getScene().setCursor(Cursor.DEFAULT));
+    }
     @Override
     public void start(Stage stage) throws Exception {
         stage.setScene(new Scene(FXMLLoader.load(new
@@ -165,7 +175,7 @@ public class ProfileMenu extends Application {
         vBox.setStyle("-fx-background-color: rgba(0,76,107,0.57); -fx-pref-height: 250; " +
                 "-fx-pref-width: 500; -fx-background-radius: 100; -fx-border-width: 10; " +
                 "-fx-border-color: #000088; -fx-border-radius: 100");
-        vBox.setStyle("-fx-background-color: rgba(0,76,107,0.57); -fx-pref-height: 400; " +
+        vBox.setStyle("-fx-background-color: rgba(0,76,107,0.57); -fx-pref-height: 500; " +
                 "-fx-pref-width: 500; -fx-background-radius: 100; -fx-border-width: 10; " +
                 "-fx-border-color: #000088; -fx-border-radius: 100");
         Pane pane = new Pane();
@@ -196,6 +206,8 @@ public class ProfileMenu extends Application {
             int flag = i;
             tmp.setOnMousePressed(mouseEvent12 -> {
                 try {
+                    if(vBox.getChildren().size() == 5)
+                        vBox.getChildren().remove(vBox.getChildren().size() - 1);
                     Menu.loggedInUser.setPhoto(new URL(getClass().getResource("photos/profilePhotos/avatar" +
                             (flag + 1) + ".png").toExternalForm()));
                     ((ImageView) list.getChildren().get(2)).setImage(new Image(String.valueOf(Menu.loggedInUser.getPhoto())));
@@ -207,13 +219,39 @@ public class ProfileMenu extends Application {
         }
         vBox.getChildren().add(pane);
         vBox.getChildren().add(new Button());
-        Button button = (Button) vBox.getChildren().get(vBox.getChildren().size() - 1);
-        button.setText("back");
-        button.setOnAction(e -> {
+        vBox.getChildren().add(new Button());
+        Button button1 = (Button) vBox.getChildren().get(vBox.getChildren().size() - 1);
+        Button button2 = (Button) vBox.getChildren().get(vBox.getChildren().size() - 2);
+        button1.setText("back");
+        button2.setText("browser");
+        button1.setOnAction(e -> {
             list.getChildren().remove(list.getChildren().size() - 1);
             list.getChildren().get(0).setDisable(false);
             list.getChildren().remove(1);
             list.getChildren().remove(1);
+        });
+        button2.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            File path = fileChooser.showOpenDialog((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+            String url = path.toString();
+            if(!correctImagePath(url)) {
+                Text text = new Text();
+                text.setStyle("-fx-fill: red");
+                text.setText("wrong path");
+                if(vBox.getChildren().size() == 4)
+                    vBox.getChildren().add(text);
+            }
+            else {
+                if(vBox.getChildren().size() == 5)
+                    vBox.getChildren().remove(vBox.getChildren().size() - 1);
+                try {
+                    Menu.loggedInUser.setPhoto(path.toURI().toURL());
+                    registerController.writeDataOnJson();
+                    ((ImageView) list.getChildren().get(2)).setImage(new Image(String.valueOf(Menu.loggedInUser.getPhoto())));
+                } catch (MalformedURLException ex) {
+                    ex.printStackTrace();
+                }
+            }
         });
         for(int i = 0; i < 4; i++) {
             int flag = i;
@@ -226,6 +264,13 @@ public class ProfileMenu extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(390);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(200);
         list.getChildren().get(0).setDisable(true);
+    }
+    private boolean correctImagePath(String url) {
+        int length = url.length();
+        return ((url.charAt(length - 4) == '.' && url.charAt(length - 3) == 'j' &&
+                url.charAt(length - 2) == 'p' && url.charAt(length - 1) == 'g') ||
+                (url.charAt(length - 4) == '.' && url.charAt(length - 3) == 'p' &&
+                url.charAt(length - 2) == 'n' && url.charAt(length - 1) == 'g'));
     }
     private void setImageStyle(ImageView imageView, Pane pane) {
         pane.getChildren().get(pane.getChildren().indexOf(imageView) - 1).setStyle("-fx-fill: red");

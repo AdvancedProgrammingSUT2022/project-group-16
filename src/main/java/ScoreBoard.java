@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -23,7 +24,17 @@ public class ScoreBoard extends Application {
 
     public void initialize() {
         photos.setAlignment(Pos.CENTER);
-        vBox.setSpacing(80);
+        vBox.setSpacing(82);
+        vBox.setOnScroll((ScrollEvent event) -> {
+            double yScale = 30;
+            double deltaY = event.getDeltaY();
+            if (deltaY < 0)
+                yScale *= -1;
+            if((vBox.getLayoutY() + vBox.getHeight() > 650 && yScale < 0) || vBox.getLayoutY() < 40 && yScale > 0) {
+                vBox.setLayoutY(vBox.getLayoutY() + yScale);
+                photos.setLayoutY(photos.getLayoutY() + yScale);
+            }
+        });
         photos.setSpacing(20);
         for(User user : Menu.allUsers)
             user.setScore(user.getScore() * -1);
@@ -51,9 +62,9 @@ public class ScoreBoard extends Application {
         list.getChildren().add(photos);
         list.getChildren().add(vBox);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(130);
-        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(130);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(40);
         list.getChildren().get(list.getChildren().size() - 2).setLayoutX(1100);
-        list.getChildren().get(list.getChildren().size() - 2).setLayoutY(130);
+        list.getChildren().get(list.getChildren().size() - 2).setLayoutY(8);
     }
     private void setLabelStyle(Label label) {
         label.setStyle("-fx-font-size: 30; " +

@@ -18,7 +18,7 @@
         <stylesheets>
                 <URL value="@../styles/newGame.css"/>
         </stylesheets>
-        <Rectangle width="1160" height="590" x="60" y="95" styleClass="Rectangle"/>
-        <ImageView fitWidth="1150" fitHeight="580" x="65" y="100" styleClass="frontBackground"/>
-        <Button text="back" styleClass="Button" onMouseClicked="#backToMainMenu"/>
+        <Rectangle width="1160" height="730" x="60" y="-10" styleClass="Rectangle"/>
+        <ImageView fitWidth="1150" fitHeight="720" x="65" y="0" styleClass="frontBackground"/>
+        <Button layoutY="667" text="back" styleClass="Button" onMouseClicked="#backToMainMenu"/>
 </Pane>
