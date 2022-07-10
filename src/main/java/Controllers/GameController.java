@@ -1839,4 +1839,17 @@ public class GameController
 		}
 		return gameEnum.nonSelect.regex;
 	}
+	private BuildingType[] accessibleBuildings(Player playerTurn){
+		BuildingType[] buildingTypes = BuildingType.values();
+		for (BuildingType buildingType : buildingTypes) {
+			if(!playerTurn.getTechnologies().contains(buildingType.requiredTechnology) || playerHasBuilding(playerTurn, buildingType)){
+
+			}
+		}
+		return null;
+	}
+
+	private boolean playerHasBuilding(Player playerTurn, BuildingType buildingType) {
+		return false;
+	}
 }

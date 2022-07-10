@@ -20,7 +20,7 @@ import enums.gameCommands.unitCommands;
 
 import java.util.ArrayList;
 
-public abstract class Unit implements Construction
+public abstract class Unit extends Construction
 {
 	private Player rulerPlayer;
 	private int productionCost;
@@ -38,6 +38,10 @@ public abstract class Unit implements Construction
 	private UnitState unitState = UnitState.ACTIVE;
 	private Tile destination = null;
 
+
+	public String toString(){
+		return "Unit";
+	}
 
 	public Player getRulerPlayer() {
 		return rulerPlayer;
@@ -125,7 +129,7 @@ public abstract class Unit implements Construction
 	public void setMoves(ArrayList<Position> moves) {
 		this.moves = moves;
 	}
-	public boolean isHasArrived() {
+	public boolean HasArrived() {
 		return hasArrived;
 	}
 

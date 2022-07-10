@@ -2,7 +2,7 @@ package Models.City;
 
 import Models.Terrain.Tile;
 
-public class Building implements Construction
+public class Building extends Construction
 {
 	private final BuildingType buildingType;
 	private final Tile tile;
@@ -40,6 +40,9 @@ public class Building implements Construction
 		if(buildingType.equals(BuildingType.SATRAPS_COURT)) return 2;
 		if(buildingType.equals(BuildingType.THEATER)) return 4;
 		return 0;
+	}
+	public String toString(){
+		return "Building";
 	}
 }
 
