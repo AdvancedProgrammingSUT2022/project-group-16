@@ -131,6 +131,8 @@ public class City
 				continue;
 			Tile workingTile = citizen.getWorkingTile();
 			gainingFood += workingTile.getTileType().food + workingTile.getTileFeature().food + workingTile.getImprovement().foodYield;
+			if(workingTile.getResource() == null)
+				continue;
 			if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
 				gainingFood += workingTile.getResource().getRESOURCE_TYPE().food;
 		}
@@ -150,6 +152,10 @@ public class City
 				continue;
 			Tile workingTile = citizen.getWorkingTile();
 			gainingGold += workingTile.getTileType().gold + workingTile.getTileFeature().gold + workingTile.getImprovement().goldYield;
+			
+			if(workingTile.getResource() == null)
+				continue;
+			
 			if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
 				gainingGold += workingTile.getResource().getRESOURCE_TYPE().gold;
 		}

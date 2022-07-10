@@ -1,0 +1,13 @@
+.background {
+    -fx-background-image: url("../photos/backgrounds/scoreBoard.jpg"); /*by amazon.ko.uk*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+.frontBackground {
+    -fx-image: url("../photos/backgrounds/panels.jpg"); /*by amazon.ko.uk*/
+    -fx-background-repeat: no-repeat;
+    -fx-opacity: 0.8;
+}
+.Rectangle {
+    -fx-fill: white;
+}

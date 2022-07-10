@@ -20,7 +20,8 @@ public class loginPage extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        registerController.updateDatabase(); //update arraylist of users and get old users
+        if(Menu.allUsers.size() == 0)
+            registerController.updateDatabase(); //update arraylist of users and get old users
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/loginPage.fxml").toExternalForm()))));
         stage.show();
@@ -85,6 +86,8 @@ public class loginPage extends Application {
             if(borderPane.getChildren().size() == 8)
                 borderPane.getChildren().remove(borderPane.getChildren().size() - 1);
             Menu.loggedInUser = registerController.getUserByUsername(username.getText());
+            Menu.loggedInUser.setLastLogin(Menu.loggedInUser.getLastLogin() + Main.timerCounter);
+            registerController.writeDataOnJson();
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             mainMenu.start(stage);
