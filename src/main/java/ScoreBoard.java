@@ -24,7 +24,7 @@ public class ScoreBoard extends Application {
 
     public void initialize() {
         photos.setAlignment(Pos.CENTER);
-        vBox.setSpacing(82);
+        vBox.setSpacing(90);
         vBox.setOnScroll((ScrollEvent event) -> {
             double yScale = 30;
             double deltaY = event.getDeltaY();
@@ -67,11 +67,11 @@ public class ScoreBoard extends Application {
         list.getChildren().get(list.getChildren().size() - 2).setLayoutY(8);
     }
     private void setLabelStyle(Label label) {
-        label.setStyle("-fx-font-size: 30; " +
+        label.setStyle("-fx-font-size: 24; " +
                 "-fx-text-fill: white");
     }
     private void setLoggedInLabelStyle(Label label) {
-        label.setStyle("-fx-font-size: 30; " +
+        label.setStyle("-fx-font-size: 24; " +
                 "-fx-text-fill: white;" +
                 "-fx-background-color: black;" +
                 "-fx-background-radius: 4;" +

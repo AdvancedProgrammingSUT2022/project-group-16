@@ -17,6 +17,7 @@ import Models.User;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Player extends User
@@ -48,8 +49,7 @@ public class Player extends User
 	private int tilePurchaseCost = 10; //increases every time the player purchases a tile
 	private boolean isUnHappy = false;
 
-	public Player(Civilization civilization, String username, String nickname, String password, int score)
-	{
+	public Player(Civilization civilization, String username, String nickname, String password, int score) throws IOException {
 		super(username, nickname, password, null);
 		this.civilization = civilization;
 		this.happiness = 100;

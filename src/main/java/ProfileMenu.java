@@ -237,7 +237,7 @@ public class ProfileMenu extends Application {
             if(!correctImagePath(url)) {
                 Text text = new Text();
                 text.setStyle("-fx-fill: red");
-                text.setText("wrong path");
+                text.setText("invalid");
                 if(vBox.getChildren().size() == 4)
                     vBox.getChildren().add(text);
             }

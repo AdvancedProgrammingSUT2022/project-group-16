@@ -27,6 +27,7 @@ import enums.gameCommands.unitCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -176,8 +177,7 @@ public class GameController
 		return MapPrinter.getMapString(player);
 	}
 	// this method returns a mapString that all it's tiles are visible
-	public String getRawMapString()
-	{
+	public String getRawMapString() throws IOException {
 		Player tmpPlayer = new Player(Civilization.PERSIAN, "tmpPlayer", "tmpPlayer", "tmpPlayer", 0);
 		tmpPlayer.getMap().replaceAll((k, v) -> TileState.VISIBLE);
 		

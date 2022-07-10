@@ -18,6 +18,7 @@ import enums.gameCommands.*;
 import enums.gameEnum;
 import enums.mainCommands;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 
@@ -505,7 +506,7 @@ public class gameMenuView
             System.out.println((i + 1) + "-" + civilization + ": " + civilization.leaderName);
         }
     }
-    private static void pickCivilizationAndCreatePlayers(Scanner scanner, ArrayList<User> usersToPlay) // and create players
+    private static void pickCivilizationAndCreatePlayers(Scanner scanner, ArrayList<User> usersToPlay) throws IOException // and create players
     {
         for(User user : usersToPlay)
         {
@@ -540,8 +541,7 @@ public class gameMenuView
         }
         System.out.println("game started !!!!!!");
     }
-    public static void runGame(Scanner scanner, HashMap<String, String> usersInfo)
-    {
+    public static void runGame(Scanner scanner, HashMap<String, String> usersInfo) throws IOException {
         Matcher matcher;
         ArrayList<User> tmpUsers = gameController.convertMapToArr(usersInfo); //Note: user[0] is loggedInUser! [loggedInUser, user1, user2, ...]
         pickCivilizationAndCreatePlayers(scanner, tmpUsers);
@@ -851,8 +851,7 @@ public class gameMenuView
 //            gameController.updateWorkersConstructions();
 //        } while (gameController.getPlayers().size() > 0);
     }
-    public static void runGameMenu()
-    {
+    public static void runGameMenu() throws IOException {
         String command;
         Scanner scanner = new Scanner(System.in);
         Matcher matcher;

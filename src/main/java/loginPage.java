@@ -1,4 +1,5 @@
 import Controllers.RegisterController;
+import Models.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -10,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.net.URL;
+import java.time.LocalDateTime;
 
 public class loginPage extends Application {
     public TextField username;
@@ -86,7 +88,8 @@ public class loginPage extends Application {
             if(borderPane.getChildren().size() == 8)
                 borderPane.getChildren().remove(borderPane.getChildren().size() - 1);
             Menu.loggedInUser = registerController.getUserByUsername(username.getText());
-            Menu.loggedInUser.setLastLogin(Menu.loggedInUser.getLastLogin() + Main.timerCounter);
+            LocalDateTime now = LocalDateTime.now();
+            Menu.loggedInUser.setLastLogin(String.valueOf(Main.timeAndDate.format(now)));
             registerController.writeDataOnJson();
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();

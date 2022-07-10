@@ -1,6 +1,10 @@
 package Models;
 
+import Models.chat.Message;
+
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class User
 {
@@ -8,12 +12,12 @@ public class User
 	private String nickname;
 	private String password;
 	private URL photo;
-	private long lastTimeOfWin = 0;
-	private long lastLogin = 0;
+	private long lastTimeOfWin;
+	private String lastLogin;
 	private int score = 0;
-	
-	public User(String username, String nickname, String password, URL photo)
-	{
+	private HashMap<String, ArrayList<Message>> privateChats = new HashMap<>();
+
+	public User(String username, String nickname, String password, URL photo) {
 		this.username = username;
 		this.nickname = nickname;
 		this.password = password;
@@ -52,10 +56,10 @@ public class User
 	public void setLastTimeOfWin(long lastTimeOfWin) {
 		this.lastTimeOfWin = lastTimeOfWin;
 	}
-	public long getLastLogin() {
+	public String getLastLogin() {
 		return lastLogin;
 	}
-	public void setLastLogin(long lastLogin) {
+	public void setLastLogin(String lastLogin) {
 		this.lastLogin = lastLogin;
 	}
 	public int getScore()
@@ -67,4 +71,7 @@ public class User
 		this.score = score;
 	}
 
+	public HashMap<String, ArrayList<Message>> getPrivateChats() {
+		return privateChats;
+	}
 }

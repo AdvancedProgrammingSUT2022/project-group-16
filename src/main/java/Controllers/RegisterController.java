@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 
 public class RegisterController {
 
-	private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.png");
+	private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.jpg");
 
 	public void updateDatabase()
 	{
@@ -110,7 +110,7 @@ public class RegisterController {
 		return matcher;
 	}
 
-	public String checkLineForRegister(String command) throws MalformedURLException {
+	public String checkLineForRegister(String command) throws IOException {
 		Matcher usernameMatcher = null;
 		Matcher passwordMatcher = null;
 		Matcher nicknameMatcher = null;
@@ -133,7 +133,7 @@ public class RegisterController {
 			return mainCommands.invalidCommand.regex;
 	}
 
-	public String createUser(String username, String password, String nickname, URL photo) {
+	public String createUser(String username, String password, String nickname, URL photo) throws IOException {
 		if (getUserByUsername(username) != null)
 			return (mainCommands.specificUsername.regex + username + mainCommands.alreadyExist.regex);
 		else if (doesNicknameExist(nickname))

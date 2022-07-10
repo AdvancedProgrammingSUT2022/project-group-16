@@ -1,4 +1,5 @@
 import Controllers.RegisterController;
+import Models.User;
 import enums.registerEnum;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,8 @@ import javax.swing.*;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class RegisterPage extends Application {
     private final RegisterController registerController = new RegisterController();
@@ -28,7 +31,7 @@ public class RegisterPage extends Application {
     public VBox VBox;
     public TextField nickname;
     public Pane list;
-    private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.png");
+    private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.jpg");
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -92,7 +95,11 @@ public class RegisterPage extends Application {
             if(VBox.getChildren().size() == 9)
                 VBox.getChildren().remove(VBox.getChildren().size() - 1);
             Menu.loggedInUser = registerController.getUserByUsername(username.getText());
-            Menu.loggedInUser.setLastLogin(Menu.loggedInUser.getLastLogin() + Main.timerCounter);
+            LocalDateTime now = LocalDateTime.now();
+            Menu.loggedInUser.setLastLogin(Main.timeAndDate.format(now));
+            for (User user : Menu.allUsers)
+                if(user != Menu.loggedInUser)
+                    Menu.loggedInUser.getPrivateChats().put(user.getUsername(),new ArrayList<>());
             registerController.writeDataOnJson();
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();

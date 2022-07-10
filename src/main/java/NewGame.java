@@ -20,6 +20,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -172,6 +174,7 @@ public class NewGame extends Application {
                         Game game = new Game();
                         try {
                             game.start((Stage) list.getScene().getWindow());
+                            Main.audioClip.stop();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -180,8 +183,12 @@ public class NewGame extends Application {
                 }
                 button.setDisable(true);
                 list.getChildren().get(list.getChildren().size() - 1).setDisable(true);
-                gameController.addPlayer(new Player(Civilization.values()[buttons.indexOf(button)], user.getUsername(),
-                        user.getNickname(), user.getPassword(), user.getScore()));
+                try {
+                    gameController.addPlayer(new Player(Civilization.values()[buttons.indexOf(button)], user.getUsername(),
+                            user.getNickname(), user.getPassword(), user.getScore()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 list.getChildren().add(choosePlayer);
                 choosePlayer.setOnMouseMoved(mouseEvent1 -> setHoverChooseButtonStyle(choosePlayer));
                 choosePlayer.setOnMouseExited(mouseEvent1 -> setChooseButtonStyle(choosePlayer));

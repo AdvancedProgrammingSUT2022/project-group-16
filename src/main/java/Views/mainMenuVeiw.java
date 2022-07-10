@@ -4,13 +4,13 @@ import Controllers.MainMenuController;
 import enums.mainCommands;
 import enums.mainMenuEnum;
 
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
 public class mainMenuVeiw
 {
-    public static void run(Scanner scanner)
-    {
+    public static void run(Scanner scanner) throws IOException {
         MainMenuController mainMenuController = new MainMenuController();
         String command;
         Matcher matcher;

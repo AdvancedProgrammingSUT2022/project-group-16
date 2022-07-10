@@ -4,12 +4,13 @@ import Controllers.RegisterController;
 import enums.mainCommands;
 import enums.registerEnum;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Scanner;
 
 public class registerAndLoginView
 {
-	public static void run() throws MalformedURLException {
+	public static void run() throws IOException {
 		RegisterController registerController = new RegisterController();
 		registerController.updateDatabase(); //update arraylist of users and get old users
 		Scanner scanner = new Scanner(System.in);
