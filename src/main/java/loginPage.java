@@ -1,5 +1,6 @@
 import Controllers.RegisterController;
 import Models.User;
+import Models.chat.Message;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

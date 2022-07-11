@@ -15,7 +15,7 @@ public class User
 	private long lastTimeOfWin;
 	private String lastLogin;
 	private int score = 0;
-	private HashMap<String, ArrayList<Message>> privateChats = new HashMap<>();
+	private final HashMap<String, ArrayList<Message>> privateChats = new HashMap<>();
 
 	public User(String username, String nickname, String password, URL photo) {
 		this.username = username;
@@ -70,7 +70,6 @@ public class User
 	{
 		this.score = score;
 	}
-
 	public HashMap<String, ArrayList<Message>> getPrivateChats() {
 		return privateChats;
 	}

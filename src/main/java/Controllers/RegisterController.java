@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 public class RegisterController {
@@ -27,12 +28,14 @@ public class RegisterController {
 			if(arr != null)
 			{
 				arr = arr.substring(1,arr.length() - 1);
-				String[] splitedArr = arr.split("},");
+				String regex = "}," + "\\{" + "\"u";
+				String[] splitedArr = arr.split(regex);
 				for(int i = 0; i < splitedArr.length; i++)
 				{
-					if(i != splitedArr.length - 1){
+					if(i != splitedArr.length - 1)
 						splitedArr[i] += "}";
-					}
+					if(i != 0)
+						splitedArr[i] = "{\"u" + splitedArr[i];
 					Menu.allUsers.add(gson.fromJson(splitedArr[i], User.class));
 				}
 			}

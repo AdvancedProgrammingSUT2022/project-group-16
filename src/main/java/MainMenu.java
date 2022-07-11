@@ -19,13 +19,9 @@ import java.util.Comparator;
 
 public class MainMenu extends Application {
     public Pane list;
-    private final RegisterController registerController = new RegisterController();
 
     @Override
     public void start(Stage stage) throws Exception {
-        Menu.loggedInUser.getPrivateChats().get("amir").add(new Message(Menu.loggedInUser, "salam"));
-        Menu.loggedInUser.getPrivateChats().get("amir").add(new Message(Menu.loggedInUser, "chetori?"));
-        Menu.loggedInUser.getPrivateChats().get("amir").add(new Message(registerController.getUserByUsername("amir"), "qorbanet?"));
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/mainMenu.fxml").toExternalForm()))));
         stage.show();
