@@ -39,7 +39,7 @@ public class Player extends User
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private final HashMap<Tile, TileState> map;
-	private final ArrayList<City> cities = new ArrayList<>();
+	private ArrayList<City> cities = null;
 	private final ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
@@ -93,10 +93,6 @@ public class Player extends User
 	public Civilization getCivilization()
 	{
 		return civilization;
-	}
-	public void setCapitalCity(City city)
-	{
-		currentCapitalCity = city;
 	}
 
 	public int getTilePurchaseCost() {
@@ -272,7 +268,16 @@ public class Player extends User
 	}
 	public void addCity(City newCity)
 	{
+		if(this.cities == null){
+			this.cities = new ArrayList<>();
+			this.initialCapitalCity = newCity;
+			setCapitalCity(newCity);
+		}
 		cities.add(newCity);
+	}
+	public void setCapitalCity(City city){
+		this.currentCapitalCity = city;
+		city.getBuildings().add(new Building(BuildingType.PALACE, city.getCapitalTile()));
 	}
 	//TODO: set tile states maybe????!!!
 	public ArrayList<City> getCities()

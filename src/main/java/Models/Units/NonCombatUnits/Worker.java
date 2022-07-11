@@ -30,6 +30,10 @@ public class Worker extends NonCombatUnit{
         rulerPlayer.addUnit(this);
         addImprovement();
     }
+    //for mocking a unit while constructing in city
+    public Worker() {
+
+    }
 
     private void addImprovement(){
         improvements.add(Improvement.FARM);

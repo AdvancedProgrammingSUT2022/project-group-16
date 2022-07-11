@@ -25,7 +25,6 @@ public class City
 	private  ArrayList<Building> buildings = new ArrayList<>();
 	private  ArrayList<Citizen> citizens = new ArrayList<>();
 	private Construction currentConstruction = null;
-	private int inLineConstructionTurn = 4; //how many turns are left till the construction is ready
 	private Product currentProduct = null; //what the city is producing
 	private CombatUnit garrison = null;
 	private NonCombatUnit nonCombatUnit = null;
@@ -66,10 +65,6 @@ public class City
 		return null; // there is no more city
 	}
 
-
-	public int getInLineConstructionTurn() {
-		return inLineConstructionTurn;
-	}
 
 	public ArrayList<Citizen> getCitizens() {
 		return citizens;
@@ -282,10 +277,10 @@ public class City
 			if(construction.toString() != null && construction.toString().equals("WORKER"))
 				rulerPlayer.setGold(rulerPlayer.getGold() - 70);
 			currentConstruction = construction;
-			inLineConstructionTurn = 4;
+			construction.setTurnTillBuild(4);
 			return null;
 		}
-		if(inLineConstructionTurn == 1)
+		if(construction.getTurnTillBuild() == 1)
 		{
 			Tile destination;
 			System.out.println(currentConstruction);
@@ -309,12 +304,12 @@ public class City
 					return "no tile empty";
 				new Worker(rulerPlayer, destination);
 			}
-			inLineConstructionTurn = 4;
+			construction.setTurnTillBuild(4);
 			currentConstruction = null;
 			return null;
 		}
-		if(inLineConstructionTurn <= 4 && currentConstruction != null) {
-			inLineConstructionTurn--;
+		if(construction.getTurnTillBuild() <= 4 && currentConstruction != null) {
+			construction.setTurnTillBuild(construction.getTurnTillBuild() - 1);
 			return null;
 		}
 		return "something else is being constructed or there is nothing to construct";
@@ -364,9 +359,24 @@ public class City
 		this.state = CityState.ATTACHED;
 	}
 	public void seizeCity(Player winner){
+		clearMilitaryBuildings();
 		this.rulerPlayer = winner;
 		this.state = CityState.SEIZED;
 		winner.getSeizedCities().add(this);
+	}
+
+	private void clearMilitaryBuildings() {
+		for (int i = 0; i < this.buildings.size(); i++) {
+			if(buildings.get(i).getBuildingType().equals(BuildingType.BARRACKS) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.ARMORY)||
+					buildings.get(i).getBuildingType().equals(BuildingType.TEMPLE) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.MONASTERY) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.MILITARY_ACADEMY) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.ARSENAL) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.MILITARY_BASE)){
+				this.buildings.remove(i);
+			}
+		}
 	}
 
 	public void updateCityCombatStrength()

@@ -44,7 +44,7 @@ public class GameController
 	private int turnCounter = 0;
 	
 	// private constructor to prevent instantiation
-	public GameController()
+	private GameController()
 	{
 		initGrid();
 		initMap();
@@ -1677,7 +1677,7 @@ public class GameController
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(type, this);
+					return playerTurn.getSelectedCity().construct(new MidRange(), this);
 				}
 				else if(containTypeLong(type))
 				{
@@ -1685,7 +1685,7 @@ public class GameController
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(type, this);
+					return playerTurn.getSelectedCity().construct(new LongRange(), this);
 				}
 				else if(type.equals("SETTLER"))
 				{
@@ -1693,7 +1693,7 @@ public class GameController
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(type, this);
+					return playerTurn.getSelectedCity().construct(new Settler(), this);
 				}
 				else if(type.equals("WORKER"))
 				{
@@ -1701,7 +1701,7 @@ public class GameController
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(type, this);
+					return playerTurn.getSelectedCity().construct(new Worker(), this);
 				}
 				return null;
 			}

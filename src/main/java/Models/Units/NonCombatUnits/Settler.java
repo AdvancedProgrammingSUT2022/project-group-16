@@ -17,6 +17,10 @@ public class Settler extends NonCombatUnit{
         this.setRequiredResource(null);
         rulerPlayer.addUnit(this);
     }
+    //for mocking a unit while constructing in city
+    public Settler() {
+
+    }
 
     private boolean theTileIsInAnotherCity(){
         for (City city : this.getRulerPlayer().getCities()) {

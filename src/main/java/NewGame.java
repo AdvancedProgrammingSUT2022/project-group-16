@@ -27,7 +27,7 @@ import java.util.Objects;
 
 public class NewGame extends Application {
     private final ArrayList<Button> buttons = new ArrayList<>();
-    private final GameController gameController = new GameController();
+    private final GameController gameController = GameController.getInstance();
     public Pane list;
     private User user = Menu.loggedInUser;
 

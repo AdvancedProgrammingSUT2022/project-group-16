@@ -18,6 +18,10 @@ public class MidRange extends CombatUnit{
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
     }
+    //for mocking a unit while constructing in city
+    public MidRange() {
+
+    }
 
     public MidRangeType getType() {
         return type;
