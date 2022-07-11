@@ -10,7 +10,7 @@ public class Main extends Application
 	@Override
 	public void start(Stage stage) throws Exception {
 		AudioClip audioClip = new AudioClip(Main.class.getResource("audio/1.mp3").toExternalForm());
-		audioClip.play();
+//		audioClip.play();
 		WelcomePage welcomePage = new WelcomePage();
 		welcomePage.start(stage);
 	}

@@ -14,6 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -101,7 +102,7 @@ public class ChatMenu extends Application {
                 ArrayList<Message> messages = Menu.loggedInUser.getPrivateChats().get(receiver.getUsername());
                 Label label = new Label();
                 messageStyleSender(label, messages.get(messages.size() - 1).getMessage());
-                ((VBox) list.getChildren().get(length - 2)).getChildren().add(label);
+                ((VBox) list.getChildren().get(1)).getChildren().add(label);
                 typeMessage.setText(null);
             }
 
@@ -120,9 +121,13 @@ public class ChatMenu extends Application {
         usersPhotos.getChildren().add(publicChat);
         buttonStyle(button, "public chat");
         button.setOnMousePressed(mouseEvent -> {
-            while (list.getChildren().size() > 6)
-                list.getChildren().remove(list.getChildren().size() - 1);
-            list.getChildren().add(nameOfReceiver("public chat"));
+            while (list.getChildren().size() > 6) {
+                if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
+                    list.getChildren().remove(list.getChildren().size() - 1);
+                else
+                    list.getChildren().remove(0);
+            }
+            list.getChildren().add(0,nameOfReceiver("public chat"));
             list.getChildren().add(photoOfReceiver("photos/chatIcons/public-chat.jpg"));
         });
         users.getChildren().add(button);//public chat button
@@ -130,8 +135,13 @@ public class ChatMenu extends Application {
         for(String user : Menu.loggedInUser.getPrivateChats().keySet()) {
             Button tmp = new Button();
             tmp.setOnMousePressed(mouseEvent -> {
-                while (list.getChildren().size() > 6)
-                    list.getChildren().remove(list.getChildren().size() - 1);
+                System.out.println(list.getChildren().size());
+                while (list.getChildren().size() > 6) {
+                    if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
+                        list.getChildren().remove(list.getChildren().size() - 1);
+                    else
+                        list.getChildren().remove(0);
+                }
                 makeChat(Menu.loggedInUser, registerController.getUserByUsername(user));
                 receiver = registerController.getUserByUsername(user);
             });
@@ -207,19 +217,46 @@ public class ChatMenu extends Application {
                 senderChats.getChildren().add(tmp);
             }
         }
+        scrollVbox(senderChats, receiverChats);
         senderChats.setSpacing(5);
         senderChats.setAlignment(Pos.TOP_RIGHT);
         senderChats.setPrefWidth(450);
         senderChats.setLayoutX(790);
         senderChats.setLayoutY(90);
+        receiverChats.setPrefWidth(450);
         receiverChats.setSpacing(5);
         receiverChats.setLayoutX(325);
         receiverChats.setLayoutY(90);
         receiverChats.setAlignment(Pos.TOP_LEFT);
-        list.getChildren().add(nameOfReceiver(receiver.getUsername()));
+        list.getChildren().add(0,nameOfReceiver(receiver.getUsername()));
         list.getChildren().add(photoOfReceiver(receiver.getPhoto().toString()));
-        list.getChildren().add(senderChats);
-        list.getChildren().add(receiverChats);
+        list.getChildren().add(0,senderChats);
+        list.getChildren().add(0,receiverChats);
+    }
+
+    private void scrollVbox(VBox vBox1, VBox vBox2) {
+        vBox1.setOnScroll((ScrollEvent event) -> {
+            double yScale = 30;
+            double deltaY = event.getDeltaY();
+            if (deltaY < 0)
+                yScale *= -1;
+            if((Math.max(vBox1.getLayoutY() + vBox1.getHeight(), vBox2.getLayoutY() + vBox2.getHeight()) > 675 && yScale < 0 ||
+                    Math.min(vBox1.getLayoutY(), vBox2.getLayoutY()) < 80 && yScale > 0)) {
+                vBox1.setLayoutY(vBox1.getLayoutY() + yScale);
+                vBox2.setLayoutY(vBox2.getLayoutY() + yScale);
+            }
+        });
+        vBox2.setOnScroll((ScrollEvent event) -> {
+            double yScale = 30;
+            double deltaY = event.getDeltaY();
+            if (deltaY < 0)
+                yScale *= -1;
+            if((Math.max(vBox1.getLayoutY() + vBox1.getHeight(), vBox2.getLayoutY() + vBox2.getHeight()) > 675 && yScale < 0 ||
+                    Math.min(vBox1.getLayoutY(), vBox2.getLayoutY()) < 80 && yScale > 0)) {
+                vBox1.setLayoutY(vBox1.getLayoutY() + yScale);
+                vBox2.setLayoutY(vBox2.getLayoutY() + yScale);
+            }
+        });
     }
     private Label nameOfReceiver(String username) {
         Label label = new Label();
