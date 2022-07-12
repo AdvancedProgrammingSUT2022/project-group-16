@@ -310,7 +310,7 @@ public class gameMenuView
             printSpace(13);
             System.out.print(city.getCurrentConstruction());
             printSpace(15);
-            System.out.print(city.getInLineConstructionTurn());
+            System.out.print(city.getCurrentConstruction().getTurnTillBuild());
             printSpace(3);
             if (city.getState() == CityState.ATTACHED)
                 System.out.println("attached");
@@ -493,7 +493,7 @@ public class gameMenuView
         System.out.println(gameEnum.unEmployedCitizens.regex + (gameController.getPlayerTurn().getTotalPopulation() - tmp.employedCitizens()));
         if(tmp.getCurrentConstruction() != null) {
             System.out.println(gameEnum.currentConstruction.regex + tmp.getCurrentConstruction().toString());
-            System.out.println(infoCommands.remainingTurns.regex + tmp.getInLineConstructionTurn());
+            System.out.println(infoCommands.remainingTurns.regex + tmp.getCurrentConstruction().getTurnTillBuild());
         }
         else
             System.out.println(gameEnum.currentConstruction.regex + infoCommands.nothing.regex);

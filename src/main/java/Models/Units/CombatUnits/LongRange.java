@@ -22,6 +22,10 @@ public class LongRange extends CombatUnit{
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
     }
+    //for mocking a unit while constructing in city
+    public LongRange() {
+
+    }
 
     public boolean isSet() {
         return isSet;

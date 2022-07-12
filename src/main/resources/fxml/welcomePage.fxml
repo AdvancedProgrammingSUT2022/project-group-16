@@ -9,6 +9,7 @@
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="WelcomePage"
+      fx:id="list"
       prefHeight="720" prefWidth="1280"
       stylesheets="@../styles/welcomePage.css" styleClass="background">
     <ImageView x="-15" y="220" styleClass="welcome"/>

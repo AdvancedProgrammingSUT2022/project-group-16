@@ -24,8 +24,7 @@ public class City
 	private int hitPoints = 20;
 	private  ArrayList<Building> buildings = new ArrayList<>();
 	private  ArrayList<Citizen> citizens = new ArrayList<>();
-	private String currentConstruction = null;
-	private int inLineConstructionTurn = 4; //how many turns are left till the construction is ready
+	private Construction currentConstruction = null;
 	private Product currentProduct = null; //what the city is producing
 	private CombatUnit garrison = null;
 	private NonCombatUnit nonCombatUnit = null;
@@ -67,10 +66,6 @@ public class City
 	}
 
 
-	public int getInLineConstructionTurn() {
-		return inLineConstructionTurn;
-	}
-
 	public ArrayList<Citizen> getCitizens() {
 		return citizens;
 	}
@@ -104,7 +99,7 @@ public class City
 	public void setCombatStrength(int power) {
 		this.combatStrength = power;
 	}
-	public String getCurrentConstruction() {
+	public Construction getCurrentConstruction() {
 		return currentConstruction;
 	}
 	public int getHitPoints() {
@@ -269,35 +264,35 @@ public class City
 		return null;
 	}
 
-	public String construct(String type, GameController gameController)
+	public String construct(Construction construction, GameController gameController)
 	{
-		if(currentConstruction == null || !(currentConstruction.equals(type)))
+		if(currentConstruction == null || !(currentConstruction.equals(construction.toString())))
 		{
-			if(type != null && gameController.containTypeMid(type))
-				rulerPlayer.setGold(rulerPlayer.getGold() - MidRangeType.valueOf(type).getCost());
-			if(type != null && gameController.containTypeLong(type))
-				rulerPlayer.setGold(rulerPlayer.getGold() - LongRangeType.valueOf(type).getCost());
-			if(type != null && type.equals("SETTLER"))
+			if(construction.toString() != null && gameController.containTypeMid(construction.toString()))
+				rulerPlayer.setGold(rulerPlayer.getGold() - MidRangeType.valueOf(construction.toString()).getCost());
+			if(construction.toString() != null && gameController.containTypeLong(construction.toString()))
+				rulerPlayer.setGold(rulerPlayer.getGold() - LongRangeType.valueOf(construction.toString()).getCost());
+			if(construction.toString() != null && construction.toString().equals("SETTLER"))
 				rulerPlayer.setGold(rulerPlayer.getGold() - 89);
-			if(type != null && type.equals("WORKER"))
+			if(construction.toString() != null && construction.toString().equals("WORKER"))
 				rulerPlayer.setGold(rulerPlayer.getGold() - 70);
-			currentConstruction = type;
-			inLineConstructionTurn = 4;
+			currentConstruction = construction;
+			construction.setTurnTillBuild(4);
 			return null;
 		}
-		if(inLineConstructionTurn == 1)
+		if(construction.getTurnTillBuild() == 1)
 		{
 			Tile destination;
 			System.out.println(currentConstruction);
-			if(gameController.containTypeMid(currentConstruction)) {
+			if(gameController.containTypeMid(currentConstruction.toString())) {
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
-				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction), destination);
+				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
 			}
-			else if(gameController.containTypeLong(currentConstruction)) {
+			else if(gameController.containTypeLong(currentConstruction.toString())) {
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
-				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction), destination);
+				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
 			}
 			else if(currentConstruction.equals("SETTLER")) {
 				if((destination = findTileWithNoCUnit()) == null)
@@ -309,12 +304,12 @@ public class City
 					return "no tile empty";
 				new Worker(rulerPlayer, destination);
 			}
-			inLineConstructionTurn = 4;
+			construction.setTurnTillBuild(4);
 			currentConstruction = null;
 			return null;
 		}
-		if(inLineConstructionTurn <= 4 && currentConstruction != null) {
-			inLineConstructionTurn--;
+		if(construction.getTurnTillBuild() <= 4 && currentConstruction != null) {
+			construction.setTurnTillBuild(construction.getTurnTillBuild() - 1);
 			return null;
 		}
 		return "something else is being constructed or there is nothing to construct";
@@ -336,11 +331,16 @@ public class City
 		//TODO save previous construction;
 		if(currentConstruction == null) return "nothing is being built";
 		if(constructionCanBeBuilt(construction)){
-//			currentConstruction = construction;
-			inLineConstructionTurn = 3;
+			currentConstruction = construction;
+			currentConstruction.setTurnTillBuild(3);
 			return null;
 		}
 		return "cannot change construction";
+	}
+
+	public String buyBuilding(Building building){
+
+		return null;
 	}
 
 	public String destroyCity(){
@@ -359,9 +359,24 @@ public class City
 		this.state = CityState.ATTACHED;
 	}
 	public void seizeCity(Player winner){
+		clearMilitaryBuildings();
 		this.rulerPlayer = winner;
 		this.state = CityState.SEIZED;
 		winner.getSeizedCities().add(this);
+	}
+
+	private void clearMilitaryBuildings() {
+		for (int i = 0; i < this.buildings.size(); i++) {
+			if(buildings.get(i).getBuildingType().equals(BuildingType.BARRACKS) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.ARMORY)||
+					buildings.get(i).getBuildingType().equals(BuildingType.TEMPLE) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.MONASTERY) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.MILITARY_ACADEMY) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.ARSENAL) ||
+					buildings.get(i).getBuildingType().equals(BuildingType.MILITARY_BASE)){
+				this.buildings.remove(i);
+			}
+		}
 	}
 
 	public void updateCityCombatStrength()

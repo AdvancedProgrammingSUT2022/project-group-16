@@ -19,7 +19,7 @@ public class Tile
 	private CombatUnit combatUnitInTile = null;
 	private NonCombatUnit nonCombatUnitInTile = null;
 	boolean isPillaged = false;
-	boolean isRuined;
+	boolean isRuined = false;
 
 
 	public Tile(Position position, TileType tileType, TileFeature tileFeature, BorderType[] borders, Resource resource)

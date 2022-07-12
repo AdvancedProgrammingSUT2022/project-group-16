@@ -37,7 +37,8 @@ public enum BuildingType
 	FACTORY(300, 3, Technology.STEAM_POWER),
 	HOSPITAL(400, 2, Technology.BIOLOGY),
 	MILITARY_BASE(450, 4, Technology.TELEGRAPH),
-	STOCK_EXCHANGE(650, 0, Technology.ELECTRICITY);
+	STOCK_EXCHANGE(650, 0, Technology.ELECTRICITY),
+	PALACE(0,0 ,null );
 	
 	public final int cost;
 	public final int maintenanceCost;

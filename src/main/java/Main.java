@@ -1,4 +1,5 @@
 import Models.User;
+
 import javafx.application.Application;
 import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
@@ -6,6 +7,7 @@ import server.chatServer;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+
 
 public class Main extends Application
 {
