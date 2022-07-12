@@ -39,7 +39,7 @@ public class Player extends User
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
 	private final HashMap<Tile, TileState> map;
-	private ArrayList<City> cities = null;
+	private ArrayList<City> cities = new ArrayList<>();
 	private final ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
 	private City currentCapitalCity;    //??TODO
