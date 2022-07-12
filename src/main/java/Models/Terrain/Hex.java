@@ -35,12 +35,12 @@ public class Hex {
     private void setFeatureBackground() {
         String url = "/photos/Tiles/Hexagon.png";
         switch (tileFeature){
-            case FLOOD_PLAIN -> url = "/photos/FloodPlains.png";
-            case FOREST -> url = "/photos/Forest.png";
-            case JUNGLE -> url = "/photos/Jungle.png";
-            case MARSH -> url = "/photos/Marsh.png";
-            case OASIS -> url = "/photos/Oasis.png";
-            case ICE -> url = "/photos/Ice.png";
+            case FLOOD_PLAIN -> url = "/photos/features/FloodPlains.png";
+            case FOREST -> url = "/photos/features/Forest.png";
+            case JUNGLE -> url = "/photos/features/Jungle.png";
+            case MARSH -> url = "/photos/features/Marsh.png";
+            case OASIS -> url = "/photos/features/Oasis.png";
+            case ICE -> url = "/photos/features/Ice.png";
         }
         Image image = new Image(this.getClass().getResource(url).toExternalForm());
         ImageView imageView = new ImageView();
@@ -64,7 +64,7 @@ public class Hex {
 
 
     private void setBackground() {
-        String url = "/photos/fog.png";
+        String url = "/photos/features/fog.png";
         if(this.tileState.equals(TileState.FOG_OF_WAR)){
             Image image = new Image(this.getClass().getResource(url).toExternalForm());
             ImageView imageView = new ImageView();

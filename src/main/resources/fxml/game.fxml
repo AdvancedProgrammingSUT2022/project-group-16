@@ -3,17 +3,24 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="Game"
       fx:id="pane"
-      prefHeight="720.0" prefWidth="960.0">
-    <ImageView fitHeight="720.0" fitWidth="1280.0"  pickOnBounds="true" preserveRatio="true">
-        <image>
-            <Image url="@../photos/backgrounds/map.jpeg" />
-        </image>
-    </ImageView>
-
+      prefHeight="720" prefWidth="1280"
+      stylesheets="@../styles/game.css" styleClass="background">
+    <Circle layoutX="35" layoutY="35" radius="23" styleClass="Circle"/>
+    <Circle layoutX="35" layoutY="90" radius="23" styleClass="Circle"/>
+    <Circle layoutX="35" layoutY="145" radius="23" styleClass="Circle"/>
+    <Circle layoutX="35" layoutY="200" radius="23" styleClass="Circle"/>
+    <Circle layoutX="35" layoutY="255" radius="23" styleClass="Circle"/>
+    <Circle layoutX="35" layoutY="310" radius="23" styleClass="Circle"/>
+    <ImageView fitWidth="40" fitHeight="40" x="15" y="15" styleClass="gold"/>
+    <ImageView fitWidth="40" fitHeight="40" x="15" y="70" styleClass="production"/>
+    <ImageView fitWidth="40" fitHeight="40" x="15" y="125" styleClass="food"/>
+    <ImageView fitWidth="40" fitHeight="40" x="15" y="180" styleClass="population"/>
+    <ImageView fitWidth="40" fitHeight="40" x="15" y="235" styleClass="happiness"/>
+    <ImageView fitWidth="40" fitHeight="40" x="15" y="290" styleClass="science"/>
 </Pane>
