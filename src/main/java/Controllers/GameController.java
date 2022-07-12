@@ -725,7 +725,7 @@ public class GameController
 						infoCommands.remainingTurns.regex + (playerTurn.getResearchingTechnology().cost / 10 - playerTurn.getResearchingTechCounter()[flg]) + "\n"
 						+ infoCommands.notGain.regex;
 		}
-		return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + ": " + infoCommands.nothing.regex;
+		return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + infoCommands.nothing.regex;
 	}
 
 

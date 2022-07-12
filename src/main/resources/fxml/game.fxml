@@ -23,4 +23,7 @@
     <ImageView fitWidth="40" fitHeight="40" x="15" y="180" styleClass="population"/>
     <ImageView fitWidth="40" fitHeight="40" x="15" y="235" styleClass="happiness"/>
     <ImageView fitWidth="40" fitHeight="40" x="15" y="290" styleClass="science"/>
+    <Circle layoutX="1220" layoutY="660" radius="103" styleClass="whiteCircle"/>
+    <Circle layoutX="1220" layoutY="660" radius="100" styleClass="blueCircle"/>
+    <ImageView fitWidth="65" fitHeight="65" x="1185" y="635" styleClass="turn"/>
 </Pane>

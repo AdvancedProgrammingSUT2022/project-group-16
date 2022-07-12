@@ -22,8 +22,20 @@
 .science {
     -fx-image: url("../photos/gameIcons/Science.png");
 }
+.turn {
+    -fx-image: url("../photos/gameIcons/Turn.png");
+}
 .Circle {
     -fx-fill: black;
+}
+.blueCircle {
+    -fx-fill: #0009ff;
+}
+.blueCircle:hover{
+    -fx-fill: #00049f;
+}
+.whiteCircle {
+    -fx-fill: #ffffff;
 }
 .text {
     -fx-font-size: 20;
