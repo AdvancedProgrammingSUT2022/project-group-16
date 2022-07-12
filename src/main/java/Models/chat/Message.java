@@ -6,7 +6,6 @@ import javafx.scene.Node;
 public class Message {
     private final String sender;
     private final String receiver;
-    private String time;
     private String message;
 
 
@@ -26,5 +25,9 @@ public class Message {
 
     public String getReceiver() {
         return receiver;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

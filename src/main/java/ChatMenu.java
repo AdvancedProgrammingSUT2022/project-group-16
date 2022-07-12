@@ -3,6 +3,7 @@ import Controllers.Utilities.chatController;
 import Models.Menu.Menu;
 import Models.User;
 import Models.chat.Message;
+import Models.chat.publicMessage;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -17,14 +18,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
+import server.chatServer;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class ChatMenu extends Application {
@@ -35,6 +37,7 @@ public class ChatMenu extends Application {
     private final RegisterController registerController = new RegisterController();
     private User receiver = null;
     private final chatController chatController = new chatController();
+    public static final chatServer server = new chatServer();
 
     private void buttonStyle(Button button, String name) {
         button.setText(name);
@@ -79,6 +82,31 @@ public class ChatMenu extends Application {
         search.setStyle("-fx-max-width: 300;" +
                 "-fx-pref-height: 35;");
         titles.getChildren().add(search);
+        search.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                String keyName = keyEvent.getCode().getName();
+                if ("Enter".equals(keyName)) {
+                    String username = search.getText();
+                    search.setText(null);
+                    for(User user : Menu.allUsers)
+                        if(user.getUsername().equals(username) &&
+                                !Menu.loggedInUser.getUsername().equals(user.getUsername()) &&
+                                !Menu.loggedInUser.getPrivateChats().containsKey(user.getUsername())) {
+                            while (list.getChildren().size() > 6) {
+                                if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
+                                    list.getChildren().remove(list.getChildren().size() - 1);
+                                else
+                                    list.getChildren().remove(0);
+                            }
+                            Menu.loggedInUser.getPrivateChats().put(username, new ArrayList<>());
+                            user.getPrivateChats().put(Menu.loggedInUser.getUsername(), new ArrayList<>());
+                            makeChat(Menu.loggedInUser, user);
+                            receiver = user;
+                        }
+                }
+            }
+        });
     }
     private ImageView makePhoto(URL url) {
         ImageView imageView = new ImageView();
@@ -86,6 +114,12 @@ public class ChatMenu extends Application {
         imageView.setFitWidth(50);
         imageView.setFitHeight(50);
         return imageView;
+    }
+    private boolean containButton(String username) {
+        for (Node node : ((VBox) list.getChildren().get(5)).getChildren())
+            if (((Button) node).getText().equals(username))
+                return true;
+        return false;
     }
     private void typeMessageStyle(TextField typeMessage) {
         typeMessage.setPromptText("type here...");
@@ -96,17 +130,84 @@ public class ChatMenu extends Application {
         typeMessage.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if ("Enter".equals(keyName)) {
-                chatController.sendMessage(Menu.loggedInUser, receiver, typeMessage.getText());
-                registerController.writeDataOnJson();
-                int length = list.getChildren().size();
-                ArrayList<Message> messages = Menu.loggedInUser.getPrivateChats().get(receiver.getUsername());
-                Label label = new Label();
-                messageStyleSender(label, messages.get(messages.size() - 1).getMessage());
-                ((VBox) list.getChildren().get(1)).getChildren().add(label);
+                if (!(list.getChildren().get(2).getClass() == Label.class &&
+                        ((Label) list.getChildren().get(2)).getText().equals("public chat")) &&
+                        (receiver != null && !containButton(receiver.getUsername()))) {
+                    Button tmp = new Button();
+                    buttonStyle(tmp, receiver.getUsername());
+                    ImageView imageView = makePhoto(receiver.getPhoto());
+                    ((VBox) list.getChildren().get(5)).getChildren().add(tmp);
+                    ((VBox) list.getChildren().get(6)).getChildren().add(imageView);
+                    tmp.setOnMousePressed(mouseEvent -> {
+                        while (list.getChildren().size() > 6) {
+                            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
+                                list.getChildren().remove(list.getChildren().size() - 1);
+                            else
+                                list.getChildren().remove(0);
+                        }
+                        receiver = registerController.getUserByUsername(tmp.getText());
+                        makeChat(Menu.loggedInUser, receiver);
+                    });
+                }
+                LocalDateTime now = LocalDateTime.now();
+                if(list.getChildren().get(2).getClass() == Label.class &&
+                        ((Label) list.getChildren().get(2)).getText().equals("public chat")) {
+                    String message = Menu.loggedInUser.getUsername() + ": " + typeMessage.getText() + " - "
+                            + now.toString().substring(11,19);
+                    chatController.sendPublicMessage(Menu.loggedInUser, message, server);
+                    Label label = new Label();
+                    messageStyleSender(label, server.getPublicChats().get(server.getPublicChats().size() - 1).getMessage());
+                    ((VBox) list.getChildren().get(1)).getChildren().add(label);
+                }
+                else {
+                    chatController.sendMessage(Menu.loggedInUser, receiver, typeMessage.getText() +
+                            " - " + now.toString().substring(11,19));
+                    registerController.writeDataOnJson();
+                    ArrayList<Message> messages = Menu.loggedInUser.getPrivateChats().get(receiver.getUsername());
+                    Label label = new Label();
+                    messageStyleSender(label, messages.get(messages.size() - 1).getMessage());
+                    ((VBox) list.getChildren().get(1)).getChildren().add(label);
+                }
                 typeMessage.setText(null);
             }
 
         });
+    }
+    private void makePublicChat() {
+        VBox senderChats = new VBox();
+        VBox receiverChats = new VBox();
+        User sender = Menu.loggedInUser;
+        ArrayList<publicMessage> messages = server.getPublicChats();
+        for(publicMessage message : messages) {
+            Label label = new Label();
+            Label tmp = new Label();
+            tmp.setStyle("-fx-border-width: 2;" +
+                    "-fx-border-color: rgba(255,0,0,0);" +
+                    "-fx-font-size: 20");
+            if(message.getSender().equals(sender.getUsername())) {
+                messageStyleSender(label, message.getMessage());
+                senderChats.getChildren().add(label);
+                receiverChats.getChildren().add(tmp);
+            }
+            else {
+                messageStyleReceiver(label, message.getMessage());
+                receiverChats.getChildren().add(label);
+                senderChats.getChildren().add(tmp);
+            }
+        }
+        scrollVbox(senderChats, receiverChats);
+        senderChats.setSpacing(5);
+        senderChats.setAlignment(Pos.TOP_RIGHT);
+        senderChats.setPrefWidth(450);
+        senderChats.setLayoutX(790);
+        senderChats.setLayoutY(90);
+        receiverChats.setPrefWidth(450);
+        receiverChats.setSpacing(5);
+        receiverChats.setLayoutX(325);
+        receiverChats.setLayoutY(90);
+        receiverChats.setAlignment(Pos.TOP_LEFT);
+        list.getChildren().add(0,senderChats);
+        list.getChildren().add(0,receiverChats);
     }
     public void initialize() throws MalformedURLException {
         users.setAlignment(Pos.CENTER);
@@ -129,13 +230,13 @@ public class ChatMenu extends Application {
             }
             list.getChildren().add(0,nameOfReceiver("public chat"));
             list.getChildren().add(photoOfReceiver("photos/chatIcons/public-chat.jpg"));
+            makePublicChat();
         });
         users.getChildren().add(button);//public chat button
 
         for(String user : Menu.loggedInUser.getPrivateChats().keySet()) {
             Button tmp = new Button();
             tmp.setOnMousePressed(mouseEvent -> {
-                System.out.println(list.getChildren().size());
                 while (list.getChildren().size() > 6) {
                     if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
                         list.getChildren().remove(list.getChildren().size() - 1);
@@ -228,12 +329,143 @@ public class ChatMenu extends Application {
         receiverChats.setLayoutX(325);
         receiverChats.setLayoutY(90);
         receiverChats.setAlignment(Pos.TOP_LEFT);
+        //delete -s and -d from receiverChats
+        int i = receiverChats.getChildren().size() - 1;
+        while (i >= 0)
+        {
+            if (((Label) receiverChats.getChildren().get(i)).getText().endsWith(" - s") ||
+                    ((Label) receiverChats.getChildren().get(i)).getText().endsWith(" - d")) {
+                String message = ((Label) receiverChats.getChildren().get(i)).getText();
+                ((Label) receiverChats.getChildren().get(i)).setText(message.substring(0, message.length() - 4));
+                registerController.writeDataOnJson();
+            }
+            i--;
+        }
+        int j = receiver.getPrivateChats().get(Menu.loggedInUser.getUsername()).size() - 1;
+        while (j >= 0) {
+            String message = receiver.getPrivateChats().get(Menu.loggedInUser.getUsername()).get(j).getMessage();
+            if(message.endsWith(" - d")) {
+                receiver.getPrivateChats().get(Menu.loggedInUser.getUsername()).get(j).
+                        setMessage(message.substring(0, message.length() - 4) + " - s");
+                registerController.writeDataOnJson();
+            }
+            j--;
+        }
+        deleteOrEditMessage(senderChats, receiver.getUsername());
         list.getChildren().add(0,nameOfReceiver(receiver.getUsername()));
         list.getChildren().add(photoOfReceiver(receiver.getPhoto().toString()));
         list.getChildren().add(0,senderChats);
         list.getChildren().add(0,receiverChats);
     }
+    private void chooseButtonStyle(Button button) {
+        button.setStyle("-fx-background-color: #000086;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20;" +
+                "-fx-pref-width: 300;" +
+                "-fx-border-color: white;" +
+                "-fx-border-width: 3;" +
+                "-fx-pref-height: 40");
+        button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #2929ff;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20;" +
+                "-fx-pref-width: 300;" +
+                "-fx-border-color: white;" +
+                "-fx-border-width: 3;" +
+                "-fx-pref-height: 40"));
+        button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #000086;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20;" +
+                "-fx-pref-width: 300;" +
+                "-fx-border-color: white;" +
+                "-fx-border-width: 3;" +
+                "-fx-pref-height: 40"));
+    }
+    private void deleteOrEditMessage(VBox box, String user) {
+        VBox choose = new VBox();
+        Button edit = new Button();
+        edit.setText("edit");
+        chooseButtonStyle(edit);
+        Button delete1 = new Button();
+        delete1.setText("delete for me");
+        chooseButtonStyle(delete1);
+        Button delete2 = new Button();
+        chooseButtonStyle(delete2);
+        delete2.setText("delete for me and " + user);
 
+        choose.getChildren().add(edit);
+        choose.getChildren().add(delete1);
+        choose.getChildren().add(delete2);
+        choose.setSpacing(5);
+        choose.setAlignment(Pos.CENTER);
+        choose.setPrefWidth(350);
+        choose.setPrefHeight(200);
+        choose.setLayoutX(565);
+        choose.setLayoutY(285);
+        choose.setStyle("-fx-background-color: #5656fd;" +
+                "-fx-border-color: black;" +
+                "-fx-border-width: 4;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8");
+        for (int k = 0; k < box.getChildren().size(); k++) {
+            int flag = k;
+            (box.getChildren().get(k)).setOnMousePressed(new EventHandler<MouseEvent>() {
+                final String message = ((Label) (box.getChildren().get(flag))).getText();
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    list.getChildren().add(choose);
+                    for (int i = 0; i < list.getChildren().size() - 1; i++)
+                        list.getChildren().get(i).setDisable(true);
+                    choose.getChildren().get(0).setOnMousePressed(mouseEvent1 -> {
+                        TextField textField = new TextField();
+                        textField.setStyle("-fx-border-width: 4;" +
+                                "-fx-border-color: black;" +
+                                "-fx-background-color: #6868f3;" +
+                                "-fx-pref-width: 200");
+                        textField.setPromptText("new message...");
+                        textField.setLayoutX(640);
+                        textField.setLayoutY(225);
+                        choose.setDisable(true);
+                        list.getChildren().add(textField);
+                        textField.setOnKeyPressed(keyEvent -> {
+                            String keyName = keyEvent.getCode().getName();
+                            if (keyName.equals("Enter")) {
+                                choose.setDisable(false);
+                                for (int i = 0; i < list.getChildren().size(); i++)
+                                    list.getChildren().get(i).setDisable(false);
+                                String result = textField.getText();
+                                list.getChildren().remove(list.getChildren().size() - 1);
+                                list.getChildren().remove(list.getChildren().size() - 1);
+                                String finalMessage = result + message.substring(message.length() - 14);
+                                ((Label) box.getChildren().get(flag)).setText(finalMessage);
+                                Menu.loggedInUser.getPrivateChats().get(user).get(flag).setMessage(finalMessage);
+                                registerController.getUserByUsername(user).getPrivateChats().get(Menu.loggedInUser.getUsername())
+                                        .get(flag).setMessage(finalMessage);
+                                registerController.writeDataOnJson();
+                            }
+
+                        });
+                    }); //edit message
+                    choose.getChildren().get(1).setOnMousePressed(mouseEvent1 -> {
+                        list.getChildren().remove(choose);
+                        for (int i = 0; i < list.getChildren().size(); i++)
+                            list.getChildren().get(i).setDisable(false);
+                        ((Label) box.getChildren().get(flag)).setText("#deleted");
+                        Menu.loggedInUser.getPrivateChats().get(user).get(flag).setMessage("#deleted");
+                        registerController.writeDataOnJson();
+                    }); //delete message for me
+                    choose.getChildren().get(2).setOnMousePressed(mouseEvent1 -> {
+                        list.getChildren().remove(choose);
+                        for (int i = 0; i < list.getChildren().size(); i++)
+                            list.getChildren().get(i).setDisable(false);
+                        ((Label) box.getChildren().get(flag)).setText("#deleted");
+                        Menu.loggedInUser.getPrivateChats().get(user).get(flag).setMessage("#deleted");
+                        registerController.getUserByUsername(user).getPrivateChats().get(Menu.loggedInUser.getUsername()).get(flag).setMessage("#deleted");
+                        registerController.writeDataOnJson();
+                    }); //delete message for me and user
+                }
+            });
+        }
+    }
     private void scrollVbox(VBox vBox1, VBox vBox2) {
         vBox1.setOnScroll((ScrollEvent event) -> {
             double yScale = 30;
@@ -260,7 +492,13 @@ public class ChatMenu extends Application {
     }
     private Label nameOfReceiver(String username) {
         Label label = new Label();
-        label.setText(username);
+        String lastSeen;
+        if(!username.equals("public chat")) {
+            lastSeen = registerController.getUserByUsername(username).getLastLogin();
+            label.setText(username + " - last login: " + lastSeen);
+        }
+        else
+            label.setText(username);
         label.setStyle("-fx-text-fill: #ffffff;" +
                 "-fx-background-color: rgba(0,61,6,0.97);" +
                 "-fx-pref-width: 980;" +

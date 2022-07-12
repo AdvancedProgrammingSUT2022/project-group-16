@@ -4,21 +4,30 @@ import Controllers.RegisterController;
 import Models.Menu.Menu;
 import Models.User;
 import Models.chat.Message;
+import Models.chat.publicMessage;
 import com.google.gson.Gson;
 import enums.chatEnum;
 import enums.registerEnum;
+import server.chatServer;
 
 import javax.print.attribute.standard.Media;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class chatController {
     public static ArrayList<Message> publicMessages = new ArrayList<>();
 
     public void sendMessage(User sender, User receiver, String message) {
-        Message tmp = new Message(sender.getUsername(), receiver.getUsername(), message);
-        sender.getPrivateChats().get(receiver.getUsername()).add(tmp);
-        receiver.getPrivateChats().get(sender.getUsername()).add(tmp);
+        Message tmp1 = new Message(sender.getUsername(), receiver.getUsername(), message + " - d");
+        Message tmp2 = new Message(sender.getUsername(), receiver.getUsername(), message);
+        sender.getPrivateChats().get(receiver.getUsername()).add(tmp1);
+        receiver.getPrivateChats().get(sender.getUsername()).add(tmp2);
+    }
+    public void sendPublicMessage(User sender, String message, chatServer server) {
+        publicMessage tmp = new publicMessage(sender.getUsername(), message);
+        server.getPublicChats().add(tmp);
+        server.writeData();
     }
 
     public void updateDatabase()

@@ -2,6 +2,9 @@ import Controllers.RegisterController;
 import Models.Menu.Menu;
 import Models.User;
 import Models.chat.Message;
+import Models.chat.Request;
+import Models.chat.Respond;
+import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -14,7 +17,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class MainMenu extends Application {

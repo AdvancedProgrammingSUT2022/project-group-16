@@ -1,6 +1,9 @@
 import Controllers.RegisterController;
 import Models.User;
 import Models.chat.Message;
+import Models.chat.Request;
+import Models.chat.Respond;
+import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -11,6 +14,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import server.ServerThread;
+import server.chatServer;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
 import java.net.URL;
 import java.time.LocalDateTime;
 
@@ -90,7 +99,7 @@ public class loginPage extends Application {
                 borderPane.getChildren().remove(borderPane.getChildren().size() - 1);
             Menu.loggedInUser = registerController.getUserByUsername(username.getText());
             LocalDateTime now = LocalDateTime.now();
-            Menu.loggedInUser.setLastLogin(String.valueOf(Main.timeAndDate.format(now)));
+            Menu.loggedInUser.setLastLogin(Main.timeAndDate.format(now));
             registerController.writeDataOnJson();
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();

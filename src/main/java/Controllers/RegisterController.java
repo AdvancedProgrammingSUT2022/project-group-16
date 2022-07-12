@@ -146,7 +146,7 @@ public class RegisterController {
 		else
 		{
 			Menu.allUsers.add(new User(username, nickname, password, photo));
-			writeDataOnJson();
+			this.writeDataOnJson();
 			return registerEnum.successfulCreate.regex;
 		}
 	}

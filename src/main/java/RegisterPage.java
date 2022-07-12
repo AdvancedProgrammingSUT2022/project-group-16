@@ -98,11 +98,6 @@ public class RegisterPage extends Application {
             Menu.loggedInUser = registerController.getUserByUsername(username.getText());
             LocalDateTime now = LocalDateTime.now();
             Menu.loggedInUser.setLastLogin(Main.timeAndDate.format(now));
-            for(User user : Menu.allUsers)
-                if(user != Menu.loggedInUser) {
-                    Menu.loggedInUser.getPrivateChats().put(user.getUsername(), new ArrayList<>());
-                    user.getPrivateChats().put(Menu.loggedInUser.getUsername(), new ArrayList<>());
-                }
             registerController.writeDataOnJson();
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
