@@ -25,8 +25,29 @@
 .turn {
     -fx-image: url("../photos/gameIcons/Turn.png");
 }
+.city {
+    -fx-image: url("../photos/gameIcons/panelsIcons/Cities.png");
+}
+.unit {
+    -fx-image: url("../photos/gameIcons/panelsIcons/unit.png");
+}
+.military {
+    -fx-image: url("../photos/gameIcons/panelsIcons/Military.png");
+}
+.demographic {
+    -fx-image: url("../photos/gameIcons/panelsIcons/demographic.png");
+}
+.notification {
+    -fx-image: url("../photos/gameIcons/panelsIcons/notification.png");
+}
+.economic {
+    -fx-image: url("../photos/gameIcons/panelsIcons/economic.png");
+}
 .Circle {
     -fx-fill: black;
+}
+.brownCircle {
+    -fx-fill: #4f2929;
 }
 .blueCircle {
     -fx-fill: #0009ff;

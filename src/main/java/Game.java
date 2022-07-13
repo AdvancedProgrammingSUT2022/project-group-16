@@ -19,8 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
@@ -69,6 +68,7 @@ public class Game extends Application {
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
 //        gameController.getPlayerTurn().setCup(100);
+
     }
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
@@ -76,7 +76,7 @@ public class Game extends Application {
                 "-fx-border-width: 3;" +
                 "-fx-border-color: white;" +
                 "-fx-border-radius: 5;" +
-                "-fx-pref-width: 100");
+                "-fx-pref-width: 150");
     }
     private void labelStyle(Label label) {
         label.setStyle("-fx-text-fill: white;" +
@@ -211,7 +211,7 @@ public class Game extends Application {
     }
     private void setInformationStyles() {
         for (int i = 6; i < 12; i++)
-            if(pane.getChildren().size() < 20)
+            if(pane.getChildren().size() < 50)
                 setHoverForInformationTitles((ImageView) pane.getChildren().get(i));
     }
     //TODO when the turn changes delete playerTurnTiles from pane
@@ -299,8 +299,13 @@ public class Game extends Application {
             if(keyName.equals("Enter")) {
                 if(isValidNumber(textField.getText())) {
                     int number = Integer.parseInt(textField.getText());
-                    if(number > finalMax + 1 && box.getChildren().get(box.getChildren().size() - 1).getClass() == TextField.class)
+                    if(number > finalMax + 1 && (box.getChildren().get(box.getChildren().size() - 1).getClass() == TextField.class))
                         addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (finalMax + 1), box);
+                    else if(number > finalMax + 1 && (box.getChildren().get(box.getChildren().size() - 1).getClass() == Label.class &&
+                            !((Label) box.getChildren().get(box.getChildren().size() - 1)).getText().split(" ")[0].equals("please"))) {
+                        box.getChildren().remove(box.getChildren().size() - 1);
+                        addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (finalMax + 1), box);
+                    }
                     else if(number <= finalMax + 1)
                     {
                         if(box.getChildren().indexOf(textField) != box.getChildren().size() - 1)
@@ -342,5 +347,77 @@ public class Game extends Application {
         pane.getChildren().remove(box);
         pane.getChildren().add(box);
     }
+    private VBox panelsVbox(String information, double y) {
+        VBox box = new VBox();
+        box.setLayoutX(1050);
+        box.setLayoutY(y);
+        box.setSpacing(5);
+        box.setAlignment(Pos.CENTER);
+        VboxStyle(box);
+        Label label = new Label();
+        label.setText(information);
+        labelStyle(label);
+        box.getChildren().add(label);
+        return box;
+    }
+    private void labelInformationFadesSet(Label label, double y) {
+        if(pane.getChildren().get(pane.getChildren().size() - 1).getClass() != VBox.class) {
+            VBox vBox = panelsVbox(label.getText(), y);
+            fade(vBox, 0, 1).play();
+            pane.getChildren().add(vBox);
+        }
+    }
+    public void removeLabel(MouseEvent mouseEvent) {
+        if(pane.getChildren().get(pane.getChildren().size() - 2).getClass() == VBox.class) {
+            VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 2));
+            fade(vBox, 1, 0).play();
+            pane.getChildren().remove(vBox);
+        }
+        else {
+            VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 1));
+            fade(vBox, 1, 0).play();
+            pane.getChildren().remove(vBox);
+        }
+    }
+    public void cityLabel(MouseEvent mouseEvent) {
+        Label label = new Label();
+        labelStyle(label);
+        label.setText("cities");
+        labelInformationFadesSet(label, 20);
+    }
 
+    public void unitLabel(MouseEvent mouseEvent) {
+        Label label = new Label();
+        labelStyle(label);
+        label.setText("units");
+        labelInformationFadesSet(label, 75);
+    }
+
+    public void militaryLabel(MouseEvent mouseEvent) {
+        Label label = new Label();
+        labelStyle(label);
+        label.setText("military");
+        labelInformationFadesSet(label, 130);
+    }
+
+    public void demographicLabel(MouseEvent mouseEvent) {
+        Label label = new Label();
+        labelStyle(label);
+        label.setText("demographics");
+        labelInformationFadesSet(label, 185);
+    }
+
+    public void notificationLabel(MouseEvent mouseEvent) {
+        Label label = new Label();
+        labelStyle(label);
+        label.setText("notifications");
+        labelInformationFadesSet(label, 240);
+    }
+
+    public void economicLabel(MouseEvent mouseEvent) {
+        Label label = new Label();
+        labelStyle(label);
+        label.setText("economic");
+        labelInformationFadesSet(label, 295);
+    }
 }
