@@ -7,6 +7,7 @@ import Models.Terrain.Position;
 import Models.Terrain.Tile;
 import enums.gameCommands.infoCommands;
 import enums.mainCommands;
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -26,6 +27,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -65,6 +68,7 @@ public class Game extends Application {
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
+//        gameController.getPlayerTurn().setCup(100);
     }
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
@@ -140,22 +144,37 @@ public class Game extends Application {
     private void setHoverForInformationTitles(ImageView tmp) {
         double y = tmp.getY();
         tmp.setOnMouseMoved(mouseEvent -> {
-            for(Node node : pane.getChildren())
-                System.out.println(node);
-            System.out.println("............");
             if(pane.getChildren().get(pane.getChildren().size() - 1).getClass() != VBox.class) {
-                if(pane.getChildren().indexOf(tmp) == 6)
-                    pane.getChildren().add(informationVbox(String.valueOf(gameController.getPlayerTurn().getGold()), 12));
-                else if(pane.getChildren().indexOf(tmp) == 7)
-                    pane.getChildren().add(productionInformationStyle());
-                else if(pane.getChildren().indexOf(tmp) == 8)
-                    pane.getChildren().add(informationVbox(String.valueOf(gameController.getPlayerTurn().getFood()), 14));
-                else if(pane.getChildren().indexOf(tmp) == 9)
-                    pane.getChildren().add(informationVbox(String.valueOf(gameController.getPlayerTurn().getPopulation()), 15));
-                else if(pane.getChildren().indexOf(tmp) == 10)
-                    pane.getChildren().add(informationVbox(String.valueOf(gameController.getPlayerTurn().getHappiness()), 16));
-                else if(pane.getChildren().indexOf(tmp) == 11)
-                    pane.getChildren().add(scienceInformationStyle());
+                if(pane.getChildren().indexOf(tmp) == 6) {
+                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getGold()), 12);
+                    fade(vBox, 0, 1).play();
+                    pane.getChildren().add(vBox);
+                }
+                else if(pane.getChildren().indexOf(tmp) == 7) {
+                    VBox vBox = productionInformationStyle();
+                    fade(vBox, 0, 1).play();
+                    pane.getChildren().add(vBox);
+                }
+                else if(pane.getChildren().indexOf(tmp) == 8) {
+                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getFood()), 14);
+                    fade(vBox, 0, 1).play();
+                    pane.getChildren().add(vBox);
+                }
+                else if(pane.getChildren().indexOf(tmp) == 9) {
+                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getPopulation()), 15);
+                    fade(vBox, 0, 1).play();
+                    pane.getChildren().add(vBox);
+                }
+                else if(pane.getChildren().indexOf(tmp) == 10) {
+                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getHappiness()), 16);
+                    fade(vBox, 0, 1).play();
+                    pane.getChildren().add(vBox);
+                }
+                else if(pane.getChildren().indexOf(tmp) == 11) {
+                    VBox vBox = scienceInformationStyle();
+                    fade(vBox, 0, 1).play();
+                    pane.getChildren().add(vBox);
+                }
                 tmp.setFitWidth(43);
                 tmp.setFitHeight(43);
                 tmp.setX(13.5);
@@ -163,7 +182,16 @@ public class Game extends Application {
             }
         });
         tmp.setOnMouseExited(mouseEvent -> {
-            pane.getChildren().remove(pane.getChildren().size() - 1);
+            if(pane.getChildren().get(pane.getChildren().size() - 2).getClass() == VBox.class) {
+                VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 2));
+                fade(vBox, 1, 0).play();
+                pane.getChildren().remove(vBox);
+            }
+            else {
+                VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 1));
+                fade(vBox, 1, 0).play();
+                pane.getChildren().remove(vBox);
+            }
             tmp.setFitWidth(40);
             tmp.setFitHeight(40);
             tmp.setX(15);
@@ -173,10 +201,18 @@ public class Game extends Application {
             showTechnologies();
         });
     }
-
+    private FadeTransition fade(Node node, double from, double to) {
+        FadeTransition ft = new FadeTransition();
+        ft.setNode(node);
+        ft.setDuration(new Duration(200));
+        ft.setFromValue(from);
+        ft.setToValue(to);
+        return ft;
+    }
     private void setInformationStyles() {
         for (int i = 6; i < 12; i++)
-            setHoverForInformationTitles((ImageView) pane.getChildren().get(i));
+            if(pane.getChildren().size() < 20)
+                setHoverForInformationTitles((ImageView) pane.getChildren().get(i));
     }
     //TODO when the turn changes delete playerTurnTiles from pane
     public void generateMapForPlayer(Player player){
@@ -213,8 +249,10 @@ public class Game extends Application {
     {
         VBox box = new VBox();
         box.setAlignment(Pos.CENTER);
+        box.setLayoutX(340);
+        box.setLayoutY(180);
         box.setStyle("-fx-background-radius: 8;" +
-                "-fx-background-color: #572e2e;" +
+                "-fx-background-color: rgba(0,0,0,0.74);" +
                 "-fx-border-width: 3;" +
                 "-fx-border-color: white;" +
                 "-fx-border-radius: 5;" +
@@ -251,42 +289,54 @@ public class Game extends Application {
                 max++;
             }
         addLabelToBox((max + 1) + infoCommands.backToGame.regex, box);
-        pane.getChildren().add(pane.getChildren().size() - 2, box);
-//        for (int i = 0; i < pane.getChildren().size() - 1; i++)
-//            pane.getChildren().get(i).setDisable(true);
+        pane.getChildren().add(box);
         TextField textField = new TextField();
         box.getChildren().add(textField);
         int finalMax = max;
         int finalFlag = flag;
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
-            int number;
             if(keyName.equals("Enter")) {
-                number = Integer.parseInt(textField.getText());
-                box.getChildren().remove(textField);
-                int flg = -1;
-                if(number != finalMax + 1)
-                    for(int i = 0; i < Technology.values().length; i++)
-                        if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = i;
-                if(number == finalFlag) {
-                    addLabelToBox(infoCommands.alreadyResearching.regex, box);
-                    updateBox(box);
+                if(isValidNumber(textField.getText())) {
+                    int number = Integer.parseInt(textField.getText());
+                    if(number > finalMax + 1 && box.getChildren().get(box.getChildren().size() - 1).getClass() == TextField.class)
+                        addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (finalMax + 1), box);
+                    else if(number <= finalMax + 1)
+                    {
+                        if(box.getChildren().indexOf(textField) != box.getChildren().size() - 1)
+                            box.getChildren().remove(box.getChildren().size() - 1);
+                        int flg = -1;
+                        if(number != finalMax + 1)
+                            for(int i = 0; i < Technology.values().length; i++)
+                                if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = i;
+                        if(number == finalFlag) {
+                            addLabelToBox(infoCommands.alreadyResearching.regex, box);
+                            updateBox(box);
+                        }
+                        else if(number != finalMax + 1 && tmp.getCup() >= candidateTechs.get(number - 1).cost / 10 - tmp.getResearchingTechCounter()[flg])
+                        {
+                            tmp.setResearchingTechnology(candidateTechs.get(number - 1));
+                            addLabelToBox(infoCommands.choose.regex + candidateTechs.get(number - 1).name() + infoCommands.successful.regex, box);
+                            updateBox(box);
+                            tmp.reduceCup();
+                        }
+                        else if(number != finalMax + 1) {
+                            addLabelToBox(infoCommands.enoughCup.regex + candidateTechs.get(number - 1).name(), box);
+                            updateBox(box);
+                        }
+                        else
+                            pane.getChildren().remove(box);
+                    }
                 }
-                else if(number != finalMax + 1 && tmp.getCup() >= candidateTechs.get(number - 1).cost / 10 - tmp.getResearchingTechCounter()[flg])
-                {
-                    tmp.setResearchingTechnology(candidateTechs.get(number - 1));
-                    addLabelToBox(infoCommands.choose.regex + candidateTechs.get(number - 1).name() + infoCommands.successful.regex, box);
-                    updateBox(box);
-                    tmp.reduceCup();
-                }
-                else if(number != finalMax + 1) {
-                    addLabelToBox(infoCommands.enoughCup.regex + candidateTechs.get(number - 1).name(), box);
-                    updateBox(box);
-                }
-                else
-                    pane.getChildren().remove(box);
+                textField.setText(null);
             }
         });
+    }
+    private boolean isValidNumber(String number) {
+        for(int i = 0; i < number.length(); i++)
+            if(number.charAt(i) > 57 || number.charAt(i) < 48)
+                return false;
+        return true;
     }
     private void updateBox(VBox box) {
         pane.getChildren().remove(box);
