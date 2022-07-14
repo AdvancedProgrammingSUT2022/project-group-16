@@ -32,6 +32,7 @@ public class NewGame extends Application {
     private final GameController gameController = GameController.getInstance();
     public Pane list;
     private User user = Menu.loggedInUser;
+    public static ArrayList<Player> players = new ArrayList<>();
 
     private void makeButtons() {
         for(int i = 0; i < 10; i++) {
@@ -140,12 +141,8 @@ public class NewGame extends Application {
         VBox newPlayers = newPlayerChoose();
         for(Button button : buttons)
         {
-            button.setOnMouseMoved(mouseEvent -> {
-                setHoverButtonStyle(button);
-            });
-            button.setOnMouseExited(mouseEvent -> {
-                setButtonStyle(button);
-            });
+            button.setOnMouseMoved(mouseEvent -> setHoverButtonStyle(button));
+            button.setOnMouseExited(mouseEvent -> setButtonStyle(button));
             button.setOnMousePressed(mouseEvent -> {
                 list.getChildren().get(list.getChildren().size() - 2).setDisable(false);
                 if(((Text) list.getChildren().get(4)).getText().equals("4")) {

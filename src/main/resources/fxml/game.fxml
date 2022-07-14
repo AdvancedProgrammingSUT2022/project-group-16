@@ -25,23 +25,18 @@
     <ImageView fitWidth="40" fitHeight="40" x="15" y="290" styleClass="science"/>
 
     <Circle layoutX="1240" layoutY="35" radius="23" styleClass="brownCircle"/>
-    <ImageView fitHeight="40" fitWidth="40" x="1220" y="15" styleClass="city" onMouseMoved="#cityLabel"
-               onMouseExited="#removeLabel"/>
+    <ImageView fitHeight="40" fitWidth="40" x="1220" y="15" styleClass="city" onMouseClicked="#showAllCities"/>
     <Circle layoutX="1240" layoutY="90" radius="23" styleClass="brownCircle"/>
-    <ImageView fitHeight="40" fitWidth="40" x="1220" y="70" styleClass="unit" onMouseMoved="#unitLabel"
-               onMouseExited="#removeLabel"/>
+    <ImageView fitHeight="40" fitWidth="40" x="1220" y="70" styleClass="unit" onMouseClicked="#showUnits"/>
     <Circle layoutX="1240" layoutY="145" radius="23" styleClass="brownCircle"/>
-    <ImageView fitHeight="40" fitWidth="40" x="1220" y="125" styleClass="military" onMouseMoved="#militaryLabel"
-               onMouseExited="#removeLabel"/>
-    <Circle layoutX="1240" layoutY="200" radius="23" styleClass="brownCircle" onMouseMoved="#demographicLabel"
-            onMouseExited="#removeLabel"/>
+    <ImageView fitHeight="40" fitWidth="40" x="1220" y="125" styleClass="military" onMouseClicked="#showMilitary"/>
+    <Circle layoutX="1240" layoutY="200" radius="23" styleClass="brownCircle"/>
     <ImageView fitHeight="40" fitWidth="40" x="1220" y="180" styleClass="demographic"/>
     <Circle layoutX="1240" layoutY="255" radius="23" styleClass="brownCircle"/>
-    <ImageView fitHeight="40" fitWidth="40" x="1220" y="235" styleClass="notification" onMouseMoved="#notificationLabel"
-               onMouseExited="#removeLabel"/>
-    <Circle layoutX="1240" layoutY="310" radius="23" styleClass="brownCircle" onMouseMoved="#economicLabel"
-            onMouseExited="#removeLabel"/>
+    <ImageView fitHeight="40" fitWidth="40" x="1220" y="235" styleClass="notification"/>
+    <Circle layoutX="1240" layoutY="310" radius="23" styleClass="brownCircle"/>
     <ImageView fitHeight="30" fitWidth="30" x="1225" y="295" styleClass="economic"/>
+
     <Circle layoutX="1220" layoutY="660" radius="103" styleClass="whiteCircle"/>
     <Circle layoutX="1220" layoutY="660" radius="100" styleClass="blueCircle"/>
     <ImageView fitWidth="65" fitHeight="65" x="1185" y="635" styleClass="turn"/>
