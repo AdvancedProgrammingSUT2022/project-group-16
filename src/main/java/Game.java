@@ -60,11 +60,12 @@ public class Game extends Application {
     }
 
     public void initialize() {
+        Hex.setPane(pane);
         int x = 200;
         for(int i = 0; i < 10; i++){
             int y = (i % 2 == 0 ? 50 : 80);
             for(int j = 0; j < 10 ; j++){
-                hexagons[i][j] = new Hex(new Position(x, y), pane);
+                hexagons[i][j] = new Hex(new Position(x, y));
                 y += 60;
             }
             x += 80;
@@ -86,6 +87,25 @@ public class Game extends Application {
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
 //        gameController.getPlayerTurn().setCup(100);
 
+    }
+    //TODO when the turn changes delete playerTurnTiles from pane
+    public void generateMapForPlayer(Player player){
+        for (Tile tile : player.getMap().keySet()) {
+            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileState(player.getMap().get(tile));
+            hexagons[tile.getPosition().X][tile.getPosition().Y].setTile(tile);
+            playerTurnTiles.add(hexagons[tile.getPosition().X][tile.getPosition().Y]);
+        }
+        playerTurnTiles.forEach(Hex::addHex);
+    }
+    public void changeTurn(MouseEvent mouseEvent) {
+        for(int i= 0; i < 10; i++){
+            for(int j = 0; j < 10; j++){
+                hexagons[i][j].removeHex();
+            }
+        }
+        playerTurnTiles.clear();
+        gameController.checkChangeTurn();
+        generateMapForPlayer(gameController.getPlayerTurn());
     }
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
@@ -190,16 +210,7 @@ public class Game extends Application {
         setHoverForInformationTitles((ImageView) pane.getChildren().get(21), panelsVbox("notifications", 240));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(23), panelsVbox("economics", 295));
     }
-    //TODO when the turn changes delete playerTurnTiles from pane
-    public void generateMapForPlayer(Player player){
-        for (Tile tile : player.getMap().keySet()) {
-            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileState(player.getMap().get(tile));
-            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileType(tile.getTileType());
-            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileFeature(tile.getTileFeature());
-            playerTurnTiles.add(hexagons[tile.getPosition().X][tile.getPosition().Y]);
-        }
-        playerTurnTiles.forEach(Hex::addHex);
-    }
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -759,4 +770,5 @@ public class Game extends Application {
             return 1;
         return (int)(Math.log10(number) + 1);
     }
+
 }

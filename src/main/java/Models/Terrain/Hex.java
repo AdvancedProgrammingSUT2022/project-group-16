@@ -1,40 +1,99 @@
 package Models.Terrain;
 
+import Controllers.GameController;
 import Models.Player.TileState;
+import javafx.event.EventHandler;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.ImagePattern;
-
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 
 public class Hex {
     private static Pane pane;
-    private Position position;
-    private TileType tileType;
+    private final Position position;
+    private Tile tile;
     private TileState tileState;
-    private TileFeature tileFeature;
-    private ArrayList<ImageView> hexElements = new ArrayList<ImageView>();
+    private ArrayList<ImageView> hexElements = new ArrayList<>();
 
 
-    public Hex(Position position, Pane pane1){
-        pane = pane1;
+    public Hex(Position position){
         this.position = position;
     }
 
-
-    public void setTileFeature(TileFeature tileFeature) {
-        if(tileFeature == null || tileFeature.equals(TileFeature.NONE) || this.tileState.equals(TileState.FOG_OF_WAR)) return;
-        this.tileFeature = tileFeature;
+    public static void setPane(Pane pane1){
+        pane = pane1;
+    }
+    public void setTile(Tile tile){
+        this.tile = tile;
+        setBackground();
         setFeatureBackground();
+        //setBoarders();
+    }
+
+    private ImageView setImage(String url, int x, int y ,int width, int height){
+        Image image = new Image(this.getClass().getResource(url).toExternalForm());
+        ImageView imageView = new ImageView();
+        imageView.setX(x);
+        imageView.setY(y);
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(height);
+        imageView.setImage(image);
+        hexElements.add(imageView);
+        return imageView;
+    }
+
+    private void setBoarders() {
+        if(this.tileState.equals(TileState.FOG_OF_WAR)) return;
+        for (int i = 0; i < 6; i++) {
+            if(tile.getBorders()[i].equals(BorderType.RIVER)){
+                String url = (i % 3 == 0 ? "/photos/Boarders/River-Bottom.png" :
+                        (i % 3 == 1? "/photos/Boarders/River-BottomRight.png" : "/photos/Boarders/River-BottomLeft.png"));
+                Position p = findCoordinates(i);
+                setImage(url,p.X, p.Y, 60, 20);
+            }
+        }
+    }
+
+    private Position findCoordinates(int i) {
+        int x = 0, y = 0;
+        switch (i){
+            case 0:
+                x = position.X + 30;
+                y = position.Y - 30;
+                break;
+            case 1:
+                x = position.X - 40;
+                y = position.Y;
+                break;
+            case 2:
+                x = position.X - 40;
+                y = position.Y + 60;
+                break;
+            case 3:
+                x = position.X + 30;
+                y = position.Y + 80;
+                break;
+            case 4:
+                x = position.X + 130;
+                y = position.Y + 60;
+                break;
+            case 5:
+                x = position.X + 130;
+                y = position.Y;
+                break;
+        }
+        return new Position(x,y);
     }
 
     private void setFeatureBackground() {
+        if(tile.getTileFeature() == null || tile.getTileFeature().equals(TileFeature.NONE) || this.tileState.equals(TileState.FOG_OF_WAR)) return;
         String url = "/photos/Tiles/Hexagon.png";
-        switch (tileFeature){
+        switch (tile.getTileFeature()){
             case FLOOD_PLAIN -> url = "/photos/features/FloodPlains.png";
             case FOREST -> url = "/photos/features/Forest.png";
             case JUNGLE -> url = "/photos/features/Jungle.png";
@@ -42,14 +101,7 @@ public class Hex {
             case OASIS -> url = "/photos/features/Oasis.png";
             case ICE -> url = "/photos/features/Ice.png";
         }
-        Image image = new Image(this.getClass().getResource(url).toExternalForm());
-        ImageView imageView = new ImageView();
-        imageView.setX(position.X + 15);
-        imageView.setY(position.Y + 5);
-        imageView.setFitWidth(30);
-        imageView.setFitHeight(30);
-        imageView.setImage(image);
-        hexElements.add(imageView);
+        setImage(url, position.X +15,position.Y + 5, 30, 30 );
     }
 
 
@@ -57,26 +109,15 @@ public class Hex {
         this.tileState = tileState;
     }
 
-    public void setTileType(TileType tileType) {
-        this.tileType = tileType;
-        this.setBackground();
-    }
 
 
     private void setBackground() {
         String url = "/photos/features/fog.png";
         if(this.tileState.equals(TileState.FOG_OF_WAR)){
-            Image image = new Image(this.getClass().getResource(url).toExternalForm());
-            ImageView imageView = new ImageView();
-            imageView.setX(position.X);
-            imageView.setY(position.Y);
-            imageView.setFitWidth(90);
-            imageView.setFitHeight(50);
-            imageView.setImage(image);
-            hexElements.add(imageView);
+            setImage(url, position.X, position.Y , 90, 50);
             return;
         }
-        switch (this.tileType){
+        switch (this.tile.getTileType()){
             case PLAINS -> url = "/photos/Tiles/Plains.png";
             case GRASSLAND ->  url = "/photos/Tiles/Grassland.png";
             case DESERT -> url = "/photos/Tiles/Desert.png";
@@ -87,18 +128,26 @@ public class Hex {
             case MOUNTAIN -> url = "/photos/Tiles/Mountain.png";
             default -> url = "/photos/Tiles/Hexagon.png";
         }
-        Image image = new Image(this.getClass().getResource(url).toExternalForm());
-        ImageView imageView = new ImageView();
-        imageView.setX(position.X);
-        imageView.setY(position.Y);
-        imageView.setFitWidth(90);
-        imageView.setFitHeight(50);
-        imageView.setImage(image);
-        hexElements.add(imageView);
+        ImageView imageView = setImage(url, position.X, position.Y, 90,50);
+        imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(imageView.getEffect() != null){
+                    imageView.setEffect(null);
+                    //add function to remove tile description;
+                }else {
+                    imageView.setEffect(new Lighting());
+                    //add function to show tile description;
+                }
+            }
+        });
     }
 
     public void removeHex(){
         pane.getChildren().removeAll(hexElements);
+        this.hexElements.clear();
+        this.tileState  =null;
+        this.tile = null;
     }
     public void addHex(){
         pane.getChildren().addAll(hexElements);
