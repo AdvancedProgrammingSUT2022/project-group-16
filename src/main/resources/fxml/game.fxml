@@ -34,7 +34,7 @@
     <Circle layoutX="1240" layoutY="255" radius="23" styleClass="brownCircle"/>
     <ImageView fitHeight="40" fitWidth="40" x="1220" y="235" styleClass="notification"/>
     <Circle layoutX="1240" layoutY="310" radius="23" styleClass="brownCircle"/>
-    <ImageView fitHeight="30" fitWidth="30" x="1225" y="295" styleClass="economic"/>
+    <ImageView fitHeight="30" fitWidth="30" x="1225" y="295" styleClass="economic" onMouseClicked="#showEconomics"/>
 
     <Circle layoutX="1220" layoutY="660" radius="103" styleClass="whiteCircle"/>
     <Circle layoutX="1220" layoutY="660" radius="100" styleClass="blueCircle" onMouseClicked="#changeTurn"/>

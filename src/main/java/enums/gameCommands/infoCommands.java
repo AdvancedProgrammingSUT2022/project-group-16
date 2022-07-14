@@ -33,7 +33,7 @@ public enum infoCommands
     requiredTurns("\n\trequired turns: "),
     currResearch(" (current research)"),
     currentResearching("Researching technology: "),
-    researchInfo("Reseach info:\n"),
+    researchInfo("Research info:\n"),
     remainingTurns("Remaining turns: "),
     gainAfterGetTechnology(" will be unlock after you reach this technology!"),
     notGain("nothing will unlock after you reach this technology"),
