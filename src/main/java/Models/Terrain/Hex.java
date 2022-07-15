@@ -3,6 +3,7 @@ package Models.Terrain;
 import Controllers.GameController;
 import Models.Player.TileState;
 import javafx.event.EventHandler;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.Lighting;
@@ -10,7 +11,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 
@@ -137,6 +137,7 @@ public class Hex {
         }
         ImageView imageView = setImage(url, position.X, position.Y, 90,50);
         imageView.setOnMousePressed(new EventHandler<MouseEvent>() {
+            // TODO: this bug should be fixed.
             @Override
             public void handle(MouseEvent mouseEvent) {
                 if(imageView.getEffect() != null){
@@ -148,6 +149,26 @@ public class Hex {
                 }
             }
         });
+        imageView.setOnMouseReleased(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent mouseEvent)
+            {
+                if(GameController.getInstance().getPlayerTurn().getMap().get(tile).equals(TileState.REVEALED))
+                {
+                    ColorAdjust colorAdjust = new ColorAdjust();
+                    colorAdjust.setBrightness(-.5);
+                    imageView.setEffect(colorAdjust);
+                }
+                else
+                    imageView.setEffect(null);
+            }
+        });
+        if(GameController.getInstance().getPlayerTurn().getMap().get(this.tile).equals(TileState.REVEALED)){
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setBrightness(-.5);
+            imageView.setEffect(colorAdjust);
+        }
     }
 
     public void removeHex(){
