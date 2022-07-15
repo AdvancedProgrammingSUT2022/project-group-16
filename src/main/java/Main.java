@@ -6,7 +6,6 @@ import javafx.stage.Stage;
 import server.chatServer;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 
 public class Main extends Application

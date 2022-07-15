@@ -113,7 +113,7 @@ public class GameController
 		{
 			turnCounter++;
 			updateFortifyTilHeal();
-			updateCityConstructions();
+			//updateCityConstructions();
 		}
 
 		// change playerTurn

@@ -16,17 +16,14 @@ import enums.gameEnum;
 import enums.mainCommands;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -48,12 +45,14 @@ public class Game extends Application {
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
     private boolean needUpdateProduction = true;
-    public AudioClip audioClip = new AudioClip(Main.class.getResource("audio/gameAudios/click.mp3").toExternalForm());
+    public AudioClip audioClip = new AudioClip(Game.class.getResource("audio/gameAudios/click.mp3").toExternalForm());
+    private final AudioClip gameDemo = new AudioClip(Game.class.getResource("audio/2.mp3").toExternalForm());
     @FXML
     private Pane pane;
     @Override
 
     public void start(Stage stage) throws Exception {
+        gameDemo.play();
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/game.fxml").toExternalForm()))));
         stage.show();
@@ -62,15 +61,15 @@ public class Game extends Application {
     public void initialize() {
         gameController.initGame();
         Hex.setPane(pane);
-        int x = 200;
+        int x = 45;
         hexagons = new Hex[GameController.getInstance().MAP_SIZE][GameController.getInstance().MAP_SIZE];
         for(int i = 0; i < gameController.MAP_SIZE; i++){
-            int y = (i % 2 == 0 ? 50 : 80);
+            int y = (i % 2 == 0 ? 20 : 40);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
-                hexagons[i][j] = new Hex(new Position(x, y));
-                y += 60;
+                hexagons[j][i] = new Hex(new Position(x, y));
+                y += 30;
             }
-            x += 80;
+            x += 50;
         }
         generateMapForPlayer(gameController.getPlayerTurn());
 
@@ -113,8 +112,8 @@ public class Game extends Application {
         playerTurnTiles.forEach(Hex::addHex);
     }
     public void changeTurn(MouseEvent mouseEvent) {
-        for(int i= 0; i < 10; i++){
-            for(int j = 0; j < 10; j++){
+        for(int i= 0; i < GameController.getInstance().MAP_SIZE; i++){
+            for(int j = 0; j < GameController.getInstance().MAP_SIZE; j++){
                 hexagons[i][j].removeHex();
             }
         }
@@ -134,7 +133,7 @@ public class Game extends Application {
         label.setStyle("-fx-text-fill: white;" +
                 "-fx-font-size: 18;");
     }
-    private VBox informationVbox(String information, int index) {
+    private VBox informationVbox(String information, double index) {
         VBox box = new VBox();
         box.setLayoutX(70);
         box.setLayoutY((index - 12) * 55 + 20);
@@ -247,6 +246,7 @@ public class Game extends Application {
         setHoverForInformationTitles((ImageView) pane.getChildren().get(19), panelsVbox("demographics", 185));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(21), panelsVbox("notifications", 240));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(23), panelsVbox("economics", 295));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(26), informationVbox("menu", 24));
     }
 
     public static void main(String[] args) {
@@ -735,7 +735,6 @@ public class Game extends Application {
         exitButton.setOnMousePressed(mouseEvent -> {
             audioClip.play();
             pane.getChildren().remove(pane.getChildren().size() - 1);
-            pane.getChildren().get(pane.getChildren().size() - 1).setDisable(false);
             for(int i = 0; i < pane.getChildren().size(); i++)
                 pane.getChildren().get(i).setDisable(false);
         });
@@ -989,5 +988,75 @@ public class Game extends Application {
     public void military(MouseEvent mouseEvent) {
         audioClip.play();
         showMilitary(gameController.getPlayerTurn());
+    }
+    private void addButtonToBox(String text, VBox box) {
+        Button button = new Button();
+        button.setText(text);
+        button.setStyle("-fx-border-color: white;" +
+                "-fx-border-width: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-background-color: #003675;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20");
+        button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-border-color: white;" +
+                "-fx-border-width: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-background-color: #00499f;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20"));
+        button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-border-color: white;" +
+                "-fx-border-width: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-background-color: #003675;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20"));
+        box.getChildren().add(button);
+    }
+    public void options(MouseEvent mouseEvent) {
+        audioClip.play();
+        Pane list = new Pane();
+        panelsPaneStyle(list, 300, 300);
+        VBox box = new VBox();
+        list.getChildren().add(box);
+        box.setAlignment(Pos.CENTER);
+        box.setSpacing(8);
+
+        ImageView imageView = new ImageView();
+        try {
+            imageView.setImage(new Image(String.valueOf(new URL(getClass()
+                    .getResource("photos/gameIcons/panelsIcons/Speaker.png").toExternalForm()))));
+            imageView.setFitHeight(40);
+            imageView.setFitWidth(40);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        list.getChildren().add(imageView);
+        setCoordinates(list, 250, 10);
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent12 -> {
+            if(gameDemo.isPlaying())
+                gameDemo.stop();
+            else
+                gameDemo.play();
+        });
+        addButtonToBox("resume", box);
+        (box.getChildren().get(box.getChildren().size() - 1)).setOnMousePressed(
+                mouseEvent1 -> {
+                    pane.getChildren().remove(list);
+                    for(Node node : pane.getChildren())
+                        node.setDisable(false);
+                });
+        addButtonToBox("exit", box);
+        (box.getChildren().get(box.getChildren().size() - 1)).setOnMousePressed(
+                mouseEvent1 -> Platform.exit());
+        setCoordinatesBox(list, box, 95, 60);
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 10, 10);
+        pane.getChildren().add(list);
+        for(int i = 0; i < pane.getChildren().size() - 1; i++)
+            pane.getChildren().get(i).setDisable(true);
+        setCoordinates(pane, 490, 210);
     }
 }

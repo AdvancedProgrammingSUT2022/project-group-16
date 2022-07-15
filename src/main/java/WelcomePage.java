@@ -15,12 +15,6 @@ public class WelcomePage extends Application {
         loginPage loginPage = new loginPage();
         Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
         loginPage.start(stage);
-//        Game game = new Game();
-//        try {
-//            game.start((Stage) list.getScene().getWindow());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
     @Override
     public void start(Stage stage) throws Exception {

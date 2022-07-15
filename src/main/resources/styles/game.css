@@ -31,6 +31,9 @@
 .unit {
     -fx-image: url("../photos/gameIcons/panelsIcons/unit.png");
 }
+.menuIcon {
+    -fx-image: url("../photos/gameIcons/panelsIcons/MenuIcon.png");
+}
 .military {
     -fx-image: url("../photos/gameIcons/panelsIcons/Military.png");
 }
@@ -45,6 +48,9 @@
 }
 .Circle {
     -fx-fill: black;
+}
+.whiteCircle {
+    -fx-fill: #ffffff;
 }
 .brownCircle {
     -fx-fill: #4f2929;
