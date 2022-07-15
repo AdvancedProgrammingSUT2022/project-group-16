@@ -10,11 +10,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 
 public class Hex {
-    private static Pane pane;
+    private static Pane parent;
+    private final Pane pane;
     private final Position position;
     private Tile tile;
     private TileState tileState;
@@ -23,10 +25,15 @@ public class Hex {
 
     public Hex(Position position){
         this.position = position;
+        this.pane = new Pane();
+        pane.setPrefWidth(90);
+        pane.setPrefHeight(50);
+        pane.setLayoutX(position.X);
+        pane.setLayoutY(position.Y);
     }
 
-    public static void setPane(Pane pane1){
-        pane = pane1;
+    public static void setPane(Pane pane){
+        parent = pane;
     }
     public void setTile(Tile tile){
         this.tile = tile;
@@ -54,7 +61,7 @@ public class Hex {
                 String url = (i % 3 == 0 ? "/photos/Boarders/River-Bottom.png" :
                         (i % 3 == 1? "/photos/Boarders/River-BottomRight.png" : "/photos/Boarders/River-BottomLeft.png"));
                 Position p = findCoordinates(i);
-                setImage(url,p.X, p.Y, 60, 20);
+                setImage(url,p.X, p.Y, 54, 10);
             }
         }
     }
@@ -63,8 +70,8 @@ public class Hex {
         int x = 0, y = 0;
         switch (i){
             case 0:
-                x = position.X + 30;
-                y = position.Y - 30;
+                x = position.X + 20;
+                y = position.Y - 10;
                 break;
             case 1:
                 x = position.X - 40;
@@ -75,8 +82,8 @@ public class Hex {
                 y = position.Y + 60;
                 break;
             case 3:
-                x = position.X + 30;
-                y = position.Y + 80;
+                x = position.X + 20;
+                y = position.Y + 50;
                 break;
             case 4:
                 x = position.X + 130;
@@ -129,7 +136,7 @@ public class Hex {
             default -> url = "/photos/Tiles/Hexagon.png";
         }
         ImageView imageView = setImage(url, position.X, position.Y, 90,50);
-        imageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        imageView.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 if(imageView.getEffect() != null){
@@ -144,6 +151,7 @@ public class Hex {
     }
 
     public void removeHex(){
+        parent.getChildren().remove(pane);
         pane.getChildren().removeAll(hexElements);
         this.hexElements.clear();
         this.tileState  =null;
@@ -151,5 +159,6 @@ public class Hex {
     }
     public void addHex(){
         pane.getChildren().addAll(hexElements);
+        parent.getChildren().add(pane);
     }
 }

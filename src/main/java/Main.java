@@ -19,7 +19,7 @@ public class Main extends Application
 		chatServer server = new chatServer();
 		server.update();
 		AudioClip audioClip = new AudioClip(Main.class.getResource("audio/1.mp3").toExternalForm());
-//		audioClip.play();
+		//audioClip.play();
 		WelcomePage welcomePage = new WelcomePage();
 		welcomePage.start(stage);
 	}
