@@ -56,8 +56,6 @@ public class Player extends User
 		gameController = GameController.getInstance();
 		this.map = new HashMap<>();
 		this.setScore(score);
-		for(Tile tile : gameController.getMap())
-			this.map.put(tile, TileState.FOG_OF_WAR);
 	}
 
 	public City getSelectedCity()
@@ -471,6 +469,13 @@ public class Player extends User
 			map.remove(tile);
 			map.put(gameController.getTileByXY(tile.getPosition().X, tile.getPosition().Y).clone(), TileState.REVEALED);
 		}
+	}
+
+	// gets the ArrayList<Tile> map from gameController and fills the HashMap<Tile, TileState> map
+	public void initMap()
+	{
+		for (Tile tile : gameController.getMap())
+			map.put(tile, TileState.FOG_OF_WAR);
 	}
 }
 

@@ -37,18 +37,17 @@ public class GameController
 	private final ArrayList<Position> grid = new ArrayList<>();
 	public final int MAX_GRID_LENGTH = 30;
 	private final ArrayList<Tile> map = new ArrayList<>();
-	public final int MAP_SIZE = 10;
+	public int MAP_SIZE;
 	private final ArrayList<Player> players = new ArrayList<>();
 	private Player playerTurn;
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
-	
+
 	// private constructor to prevent instantiation
 	private GameController()
 	{
 		initGrid();
-		initMap();
 	}
 	// this method is called to get the GameController singleton instance
 	public static GameController getInstance()
@@ -57,7 +56,7 @@ public class GameController
 			instance = new GameController();
 		return instance;
 	}
-	
+
 	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns) //TODO: is this needed?
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
@@ -161,8 +160,24 @@ public class GameController
 	}
 	public void initGame()
 	{
+		if (players.size() == 2)
+			MAP_SIZE = 10;
+		else if (players.size() == 3)
+			MAP_SIZE = 12;
+		else
+			MAP_SIZE = 15;
+		initMap();
+		try
+		{
+			System.out.println(getRawMapString());
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+		for (Player player : players)
+			player.initMap();
 		initPlayers();
-		// TODO: set tileStates for each player
 	}
 	public ArrayList<Tile> getMap()
 	{
@@ -177,8 +192,10 @@ public class GameController
 		return MapPrinter.getMapString(player);
 	}
 	// this method returns a mapString that all it's tiles are visible
-	public String getRawMapString() throws IOException {
+	public String getRawMapString() throws IOException
+	{
 		Player tmpPlayer = new Player(Civilization.PERSIAN, "tmpPlayer", "tmpPlayer", "tmpPlayer", 0);
+		tmpPlayer.initMap();
 		tmpPlayer.getMap().replaceAll((k, v) -> TileState.VISIBLE);
 		
 		return MapPrinter.getMapString(tmpPlayer);
@@ -201,10 +218,14 @@ public class GameController
 		
 		return null;
 	}
-	// this method is called when GameController is created. this method creates an array of Tiles and fills map with these tiles. TODO: currently it creates a random map
 	private void initMap()
 	{
-		makeMap1();
+		if (MAP_SIZE == 10)
+			makeMap1();
+		else if (MAP_SIZE == 12)
+			makeMap2();
+		else if (MAP_SIZE == 15)
+			makeMap3();
 	}
 	private void makeMap1()
 	{
@@ -310,6 +331,385 @@ public class GameController
 		map.add(new Tile(getPosition(9, 7), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
 		map.add(new Tile(getPosition(9, 8), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
 		map.add(new Tile(getPosition(9, 9), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, new BonusResource(ResourceType.DEER)));
+	}
+	private void makeMap2()
+	{
+		map.clear();
+
+		map.add(new Tile(getPosition(0, 0), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 1), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 2), TileType.HILLS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 3), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 4), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 5), TileType.GRASSLAND, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 6), TileType.GRASSLAND, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 7), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 8), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 9), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 10), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 11), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 0), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 1), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 2), TileType.HILLS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 3), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 4), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 5), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 6), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 7), TileType.GRASSLAND, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 8), TileType.GRASSLAND, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 9), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 10), TileType.HILLS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 11), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 0), TileType.HILLS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 1), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 2), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 3), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 4), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 5), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 6), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 7), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 8), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 9), TileType.HILLS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 10), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 11), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 0), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 1), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 2), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 3), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 4), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 5), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 6), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 7), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 8), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 9), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 10), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 11), TileType.PLAINS, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 0), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 1), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 2), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 3), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 4), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 5), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 6), TileType.DESERT, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 7), TileType.DESERT, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 8), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 9), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 10), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 11), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 0), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 1), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 2), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 3), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 4), TileType.TUNDRA, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 5), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 6), TileType.DESERT, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 9), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 10), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 11), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 0), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 1), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 2), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 3), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 4), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 5), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 6), TileType.DESERT, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 9), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 10), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 11), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 0), TileType.HILLS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 1), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 2), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 3), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 4), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 5), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 6), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 7), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 9), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 10), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 11), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 1), TileType.PLAINS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 3), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 4), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 5), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 6), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 7), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 8), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 9), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 10), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 11), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 1), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 2), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 3), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 4), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 5), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 6), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 7), TileType.OCEAN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 8), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 9), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 10), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 11), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 1), TileType.DESERT, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 2), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 3), TileType.GRASSLAND, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 4), TileType.HILLS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 5), TileType.PLAINS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 6), TileType.HILLS, TileFeature.FOREST, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 7), TileType.GRASSLAND, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 8), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 9), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 10), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 11), TileType.SNOW, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 1), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 2), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 3), TileType.GRASSLAND, TileFeature.MARSH, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 4), TileType.MOUNTAIN, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 5), TileType.PLAINS, TileFeature.FLOOD_PLAIN, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 6), TileType.HILLS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 7), TileType.HILLS, TileFeature.JUNGLE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 8), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 9), TileType.GRASSLAND, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 10), TileType.PLAINS, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 11), TileType.TUNDRA, TileFeature.NONE, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+	}
+	private void makeMap3()
+	{
+		map.clear();
+
+		map.add(new Tile(getPosition(0, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(0, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(1, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(2, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(3, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(4, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(5, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(6, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(7, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(8, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(9, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(10, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(11, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(12, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(13, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 2), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 3), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 4), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 5), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 6), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 7), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 8), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 9), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 10), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 11), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 12), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 13), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
+		map.add(new Tile(getPosition(14, 14), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
 	}
 	// set playerTurn and set two units for each player and set their tileStates
 	private void initPlayers()
