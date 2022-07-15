@@ -17,7 +17,6 @@ import enums.mainCommands;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -52,7 +51,7 @@ public class Game extends Application {
     @Override
 
     public void start(Stage stage) throws Exception {
-        gameDemo.play();
+//        gameDemo.play();
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/game.fxml").toExternalForm()))));
         stage.show();
@@ -81,21 +80,24 @@ public class Game extends Application {
 
         //cheatCode shortcut
         //TODO: do not remove this part :))))
-        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
+//        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
+//        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
+//        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
+//        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
+//        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
+//        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
     //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
@@ -247,6 +249,7 @@ public class Game extends Application {
         setHoverForInformationTitles((ImageView) pane.getChildren().get(21), panelsVbox("notifications", 240));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(23), panelsVbox("economics", 295));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(26), informationVbox("menu", 24));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(28), informationVbox("Technology Tree", 18));
     }
 
     public static void main(String[] args) {
@@ -302,7 +305,7 @@ public class Game extends Application {
     private void showTechnologies()
     {
         VBox box = new VBox();
-        panelsVboxStyle(box);
+        panelsVboxStyle(box, 600);
         addLabelToBox(infoCommands.numberOfCup.regex + gameController.getPlayerTurn().getCup(), box);
         showGainedTechnologies(box);
         addLabelToBox(infoCommands.chooseTechnology.regex, box);
@@ -386,16 +389,16 @@ public class Game extends Application {
             }
         });
     }
-    private void panelsVboxStyle(VBox box) {
+    private void panelsVboxStyle(VBox box, int width) {
         box.setAlignment(Pos.CENTER);
         box.setLayoutX(340);
         box.setLayoutY(180);
+        box.setPrefWidth(width);
         box.setStyle("-fx-background-radius: 8;" +
                 "-fx-background-color: rgb(68,30,30);" +
                 "-fx-border-width: 3;" +
                 "-fx-border-color: white;" +
-                "-fx-border-radius: 5;" +
-                "-fx-pref-width: 600");
+                "-fx-border-radius: 5;");
     }
     private void panelsPaneStyle2(Pane box) {
         box.setLayoutX(340);
@@ -750,7 +753,7 @@ public class Game extends Application {
     public void showMilitary(Player player)
     {
         VBox box = new VBox();
-        panelsVboxStyle(box);
+        panelsVboxStyle(box, 600);
         if (player.getUnits().size() == 0)
             addLabelToBox("you have not any unit", box);
         else
@@ -1058,5 +1061,149 @@ public class Game extends Application {
         for(int i = 0; i < pane.getChildren().size() - 1; i++)
             pane.getChildren().get(i).setDisable(true);
         setCoordinates(pane, 490, 210);
+    }
+
+    public void technologyTree() {
+        audioClip.play();
+        Pane list = new Pane();
+        panelsPaneStyle(list, 1300, 350);
+        list.setLayoutX(-10);
+        list.setLayoutY(150);
+        ArrayList<Technology> technologies = new ArrayList<>();
+        technologies.add(Technology.AGRICULTURE);
+        addLabelTechnologyTree(technologies, list, 4);
+        int state = 1;
+        while (true) {
+            ArrayList<Technology> tmp = new ArrayList<>();
+            for (Technology technology : Technology.values())
+                if (technologies.containsAll(technology.requiredTechnologies) &&
+                        !technologies.contains(technology))
+                    tmp.add(technology);
+            addLabelTechnologyTree(tmp, list, ((7 - tmp.size()) / 2) + 1);
+            technologies.addAll(tmp);
+            if(tmp.size() == 0)
+                break;
+            setCoordinates(list ,state * 300 + 10, 10);
+            state++;
+        }
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 20, 10);
+        list.setOnScroll((ScrollEvent event) -> {
+            double xScale = 30;
+            double deltaX = event.getDeltaX();
+            if (deltaX < 0)
+                xScale *= -1;
+            if((list.getChildren().get(list.getChildren().size() - 3).getLayoutX() > 1150 && xScale < 0) || list.getChildren().get(1).getLayoutX() < 25 && xScale > 0) {
+                for(int i = 1; i < list.getChildren().size() - 1; i++)
+                    list.getChildren().get(i).setLayoutX(list.getChildren().get(i).getLayoutX() + xScale);
+            }
+        });
+        //swap
+        swap(((VBox) list.getChildren().get(3)), 1, 5);
+        swap(((VBox) list.getChildren().get(3)), 2, 4);
+        swap(((VBox) list.getChildren().get(3)), 3, 5);
+        swap(((VBox) list.getChildren().get(3)), 4, 5);
+        swap(((VBox) list.getChildren().get(8)), 2, 5);
+        swap(((VBox) list.getChildren().get(9)), 3, 4);
+        swap(((VBox) list.getChildren().get(9)), 2, 3);
+        swap(((VBox) list.getChildren().get(11)), 3, 5);
+
+        //arrows
+        arrowTechnologyTree(list, 1, 150, 140, 310, 80);
+        arrowTechnologyTree(list, 1, 150, 135, 310, 135);
+        arrowTechnologyTree(list, 1, 150, 160, 310, 200);
+        arrowTechnologyTree(list, 1, 150, 170, 310, 260);
+
+        arrowTechnologyTree(list, 2, 520, 90, 600, 50);
+        arrowTechnologyTree(list, 2, 520, 90, 600, 115);
+        arrowTechnologyTree(list, 2, 390, 200, 600, 140);
+        arrowTechnologyTree(list, 2, 390, 185, 600, 185);
+        arrowTechnologyTree(list, 2, 420, 235, 600, 235);
+        arrowTechnologyTree(list, 2, 420, 235, 600, 305);
+
+        arrowTechnologyTree(list, 8, 2230, 85, 2410, 85);
+        arrowTechnologyTree(list, 8, 2230, 135, 2410, 135);
+        arrowTechnologyTree(list, 8, 2230, 175, 2410, 175);
+        arrowTechnologyTree(list, 8, 2230, 225, 2410, 185);
+        arrowTechnologyTree(list, 8, 2230, 225, 2410, 225);
+        arrowTechnologyTree(list, 8, 2230, 275, 2410, 240);
+
+        arrowTechnologyTree(list, 9, 2570, 175, 2710, 120);
+        arrowTechnologyTree(list, 9, 2570, 175, 2710, 175);
+
+        arrowTechnologyTree(list, 10, 2875, 175, 3000, 120);
+        arrowTechnologyTree(list, 10, 2875, 165, 3000, 165);
+        arrowTechnologyTree(list, 10, 2875, 175, 3000, 220);
+
+        arrowTechnologyTree(list, 11, 3200, 120, 3310, 120);
+        arrowTechnologyTree(list, 11, 3100, 220, 3310, 160);
+        arrowTechnologyTree(list, 11, 3100, 220, 3310, 220);
+         pane.getChildren().add(list);
+    }
+    private void addLabelTechnologyTree(ArrayList<Technology> technologies, Pane list, int space) {
+        VBox box = new VBox();
+        box.setAlignment(Pos.TOP_LEFT);
+        box.setSpacing(12);
+        for (int i = 0; i < space; i++)
+            addLabelToBox("", box);
+        for(Technology technology : technologies) {
+            Label label = new Label();
+            label.setText(String.valueOf(technology));
+            if(gameController.getPlayerTurn().getTechnologies().contains(technology)) {
+                label.setStyle("-fx-background-color: #ff0032;" +
+                        "-fx-text-fill: #560000;" +
+                        "-fx-border-width: 4;" +
+                        "-fx-border-color: #ffffff;" +
+                        "-fx-border-radius: 5;" +
+                        "-fx-background-radius: 7");
+            }
+            else {
+                label.setStyle("-fx-background-color: #00eaff;" +
+                        "-fx-text-fill: #000062;" +
+                        "-fx-border-width: 4;" +
+                        "-fx-border-color: #ffffff;" +
+                        "-fx-border-radius: 5;" +
+                        "-fx-background-radius: 7");
+            }
+            box.getChildren().add(label);
+        }
+        list.getChildren().add(box);
+    }
+    private void arrowTechnologyTree(Pane list, int index, double x1, double y1, double x2, double y2) {
+        //make image view & set width and height
+        ImageView imageView = new ImageView();
+        try {
+            if(y2 > y1) {
+                imageView.setImage(new Image(String.valueOf(new URL(getClass()
+                        .getResource("photos/gameIcons/panelsIcons/treeArrowDown.png").toExternalForm()))));
+                imageView.setFitHeight(y2 - y1);
+                imageView.setY(y1);
+            }
+            else if(y1 == y2) {
+                imageView.setImage(new Image(String.valueOf(new URL(getClass()
+                        .getResource("photos/gameIcons/panelsIcons/treeArrowStraight.png").toExternalForm()))));
+                imageView.setFitHeight(20);
+                imageView.setY(y1);
+            }
+            else {
+                imageView.setImage(new Image(String.valueOf(new URL(getClass()
+                        .getResource("photos/gameIcons/panelsIcons/treeArrowUp.png").toExternalForm()))));
+                imageView.setFitHeight(y1 - y2);
+                imageView.setY(y2);
+            }
+            imageView.setX(x1);
+            imageView.setFitWidth(x2 - x1);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        list.getChildren().add(index, imageView);
+    }
+    private void swap(VBox box, int a, int b) {
+        Label labelA = (Label) box.getChildren().get(a);
+        Label labelB = (Label) box.getChildren().get(b);
+        box.getChildren().remove(b);
+        box.getChildren().remove(a);
+        box.getChildren().add(a, labelB);
+        box.getChildren().add(b, labelA);
     }
 }

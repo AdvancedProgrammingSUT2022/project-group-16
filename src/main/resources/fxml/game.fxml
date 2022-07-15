@@ -40,6 +40,10 @@
     <Circle layoutX="40" layoutY="690" radius="23" styleClass="brownCircle"/>
     <ImageView fitHeight="40" fitWidth="40" x="20" y="670" styleClass="menuIcon" onMouseClicked="#options"/>
 
+    <Circle layoutX="35" layoutY="365" radius="23" styleClass="brownCircle"/>
+    <ImageView fitHeight="30" fitWidth="30" x="20" y="350" styleClass="economic"
+               onMouseClicked="#technologyTree"/>
+
     <Circle layoutX="1220" layoutY="660" radius="103" styleClass="whiteCircle"/>
     <Circle layoutX="1220" layoutY="660" radius="100" styleClass="blueCircle" onMouseClicked="#changeTurn"/>
     <ImageView fitWidth="65" fitHeight="65" x="1185" y="635" styleClass="turn"/>

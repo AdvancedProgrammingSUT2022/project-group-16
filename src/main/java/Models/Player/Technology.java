@@ -89,7 +89,8 @@ public enum Technology implements Product
 		PHYSICS.requiredTechnologies.add(ENGINEERING);
 		PHYSICS.requiredTechnologies.add(METAL_CASTING);
 		STEEL.requiredTechnologies.add(METAL_CASTING);
-		THEOLOGY.requiredTechnologies.add(THEOLOGY);
+		THEOLOGY.requiredTechnologies.add(CALENDAR);
+		THEOLOGY.requiredTechnologies.add(PHILOSOPHY);
 		ACOUSTICS.requiredTechnologies.add(EDUCATION);
 		ARCHAEOLOGY.requiredTechnologies.add(ACOUSTICS);
 		BANKING.requiredTechnologies.add(EDUCATION);
