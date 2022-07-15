@@ -1,15 +1,20 @@
 import Controllers.GameController;
 import Models.City.City;
+import Models.City.CityState;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.Unit;
+import Models.Units.UnitState;
 import enums.gameCommands.infoCommands;
+import enums.gameEnum;
 import enums.mainCommands;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -22,20 +27,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Game extends Application {
     private final Hex[][] hexagons = new Hex[10][10];
     private final GameController gameController = GameController.getInstance();
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
+    private boolean needUpdateScience = false;
+    private boolean needUpdateProduction = true;
     @FXML
     private Pane pane;
     @Override
@@ -47,12 +51,12 @@ public class Game extends Application {
     }
 
     public void initialize() {
-        setInformationStyles();
+        Hex.setPane(pane);
         int x = 200;
         for(int i = 0; i < 10; i++){
             int y = (i % 2 == 0 ? 50 : 80);
             for(int j = 0; j < 10 ; j++){
-                hexagons[i][j] = new Hex(new Position(x, y), pane);
+                hexagons[i][j] = new Hex(new Position(x, y));
                 y += 60;
             }
             x += 80;
@@ -60,15 +64,40 @@ public class Game extends Application {
         gameController.initGame();
         generateMapForPlayer(gameController.getPlayerTurn());
 
+        setInformationStyles();
+        pane.getChildren().get(11).setOnMousePressed(mouseEvent -> showTechnologies());
+
         //TODO: do not remove this part :))))
-//        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-//        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-//        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-//        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
+        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
+        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
+        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
+        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
+        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+    //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
 //        gameController.getPlayerTurn().setCup(100);
 
+    }
+    //TODO when the turn changes delete playerTurnTiles from pane
+    public void generateMapForPlayer(Player player){
+        for (Tile tile : player.getMap().keySet()) {
+            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileState(player.getMap().get(tile));
+            hexagons[tile.getPosition().X][tile.getPosition().Y].setTile(tile);
+            playerTurnTiles.add(hexagons[tile.getPosition().X][tile.getPosition().Y]);
+        }
+        playerTurnTiles.forEach(Hex::addHex);
+    }
+    public void changeTurn(MouseEvent mouseEvent) {
+        for(int i= 0; i < 10; i++){
+            for(int j = 0; j < 10; j++){
+                hexagons[i][j].removeHex();
+            }
+        }
+        playerTurnTiles.clear();
+        gameController.checkChangeTurn(); //TODO: fix bugs
+        generateMapForPlayer(gameController.getPlayerTurn());
     }
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
@@ -125,105 +154,78 @@ public class Game extends Application {
                 "-fx-border-color: white;" +
                 "-fx-border-radius: 5;" +
                 "-fx-pref-width: 200");
+        return updateProductionYield(box);
+    }
+    private VBox updateProductionYield(VBox box) {
+        for(int i = box.getChildren().size() - 1; i >= 0; i--)
+            box.getChildren().remove(box.getChildren().get(0));
         if(gameController.getPlayerTurn().getCities().size() == 0) {
             Label label = new Label();
-            label.setText("nothing...");
+            label.setText("production.y");
             labelStyle(label);
             box.getChildren().add(label);
+            Label label1 = new Label();
+            label1.setText("nothing...");
+            labelStyle(label1);
+            box.getChildren().add(label1);
         }
-        else
+        else {
+            Label title = new Label();
+            title.setText("production.y");
+            labelStyle(title);
+            box.getChildren().add(title);
             for (City city : gameController.getPlayerTurn().getCities()) {
                 Label label = new Label();
                 label.setText(city.getName() + " - " + city.getProductionYield());
                 labelStyle(label);
                 box.getChildren().add(label);
             }
+        }
         return box;
     }
-
-    private void setHoverForInformationTitles(ImageView tmp) {
-        double y = tmp.getY();
+    private void setHoverForInformationTitles(ImageView tmp, VBox information) {
         tmp.setOnMouseMoved(mouseEvent -> {
-            if(pane.getChildren().get(pane.getChildren().size() - 1).getClass() != VBox.class) {
-                if(pane.getChildren().indexOf(tmp) == 6) {
-                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getGold()), 12);
-                    fade(vBox, 0, 1).play();
-                    pane.getChildren().add(vBox);
-                }
-                else if(pane.getChildren().indexOf(tmp) == 7) {
-                    VBox vBox = productionInformationStyle();
-                    fade(vBox, 0, 1).play();
-                    pane.getChildren().add(vBox);
-                }
-                else if(pane.getChildren().indexOf(tmp) == 8) {
-                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getFood()), 14);
-                    fade(vBox, 0, 1).play();
-                    pane.getChildren().add(vBox);
-                }
-                else if(pane.getChildren().indexOf(tmp) == 9) {
-                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getPopulation()), 15);
-                    fade(vBox, 0, 1).play();
-                    pane.getChildren().add(vBox);
-                }
-                else if(pane.getChildren().indexOf(tmp) == 10) {
-                    VBox vBox = informationVbox(String.valueOf(gameController.getPlayerTurn().getHappiness()), 16);
-                    fade(vBox, 0, 1).play();
-                    pane.getChildren().add(vBox);
-                }
-                else if(pane.getChildren().indexOf(tmp) == 11) {
-                    VBox vBox = scienceInformationStyle();
-                    fade(vBox, 0, 1).play();
-                    pane.getChildren().add(vBox);
-                }
-                tmp.setFitWidth(43);
-                tmp.setFitHeight(43);
-                tmp.setX(13.5);
-                tmp.setY(y - 1.5);
+            if(information.getChildren().get(0).getClass() == Label.class &&
+                    ((Label) information.getChildren().get(0)).getText().split(" ")[0].equals("Research") && needUpdateScience) {
+                needUpdateScience = false;
+                ((Label) information.getChildren().get(0)).setText(gameController.showResearch());
+            }
+            if(information.getChildren().get(0).getClass() == Label.class &&
+                    ((Label) information.getChildren().get(0)).getText().split(" ")[0].equals("production.y") && needUpdateProduction) {
+                needUpdateProduction = false;
+                pane.getChildren().remove(information);
+                pane.getChildren().add(updateProductionYield(information));
+            }
+            if(!pane.getChildren().contains(information)) {
+                fade(information).play();
+                pane.getChildren().add(pane.getChildren().size() - 2, information);
             }
         });
-        tmp.setOnMouseExited(mouseEvent -> {
-            if(pane.getChildren().get(pane.getChildren().size() - 2).getClass() == VBox.class) {
-                VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 2));
-                fade(vBox, 1, 0).play();
-                pane.getChildren().remove(vBox);
-            }
-            else {
-                VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 1));
-                fade(vBox, 1, 0).play();
-                pane.getChildren().remove(vBox);
-            }
-            tmp.setFitWidth(40);
-            tmp.setFitHeight(40);
-            tmp.setX(15);
-            tmp.setY(y);
-        });
-        pane.getChildren().get(11).setOnMousePressed(mouseEvent -> {
-            showTechnologies();
-        });
+        tmp.setOnMouseExited(mouseEvent -> pane.getChildren().remove(information));
     }
-    private FadeTransition fade(Node node, double from, double to) {
+    private FadeTransition fade(Node node) {
         FadeTransition ft = new FadeTransition();
         ft.setNode(node);
         ft.setDuration(new Duration(200));
-        ft.setFromValue(from);
-        ft.setToValue(to);
+        ft.setFromValue(0);
+        ft.setToValue(1);
         return ft;
     }
     private void setInformationStyles() {
-        for (int i = 6; i < 12; i++)
-            if(pane.getChildren().size() < 50)
-                setHoverForInformationTitles((ImageView) pane.getChildren().get(i));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(6), informationVbox(String.valueOf(gameController.getPlayerTurn().getGold()), 12));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(7), productionInformationStyle());
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(8), informationVbox(String.valueOf(gameController.getPlayerTurn().getFood()), 14));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(9), informationVbox(String.valueOf(gameController.getPlayerTurn().getPopulation()), 15));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(10), informationVbox(String.valueOf(gameController.getPlayerTurn().getHappiness()), 16));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(11), scienceInformationStyle());
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(13), panelsVbox("cities", 20));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(15), panelsVbox("units", 75));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(17), panelsVbox("military", 130));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(19), panelsVbox("demographics", 185));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(21), panelsVbox("notifications", 240));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(23), panelsVbox("economics", 295));
     }
-    //TODO when the turn changes delete playerTurnTiles from pane
-    public void generateMapForPlayer(Player player){
-        for (Tile tile : player.getMap().keySet()) {
-            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileState(player.getMap().get(tile));
-            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileType(tile.getTileType());
-            hexagons[tile.getPosition().X][tile.getPosition().Y].setTileFeature(tile.getTileFeature());
-            playerTurnTiles.add(hexagons[tile.getPosition().X][tile.getPosition().Y]);
-        }
-        playerTurnTiles.forEach(Hex::addHex);
-    }
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -245,18 +247,33 @@ public class Game extends Application {
         labelStyle(label);
         box.getChildren().add(label);
     }
+    private boolean isValidNumber(String number) {
+        for(int i = 0; i < number.length(); i++)
+            if(number.charAt(i) > 57 || number.charAt(i) < 48)
+                return false;
+        return true;
+    }
+    private void updateBox(VBox box) {
+        pane.getChildren().remove(box);
+        pane.getChildren().add(box);
+    }
+    private VBox panelsVbox(String information, double y) {
+        VBox box = new VBox();
+        box.setLayoutX(1050);
+        box.setLayoutY(y);
+        box.setSpacing(5);
+        box.setAlignment(Pos.CENTER);
+        VboxStyle(box);
+        Label label = new Label();
+        label.setText(information);
+        labelStyle(label);
+        box.getChildren().add(label);
+        return box;
+    }
     private void showTechnologies()
     {
         VBox box = new VBox();
-        box.setAlignment(Pos.CENTER);
-        box.setLayoutX(340);
-        box.setLayoutY(180);
-        box.setStyle("-fx-background-radius: 8;" +
-                "-fx-background-color: rgba(0,0,0,0.74);" +
-                "-fx-border-width: 3;" +
-                "-fx-border-color: white;" +
-                "-fx-border-radius: 5;" +
-                "-fx-pref-width: 600");
+        panelsVboxStyle(box);
         addLabelToBox(infoCommands.numberOfCup.regex + gameController.getPlayerTurn().getCup(), box);
         showGainedTechnologies(box);
         addLabelToBox(infoCommands.chooseTechnology.regex, box);
@@ -322,102 +339,443 @@ public class Game extends Application {
                         {
                             tmp.setResearchingTechnology(candidateTechs.get(number - 1));
                             addLabelToBox(infoCommands.choose.regex + candidateTechs.get(number - 1).name() + infoCommands.successful.regex, box);
-                            updateBox(box);
                             tmp.reduceCup();
+                            pane.getChildren().remove(box);
+                            needUpdateScience = true;
+                            showTechnologies();
                         }
                         else if(number != finalMax + 1) {
                             addLabelToBox(infoCommands.enoughCup.regex + candidateTechs.get(number - 1).name(), box);
                             updateBox(box);
                         }
-                        else
+                        else {
                             pane.getChildren().remove(box);
+                        }
                     }
                 }
                 textField.setText(null);
             }
         });
     }
-    private boolean isValidNumber(String number) {
-        for(int i = 0; i < number.length(); i++)
-            if(number.charAt(i) > 57 || number.charAt(i) < 48)
-                return false;
-        return true;
-    }
-    private void updateBox(VBox box) {
-        pane.getChildren().remove(box);
-        pane.getChildren().add(box);
-    }
-    private VBox panelsVbox(String information, double y) {
-        VBox box = new VBox();
-        box.setLayoutX(1050);
-        box.setLayoutY(y);
-        box.setSpacing(5);
+    private void panelsVboxStyle(VBox box) {
         box.setAlignment(Pos.CENTER);
-        VboxStyle(box);
-        Label label = new Label();
-        label.setText(information);
-        labelStyle(label);
-        box.getChildren().add(label);
+        box.setLayoutX(340);
+        box.setLayoutY(180);
+        box.setStyle("-fx-background-radius: 8;" +
+                "-fx-background-color: rgb(68,30,30);" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: white;" +
+                "-fx-border-radius: 5;" +
+                "-fx-pref-width: 600");
+    }
+    private void panelsPaneStyle2(Pane box) {
+        box.setLayoutX(340);
+        box.setLayoutY(130);
+        box.setStyle("-fx-background-radius: 8;" +
+                "-fx-background-color: rgb(0,7,114);" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: white;" +
+                "-fx-border-radius: 5;" +
+                "-fx-pref-width: 600");
+    }
+    private VBox printCities(Player player)
+    {
+        VBox box = new VBox();
+        box.setAlignment(Pos.CENTER);
+        box.setSpacing(5);
+        int destroyedCities = 0;
+        for(City city : player.getSeizedCities())
+            if(city.getState() == CityState.DESTROYED)
+                destroyedCities++;
+        int size = player.getCities().size() + player.getSeizedCities().size() - destroyedCities;
+        addLabelToBox(infoCommands.cities.regex, box);
+        if(size == 0)
+            addLabelToBox(infoCommands.nothing.regex, box);
+        else
+        {
+            for (int i = 0; i < player.getCities().size(); i++)
+            {
+                if(player.getCities().get(i) == player.getCurrentCapitalCity())
+                    addLabelToBox(player.getCities().get(i).getName() + " (capital city)", box);
+                else
+                    addLabelToBox(player.getCities().get(i).getName(), box);
+            }
+            int attachedCities = 0;
+            for (int i = 0; i < player.getSeizedCities().size() - destroyedCities; i++)
+            {
+                if(player.getSeizedCities().get(i).getState() == CityState.ATTACHED) {
+                    addLabelToBox((attachedCities + player.getCities().size() + 1) + ": " +
+                            player.getSeizedCities().get(i).getName() + " (attached)", box);
+                    attachedCities++;
+                }
+            }
+        }
         return box;
     }
-    private void labelInformationFadesSet(Label label, double y) {
-        if(pane.getChildren().get(pane.getChildren().size() - 1).getClass() != VBox.class) {
-            VBox vBox = panelsVbox(label.getText(), y);
-            fade(vBox, 0, 1).play();
-            pane.getChildren().add(vBox);
+    public void showAllCities()
+    {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 450);
+        VBox box = new VBox();
+        box.setSpacing(5);
+        box.setAlignment(Pos.CENTER);
+        list.setLayoutX(400);
+        box.setLayoutX(200);
+        ArrayList<City> tmp = new ArrayList<>();
+        for(City city : gameController.getPlayerTurn().getSeizedCities())
+            if(city.getState() == CityState.ATTACHED)
+                tmp.add(city);
+        box.getChildren().add(printCities(gameController.getPlayerTurn()));
+        box.getChildren().add(new Label());
+        addLabelToBox(infoCommands.searchEconomic.regex.substring(1), box);
+        box.getChildren().get(box.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            pane.getChildren().remove(list);
+            showEconomics();
+        });
+        list.getChildren().add(exitButtonStyle());
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        box.setLayoutX(150);
+        box.setLayoutY(15);
+
+        for (int i = 1; i < ((VBox) box.getChildren().get(0)).getChildren().size(); i++) {
+            Node node = ((VBox) box.getChildren().get(0)).getChildren().get(i);
+            int finalI = i;
+            node.setOnMousePressed(mouseEvent -> {
+                if (finalI <= gameController.getPlayerTurn().getCities().size()) {
+                    gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(finalI - 1));
+                    showCity();
+                    gameController.getPlayerTurn().setSelectedCity(null);
+                }
+                else {
+                    gameController.getPlayerTurn().setSelectedCity(tmp.get(finalI - gameController.getPlayerTurn().getCities().size() - 1));
+                    showCity();
+                }
+            });
         }
+        list.getChildren().add(box);
+        pane.getChildren().add(list);
     }
-    public void removeLabel(MouseEvent mouseEvent) {
-        if(pane.getChildren().get(pane.getChildren().size() - 2).getClass() == VBox.class) {
-            VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 2));
-            fade(vBox, 1, 0).play();
-            pane.getChildren().remove(vBox);
+    public void showEconomics()
+    {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 1040);
+        list.setLayoutX(100);
+        list.setLayoutY(110);
+        ArrayList<City> n = gameController.getPlayerTurn().getCities();
+        VBox names = new VBox(), population = new VBox(), PF = new VBox(),
+                foodY = new VBox(), cupY = new VBox(), goldY = new VBox(),
+                productionY = new VBox(), coordinates = new VBox(),
+                construction = new VBox(), remainingTurns = new VBox(), attached = new VBox();
+        list.getChildren().addAll(names, population, PF, foodY, cupY, goldY,
+                productionY, coordinates, construction, remainingTurns, attached);
+        for(int i = 0; i < 11; i++) {
+            ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setSpacing(5);
+            ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setAlignment(Pos.CENTER);
+        }
+        for(City city : gameController.getPlayerTurn().getSeizedCities())
+            if(city.getState() == CityState.ATTACHED)
+                n.add(city);
+        if(n.size() != 0) {
+            addLabelToBox("city name", names);
+            addLabelToBox("population" , population);
+            addLabelToBox("PF", PF);
+            addLabelToBox("food.y", foodY);
+            addLabelToBox("cup.y", cupY);
+            addLabelToBox("gold.y", goldY);
+            addLabelToBox("production.y", productionY);
+            addLabelToBox("position", coordinates);
+            addLabelToBox("c.Construction", construction);
+            addLabelToBox("turns", remainingTurns);
+            addLabelToBox("attached cities", attached);
+        }
+        for (City city : n) {
+            addLabelToBox(city.getName(), names);
+            addLabelToBox(String.valueOf(city.getCitizens().size()), population);
+            addLabelToBox(String.valueOf(city.getCombatStrength()), PF);
+            addLabelToBox(String.valueOf(city.getFoodYield()), foodY);
+            addLabelToBox(String.valueOf(city.getCupYield()), cupY);
+            addLabelToBox(String.valueOf(city.getGoldYield()), goldY);
+            addLabelToBox(String.valueOf(city.getProductionYield()), productionY);
+            addLabelToBox(city.getCapitalTile().getPosition().X + "," + city.getCapitalTile().getPosition().Y, coordinates);
+            if(city.getCurrentConstruction() == null) {
+                addLabelToBox("-", construction);
+                addLabelToBox("-", remainingTurns);
+            }
+            else {
+                addLabelToBox(String.valueOf(city.getCurrentConstruction()), construction);
+                addLabelToBox(String.valueOf(city.getCurrentConstruction().getTurnTillBuild()), remainingTurns);
+            }
+            if (city.getState() == CityState.ATTACHED)
+                addLabelToBox("attached", attached);
+            else
+                addLabelToBox("not attached", attached);
+        }
+        //coordinates
+        setCoordinates(list, names, 25, 60);
+        setCoordinates(list, population, 140, 60);
+        setCoordinates(list, PF, 240, 60);
+        setCoordinates(list, foodY, 280, 60);
+        setCoordinates(list, cupY, 350, 60);
+        setCoordinates(list, goldY, 420, 60);
+        setCoordinates(list, productionY, 480, 60);
+        setCoordinates(list, coordinates, 595, 60);
+        setCoordinates(list, construction, 670, 60);
+        setCoordinates(list, remainingTurns, 805, 60);
+        setCoordinates(list, attached, 895, 60);
+
+        addLabelToBox("", productionY);
+        addLabelToBox(infoCommands.searchCity.regex.substring(1), productionY);
+        productionY.getChildren().get(productionY.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            pane.getChildren().remove(list);
+            showAllCities();
+        });
+        list.getChildren().add(exitButtonStyle());
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        pane.getChildren().add(list);
+    }
+    private void setCoordinates(Pane list, VBox box, double x, double y) {
+        list.getChildren().get(list.getChildren().indexOf(box)).setLayoutX(x);
+        list.getChildren().get(list.getChildren().indexOf(box)).setLayoutY(y);
+    }
+    public void showUnits()
+    {
+        Pane box = new Pane();
+        panelsPaneStyle(box, 600);
+        box.prefWidth(300);
+        ArrayList<Unit> tmp = gameController.getPlayerTurn().getUnits();
+        VBox names = new VBox(), coordinates = new VBox(), unitState = new VBox();
+        names.setSpacing(5);
+        coordinates.setSpacing(5);
+        unitState.setSpacing(5);
+        box.getChildren().addAll(names, coordinates, unitState);
+        names.setAlignment(Pos.CENTER);
+        unitState.setAlignment(Pos.CENTER);
+        int max = gameController.getPlayerTurn().getUnits().size();
+        if(max != 0) {
+            Label label = new Label();
+            labelStyle(label);
+            label.setText("choose unit number to change active/inactive");
+            box.getChildren().add(label);
+            setCoordinates(box, 150, 10);
+        }
+        if(max != 0) {
+            addLabelToBox("Type", names);
+            addLabelToBox("coordinates", coordinates);
+            addLabelToBox("unit state", unitState);
+        }
+        for (int i = 0; i < max; i++)
+        {
+            Unit unit = gameController.getPlayerTurn().getUnits().get(i);
+            addLabelToBox((i + 1) + ": " + unit.toString().toLowerCase(), names);
+            addLabelToBox(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y, coordinates);
+            addLabelToBox(unit.getUnitState().symbol, unitState);
+        }
+        addLabelToBox((max + 1) + ": go to Military panel", names);
+        addLabelToBox(" ", coordinates);
+        addLabelToBox(" ", coordinates);
+        //coordinates
+        box.getChildren().get(box.getChildren().indexOf(names)).setLayoutX(40);
+        box.getChildren().get(box.getChildren().indexOf(names)).setLayoutY(40);
+        box.getChildren().get(box.getChildren().indexOf(coordinates)).setLayoutX(250);
+        box.getChildren().get(box.getChildren().indexOf(coordinates)).setLayoutY(40);
+        box.getChildren().get(box.getChildren().indexOf(unitState)).setLayoutX(450);
+        box.getChildren().get(box.getChildren().indexOf(unitState)).setLayoutY(40);
+
+        TextField textField = new TextField();
+        textField.setPrefWidth(150);
+        coordinates.getChildren().add(textField);
+        box.getChildren().add(exitButtonStyle());
+        setCoordinates(box, 20, 20);
+        textField.setOnKeyPressed(keyEvent -> {
+            String keyName = keyEvent.getCode().getName();
+            if (keyName.equals("Enter")) {
+                if (isValidNumber(textField.getText())) {
+                    int tmpNumber = Integer.parseInt(textField.getText());
+                    if ((tmpNumber > max + 1 || tmpNumber < 1) && (coordinates.getChildren().get(coordinates.getChildren().size() - 1).getClass() == TextField.class)) {
+                        addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (max + 1), coordinates);
+                    }
+                    else if ((tmpNumber > max + 1 || tmpNumber < 1) && (coordinates.getChildren().get(coordinates.getChildren().size() - 1).getClass() == Label.class &&
+                            !((Label) coordinates.getChildren().get(coordinates.getChildren().size() - 1)).getText().split(" ")[0].equals("please"))) {
+                        coordinates.getChildren().remove(coordinates.getChildren().size() - 1);
+                        addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (max + 1), coordinates);
+                    }
+                    else if (tmpNumber <= max + 1) {
+                        if (tmpNumber == max + 1) {
+                            pane.getChildren().remove(box);
+                            showMilitary();
+                        }
+                        else {
+                            if (tmp.get(tmpNumber - 1).getUnitState().equals(UnitState.ACTIVE))
+                                tmp.get(tmpNumber - 1).setUnitState(UnitState.SLEEPING);
+                            else
+                                tmp.get(tmpNumber - 1).setUnitState(UnitState.ACTIVE);
+                            pane.getChildren().remove(box);
+                            showUnits();
+                        }
+                    }
+                }
+                textField.setText(null);
+            }
+            });
+        pane.getChildren().add(box);
+    }
+    private void setCoordinates(Pane box, double x, double y) {
+        box.getChildren().get(box.getChildren().size() - 1).setLayoutX(x);
+        box.getChildren().get(box.getChildren().size() - 1).setLayoutY(y);
+    }
+    private ImageView exitButtonStyle() {
+        ImageView exitButton = new ImageView();
+        exitButton.setOnMouseMoved(mouseEvent -> {
+            exitButton.setFitHeight(28);
+            exitButton.setFitWidth(28);
+        });
+        exitButton.setOnMouseExited(mouseEvent -> {
+            exitButton.setFitHeight(25);
+            exitButton.setFitWidth(25);
+        });
+        exitButton.setOnMousePressed(mouseEvent -> {
+            pane.getChildren().remove(pane.getChildren().size() - 1);
+            for(int i = 0; i < pane.getChildren().size(); i++)
+                pane.getChildren().get(i).setDisable(false);
+        });
+        try {
+            exitButton.setImage(new Image(String.valueOf(new URL(getClass().getResource("photos/gameIcons/panelsIcons/Close.png").toExternalForm()))));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        exitButton.setFitHeight(25);
+        exitButton.setFitWidth(25);
+        return exitButton;
+    }
+    public void showMilitary()
+    {
+        VBox box = new VBox();
+        panelsVboxStyle(box);
+        if (gameController.getPlayerTurn().getUnits().size() == 0)
+            addLabelToBox("you have not any unit", box);
+        else
+            box.getChildren().add(showAllUnits(gameController.getPlayerTurn()));
+        pane.getChildren().add(box);
+    }
+    private Pane showAllUnits(Player player)
+    {
+        Pane box = new Pane();
+        panelsPaneStyle(box, 600);
+        int max = player.getUnits().size();
+        VBox names = new VBox(), coordinates = new VBox(),
+                power = new VBox(), MP = new VBox(), health = new VBox(), unitState = new VBox();
+        names.setAlignment(Pos.CENTER);
+        coordinates.setAlignment(Pos.CENTER);
+        power.setAlignment(Pos.CENTER);
+        MP.setAlignment(Pos.CENTER);
+        health.setAlignment(Pos.CENTER);
+        unitState.setAlignment(Pos.CENTER);
+        if(max != 0) {
+            addLabelToBox("Type", names);
+            addLabelToBox("coordinates", coordinates);
+            addLabelToBox("power", power);
+            addLabelToBox("MP", MP);
+            addLabelToBox("health", health);
+            addLabelToBox("state", unitState);
+        }
+        for (int i = 0; i < max; i++)
+        {
+            Unit unit = player.getUnits().get(i);
+            addLabelToBox(unit.toString().toLowerCase(), names);
+            addLabelToBox(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y, coordinates);
+            addLabelToBox(String.valueOf(unit.getPower()), power);
+            addLabelToBox(String.valueOf(unit.getMovementPoints()), MP);
+            addLabelToBox(String.valueOf(unit.getHealth()), health);
+            addLabelToBox(unit.getUnitState().symbol, unitState);
+        }
+        names.getChildren().add(new Label()); coordinates.getChildren().add(new Label());
+        power.getChildren().add(new Label()); health.getChildren().add(new Label());
+        MP.getChildren().add(new Label()); unitState.getChildren().add(new Label());
+        box.getChildren().addAll(names, coordinates, power, MP, health, unitState);
+        box.getChildren().get(box.getChildren().indexOf(names)).setLayoutX(40);
+        box.getChildren().get(box.getChildren().indexOf(names)).setLayoutY(10);
+        box.getChildren().get(box.getChildren().indexOf(coordinates)).setLayoutX(175);
+        box.getChildren().get(box.getChildren().indexOf(coordinates)).setLayoutY(10);
+        box.getChildren().get(box.getChildren().indexOf(power)).setLayoutX(300);
+        box.getChildren().get(box.getChildren().indexOf(power)).setLayoutY(10);
+        box.getChildren().get(box.getChildren().indexOf(MP)).setLayoutX(390);
+        box.getChildren().get(box.getChildren().indexOf(MP)).setLayoutY(10);
+        box.getChildren().get(box.getChildren().indexOf(health)).setLayoutX(450);
+        box.getChildren().get(box.getChildren().indexOf(health)).setLayoutY(10);
+        box.getChildren().get(box.getChildren().indexOf(unitState)).setLayoutX(530);
+        box.getChildren().get(box.getChildren().indexOf(unitState)).setLayoutY(10);
+        box.getChildren().add(exitButtonStyle());
+        box.getChildren().get(box.getChildren().size() - 1).setLayoutX(15);
+        box.getChildren().get(box.getChildren().size() - 1).setLayoutY(15);
+        return box;
+    }
+    private void panelsPaneStyle(Pane list, double width) {
+        list.setLayoutX(340);
+        list.setLayoutY(180);
+        ImageView imageView = new ImageView();
+        try {
+            imageView.setImage(new Image(String.valueOf(new URL(getClass()
+                    .getResource("photos/backgrounds/icons/frontGamePage.jpg").toExternalForm()))));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(500);
+        list.getChildren().add(0, imageView);
+        imageView.setStyle("-fx-background-radius: 8;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: white;" +
+                "-fx-border-radius: 5;" +
+                "-fx-pref-height: 500;");
+        list.setPrefWidth(width);
+    }
+    private void showCity()
+    {
+        Pane list = new Pane();
+        panelsPaneStyle2(list);
+        VBox box = new VBox();
+        box.setAlignment(Pos.CENTER);
+        box.setSpacing(6);
+        Player player = gameController.getPlayerTurn();
+        City tmp = player.getSelectedCity();
+        int flg = -1;
+        for(int i = 0; i < Technology.values().length; i++)
+            if(Technology.values()[i] == player.getResearchingTechnology()) flg = i;
+        addLabelToBox(infoCommands.cityName.regex + tmp.getName(), box);
+        addLabelToBox(gameEnum.foodYield.regex + tmp.getFoodYield(), box);
+        addLabelToBox(gameEnum.production.regex + tmp.getProductionYield(), box);
+        addLabelToBox(gameEnum.goldYield.regex + tmp.getGoldYield(), box);
+        addLabelToBox(gameEnum.cupYield.regex + tmp.getCupYield(), box);
+        addLabelToBox(infoCommands.size.regex + tmp.getTerritory().size(), box);
+        addLabelToBox(gameEnum.population.regex + tmp.getCitizens().size(), box);
+        addLabelToBox(gameEnum.power.regex + tmp.getCombatStrength(), box);
+        if(flg > -1) {
+            addLabelToBox(infoCommands.currentResearching.regex + gameController.
+                    getPlayerTurn().getResearchingTechnology().name(), box);
+            addLabelToBox(infoCommands.remainingTurns.regex + (player.getResearchingTechnology().
+                    cost - player.getResearchingTechCounter()[flg]), box);
         }
         else {
-            VBox vBox = ((VBox) pane.getChildren().get(pane.getChildren().size() - 1));
-            fade(vBox, 1, 0).play();
-            pane.getChildren().remove(vBox);
+            addLabelToBox(infoCommands.currentResearching.regex + infoCommands.nothing.regex, box);
+            addLabelToBox(infoCommands.remainingTurns.regex + "-", box);
         }
-    }
-    public void cityLabel(MouseEvent mouseEvent) {
-        Label label = new Label();
-        labelStyle(label);
-        label.setText("cities");
-        labelInformationFadesSet(label, 20);
-    }
-
-    public void unitLabel(MouseEvent mouseEvent) {
-        Label label = new Label();
-        labelStyle(label);
-        label.setText("units");
-        labelInformationFadesSet(label, 75);
-    }
-
-    public void militaryLabel(MouseEvent mouseEvent) {
-        Label label = new Label();
-        labelStyle(label);
-        label.setText("military");
-        labelInformationFadesSet(label, 130);
-    }
-
-    public void demographicLabel(MouseEvent mouseEvent) {
-        Label label = new Label();
-        labelStyle(label);
-        label.setText("demographics");
-        labelInformationFadesSet(label, 185);
-    }
-
-    public void notificationLabel(MouseEvent mouseEvent) {
-        Label label = new Label();
-        labelStyle(label);
-        label.setText("notifications");
-        labelInformationFadesSet(label, 240);
-    }
-
-    public void economicLabel(MouseEvent mouseEvent) {
-        Label label = new Label();
-        labelStyle(label);
-        label.setText("economic");
-        labelInformationFadesSet(label, 295);
+        addLabelToBox(gameEnum.employedCitizens.regex + (tmp.employedCitizens()), box);
+        addLabelToBox(gameEnum.unEmployedCitizens.regex + (gameController.getPlayerTurn().
+                getTotalPopulation() - tmp.employedCitizens()), box);
+        if(tmp.getCurrentConstruction() != null) {
+            addLabelToBox(gameEnum.currentConstruction.regex + tmp.getCurrentConstruction().toString(), box);
+            addLabelToBox(infoCommands.remainingTurns.regex + tmp.getCurrentConstruction().getTurnTillBuild(), box);
+        }
+        else
+            addLabelToBox(gameEnum.currentConstruction.regex + infoCommands.nothing.regex, box);
+        list.getChildren().add(box);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(175);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        list.getChildren().add(exitButtonStyle());
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        pane.getChildren().add(list);
     }
 }
