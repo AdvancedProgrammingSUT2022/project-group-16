@@ -35,7 +35,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class Game extends Application {
-    private final Hex[][] hexagons = new Hex[10][10];
+    private Hex[][] hexagons;
     private final GameController gameController = GameController.getInstance();
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
@@ -51,17 +51,18 @@ public class Game extends Application {
     }
 
     public void initialize() {
+        gameController.initGame();
         Hex.setPane(pane);
         int x = 200;
-        for(int i = 0; i < 10; i++){
+        hexagons = new Hex[GameController.getInstance().MAP_SIZE][GameController.getInstance().MAP_SIZE];
+        for(int i = 0; i < gameController.MAP_SIZE; i++){
             int y = (i % 2 == 0 ? 50 : 80);
-            for(int j = 0; j < 10 ; j++){
+            for(int j = 0; j < gameController.MAP_SIZE ; j++){
                 hexagons[i][j] = new Hex(new Position(x, y));
                 y += 60;
             }
             x += 80;
         }
-        gameController.initGame();
         generateMapForPlayer(gameController.getPlayerTurn());
 
         setInformationStyles();
