@@ -1,6 +1,7 @@
 import Controllers.GameController;
 import Models.City.City;
 import Models.City.CityState;
+import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Terrain.Hex;
@@ -15,6 +16,7 @@ import enums.gameEnum;
 import enums.mainCommands;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -33,6 +35,7 @@ import javafx.util.Duration;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Game extends Application {
     private final Hex[][] hexagons = new Hex[10][10];
@@ -74,6 +77,14 @@ public class Game extends Application {
         new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
         new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
         new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
     //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
@@ -242,6 +253,12 @@ public class Game extends Application {
         addLabelToBox(" ", box);
     }
     private void addLabelToBox(String line, VBox box) {
+        Label label = new Label();
+        label.setText(line);
+        labelStyle(label);
+        box.getChildren().add(label);
+    }
+    private void addLabelToPane(String line, Pane box) {
         Label label = new Label();
         label.setText(line);
         labelStyle(label);
@@ -508,6 +525,7 @@ public class Game extends Application {
             }
             if (city.getState() == CityState.ATTACHED)
                 addLabelToBox("attached", attached);
+
             else
                 addLabelToBox("not attached", attached);
         }
@@ -538,6 +556,68 @@ public class Game extends Application {
     private void setCoordinates(Pane list, VBox box, double x, double y) {
         list.getChildren().get(list.getChildren().indexOf(box)).setLayoutX(x);
         list.getChildren().get(list.getChildren().indexOf(box)).setLayoutY(y);
+    }
+    public void showNotifications(int listNumber)
+    {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 400);
+        VBox box = new VBox();
+        box.setSpacing(5);
+        addLabelToPane("notification panel", list);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(145);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        ArrayList<Notification> tmp = gameController.getPlayerTurn().getNotifications();
+        ImageView rightArrow = new ImageView();
+        ImageView leftArrow = new ImageView();
+        try {
+            rightArrow.setImage(new Image(String.valueOf(new URL(getClass().
+                    getResource("photos/gameIcons/ArrowRight.png").toExternalForm()))));
+            leftArrow.setImage(new Image(String.valueOf(new URL(getClass().
+                    getResource("photos/gameIcons/ArrowRight.png").toExternalForm()))));
+            leftArrow.setRotate(180);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        list.getChildren().addAll(rightArrow, leftArrow);
+        list.getChildren().get(list.getChildren().indexOf(rightArrow)).setLayoutX(220);
+        list.getChildren().get(list.getChildren().indexOf(leftArrow)).setLayoutX(165);
+        list.getChildren().get(list.getChildren().indexOf(rightArrow)).setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(gameController.getPlayerTurn().getNotifications().size() - listNumber > 4) {
+                    pane.getChildren().remove(list);
+                    showNotifications(listNumber + 4);
+                }
+            }
+        });
+        list.getChildren().get(list.getChildren().indexOf(leftArrow)).setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if(listNumber > 0) {
+                    pane.getChildren().remove(list);
+                    showNotifications(listNumber - 4);
+                }
+            }
+        });
+        list.getChildren().get(list.getChildren().indexOf(rightArrow)).setLayoutY(400);
+        list.getChildren().get(list.getChildren().indexOf(leftArrow)).setLayoutY(400);
+        int number = tmp.size();
+        if(number == 0)
+            addLabelToBox(infoCommands.nothing.regex, box);
+        for(int i = 0; i < 4; i++) {
+            if(i + listNumber < tmp.size()) {
+                addLabelToBox((i + listNumber + 1) + ":", box);
+                addLabelToBox("        " + tmp.get(i + listNumber).getMessage(), box);
+                addLabelToBox("        " + infoCommands.sendMessage.regex + tmp.get(i + listNumber).getSendingTurn(), box);
+            }
+        }
+        list.getChildren().add(exitButtonStyle());
+        box.setLayoutX(40);
+        box.setLayoutY(40);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(5);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(5);
+        list.getChildren().add(box);
+        pane.getChildren().add(list);
     }
     public void showUnits()
     {
@@ -777,5 +857,9 @@ public class Game extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         pane.getChildren().add(list);
+    }
+
+    public void notifications(MouseEvent mouseEvent) {
+        showNotifications(0);
     }
 }
