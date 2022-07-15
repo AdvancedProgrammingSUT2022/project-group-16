@@ -16,6 +16,11 @@ import enums.gameEnum;
 import enums.mainCommands;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,9 +40,7 @@ import javafx.util.Duration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 public class Game extends Application {
     private final Hex[][] hexagons = new Hex[10][10];
@@ -76,6 +79,7 @@ public class Game extends Application {
             audioClip.play();
         });
 
+        //cheatCode shortcut
         //TODO: do not remove this part :))))
         new City(gameController.getMap().get(55), gameController.getPlayerTurn());
         new City(gameController.getMap().get(45), gameController.getPlayerTurn());
@@ -340,9 +344,9 @@ public class Game extends Application {
             if(keyName.equals("Enter")) {
                 if(isValidNumber(textField.getText())) {
                     int number = Integer.parseInt(textField.getText());
-                    if(number > finalMax + 1 && (box.getChildren().get(box.getChildren().size() - 1).getClass() == TextField.class))
+                    if((number > finalMax + 1 || number == 0)&& (box.getChildren().get(box.getChildren().size() - 1).getClass() == TextField.class))
                         addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (finalMax + 1), box);
-                    else if(number > finalMax + 1 && (box.getChildren().get(box.getChildren().size() - 1).getClass() == Label.class &&
+                    else if((number > finalMax + 1 || number == 0)&& (box.getChildren().get(box.getChildren().size() - 1).getClass() == Label.class &&
                             !((Label) box.getChildren().get(box.getChildren().size() - 1)).getText().split(" ")[0].equals("please"))) {
                         box.getChildren().remove(box.getChildren().size() - 1);
                         addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (finalMax + 1), box);
@@ -438,6 +442,7 @@ public class Game extends Application {
     }
     public void showAllCities()
     {
+        audioClip.play();
         Pane list = new Pane();
         panelsPaneStyle(list, 450, 500);
         VBox box = new VBox();
@@ -484,6 +489,7 @@ public class Game extends Application {
     }
     public void showEconomics()
     {
+        audioClip.play();
         Pane list = new Pane();
         panelsPaneStyle(list, 1040, 500);
         list.setLayoutX(100);
@@ -569,6 +575,7 @@ public class Game extends Application {
     }
     public void showNotifications(int listNumber)
     {
+        audioClip.play();
         Pane list = new Pane();
         panelsPaneStyle(list, 400, 500);
         VBox box = new VBox();
@@ -629,6 +636,7 @@ public class Game extends Application {
     }
     public void showUnits()
     {
+        audioClip.play();
         Pane box = new Pane();
         panelsPaneStyle(box, 600, 500);
         box.prefWidth(300);
