@@ -60,15 +60,15 @@ public class Game extends Application {
     public void initialize() {
         gameController.initGame();
         Hex.setPane(pane);
-        int x = 200;
+        int x = 45;
         hexagons = new Hex[GameController.getInstance().MAP_SIZE][GameController.getInstance().MAP_SIZE];
         for(int i = 0; i < gameController.MAP_SIZE; i++){
-            int y = (i % 2 == 0 ? 50 : 80);
+            int y = (i % 2 == 0 ? 20 : 40);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
-                hexagons[i][j] = new Hex(new Position(x, y));
-                y += 60;
+                hexagons[j][i] = new Hex(new Position(x, y));
+                y += 30;
             }
-            x += 80;
+            x += 50;
         }
         generateMapForPlayer(gameController.getPlayerTurn());
 
@@ -114,8 +114,8 @@ public class Game extends Application {
         playerTurnTiles.forEach(Hex::addHex);
     }
     public void changeTurn(MouseEvent mouseEvent) {
-        for(int i= 0; i < 10; i++){
-            for(int j = 0; j < 10; j++){
+        for(int i= 0; i < GameController.getInstance().MAP_SIZE; i++){
+            for(int j = 0; j < GameController.getInstance().MAP_SIZE; j++){
                 hexagons[i][j].removeHex();
             }
         }
