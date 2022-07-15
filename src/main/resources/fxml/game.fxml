@@ -28,9 +28,9 @@
     <Circle layoutX="1240" layoutY="90" radius="23" styleClass="brownCircle"/>
     <ImageView fitHeight="40" fitWidth="40" x="1220" y="70" styleClass="unit" onMouseClicked="#showUnits"/>
     <Circle layoutX="1240" layoutY="145" radius="23" styleClass="brownCircle"/>
-    <ImageView fitHeight="40" fitWidth="40" x="1220" y="125" styleClass="military" onMouseClicked="#showMilitary"/>
+    <ImageView fitHeight="40" fitWidth="40" x="1220" y="125" styleClass="military" onMouseClicked="#military"/>
     <Circle layoutX="1240" layoutY="200" radius="23" styleClass="brownCircle"/>
-    <ImageView fitHeight="40" fitWidth="40" x="1220" y="180" styleClass="demographic"/>
+    <ImageView fitHeight="40" fitWidth="40" x="1220" y="180" styleClass="demographic" onMouseClicked="#demographics"/>
     <Circle layoutX="1240" layoutY="255" radius="23" styleClass="brownCircle"/>
     <ImageView fitHeight="40" fitWidth="40" x="1220" y="235" styleClass="notification" onMouseClicked="#notifications"/>
     <Circle layoutX="1240" layoutY="310" radius="23" styleClass="brownCircle"/>

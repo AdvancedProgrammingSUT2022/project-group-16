@@ -29,12 +29,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Game extends Application {
@@ -43,6 +45,7 @@ public class Game extends Application {
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
     private boolean needUpdateProduction = true;
+    public AudioClip audioClip = new AudioClip(Main.class.getResource("audio/gameAudios/click.mp3").toExternalForm());
     @FXML
     private Pane pane;
     @Override
@@ -68,7 +71,10 @@ public class Game extends Application {
         generateMapForPlayer(gameController.getPlayerTurn());
 
         setInformationStyles();
-        pane.getChildren().get(11).setOnMousePressed(mouseEvent -> showTechnologies());
+        pane.getChildren().get(11).setOnMousePressed(mouseEvent -> {
+            showTechnologies();
+            audioClip.play();
+        });
 
         //TODO: do not remove this part :))))
         new City(gameController.getMap().get(55), gameController.getPlayerTurn());
@@ -85,6 +91,7 @@ public class Game extends Application {
         new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
         new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
         new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
     //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
@@ -432,7 +439,7 @@ public class Game extends Application {
     public void showAllCities()
     {
         Pane list = new Pane();
-        panelsPaneStyle(list, 450);
+        panelsPaneStyle(list, 450, 500);
         VBox box = new VBox();
         box.setSpacing(5);
         box.setAlignment(Pos.CENTER);
@@ -447,6 +454,7 @@ public class Game extends Application {
         addLabelToBox(infoCommands.searchEconomic.regex.substring(1), box);
         box.getChildren().get(box.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
             pane.getChildren().remove(list);
+            audioClip.play();
             showEconomics();
         });
         list.getChildren().add(exitButtonStyle());
@@ -459,6 +467,7 @@ public class Game extends Application {
             Node node = ((VBox) box.getChildren().get(0)).getChildren().get(i);
             int finalI = i;
             node.setOnMousePressed(mouseEvent -> {
+                audioClip.play();
                 if (finalI <= gameController.getPlayerTurn().getCities().size()) {
                     gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(finalI - 1));
                     showCity();
@@ -476,7 +485,7 @@ public class Game extends Application {
     public void showEconomics()
     {
         Pane list = new Pane();
-        panelsPaneStyle(list, 1040);
+        panelsPaneStyle(list, 1040, 500);
         list.setLayoutX(100);
         list.setLayoutY(110);
         ArrayList<City> n = gameController.getPlayerTurn().getCities();
@@ -530,22 +539,23 @@ public class Game extends Application {
                 addLabelToBox("not attached", attached);
         }
         //coordinates
-        setCoordinates(list, names, 25, 60);
-        setCoordinates(list, population, 140, 60);
-        setCoordinates(list, PF, 240, 60);
-        setCoordinates(list, foodY, 280, 60);
-        setCoordinates(list, cupY, 350, 60);
-        setCoordinates(list, goldY, 420, 60);
-        setCoordinates(list, productionY, 480, 60);
-        setCoordinates(list, coordinates, 595, 60);
-        setCoordinates(list, construction, 670, 60);
-        setCoordinates(list, remainingTurns, 805, 60);
-        setCoordinates(list, attached, 895, 60);
+        setCoordinatesBox(list, names, 25, 60);
+        setCoordinatesBox(list, population, 140, 60);
+        setCoordinatesBox(list, PF, 240, 60);
+        setCoordinatesBox(list, foodY, 280, 60);
+        setCoordinatesBox(list, cupY, 350, 60);
+        setCoordinatesBox(list, goldY, 420, 60);
+        setCoordinatesBox(list, productionY, 480, 60);
+        setCoordinatesBox(list, coordinates, 595, 60);
+        setCoordinatesBox(list, construction, 670, 60);
+        setCoordinatesBox(list, remainingTurns, 805, 60);
+        setCoordinatesBox(list, attached, 895, 60);
 
         addLabelToBox("", productionY);
         addLabelToBox(infoCommands.searchCity.regex.substring(1), productionY);
         productionY.getChildren().get(productionY.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
             pane.getChildren().remove(list);
+            audioClip.play();
             showAllCities();
         });
         list.getChildren().add(exitButtonStyle());
@@ -553,14 +563,14 @@ public class Game extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         pane.getChildren().add(list);
     }
-    private void setCoordinates(Pane list, VBox box, double x, double y) {
+    private void setCoordinatesBox(Pane list, VBox box, double x, double y) {
         list.getChildren().get(list.getChildren().indexOf(box)).setLayoutX(x);
         list.getChildren().get(list.getChildren().indexOf(box)).setLayoutY(y);
     }
     public void showNotifications(int listNumber)
     {
         Pane list = new Pane();
-        panelsPaneStyle(list, 400);
+        panelsPaneStyle(list, 400, 500);
         VBox box = new VBox();
         box.setSpacing(5);
         addLabelToPane("notification panel", list);
@@ -581,22 +591,18 @@ public class Game extends Application {
         list.getChildren().addAll(rightArrow, leftArrow);
         list.getChildren().get(list.getChildren().indexOf(rightArrow)).setLayoutX(220);
         list.getChildren().get(list.getChildren().indexOf(leftArrow)).setLayoutX(165);
-        list.getChildren().get(list.getChildren().indexOf(rightArrow)).setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(gameController.getPlayerTurn().getNotifications().size() - listNumber > 4) {
-                    pane.getChildren().remove(list);
-                    showNotifications(listNumber + 4);
-                }
+        list.getChildren().get(list.getChildren().indexOf(rightArrow)).setOnMousePressed(mouseEvent -> {
+            audioClip.play();
+            if(gameController.getPlayerTurn().getNotifications().size() - listNumber > 4) {
+                pane.getChildren().remove(list);
+                showNotifications(listNumber + 4);
             }
         });
-        list.getChildren().get(list.getChildren().indexOf(leftArrow)).setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(listNumber > 0) {
-                    pane.getChildren().remove(list);
-                    showNotifications(listNumber - 4);
-                }
+        list.getChildren().get(list.getChildren().indexOf(leftArrow)).setOnMousePressed(mouseEvent -> {
+            audioClip.play();
+            if(listNumber > 0) {
+                pane.getChildren().remove(list);
+                showNotifications(listNumber - 4);
             }
         });
         list.getChildren().get(list.getChildren().indexOf(rightArrow)).setLayoutY(400);
@@ -616,13 +622,15 @@ public class Game extends Application {
         box.setLayoutY(40);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(5);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(5);
+        list.setLayoutX(400);
+        list.setLayoutY(75);
         list.getChildren().add(box);
         pane.getChildren().add(list);
     }
     public void showUnits()
     {
         Pane box = new Pane();
-        panelsPaneStyle(box, 600);
+        panelsPaneStyle(box, 600, 500);
         box.prefWidth(300);
         ArrayList<Unit> tmp = gameController.getPlayerTurn().getUnits();
         VBox names = new VBox(), coordinates = new VBox(), unitState = new VBox();
@@ -684,7 +692,7 @@ public class Game extends Application {
                     else if (tmpNumber <= max + 1) {
                         if (tmpNumber == max + 1) {
                             pane.getChildren().remove(box);
-                            showMilitary();
+                            showMilitary(gameController.getPlayerTurn());
                         }
                         else {
                             if (tmp.get(tmpNumber - 1).getUnitState().equals(UnitState.ACTIVE))
@@ -716,7 +724,9 @@ public class Game extends Application {
             exitButton.setFitWidth(25);
         });
         exitButton.setOnMousePressed(mouseEvent -> {
+            audioClip.play();
             pane.getChildren().remove(pane.getChildren().size() - 1);
+            pane.getChildren().get(pane.getChildren().size() - 1).setDisable(false);
             for(int i = 0; i < pane.getChildren().size(); i++)
                 pane.getChildren().get(i).setDisable(false);
         });
@@ -729,20 +739,20 @@ public class Game extends Application {
         exitButton.setFitWidth(25);
         return exitButton;
     }
-    public void showMilitary()
+    public void showMilitary(Player player)
     {
         VBox box = new VBox();
         panelsVboxStyle(box);
-        if (gameController.getPlayerTurn().getUnits().size() == 0)
+        if (player.getUnits().size() == 0)
             addLabelToBox("you have not any unit", box);
         else
-            box.getChildren().add(showAllUnits(gameController.getPlayerTurn()));
+            box.getChildren().add(showAllUnits(player));
         pane.getChildren().add(box);
     }
     private Pane showAllUnits(Player player)
     {
         Pane box = new Pane();
-        panelsPaneStyle(box, 600);
+        panelsPaneStyle(box, 600, 500);
         int max = player.getUnits().size();
         VBox names = new VBox(), coordinates = new VBox(),
                 power = new VBox(), MP = new VBox(), health = new VBox(), unitState = new VBox();
@@ -791,7 +801,7 @@ public class Game extends Application {
         box.getChildren().get(box.getChildren().size() - 1).setLayoutY(15);
         return box;
     }
-    private void panelsPaneStyle(Pane list, double width) {
+    private void panelsPaneStyle(Pane list, double width, double height) {
         list.setLayoutX(340);
         list.setLayoutY(180);
         ImageView imageView = new ImageView();
@@ -802,7 +812,7 @@ public class Game extends Application {
             e.printStackTrace();
         }
         imageView.setFitWidth(width);
-        imageView.setFitHeight(500);
+        imageView.setFitHeight(height);
         list.getChildren().add(0, imageView);
         imageView.setStyle("-fx-background-radius: 8;" +
                 "-fx-border-width: 3;" +
@@ -861,5 +871,114 @@ public class Game extends Application {
 
     public void notifications(MouseEvent mouseEvent) {
         showNotifications(0);
+    }
+    public void showDemographic(Player tmp)
+    {
+        //define pane and box
+        Pane list = new Pane();
+        panelsPaneStyle(list, 1000, 500);
+        list.setLayoutX(180);
+        list.setLayoutY(100);
+        VBox cities = printCities(tmp), information = new VBox(), players = new VBox();
+        cities.setAlignment(Pos.TOP_LEFT);
+        cities.setSpacing(5);
+        information.setAlignment(Pos.TOP_LEFT);
+        information.setSpacing(5);
+        list.getChildren().addAll(cities, players, information);
+
+        //exit button
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 10, 10);
+
+        //civilization information and coordinates
+        addLabelToBox("general information" , information);
+        addLabelToPane(infoCommands.civilizationName.regex + tmp.getCivilization().name(), list);
+        setCoordinates(list, 350, 10);
+        setCoordinatesBox(list, cities, 40, 40);
+        setCoordinatesBox(list, players, 500, 300);
+        addLabelToBox(gameEnum.population.regex + tmp.getTotalPopulation(), information);
+        addLabelToBox(gameEnum.happiness.regex + tmp.getHappiness(), information);
+//        System.out.println(tmp.get); //TODO: resource
+        addLabelToBox(gameEnum.food.regex + tmp.getFood(), information);
+        addLabelToBox(gameEnum.cup.regex + tmp.getCup(), information);
+        addLabelToBox(gameEnum.cupIncome.regex + tmp.incomeCup(), information);
+        addLabelToBox(gameEnum.gold.regex + tmp.getGold(), information);
+        addLabelToBox(gameEnum.goldIncome.regex + tmp.incomeGold(), information);
+        setCoordinatesBox(list, information, 500, 40);
+
+        //units
+        addLabelToPane("Go to Military panel", list);
+        setCoordinates(list, 40, 300);
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            audioClip.play();
+            pane.getChildren().remove(list);
+            showMilitary(tmp);
+        });
+
+        //other players
+        addLabelToBox("you can also see the other players information\nchoose a civilization: ", players);
+        int number = 0;
+        ArrayList<Player> newArr = new ArrayList<>();
+        for(Player player : gameController.getPlayers())
+            if(player != gameController.getPlayerTurn()) {
+                addLabelToBox((number + 1) + ": " + player.getCivilization().name(), players);
+                players.getChildren().get(players.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+                    audioClip.play();
+                    pane.getChildren().remove(list);
+                    showDemographic(player);
+                });
+                newArr.add(player);
+                number++;
+            }
+
+        //score board
+        addLabelToPane("Go to score board", list);
+        setCoordinates(list, 40, 325);
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            audioClip.play();
+            pane.getChildren().add(showScoreBoard());
+            setCoordinates(pane, 500, 120);
+            pane.getChildren().get(pane.getChildren().size() - 2).setDisable(true);
+        });
+
+        pane.getChildren().add(list);
+    }
+    public Pane showScoreBoard()
+    {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 300, 250);
+        VBox box = new VBox();
+        list.getChildren().add(box);
+        box.setSpacing(5);
+        box.setAlignment(Pos.CENTER);
+        setCoordinatesBox(list, box, 75, 10);
+        addLabelToBox(infoCommands.scoreBoard.regex, box);
+        gameController.getPlayers().sort((o1, o2) -> {
+            if (o1.getScore() == o2.getScore())
+                return 0;
+            return o1.getScore() < o2.getScore() ? -1 : 1;
+        });
+        int number = gameController.getPlayers().size();
+        for(int i = number - 1; i >= 0; i--)
+            addLabelToBox((number - i) + " - " + gameController.getPlayers().get(i).getCivilization().name().toLowerCase(Locale.ROOT)
+                    + ": " +  gameController.getPlayers().get(i).getScore(), box);
+        int avg = 0;
+        for(Player player1 : gameController.getPlayers())
+            avg += player1.getScore();
+        addLabelToBox("----------------------", box);
+        addLabelToBox(infoCommands.averageScore.regex + ((double) avg / gameController.getPlayers().size()), box);
+
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 10, 10);
+        return list;
+    }
+    public void demographics(MouseEvent mouseEvent) {
+        audioClip.play();
+        showDemographic(gameController.getPlayerTurn());
+    }
+
+    public void military(MouseEvent mouseEvent) {
+        audioClip.play();
+        showMilitary(gameController.getPlayerTurn());
     }
 }
