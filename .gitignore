@@ -2,3 +2,4 @@
 target
 README.md
 pom.xml
+*.log
