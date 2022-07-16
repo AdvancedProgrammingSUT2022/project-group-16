@@ -524,7 +524,7 @@ public class Player extends User
 	public void initMap()
 	{
 		for (Tile tile : gameController.getMap())
-			map.put(tile, TileState.FOG_OF_WAR);
+			map.put(tile, TileState.VISIBLE);
 	}
 }
 

@@ -243,6 +243,7 @@ public class Hex {
             case HILLS -> url = "/photos/Tiles/Hill.png";
             case OCEAN -> url = "/photos/Tiles/Ocean.png";
             case MOUNTAIN -> url = "/photos/Tiles/Mountain.png";
+            case RUIN -> url = "/photos/Tiles/ruin.png";
             default -> url = "/photos/Tiles/Hexagon.png";
         }
         tileImageView = setImage(url, 0, 0, 90,90);
