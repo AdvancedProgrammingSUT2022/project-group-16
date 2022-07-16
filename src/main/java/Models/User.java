@@ -2,6 +2,7 @@ package Models;
 
 import Models.chat.Message;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;

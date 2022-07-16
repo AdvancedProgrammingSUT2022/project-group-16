@@ -28,10 +28,11 @@ import enums.gameEnum;
 import enums.mainCommands;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 
-public class GameController
+public class GameController implements Serializable
 {
 	private static GameController instance = null;
 	private final ArrayList<Position> grid = new ArrayList<>();
@@ -43,6 +44,14 @@ public class GameController
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
+
+	public int getMAP_SIZE() {
+		return MAP_SIZE;
+	}
+
+	public ArrayList<Position> getGrid() {
+		return grid;
+	}
 
 	// private constructor to prevent instantiation
 	private GameController()
@@ -1147,7 +1156,6 @@ public class GameController
 		return infoCommands.researchInfo.regex + infoCommands.currentResearching.regex + infoCommands.nothing.regex;
 	}
 
-
 	public String selectCUnit(String command)
 	{
 		for(int i = 0; i < command.length(); i++)
@@ -2213,7 +2221,7 @@ public class GameController
 				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
 	}
 
-	private Citizen isUnemployed(City city)
+	public Citizen isUnemployed(City city)
 	{
 		for(Citizen citizen : city.getCitizens())
 			if(citizen.getWorkingTile() == null)
@@ -2222,6 +2230,8 @@ public class GameController
 	}
 	public String lockCitizenToTile(Matcher matcher)
 	{
+		if(matcher == null)
+			return gameEnum.invalidCommand.regex;
 		if(isValidCoordinate(matcher) == null)
 			return unitCommands.wrongCoordinates.regex;
 		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
@@ -2232,7 +2242,7 @@ public class GameController
 			else
 				return Objects.requireNonNull(isUnemployed(playerTurn.getSelectedCity())).setCitizenOnTile(tile);
 		}
-		return gameEnum.nonSelect.regex;
+		return gameEnum.invalidCoordinate.regex;
 	}
 	private Citizen hasCitizenOnTile(Tile tile)
 	{
@@ -2243,6 +2253,8 @@ public class GameController
 	}
 	public String unLockCitizenToTile(Matcher matcher)
 	{
+		if(matcher == null)
+			return gameEnum.invalidCommand.regex;
 		if(isValidCoordinate(matcher) == null)
 			return unitCommands.wrongCoordinates.regex;
 		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));

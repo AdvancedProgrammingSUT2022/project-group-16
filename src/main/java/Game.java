@@ -9,6 +9,7 @@ import Models.Terrain.Position;
 import Models.Terrain.Tile;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import enums.cheatCode;
@@ -18,7 +19,6 @@ import enums.mainCommands;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -37,7 +37,6 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -110,9 +109,10 @@ public class Game extends Application {
                     gameController.gainStrategicResourceCheat();
                 else if(cheatCode.compareRegex(command, cheatCode.gainLuxuryResource) != null)
                     gameController.gainLuxuryResourceCheat();
-                else if(command.equals("a"))
-                    for(Node node : pane.getChildren())
-                        System.out.println(node);
+                else if(command.equals("a")) {
+                    ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
+                    gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+                }
                 pane.getChildren().remove(textField);
                 setInformationStyles();
                 pane.requestFocus();
@@ -128,7 +128,7 @@ public class Game extends Application {
         {
             int y = (i % 2 == 0 ? 45 : 90);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
-                hexagons[j][i] = new Hex(new Position(x, y));
+                hexagons[j][i] = new Hex(new Position(x, y), gameController);
                 y += 100;
             }
             x += 90;
@@ -160,31 +160,32 @@ public class Game extends Application {
 
         //cheatCode shortcut
         //TODO: do not remove this part :))))
-        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
-        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
-        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
-        gameController.getPlayerTurn().setCup(10);
-        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-        gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
-        gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
-        gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
-        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
-        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
-        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
+//        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
+//        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
+//        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
+//        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
+//        gameController.getPlayerTurn().setCup(10);
+//        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
+//        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
+//        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
+//        gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+//        gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
+//        gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
+//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
+//        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+//        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
+//        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
 //        gameController.getPlayerTurn().setCup(100);
 
     }
@@ -1162,6 +1163,14 @@ public class Game extends Application {
                         node.setDisable(false);
                     pane.requestFocus();
                 });
+        addButtonToBox("save game", box);
+        (box.getChildren().get(box.getChildren().size() - 1)).setOnMousePressed(
+                mouseEvent1 -> {
+                    pane.getChildren().remove(list);
+                    for(Node node : pane.getChildren())
+                        node.setDisable(false);
+                    pane.requestFocus();
+                });
         addButtonToBox("exit", box);
         (box.getChildren().get(box.getChildren().size() - 1)).setOnMousePressed(
                 mouseEvent1 -> Platform.exit());
@@ -1202,6 +1211,14 @@ public class Game extends Application {
             setCoordinates(list ,state * 300 + 10, 10);
             state++;
         }
+        addLabelToPane("technology tree", list);
+        setCoordinates(list, 15, 225);
+        addLabelToPane("red: gained technologies", list);
+        setCoordinates(list, 15, 250);
+        addLabelToPane("green: researching technology", list);
+        setCoordinates(list, 15, 275);
+        addLabelToPane("blue: others", list);
+        setCoordinates(list, 15, 300);
         list.getChildren().add(exitButtonStyle());
         setCoordinates(list, 20, 10);
         list.setOnScroll((ScrollEvent event) -> {
@@ -1209,7 +1226,7 @@ public class Game extends Application {
             double deltaX = event.getDeltaX();
             if (deltaX < 0)
                 xScale *= -1;
-            if((list.getChildren().get(list.getChildren().size() - 3).getLayoutX() > 1150 && xScale < 0) || list.getChildren().get(1).getLayoutX() < 25 && xScale > 0) {
+            if((list.getChildren().get(list.getChildren().size() - 7).getLayoutX() > 1150 && xScale < 0) || list.getChildren().get(1).getLayoutX() < 25 && xScale > 0) {
                 for(int i = 1; i < list.getChildren().size() - 1; i++)
                     list.getChildren().get(i).setLayoutX(list.getChildren().get(i).getLayoutX() + xScale);
             }

@@ -14,11 +14,13 @@ public enum gameEnum
     next("^\\s*[nN]ext\\s*$"),
     end("^\\s*[eE]nd\\s*$"),
     buildUnit("^\\s*[bB]uild\\s+[uU]nit\\s*$"),
-    lockCitizenToTile("^\\s*[lL]ock\\s+[cC]itizen\\s+[tT]o\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+//    lockCitizenToTile("^\\s*[lL]ock\\s+[cC]itizen\\s+[tT]o\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    lockCitizenToTile("(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     unLockCitizenToTile("^\\s*[uU]nlock\\s+[cC]itizen\\s+[fF]rom\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
 
     //messages
     invalidCommand("invalid command"),
+    invalidCoordinate("invalid coordinates"),
     endGame("game has ended!"),
     numberOfPlayers("invalid number of players"),
     lessThanFour("please pick less than 4 players:)"),
@@ -79,7 +81,10 @@ public enum gameEnum
     farTile("the tile is far from city"),
     anotherCitizenWorking("another citizen is working in tile"),
     noCitizenHere("there is no citizen in this tile"),
-    removeFromWork("citizen removed from work successfully");
+    removeFromWork("citizen removed from work successfully"),
+
+    //file path
+    filePath("src/main/java/database/savedGames.json");;
 
     public final String regex;
 
