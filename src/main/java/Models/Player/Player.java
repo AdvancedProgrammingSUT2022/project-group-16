@@ -48,6 +48,7 @@ public class Player extends User
 	private final ArrayList<Unit> units = new ArrayList<>();
 	private int tilePurchaseCost = 10; //increases every time the player purchases a tile
 	private boolean isUnHappy = false;
+	private HashMap<Civilization, RelationState> relationStates = new HashMap<>();
 
 	public Player(Civilization civilization, String username, String nickname, String password, int score) throws IOException {
 		super(username, nickname, password, null);
@@ -56,6 +57,14 @@ public class Player extends User
 		gameController = GameController.getInstance();
 		this.map = new HashMap<>();
 		this.setScore(score);
+	}
+
+	public HashMap<Civilization, RelationState> getRelationStates() {
+		return relationStates;
+	}
+
+	public void addRelationStates(Civilization civilization, RelationState relationState) {
+		this.relationStates.put(civilization,relationState);
 	}
 
 	public City getSelectedCity()

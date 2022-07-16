@@ -32,6 +32,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -47,6 +48,7 @@ public class Game extends Application {
     private boolean needUpdateProduction = true;
     public AudioClip audioClip = new AudioClip(Game.class.getResource("audio/gameAudios/click.mp3").toExternalForm());
     private final AudioClip gameDemo = new AudioClip(Game.class.getResource("audio/2.mp3").toExternalForm());
+    private Pane map = new Pane();
     @FXML
     private Pane pane;
     @Override
@@ -59,6 +61,13 @@ public class Game extends Application {
     }
 
     public void initialize() {
+        ////////////test/////////
+//        map.setPrefWidth(1280);
+//        map.setMaxHeight(600);
+//        Rectangle rectangle = new Rectangle(100, 100, 100, 100);
+//        map.getChildren().add(rectangle);
+//        pane.getChildren().add(map);
+        ///////////////////////
         gameController.initGame();
         Hex.setPane(pane);
         int x = 45;
@@ -96,12 +105,17 @@ public class Game extends Application {
         new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
         new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
         new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-    //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
-//        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
-//        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
-//        gameController.getPlayerTurn().setCup(100);
+        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
+        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
+        gameController.getPlayerTurn().setCup(100);
 
     }
+
+    private void moveMap(double deltaX, double deltaY) {
+
+    }
+
     //TODO when the turn changes delete playerTurnTiles from pane
     public void generateMapForPlayer(Player player){
         for (Tile tile : player.getMap().keySet()) {

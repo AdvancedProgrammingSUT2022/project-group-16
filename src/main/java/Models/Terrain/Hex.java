@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class Hex {
     private static Pane parent;
     private final Pane pane;
-    private final Position position;
+    private Position position;
     private Tile tile;
     private TileState tileState;
     private ArrayList<ImageView> hexElements = new ArrayList<>();
@@ -41,6 +41,7 @@ public class Hex {
         setFeatureBackground();
         //setBoarders();
     }
+
 
     private ImageView setImage(String url, int x, int y ,int width, int height){
         Image image = new Image(this.getClass().getResource(url).toExternalForm());

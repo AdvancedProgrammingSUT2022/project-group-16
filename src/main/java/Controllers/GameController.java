@@ -167,18 +167,28 @@ public class GameController
 		else
 			MAP_SIZE = 15;
 		initMap();
-		try
-		{
-			System.out.println(getRawMapString());
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException(e);
-		}
+//		try
+//		{
+//			System.out.println(getRawMapString());
+//		}
+//		catch (IOException e)
+//		{
+//			throw new RuntimeException(e);
+//		}
 		for (Player player : players)
 			player.initMap();
 		initPlayers();
+		setPlayersRelations();
 	}
+
+	private void setPlayersRelations() {
+		for (Player player : players) {
+			for (Player player1 : players) {
+				player.addRelationStates(player1.getCivilization(), RelationState.NEUTRAL);
+			}
+		}
+	}
+
 	public ArrayList<Tile> getMap()
 	{
 		return map;
