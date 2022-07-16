@@ -27,7 +27,7 @@ public class Hex {
         this.position = position;
         this.pane = new Pane();
         pane.setPrefWidth(90);
-        pane.setPrefHeight(50);
+        pane.setPrefHeight(90);
         pane.setLayoutX(position.X);
         pane.setLayoutY(position.Y);
     }
@@ -39,7 +39,8 @@ public class Hex {
         this.tile = tile;
         setBackground();
         setFeatureBackground();
-        //setBoarders();
+         setBoarders();
+         setResources();
     }
 
     private ImageView setImage(String url, int x, int y ,int width, int height){
@@ -56,14 +57,20 @@ public class Hex {
 
     private void setBoarders() {
         if(this.tileState.equals(TileState.FOG_OF_WAR)) return;
-        for (int i = 0; i < 6; i++) {
-            if(tile.getBorders()[i].equals(BorderType.RIVER)){
-                String url = (i % 3 == 0 ? "/photos/Boarders/River-Bottom.png" :
-                        (i % 3 == 1? "/photos/Boarders/River-BottomRight.png" : "/photos/Boarders/River-BottomLeft.png"));
-                Position p = findCoordinates(i);
-                setImage(url,p.X, p.Y, 54, 10);
-            }
+        for (int i = 0; i < 6; i++)
+        {
+
+            if (this.tile.getBorders()[i].equals(BorderType.NONE))
+                continue;
+
+            String url = "/photos/Tiles/river" + i + ".png";
+            setImage(url, position.X - 5, position.Y - 5, 100, 100);
         }
+    }
+
+    private void setResources()
+    {
+
     }
 
     private Position findCoordinates(int i) {
@@ -135,7 +142,7 @@ public class Hex {
             case MOUNTAIN -> url = "/photos/Tiles/Mountain.png";
             default -> url = "/photos/Tiles/Hexagon.png";
         }
-        ImageView imageView = setImage(url, position.X, position.Y, 90,50);
+        ImageView imageView = setImage(url, position.X, position.Y, 90,90);
         imageView.setOnMousePressed(new EventHandler<MouseEvent>() {
             // TODO: this bug should be fixed.
             @Override
