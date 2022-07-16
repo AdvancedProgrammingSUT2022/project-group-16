@@ -7,16 +7,16 @@ import Models.Player.Technology;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.Unit;
 import Models.Units.UnitState;
+import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -37,6 +37,8 @@ import javafx.util.Duration;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 
 public class Game extends Application {
     private Hex[][] hexagons;
@@ -46,17 +48,71 @@ public class Game extends Application {
     private boolean needUpdateProduction = true;
     public AudioClip audioClip = new AudioClip(Game.class.getResource("audio/gameAudios/click.mp3").toExternalForm());
     private final AudioClip gameDemo = new AudioClip(Game.class.getResource("audio/2.mp3").toExternalForm());
+    private boolean isCPressed = false;
+    private boolean isShiftPressed = false;
     @FXML
-    private Pane pane;
+    public Pane pane;
     @Override
 
     public void start(Stage stage) throws Exception {
 //        gameDemo.play();
-        stage.setScene(new Scene(FXMLLoader.load(new
-                URL(getClass().getResource("fxml/game.fxml").toExternalForm()))));
+        Pane root = FXMLLoader.load(new URL(getClass().getResource("fxml/game.fxml").toExternalForm()));
+        stage.setScene(new Scene(root));
+        root.requestFocus();
         stage.show();
     }
+    private void cheatCode() {
+        TextField textField = new TextField();
+        textField.setStyle("-fx-background-color: black;" +
+                "-fx-text-fill: white;" +
+                "-fx-border-width: 2;" +
+                "-fx-border-color: white;" +
+                "-fx-border-radius: 4;" +
+                "-fx-background-radius: 6");
+        textField.setPromptText("cheat code...");
+        pane.getChildren().add(textField);
 
+        /*cheat codes*/
+        textField.setOnKeyPressed(keyEvent -> {
+            String keyName = keyEvent.getCode().getName();
+            if(keyName.equals("Enter")) {
+                Matcher matcher;
+                String command = textField.getText();
+                if((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
+                    gameController.increaseGold(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //Almost done
+                    gameController.increaseTurns(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
+                    gameController.increaseFood(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
+                    gameController.addTechnology(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHappiness)) != null)
+                    gameController.increaseHappiness(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.killEnemyUnit)) != null)
+                    gameController.killEnemyUnit(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
+                    gameController.moveUnit(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHealth)) != null)
+                    gameController.increaseHealth(matcher);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseScore)) != null)
+                    gameController.increaseScore(matcher);
+                else if(cheatCode.compareRegex(command, cheatCode.winGame) != null) {
+                    gameController.removeAllPlayers();
+                    gameController.winGame();
+                    Platform.exit();
+                }
+                else if(cheatCode.compareRegex(command, cheatCode.gainBonusResource) != null)
+                    gameController.gainBonusResourceCheat();
+                else if(cheatCode.compareRegex(command, cheatCode.gainStrategicResource) != null)
+                    gameController.gainStrategicResourceCheat();
+                else if(cheatCode.compareRegex(command, cheatCode.gainLuxuryResource) != null)
+                    gameController.gainLuxuryResourceCheat();
+                pane.getChildren().remove(textField);
+                setInformationStyles();
+                pane.requestFocus();
+            }
+        });
+    }
     public void initialize() {
         gameController.initGame();
         Hex.setPane(pane);
@@ -71,6 +127,23 @@ public class Game extends Application {
             x += 40;
         }
         generateMapForPlayer(gameController.getPlayerTurn());
+
+        //cheatCode
+        pane.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+            if(key.getCode() == KeyCode.C)
+                isCPressed = true;
+            if(key.getCode() == KeyCode.SHIFT)
+                isShiftPressed = true;
+            if(isShiftPressed && isCPressed) {
+                cheatCode();
+            }
+        });
+        pane.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
+            if(key.getCode() == KeyCode.C)
+                isCPressed = false;
+            if(key.getCode() == KeyCode.SHIFT)
+                isShiftPressed = false;
+        });
 
         setInformationStyles();
         pane.getChildren().get(11).setOnMousePressed(mouseEvent -> {
@@ -384,6 +457,7 @@ public class Game extends Application {
                         }
                         else {
                             pane.getChildren().remove(box);
+                            pane.requestFocus();
                         }
                     }
                 }
@@ -750,6 +824,7 @@ public class Game extends Application {
         }
         exitButton.setFitHeight(25);
         exitButton.setFitWidth(25);
+        pane.requestFocus();
         return exitButton;
     }
     public void showMilitary(Player player)
@@ -1052,6 +1127,7 @@ public class Game extends Application {
                     pane.getChildren().remove(list);
                     for(Node node : pane.getChildren())
                         node.setDisable(false);
+                    pane.requestFocus();
                 });
         addButtonToBox("exit", box);
         (box.getChildren().get(box.getChildren().size() - 1)).setOnMousePressed(
