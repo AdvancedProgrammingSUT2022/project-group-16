@@ -122,15 +122,16 @@ public class Game extends Application {
     public void initialize() {
         gameController.initGame();
         Hex.setPane(pane);
-        int x = 45;
+        int x = 100;
         hexagons = new Hex[GameController.getInstance().MAP_SIZE][GameController.getInstance().MAP_SIZE];
-        for(int i = 0; i < gameController.MAP_SIZE; i++){
-            int y = (i % 2 == 0 ? 20 : 40);
+        for(int i = 0; i < gameController.MAP_SIZE; i++)
+        {
+            int y = (i % 2 == 0 ? 45 : 90);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
                 hexagons[j][i] = new Hex(new Position(x, y));
-                y += 50;
+                y += 100;
             }
-            x += 40;
+            x += 90;
         }
         generateMapForPlayer(gameController.getPlayerTurn());
 
