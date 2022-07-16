@@ -67,6 +67,11 @@ public class Player extends User
 		this.relationStates.put(civilization,relationState);
 	}
 
+	public void declareWar(Player player){
+		this.relationStates.replace(player.getCivilization(), RelationState.ENEMY);
+		player.getRelationStates().replace(this.civilization, RelationState.ENEMY);
+	}
+
 	public City getSelectedCity()
 	{
 		return selectedCity;

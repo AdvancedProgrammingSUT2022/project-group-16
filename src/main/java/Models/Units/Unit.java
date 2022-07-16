@@ -37,6 +37,7 @@ public abstract class Unit extends Construction
 	private boolean hasArrived = false;
 	private UnitState unitState = UnitState.ACTIVE;
 	private Tile destination = null;
+	private int XP = 0;
 
 
 	public String toString(){
@@ -66,7 +67,15 @@ public abstract class Unit extends Construction
 	public void setHealth(int health) {
 		this.health = health;
 	}
-	
+
+	public int getXP() {
+		return XP;
+	}
+
+	public void setXP(int XP) {
+		this.XP = XP;
+	}
+
 	public UnitState getUnitState() {
 		return unitState;
 	}
@@ -164,68 +173,9 @@ public abstract class Unit extends Construction
 	public void getSet(){
 
 	}
-	public String attackToCity(City city, GameController gameController)
-	{
-		if(city.getHitPoints() == 1 && this.getClass().equals(MidRange.class))
-		{
-			//seized city
-			rulerPlayer.getSelectedUnit().setTile(city.getCapitalTile());
-			city.seizeCity(this.rulerPlayer);
-			return unitCommands.citySeized.regex;
-		}
-		else if(city.getHitPoints() == 1)
-			return unitCommands.longRangeSeizedCity.regex;
-		else if(this.getClass().equals(MidRange.class)) //midrange attack
-		{
-			int y = ((MidRange) this).getType().getCombatStrength();
-			double x = (double) (10 + this.getHealth()) / 20;
-			int cityDamage = (city.getCombatStrength() - (int) (x * y));
-			int unitDamage = ((((MidRange) this).getType().getCombatStrength()) - city.getCombatStrength());
-			rulerPlayer.setXP(rulerPlayer.getXP() + 1);
-			city.getRulerPlayer().setXP(rulerPlayer.getXP() + 1);
-			if(cityDamage < 0)
-			{
-				city.setHitPoints(city.getHitPoints() + cityDamage);
-				if(city.getHitPoints() < 1)
-				{
-					rulerPlayer.getSelectedUnit().setTile(city.getCapitalTile());
-					city.seizeCity(rulerPlayer);
-					new Notification(rulerPlayer, gameController.getTurnCounter(), "you seized " + city.getName());
-					return null;
-				}
-			}
-			if(unitDamage < 0)
-			{
-				this.setHealth(this.getHealth() + unitDamage);
-				if(this.getHealth() <= 0)
-				{
-					removeUnit();
-					new Notification(rulerPlayer, gameController.getTurnCounter(), "your unit destroyed:(");
-					return unitCommands.unitDestroy.regex;
-				}
-			}
-		}
-		else //long range attack
-		{
-			int cityDamage = (city.getCombatStrength() - (((LongRange) this).getType().getCombatStrength() * ((10 - this.getHealth()) / 20)));
-			rulerPlayer.setXP(rulerPlayer.getXP() + 1);
-			city.getRulerPlayer().setXP(rulerPlayer.getXP() + 1);
-			if(cityDamage < 0)
-			{
-				city.setHitPoints(city.getHitPoints() + cityDamage);
-				if(city.getHitPoints() < 1) {
-					city.setHitPoints(1);
-					return unitCommands.longRangeSeizedCity.regex;
-				}
-			}
-		}
-		return unitCommands.successfullAttack.regex;
-	}
+
 	public void cancelCommand(int i){
 		commands.remove(i);
-	}
-	public void removeUnit(){
-		rulerPlayer.getUnits().remove(this);
 	}
 
 	public String move(Tile destination){
@@ -285,7 +235,13 @@ public abstract class Unit extends Construction
 		if(tile.getNonCombatUnitInTile() != null && (this instanceof NonCombatUnit)) return true;
 		return false;
 	}
-	
+
+	public void destroy(){
+		rulerPlayer.getUnits().remove(this);
+		if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile(null);
+		else if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile(null);
+	}
+
 	public abstract Unit clone();
 }
 

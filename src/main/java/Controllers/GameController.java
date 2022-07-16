@@ -1518,7 +1518,7 @@ public class GameController
 					&& ((LongRange) unit).getSetCounter() == 1 && ((LongRange) unit).getTargetCity() != null)
 			{
 				((LongRange) unit).setSet(0);
-				String tmp = unit.attackToCity(((LongRange) unit).getTargetCity(), this);
+				String tmp = ((CombatUnit) unit).attackToCity(((LongRange) unit).getTargetCity(), this);
 				((LongRange) unit).setTargetCity(null);
 				((LongRange) unit).setUnitState(UnitState.ACTIVE);
 			}
@@ -1639,7 +1639,7 @@ public class GameController
 			else
 			{
 				changePower(playerTurn.getSelectedUnit());
-				return playerTurn.getSelectedUnit().attackToCity(isCityInTile(tile), this);
+				return ((CombatUnit) playerTurn.getSelectedUnit()).attackToCity(isCityInTile(tile), this);
 			}
 		}
 		else
@@ -1754,7 +1754,7 @@ public class GameController
 			else
 			{
 				int gold = getGoldOfUnit(playerTurn.getSelectedUnit());
-				playerTurn.getSelectedUnit().removeUnit();
+				playerTurn.getSelectedUnit().destroy();
 				playerTurn.setGold(playerTurn.getGold() + gold);
 				return unitCommands.removeUnit.regex + unitCommands.gainGold.regex + (gold) + unitCommands.gold.regex;
 			}

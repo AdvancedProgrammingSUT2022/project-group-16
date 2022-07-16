@@ -1,7 +1,10 @@
 package Models.Units.CombatUnits;
 
+import Models.City.City;
 import Models.Player.Player;
 import Models.Terrain.Tile;
+import Models.Units.Unit;
+import Models.Units.UnitState;
 
 public class MidRange extends CombatUnit{
     private MidRangeType type;
@@ -34,7 +37,29 @@ public class MidRange extends CombatUnit{
     private void pillage(){
 
     }
-    
+
+    public void attack(CombatUnit unit){
+        this.setMovementPoints(0);
+        this.setXP(this.getXP() + 10);
+        unit.setXP(unit.getXP() + 10);
+        int myPower = this.getPower() + (int) ( (double)(this.getTile().getTileType().combatModifier * this.getPower()) / 100.0) +
+                (int) ( (double)(this.getTile().getTileFeature().combatModifier * this.getPower()) / 100.0);
+        int enemyPower = unit.getPower() + (int) ( (double)(unit.getTile().getTileType().combatModifier * unit.getPower()) / 100.0) +
+                (int) ( (double)(unit.getTile().getTileFeature().combatModifier * unit.getPower()) / 100.0);
+        this.setHealth(this.getHealth() - enemyPower);
+        unit.setHealth(unit.getHealth() - myPower);
+        if(this.getHealth() <= 0){
+            this.destroy();
+        }
+        if(unit.getHealth() <= 0 && this.getHealth() > 0){
+            this.setMovementPoints(type.movement);
+            Tile destination = unit.getTile();
+            unit.destroy();
+            this.move(destination);
+            destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+        }
+    }
+
     @Override
     public String toString()
     {
