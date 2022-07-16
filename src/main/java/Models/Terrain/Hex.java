@@ -1,7 +1,6 @@
 package Models.Terrain;
 
 import Controllers.GameController;
-import Models.City.City;
 import Models.Player.Player;
 import Models.Player.TileState;
 import Models.Units.CombatUnits.LongRange;
@@ -11,13 +10,11 @@ import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import javafx.event.EventHandler;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Effect;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 
 import java.util.ArrayList;
 
@@ -28,11 +25,36 @@ public class Hex {
     private Tile tile;
     private TileState tileState;
     private ArrayList<ImageView> hexElements = new ArrayList<>();
+    private ImageView tileImageView;
 
 
     public Hex(Position position){
         this.position = position;
         this.pane = new Pane();
+        pane.setOnMousePressed(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent mouseEvent)
+            {
+                onMousePressed();
+            }
+        });
+        pane.setOnMouseReleased(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent mouseEvent)
+            {
+                onMouseReleased();
+            }
+        });
+        pane.setOnMouseClicked(new EventHandler<MouseEvent>()
+        {
+            @Override
+            public void handle(MouseEvent mouseEvent)
+            {
+                onMouseClicked();
+            }
+        });
         pane.setPrefWidth(90);
         pane.setPrefHeight(90);
         pane.setLayoutX(position.X);
@@ -46,7 +68,7 @@ public class Hex {
         this.tile = tile;
         setBackground();
         setFeatureBackground();
-        setBoarders();
+        setRiverBorders();
         setCitiesBorder();
         setResources();
         setCUnits();
@@ -65,16 +87,16 @@ public class Hex {
         return imageView;
     }
 
-    private void setBoarders() {
+    private void setRiverBorders()
+    {
         if(this.tileState.equals(TileState.FOG_OF_WAR)) return;
         for (int i = 0; i < 6; i++)
         {
-
             if (this.tile.getBorders()[i].equals(BorderType.NONE))
                 continue;
 
             String url = "/photos/Tiles/river" + i + ".png";
-            setImage(url, position.X - 5, position.Y - 5, 100, 100);
+            setImage(url, -8, -8, 106, 106);
         }
     }
 
@@ -95,7 +117,7 @@ public class Hex {
                 else
                     url = "/photos/Tiles/cityBorder_them_" + cityBorderIndex + ".png";
 
-                setImage(url, position.X - 5, position.Y - 5, 100, 100);
+                setImage(url, -8,  -8, 106, 106);
             }
 	}
 
@@ -127,7 +149,7 @@ public class Hex {
             case SILVER -> url += "Silver.png";
             case SUGAR -> url += "Sugar.png";
         }
-        setImage(url, position.X + 15, position.Y + 45, 30, 30);
+        setImage(url, 15, 45, 30, 30);
     }
 
     private void setCUnits()
@@ -170,7 +192,7 @@ public class Hex {
                 case TANK -> url += "tank.png";
 			}
 
-        setImage(url, position.X + 30, position.Y, 60, 60);
+        setImage(url, 30, 0, 60, 60);
     }
 
     private void setNCUnits()
@@ -184,38 +206,7 @@ public class Hex {
         else if(tile.getNonCombatUnitInTile() instanceof Settler)
             url += "settler.png";
 
-        setImage(url, position.X + 50, position.Y + 50, 40, 40);
-    }
-
-    private Position findCoordinates(int i) {
-        int x = 0, y = 0;
-        switch (i){
-            case 0:
-                x = position.X + 20;
-                y = position.Y - 10;
-                break;
-            case 1:
-                x = position.X - 40;
-                y = position.Y;
-                break;
-            case 2:
-                x = position.X - 40;
-                y = position.Y + 60;
-                break;
-            case 3:
-                x = position.X + 20;
-                y = position.Y + 50;
-                break;
-            case 4:
-                x = position.X + 130;
-                y = position.Y + 60;
-                break;
-            case 5:
-                x = position.X + 130;
-                y = position.Y;
-                break;
-        }
-        return new Position(x,y);
+        setImage(url, 50, 50, 40, 40);
     }
 
     private void setFeatureBackground() {
@@ -229,20 +220,17 @@ public class Hex {
             case OASIS -> url = "/photos/features/Oasis.png";
             case ICE -> url = "/photos/features/Ice.png";
         }
-        setImage(url, position.X +15,position.Y + 5, 30, 30 );
+        setImage(url,  15, 5, 30, 30 );
     }
-
 
     public void setTileState(TileState tileState) {
         this.tileState = tileState;
     }
 
-
-
     private void setBackground() {
         String url = "/photos/features/fog.png";
         if(this.tileState.equals(TileState.FOG_OF_WAR)){
-            setImage(url, position.X, position.Y , 100, 100);
+            setImage(url, 0, 0 , 100, 100);
             return;
         }
         switch (this.tile.getTileType()){
@@ -256,39 +244,12 @@ public class Hex {
             case MOUNTAIN -> url = "/photos/Tiles/Mountain.png";
             default -> url = "/photos/Tiles/Hexagon.png";
         }
-        ImageView imageView = setImage(url, position.X, position.Y, 90,90);
-        imageView.setOnMousePressed(new EventHandler<MouseEvent>() {
-            // TODO: this bug should be fixed.
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(imageView.getEffect() != null){
-                    imageView.setEffect(null);
-                    //add function to remove tile description;
-                }else {
-                    imageView.setEffect(new Lighting());
-                    //add function to show tile description;
-                }
-            }
-        });
-        imageView.setOnMouseReleased(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                if(GameController.getInstance().getPlayerTurn().getMap().get(tile).equals(TileState.REVEALED))
-                {
-                    ColorAdjust colorAdjust = new ColorAdjust();
-                    colorAdjust.setBrightness(-.5);
-                    imageView.setEffect(colorAdjust);
-                }
-                else
-                    imageView.setEffect(null);
-            }
-        });
+        tileImageView = setImage(url, 0, 0, 90,90);
+
         if(GameController.getInstance().getPlayerTurn().getMap().get(this.tile).equals(TileState.REVEALED)){
             ColorAdjust colorAdjust = new ColorAdjust();
-            colorAdjust.setBrightness(-.5);
-            imageView.setEffect(colorAdjust);
+            colorAdjust.setBrightness(-.6);
+            tileImageView.setEffect(colorAdjust);
         }
     }
 
@@ -302,5 +263,36 @@ public class Hex {
     public void addHex(){
         pane.getChildren().addAll(hexElements);
         parent.getChildren().add(pane);
+    }
+
+    private void onMousePressed()
+    {
+        if(tileState.equals(TileState.FOG_OF_WAR))
+            return;
+        tileImageView.setEffect(new Lighting());
+
+
+    }
+
+    private void onMouseReleased()
+    {
+        if(tileState.equals(TileState.FOG_OF_WAR))
+            return;
+        if(tileState.equals(TileState.VISIBLE))
+            tileImageView.setEffect(null);
+        else if (tileState.equals(TileState.REVEALED))
+        {
+            ColorAdjust colorAdjust = new ColorAdjust();
+            colorAdjust.setBrightness(-.6);
+            tileImageView.setEffect(colorAdjust);
+        }
+
+
+
+    }
+
+    private void onMouseClicked()
+    {
+
     }
 }
