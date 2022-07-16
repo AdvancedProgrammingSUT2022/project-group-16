@@ -10,9 +10,9 @@ public class UnitCommandsHandler {
 
     public static void handleCommands(Unit unit, UnitCommands commands){
         if(commands.equals(UnitCommands.GET_READY)) unit.getReady();
-        else if(commands.equals(UnitCommands.FORTIFY)) unit.fortify();
-        else if(commands.equals(UnitCommands.FORTIFY_TILL_Heel)) unit.fortifyTillHeel();
-        else if(commands.equals(UnitCommands.GET_SET)) unit.getSet();
+        else if(commands.equals(UnitCommands.FORTIFY)) ((CombatUnit)unit).fortify();
+        else if(commands.equals(UnitCommands.FORTIFY_TILL_Heel)) ((CombatUnit)unit).fortifyTillHeel();
+        else if(commands.equals(UnitCommands.GET_SET)) unit.setAlert();
         else if(commands.equals(UnitCommands.AWAKEN)) unit.setUnitState(UnitState.ACTIVE);
         else if(commands.equals(UnitCommands.REMOVE_UNIT)) unit.destroy();
         else if(commands.equals(UnitCommands.MOVE)) unit.move(UnitCommands.MOVE.getDestination());

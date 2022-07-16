@@ -37,7 +37,7 @@ public abstract class Unit extends Construction
 	private boolean hasArrived = false;
 	private UnitState unitState = UnitState.ACTIVE;
 	private Tile destination = null;
-	private int XP = 0;
+	private int XP = 10;
 
 
 	public String toString(){
@@ -164,14 +164,32 @@ public abstract class Unit extends Construction
 	public void getReady(){
 
 	}
-	public void fortify(){
 
+	public void setAsleep(){
+		this.unitState = UnitState.SLEEPING;
 	}
-	public void fortifyTillHeel(){
-
+	public String awaken(){
+		if(!this.unitState.equals(UnitState.SLEEPING)) return "unit is not asleep";
+		this.unitState = UnitState.ACTIVE;
+		return null;
 	}
-	public void getSet(){
 
+	public void setAlert(){
+		if(isThereEnemyUnitNear()){
+			unitState = UnitState.ACTIVE;
+			return;
+		}
+		unitState = UnitState.ALERT;
+	}
+
+	private boolean isThereEnemyUnitNear() {
+		for (Tile tile1 : GameController.getInstance().getMap()) {
+			if(this.getTile().distanceTo(tile1) == 1){
+				if(tile1.getCombatUnitInTile() != null && tile1.getCombatUnitInTile().getRulerPlayer() != this.rulerPlayer)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public void cancelCommand(int i){
@@ -237,9 +255,11 @@ public abstract class Unit extends Construction
 	}
 
 	public void destroy(){
+		this.getRulerPlayer().setGold((int) (this.rulerPlayer.getGold() + (0.1 * this.productionCost)));
 		rulerPlayer.getUnits().remove(this);
 		if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile(null);
 		else if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile(null);
+
 	}
 
 	public abstract Unit clone();

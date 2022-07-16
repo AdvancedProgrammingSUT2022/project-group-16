@@ -29,6 +29,7 @@ public class City
 	private CombatUnit garrison = null;
 	private NonCombatUnit nonCombatUnit = null;
 	private int combatStrength = 10;//this amount is default and may change later
+	private int longRangeCombatStrength; // range is 2;
 	private Player rulerPlayer;
 	private final String name;
 	private CityState state = CityState.NONE;
@@ -48,6 +49,8 @@ public class City
 			rulerPlayer.setCup(3);
 			rulerPlayer.setCurrentCapitalCity(this);
 		}
+		this.combatStrength += this.territory.size();
+		this.longRangeCombatStrength = combatStrength;
 	}
 	private String setCityName() {
 		for (String cityName : rulerPlayer.getCivilization().cities) {
@@ -65,6 +68,14 @@ public class City
 		return null; // there is no more city
 	}
 
+	public void repairCity(){
+		for (Tile tile : territory) {
+			if(tile.isRuined() && tile.getNonCombatUnitInTile() != null && tile.getNonCombatUnitInTile() instanceof Worker){
+				this.hitPoints --;
+				((Worker) tile.getNonCombatUnitInTile()).repairTile();
+			}
+		}
+	}
 
 	public ArrayList<Citizen> getCitizens() {
 		return citizens;
@@ -197,6 +208,7 @@ public class City
 	}
 	public void setGarrison(CombatUnit garrison) {
 		this.garrison = garrison;
+		garrison.setDefencePower((int) (garrison.getDefencePower() * 1.5));
 	}
 	public NonCombatUnit getNonCombatUnit() {
 		return nonCombatUnit;

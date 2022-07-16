@@ -34,8 +34,8 @@ public class MidRange extends CombatUnit{
         this.type = midRangeType;
     }
 
-    private void pillage(){
-
+    public void pillage(){
+        this.getTile().setRuined(true);
     }
 
     public void attack(CombatUnit unit){
@@ -44,8 +44,10 @@ public class MidRange extends CombatUnit{
         unit.setXP(unit.getXP() + 10);
         int myPower = this.getPower() + (int) ( (double)(this.getTile().getTileType().combatModifier * this.getPower()) / 100.0) +
                 (int) ( (double)(this.getTile().getTileFeature().combatModifier * this.getPower()) / 100.0);
+        myPower = (1 - ((MAX_HEALTH - this.getHealth()) / 10 ))* myPower;
         int enemyPower = unit.getPower() + (int) ( (double)(unit.getTile().getTileType().combatModifier * unit.getPower()) / 100.0) +
                 (int) ( (double)(unit.getTile().getTileFeature().combatModifier * unit.getPower()) / 100.0);
+        enemyPower = (1 - ((unit.MAX_HEALTH - unit.getHealth()) / 10 ))* enemyPower;
         this.setHealth(this.getHealth() - enemyPower);
         unit.setHealth(unit.getHealth() - myPower);
         if(this.getHealth() <= 0){
@@ -54,6 +56,7 @@ public class MidRange extends CombatUnit{
         if(unit.getHealth() <= 0 && this.getHealth() > 0){
             this.setMovementPoints(type.movement);
             Tile destination = unit.getTile();
+            calculateXPs(destination);
             unit.destroy();
             this.move(destination);
             destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);

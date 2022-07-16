@@ -102,6 +102,7 @@ public class GameController
 		handleUnitCommands();
 		updatePlayersUnitLocations();
 		updateWorkersConstructions();
+		updateUnitStates();
 
 		// decrement researching technology turns
 		
@@ -119,6 +120,14 @@ public class GameController
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
 	}
+
+	private void updateUnitStates() {
+		for (Unit unit : playerTurn.getUnits()) {
+			if(unit.getUnitState().equals(UnitState.FORTIFIED)) ( (CombatUnit)unit).fortify();
+			else if(unit.getUnitState().equals(UnitState.ALERT)) unit.setAlert();
+		}
+	}
+
 	private void processFoodForChangingTurn()
 	{
 		int foodYieldOfPlayerTurn = 0;
