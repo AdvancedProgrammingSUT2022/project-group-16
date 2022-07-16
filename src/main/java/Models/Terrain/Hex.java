@@ -1,6 +1,8 @@
 package Models.Terrain;
 
 import Controllers.GameController;
+import Models.City.City;
+import Models.Player.Player;
 import Models.Player.TileState;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
@@ -45,6 +47,7 @@ public class Hex {
         setBackground();
         setFeatureBackground();
         setBoarders();
+        setCitiesBorder();
         setResources();
         setCUnits();
         setNCUnits();
@@ -74,6 +77,27 @@ public class Hex {
             setImage(url, position.X - 5, position.Y - 5, 100, 100);
         }
     }
+
+	private void setCitiesBorder()
+	{
+        if(tileState.equals(TileState.FOG_OF_WAR))
+            return;
+
+        Player playerTurn = GameController.getInstance().getPlayerTurn();
+
+
+        for (Player player : GameController.getInstance().getPlayers())
+            for (Integer cityBorderIndex : player.getCityBorderIndexes(tile))
+            {
+                String url;
+                if(player == playerTurn)
+                    url = "/photos/Tiles/cityBorder_us_" + cityBorderIndex + ".png";
+                else
+                    url = "/photos/Tiles/cityBorder_them_" + cityBorderIndex + ".png";
+
+                setImage(url, position.X - 5, position.Y - 5, 100, 100);
+            }
+	}
 
     private void setResources()
     {
@@ -218,7 +242,7 @@ public class Hex {
     private void setBackground() {
         String url = "/photos/features/fog.png";
         if(this.tileState.equals(TileState.FOG_OF_WAR)){
-            setImage(url, position.X, position.Y , 90, 90);
+            setImage(url, position.X, position.Y , 100, 100);
             return;
         }
         switch (this.tile.getTileType()){

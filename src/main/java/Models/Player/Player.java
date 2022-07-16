@@ -264,6 +264,39 @@ public class Player extends User
 
 		return adjacentTiles;
 	}
+	public ArrayList<Integer> getCityBorderIndexes(Tile tile)
+	{
+		ArrayList<Integer> cityBorderIndexes = new ArrayList<>();
+
+		for (City city : cities)
+		{
+			if(city.getTerritory().contains(tile))
+			{
+				if(getTileByQRS(tile.getPosition().Q, tile.getPosition().R - 1, tile.getPosition().S + 1) != null
+					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q, tile.getPosition().R - 1, tile.getPosition().S + 1)))
+					cityBorderIndexes.add(0);
+				if(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1) != null
+					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1)))
+					cityBorderIndexes.add(1);
+				if(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S) != null
+					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S)))
+					cityBorderIndexes.add(2);
+				if(getTileByQRS(tile.getPosition().Q, tile.getPosition().R + 1, tile.getPosition().S - 1) != null
+					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q, tile.getPosition().R + 1, tile.getPosition().S - 1)))
+					cityBorderIndexes.add(3);
+				if(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1) != null
+					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1)))
+					cityBorderIndexes.add(4);
+				if(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S) != null
+					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S)))
+					cityBorderIndexes.add(5);
+
+				break;
+			}
+		}
+
+		return cityBorderIndexes;
+	}
 	public void addCity(City newCity)
 	{
 		if(this.cities == null){
