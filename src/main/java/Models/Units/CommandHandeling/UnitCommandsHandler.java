@@ -14,7 +14,7 @@ public class UnitCommandsHandler {
         else if(commands.equals(UnitCommands.FORTIFY_TILL_Heel)) unit.fortifyTillHeel();
         else if(commands.equals(UnitCommands.GET_SET)) unit.getSet();
         else if(commands.equals(UnitCommands.AWAKEN)) unit.setUnitState(UnitState.ACTIVE);
-        else if(commands.equals(UnitCommands.REMOVE_UNIT)) unit.removeUnit();
+        else if(commands.equals(UnitCommands.REMOVE_UNIT)) unit.destroy();
         else if(commands.equals(UnitCommands.MOVE)) unit.move(UnitCommands.MOVE.getDestination());
         //else if(commands.equals(UnitCommands.ATTACK)) ((CombatUnit) unit).attack();
         else if(commands.equals(UnitCommands.GET_READY_TO_FIGHT)) ((LongRange) unit).getReadyToFight();
