@@ -218,7 +218,7 @@ public class Hex {
     private void setBackground() {
         String url = "/photos/features/fog.png";
         if(this.tileState.equals(TileState.FOG_OF_WAR)){
-            setImage(url, position.X, position.Y , 90, 50);
+            setImage(url, position.X, position.Y , 90, 90);
             return;
         }
         switch (this.tile.getTileType()){
