@@ -66,9 +66,9 @@ public class Game extends Application {
             int y = (i % 2 == 0 ? 20 : 40);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
                 hexagons[j][i] = new Hex(new Position(x, y));
-                y += 30;
+                y += 50;
             }
-            x += 50;
+            x += 40;
         }
         generateMapForPlayer(gameController.getPlayerTurn());
 

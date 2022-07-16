@@ -2,6 +2,11 @@ package Models.Terrain;
 
 import Controllers.GameController;
 import Models.Player.TileState;
+import Models.Units.CombatUnits.LongRange;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.NonCombatUnits.Settler;
+import Models.Units.NonCombatUnits.Worker;
+import Models.Units.Unit;
 import javafx.event.EventHandler;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
@@ -27,7 +32,7 @@ public class Hex {
         this.position = position;
         this.pane = new Pane();
         pane.setPrefWidth(90);
-        pane.setPrefHeight(50);
+        pane.setPrefHeight(90);
         pane.setLayoutX(position.X);
         pane.setLayoutY(position.Y);
     }
@@ -39,7 +44,10 @@ public class Hex {
         this.tile = tile;
         setBackground();
         setFeatureBackground();
-        //setBoarders();
+        setBoarders();
+        setResources();
+        setCUnits();
+        setNCUnits();
     }
 
     private ImageView setImage(String url, int x, int y ,int width, int height){
@@ -56,14 +64,103 @@ public class Hex {
 
     private void setBoarders() {
         if(this.tileState.equals(TileState.FOG_OF_WAR)) return;
-        for (int i = 0; i < 6; i++) {
-            if(tile.getBorders()[i].equals(BorderType.RIVER)){
-                String url = (i % 3 == 0 ? "/photos/Boarders/River-Bottom.png" :
-                        (i % 3 == 1? "/photos/Boarders/River-BottomRight.png" : "/photos/Boarders/River-BottomLeft.png"));
-                Position p = findCoordinates(i);
-                setImage(url,p.X, p.Y, 54, 10);
-            }
+        for (int i = 0; i < 6; i++)
+        {
+
+            if (this.tile.getBorders()[i].equals(BorderType.NONE))
+                continue;
+
+            String url = "/photos/Tiles/river" + i + ".png";
+            setImage(url, position.X - 5, position.Y - 5, 100, 100);
         }
+    }
+
+    private void setResources()
+    {
+        if(tile.getResource() == null || this.tileState.equals(TileState.FOG_OF_WAR))
+            return;
+
+        String url = "/photos/resources/";
+        switch (this.tile.getResource().getRESOURCE_TYPE())
+        {
+            case BANANA -> url += "Bananas.png";
+            case CATTLE -> url += "Cattle.png";
+            case DEER -> url += "Deer.png";
+            case SHEEP -> url += "Sheep.png";
+            case WHEAT -> url += "Wheat.png";
+            case COAL -> url += "Coal.png";
+            case HORSES -> url += "Horses.png";
+            case IRON -> url += "Iron.png";
+            case COTTON -> url += "Cotton.png";
+            case DYES -> url += "Dyes.png";
+            case FURS -> url += "Furs.png";
+            case GEMS -> url += "Gems.png";
+            case GOLD -> url += "Gold.png";
+            case INCENSE -> url += "Incense.png";
+            case IVORY -> url += "Ivory.png";
+            case MARBLE -> url += "Marble.png";
+            case SILK -> url += "Silk.png";
+            case SILVER -> url += "Silver.png";
+            case SUGAR -> url += "Sugar.png";
+        }
+        setImage(url, position.X + 15, position.Y + 45, 30, 30);
+    }
+
+    private void setCUnits()
+    {
+        if(tile.getCombatUnitInTile() == null || tileState.equals(TileState.FOG_OF_WAR))
+            return;
+
+        String url = "/photos/units/";
+
+        Unit combatUnitInTile = tile.getCombatUnitInTile();
+        if(combatUnitInTile instanceof LongRange)
+            switch (((LongRange) combatUnitInTile).getType())
+            {
+                case ARCHER -> url += "archer.png";
+                case CHARIOT_A -> url += "chariotarcher.png";
+                case CATAPULT -> url += "catapult.png";
+                case CROSSMAN -> url += "crossbowman.png";
+                case TREBUCHET -> url += "trebuchet.png";
+                case CANON -> url += "cannon.png";
+                case ARTILLERY -> url += "artillery.png";
+            }
+        else if(combatUnitInTile instanceof MidRange)
+			switch (((MidRange) combatUnitInTile).getType())
+			{
+				case SCOUT -> url += "scout.png";
+				case SPEARMAN -> url += "spearman.png";
+				case WARRIOR -> url += "warrior.png";
+				case HORSEMAN -> url += "horseman.png";
+                case SWORDSMAN -> url += "swordsman.png";
+                case KNIGHT -> url += "knight.png";
+                case LSWORDSMAN -> url += "longswordsman.png";
+                case PIKE_MAN -> url += "pikeman.png";
+                case CAVALRY -> url += "cavalry.png";
+                case LANCER -> url += "lancer.png";
+                case MUSKET_MAN -> url += "musketman.png";
+                case RIFLEMAN -> url += "rifleman.png";
+                case ANTI_TANK -> url += "antitankgun";
+                case INFANTRY -> url += "infantry";
+                case PANZER -> url += "panzer.png";
+                case TANK -> url += "tank.png";
+			}
+
+        setImage(url, position.X + 30, position.Y, 60, 60);
+    }
+
+    private void setNCUnits()
+    {
+        if(tile.getNonCombatUnitInTile() == null || tileState.equals(TileState.FOG_OF_WAR))
+            return;
+
+        String url = "/photos/units/";
+        if(tile.getNonCombatUnitInTile() instanceof Worker)
+            url += "worker.png";
+        else if(tile.getNonCombatUnitInTile() instanceof Settler)
+            url += "settler.png";
+
+        setImage(url, position.X + 50, position.Y + 50, 40, 40);
     }
 
     private Position findCoordinates(int i) {
@@ -121,7 +218,7 @@ public class Hex {
     private void setBackground() {
         String url = "/photos/features/fog.png";
         if(this.tileState.equals(TileState.FOG_OF_WAR)){
-            setImage(url, position.X, position.Y , 90, 50);
+            setImage(url, position.X, position.Y , 90, 90);
             return;
         }
         switch (this.tile.getTileType()){
@@ -135,7 +232,7 @@ public class Hex {
             case MOUNTAIN -> url = "/photos/Tiles/Mountain.png";
             default -> url = "/photos/Tiles/Hexagon.png";
         }
-        ImageView imageView = setImage(url, position.X, position.Y, 90,50);
+        ImageView imageView = setImage(url, position.X, position.Y, 90,90);
         imageView.setOnMousePressed(new EventHandler<MouseEvent>() {
             // TODO: this bug should be fixed.
             @Override
