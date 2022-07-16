@@ -7,6 +7,8 @@ import Models.Player.Technology;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import enums.cheatCode;
@@ -20,6 +22,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -31,13 +34,13 @@ import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 
 public class Game extends Application {
@@ -107,6 +110,9 @@ public class Game extends Application {
                     gameController.gainStrategicResourceCheat();
                 else if(cheatCode.compareRegex(command, cheatCode.gainLuxuryResource) != null)
                     gameController.gainLuxuryResourceCheat();
+                else if(command.equals("a"))
+                    for(Node node : pane.getChildren())
+                        System.out.println(node);
                 pane.getChildren().remove(textField);
                 setInformationStyles();
                 pane.requestFocus();
@@ -153,28 +159,31 @@ public class Game extends Application {
 
         //cheatCode shortcut
         //TODO: do not remove this part :))))
-//        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
-//        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
-//        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
-//        gameController.getPlayerTurn().setCup(10);
-//        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-//        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-//        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-//        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
-//        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
-//        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-//            gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
-//        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
-//        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
+        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
+        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
+        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
+        gameController.getPlayerTurn().setCup(10);
+        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
+        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
+        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
+        gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+        gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
+        gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
+        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
+        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
+        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
+        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
+        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
+        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
 //        gameController.getPlayerTurn().setCup(100);
 
     }
@@ -196,6 +205,7 @@ public class Game extends Application {
         playerTurnTiles.clear();
         gameController.checkChangeTurn(); //TODO: fix bugs
         generateMapForPlayer(gameController.getPlayerTurn());
+        setInformationStyles();
     }
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
@@ -359,7 +369,7 @@ public class Game extends Application {
                 return false;
         return true;
     }
-    private void updateBox(VBox box) {
+    private void updateBox(Pane box) {
         pane.getChildren().remove(box);
         pane.getChildren().add(box);
     }
@@ -378,8 +388,11 @@ public class Game extends Application {
     }
     private void showTechnologies()
     {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 350, 800,false);
         VBox box = new VBox();
-        panelsVboxStyle(box, 600);
+        list.getChildren().add(box);
+        setCoordinatesBox(list, box, 15, 15);
         addLabelToBox(infoCommands.numberOfCup.regex + gameController.getPlayerTurn().getCup(), box);
         showGainedTechnologies(box);
         addLabelToBox(infoCommands.chooseTechnology.regex, box);
@@ -412,8 +425,8 @@ public class Game extends Application {
                 max++;
             }
         addLabelToBox((max + 1) + infoCommands.backToGame.regex, box);
-        pane.getChildren().add(box);
-        setCoordinates(pane, 340, 95);
+        pane.getChildren().add(list);
+        setCoordinates(pane, 465, -1);
         TextField textField = new TextField();
         box.getChildren().add(textField);
         int finalMax = max;
@@ -440,7 +453,7 @@ public class Game extends Application {
                                 if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = i;
                         if(number == finalFlag) {
                             addLabelToBox(infoCommands.alreadyResearching.regex, box);
-                            updateBox(box);
+                            updateBox(list);
                         }
                         else if(number != finalMax + 1 && tmp.getCup() >= candidateTechs.get(number - 1).cost / 10 - tmp.getResearchingTechCounter()[flg])
                         {
@@ -453,10 +466,10 @@ public class Game extends Application {
                         }
                         else if(number != finalMax + 1) {
                             addLabelToBox(infoCommands.enoughCup.regex + candidateTechs.get(number - 1).name(), box);
-                            updateBox(box);
+                            updateBox(list);
                         }
                         else {
-                            pane.getChildren().remove(box);
+                            pane.getChildren().remove(list);
                             pane.requestFocus();
                         }
                     }
@@ -464,12 +477,20 @@ public class Game extends Application {
                 textField.setText(null);
             }
         });
+        box.setOnScroll((ScrollEvent event) -> {
+            double yScale = 30;
+            double deltaY = event.getDeltaY();
+            if (deltaY < 0)
+                yScale *= -1;
+            if((box.getLayoutY() + box.getHeight() > 650 && yScale < 0) || box.getLayoutY() < 40 && yScale > 0)
+                box.setLayoutY(box.getLayoutY() + yScale);
+        });
     }
-    private void panelsVboxStyle(VBox box, int width) {
+    private void panelsVboxStyle(VBox box) {
         box.setAlignment(Pos.CENTER);
         box.setLayoutX(340);
         box.setLayoutY(180);
-        box.setPrefWidth(width);
+        box.setPrefWidth(600);
         box.setStyle("-fx-background-radius: 8;" +
                 "-fx-background-color: rgb(68,30,30);" +
                 "-fx-border-width: 3;" +
@@ -524,7 +545,7 @@ public class Game extends Application {
     {
         audioClip.play();
         Pane list = new Pane();
-        panelsPaneStyle(list, 450, 500);
+        panelsPaneStyle(list, 450, 500, false);
         VBox box = new VBox();
         box.setSpacing(5);
         box.setAlignment(Pos.CENTER);
@@ -571,7 +592,7 @@ public class Game extends Application {
     {
         audioClip.play();
         Pane list = new Pane();
-        panelsPaneStyle(list, 1040, 500);
+        panelsPaneStyle(list, 1040, 500, false);
         list.setLayoutX(100);
         list.setLayoutY(110);
         ArrayList<City> n = gameController.getPlayerTurn().getCities();
@@ -657,7 +678,7 @@ public class Game extends Application {
     {
         audioClip.play();
         Pane list = new Pane();
-        panelsPaneStyle(list, 400, 500);
+        panelsPaneStyle(list, 400, 500, false);
         VBox box = new VBox();
         box.setSpacing(5);
         addLabelToPane("notification panel", list);
@@ -718,7 +739,7 @@ public class Game extends Application {
     {
         audioClip.play();
         Pane box = new Pane();
-        panelsPaneStyle(box, 600, 500);
+        panelsPaneStyle(box, 600, 500, false);
         box.prefWidth(300);
         ArrayList<Unit> tmp = gameController.getPlayerTurn().getUnits();
         VBox names = new VBox(), coordinates = new VBox(), unitState = new VBox();
@@ -830,7 +851,7 @@ public class Game extends Application {
     public void showMilitary(Player player)
     {
         VBox box = new VBox();
-        panelsVboxStyle(box, 600);
+        panelsVboxStyle(box);
         if (player.getUnits().size() == 0)
             addLabelToBox("you have not any unit", box);
         else
@@ -840,7 +861,7 @@ public class Game extends Application {
     private Pane showAllUnits(Player player)
     {
         Pane box = new Pane();
-        panelsPaneStyle(box, 600, 500);
+        panelsPaneStyle(box, 600, 500, false);
         int max = player.getUnits().size();
         VBox names = new VBox(), coordinates = new VBox(),
                 power = new VBox(), MP = new VBox(), health = new VBox(), unitState = new VBox();
@@ -889,11 +910,19 @@ public class Game extends Application {
         box.getChildren().get(box.getChildren().size() - 1).setLayoutY(15);
         return box;
     }
-    private void panelsPaneStyle(Pane list, double width, double height) {
+    private void panelsPaneStyle(Pane list, double width, double height, boolean hasBackground) {
         list.setLayoutX(340);
         list.setLayoutY(180);
         ImageView imageView = new ImageView();
         try {
+            if(hasBackground) {
+                Rectangle background = new Rectangle();
+                background.setWidth(2000);
+                background.setHeight(1000);
+                background.setStyle("-fx-fill: rgba(255,255,255,0.51)");
+                list.getChildren().add(background);
+                setCoordinates(list, -500, -250);
+            }
             imageView.setImage(new Image(String.valueOf(new URL(getClass()
                     .getResource("photos/backgrounds/icons/frontGamePage.jpg").toExternalForm()))));
         } catch (MalformedURLException e) {
@@ -901,7 +930,10 @@ public class Game extends Application {
         }
         imageView.setFitWidth(width);
         imageView.setFitHeight(height);
-        list.getChildren().add(0, imageView);
+        if(hasBackground)
+            list.getChildren().add(1, imageView);
+        else
+            list.getChildren().add(0, imageView);
         imageView.setStyle("-fx-background-radius: 8;" +
                 "-fx-border-width: 3;" +
                 "-fx-border-color: white;" +
@@ -964,7 +996,7 @@ public class Game extends Application {
     {
         //define pane and box
         Pane list = new Pane();
-        panelsPaneStyle(list, 1000, 500);
+        panelsPaneStyle(list, 1000, 500, false);
         list.setLayoutX(180);
         list.setLayoutY(100);
         VBox cities = printCities(tmp), information = new VBox(), players = new VBox();
@@ -1034,7 +1066,7 @@ public class Game extends Application {
     public Pane showScoreBoard()
     {
         Pane list = new Pane();
-        panelsPaneStyle(list, 300, 250);
+        panelsPaneStyle(list, 300, 250, false);
         VBox box = new VBox();
         list.getChildren().add(box);
         box.setSpacing(5);
@@ -1098,7 +1130,7 @@ public class Game extends Application {
     public void options(MouseEvent mouseEvent) {
         audioClip.play();
         Pane list = new Pane();
-        panelsPaneStyle(list, 300, 300);
+        panelsPaneStyle(list, 300, 300, true);
         VBox box = new VBox();
         list.getChildren().add(box);
         box.setAlignment(Pos.CENTER);
@@ -1135,16 +1167,21 @@ public class Game extends Application {
         setCoordinatesBox(list, box, 95, 60);
         list.getChildren().add(exitButtonStyle());
         setCoordinates(list, 10, 10);
+        list.getChildren().get(0).setOnMouseMoved(mouseEvent1 ->
+                ((Node) mouseEvent1.getSource()).getScene().setCursor(Cursor.CROSSHAIR));
+        list.getChildren().get(0).setOnMouseExited(mouseEvent1 ->
+                ((Node) mouseEvent1.getSource()).getScene().setCursor(Cursor.DEFAULT));
         pane.getChildren().add(list);
         for(int i = 0; i < pane.getChildren().size() - 1; i++)
             pane.getChildren().get(i).setDisable(true);
         setCoordinates(pane, 490, 210);
+
     }
 
     public void technologyTree() {
         audioClip.play();
         Pane list = new Pane();
-        panelsPaneStyle(list, 1300, 350);
+        panelsPaneStyle(list, 1300, 350, false);
         list.setLayoutX(-10);
         list.setLayoutY(150);
         ArrayList<Technology> technologies = new ArrayList<>();
