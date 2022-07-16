@@ -113,7 +113,9 @@ public class Player extends User
 	public void setTilePurchaseCost(int tilePurchaseCost) {
 		this.tilePurchaseCost = tilePurchaseCost;
 	}
-
+	public void increasePopulation(int i){
+		this.population += i;
+	}
 	public int getFood()
 	{
 		return food;

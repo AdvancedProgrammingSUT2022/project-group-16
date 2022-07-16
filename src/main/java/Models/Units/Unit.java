@@ -16,6 +16,7 @@ import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.NonCombatUnits.NonCombatUnit;
+import Models.Units.NonCombatUnits.Worker;
 import enums.gameCommands.unitCommands;
 
 import java.util.ArrayList;
@@ -206,6 +207,9 @@ public abstract class Unit extends Construction
 		if(this.getMovementPoints() == 0) return "no movementPoints";
 		if(this.moves.size() == 0 && !this.getTile().equals(this.destination)) return "cannot move to destination";
 		if(this.moves.size() == 0 && this.getTile().equals(this.destination)){
+			if(this.destination.getTileType().equals(TileType.RUIN)){
+				getRuinBonus();
+			}
 			if(!isTileEnemy(this.destination)){
 				if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
 				else if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
@@ -229,6 +233,32 @@ public abstract class Unit extends Construction
 		this.getMoves().remove(0);
 		return null;
 	}
+
+	private void getRuinBonus() {
+		this.getRulerPlayer().increasePopulation(1);
+		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() + 200);
+		destination.setTileType(TileType.DESERT);
+		destination.setNonCombatUnitInTile(new Worker());
+		if(getRulerPlayer().getResearchingTechnology() != null) {
+			Technology researchingTechnology = getRulerPlayer().getResearchingTechnology();
+			int technologyIndex = -1;
+			for(int i = 0; i < Technology.values().length; i++)
+				if(researchingTechnology.equals(Technology.values()[i]))
+				{
+					technologyIndex = i;
+					break;
+				}
+			if(technologyIndex == -1)
+			{
+				System.err.println("technologyIndex is -1 :(");
+				System.exit(1);
+			}
+
+			getRulerPlayer().getResearchingTechCounter()[technologyIndex] = researchingTechnology.cost * 10;
+			GameController.getInstance().processResearchingTechnology();
+		}
+	}
+
 	private boolean canUnitStayInTile(Tile destination){
 		if((destination.getTileType().equals(TileType.OCEAN) && (!destination.hasRoad() || !this.getTile().hasRoad()))){
 			return false;

@@ -17,7 +17,7 @@ public class UnitCommandsHandler {
         else if(commands.equals(UnitCommands.REMOVE_UNIT)) unit.destroy();
         else if(commands.equals(UnitCommands.MOVE)) unit.move(UnitCommands.MOVE.getDestination());
         //else if(commands.equals(UnitCommands.ATTACK)) ((CombatUnit) unit).attack();
-        else if(commands.equals(UnitCommands.GET_READY_TO_FIGHT)) ((LongRange) unit).getReadyToFight();
+        else if(commands.equals(UnitCommands.GET_READY_TO_FIGHT)) ((LongRange) unit).setIsSet(true);
         else if(commands.equals(UnitCommands.CREATE_CITY)) ((Settler) unit).createCity();
         else if(commands.equals(UnitCommands.BUILD_ROAD)) ((Worker) unit).buildRoad();
         else if(commands.equals(UnitCommands.BUILD_RAILROAD)) ((Worker) unit).buildRailRoad();

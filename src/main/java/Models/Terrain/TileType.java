@@ -11,7 +11,8 @@ public enum TileType
 	OCEAN(0, 0, 2, 25, 0, false, false, Attribute.BACK_COLOR(30, 100, 180)),
 	PLAINS(1, 1, 0, -33, 1, true, false, Attribute.BACK_COLOR(120, 230, 100)),
 	SNOW(0, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(240, 240, 240)),
-	TUNDRA(1, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(180, 180, 240));
+	TUNDRA(1, 0, 0, -33, 1, true, false, Attribute.BACK_COLOR(180, 180, 240)),
+	RUIN(0,0,0,0,0,true,false,null);
 	
 	public final int food;
 	public final int production;
