@@ -167,14 +167,6 @@ public class GameController
 		else
 			MAP_SIZE = 15;
 		initMap();
-		try
-		{
-			System.out.println(getRawMapString());
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException(e);
-		}
 		for (Player player : players)
 			player.initMap();
 		initPlayers();
