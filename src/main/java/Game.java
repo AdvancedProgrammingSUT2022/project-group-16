@@ -83,6 +83,7 @@ public class Game extends Application {
 //        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
 //        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
 //        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
+//        gameController.getPlayerTurn().setCup(10);
 //        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
 //        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
 //        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
@@ -98,7 +99,7 @@ public class Game extends Application {
 //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
 //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
 //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-    //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+//            gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
 //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
 //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
 //        gameController.getPlayerTurn().setCup(100);
@@ -339,6 +340,7 @@ public class Game extends Application {
             }
         addLabelToBox((max + 1) + infoCommands.backToGame.regex, box);
         pane.getChildren().add(box);
+        setCoordinates(pane, 340, 95);
         TextField textField = new TextField();
         box.getChildren().add(textField);
         int finalMax = max;
@@ -1103,6 +1105,17 @@ public class Game extends Application {
         swap(((VBox) list.getChildren().get(3)), 2, 4);
         swap(((VBox) list.getChildren().get(3)), 3, 5);
         swap(((VBox) list.getChildren().get(3)), 4, 5);
+        swap(((VBox) list.getChildren().get(4)), 2, 5);
+        swap(((VBox) list.getChildren().get(5)), 2, 3);
+        swap(((VBox) list.getChildren().get(5)), 3, 4);
+        swap(((VBox) list.getChildren().get(5)), 4, 5);
+        swap(((VBox) list.getChildren().get(5)), 5, 6);
+        swap(((VBox) list.getChildren().get(6)), 2, 5);
+        swap(((VBox) list.getChildren().get(6)), 3, 4);
+        swap(((VBox) list.getChildren().get(6)), 4, 5);
+        swap(((VBox) list.getChildren().get(7)), 2, 4);
+        swap(((VBox) list.getChildren().get(7)), 3, 5);
+        swap(((VBox) list.getChildren().get(7)), 4, 5);
         swap(((VBox) list.getChildren().get(8)), 2, 5);
         swap(((VBox) list.getChildren().get(9)), 3, 4);
         swap(((VBox) list.getChildren().get(9)), 2, 3);
@@ -1114,12 +1127,48 @@ public class Game extends Application {
         arrowTechnologyTree(list, 1, 150, 160, 310, 200);
         arrowTechnologyTree(list, 1, 150, 170, 310, 260);
 
-        arrowTechnologyTree(list, 2, 520, 90, 600, 50);
-        arrowTechnologyTree(list, 2, 520, 90, 600, 115);
+        arrowTechnologyTree(list, 2, 460, 110, 600, 50);
+        arrowTechnologyTree(list, 2, 460, 90, 600, 90);
         arrowTechnologyTree(list, 2, 390, 200, 600, 140);
         arrowTechnologyTree(list, 2, 390, 185, 600, 185);
         arrowTechnologyTree(list, 2, 420, 235, 600, 235);
         arrowTechnologyTree(list, 2, 420, 235, 600, 305);
+
+        arrowTechnologyTree(list, 3, 700, 85, 900, 85);
+        arrowTechnologyTree(list, 3, 700, 85, 900, 160);
+        arrowTechnologyTree(list, 3, 700, 135, 900, 210);
+        arrowTechnologyTree(list, 3, 700, 185, 900, 260);
+        arrowTechnologyTree(list, 3, 700, 270, 900, 270);
+
+        arrowTechnologyTree(list, 4, 1000, 85, 1230, 85);
+        arrowTechnologyTree(list, 4, 1000, 85, 1200, 160);
+        arrowTechnologyTree(list, 4, 1000, 185, 1230, 185);
+        arrowTechnologyTree(list, 4, 1050, 250, 1200, 130);
+        arrowTechnologyTree(list, 4, 950, 300, 1200, 230);
+        arrowTechnologyTree(list, 4, 1000, 270, 1200, 270);
+
+        arrowTechnologyTree(list, 5, 1300, 160, 1500, 80);
+        arrowTechnologyTree(list, 5, 1300, 135, 1540, 135);
+        arrowTechnologyTree(list, 5, 1380, 200, 1500, 80);
+        arrowTechnologyTree(list, 5, 1300, 65, 1510, 230);
+        arrowTechnologyTree(list, 5, 1300, 230, 1540, 230);
+        arrowTechnologyTree(list, 5, 1300, 300, 1510, 175);
+        arrowTechnologyTree(list, 5, 1300, 165, 1510, 330);
+
+        arrowTechnologyTree(list, 6, 1600, 85, 1800, 85);
+        arrowTechnologyTree(list, 6, 1570, 330, 1800, 50); //bad shape
+        arrowTechnologyTree(list, 6, 1600, 85, 1800, 155);
+        arrowTechnologyTree(list, 6, 1600, 135, 1840, 135);
+        arrowTechnologyTree(list, 6, 1600, 175, 1820, 175);
+        arrowTechnologyTree(list, 6, 1600, 245, 1800, 185);
+        arrowTechnologyTree(list, 6, 1600, 220, 1800, 220);
+
+        arrowTechnologyTree(list, 7, 1900, 85, 2130, 85);
+        arrowTechnologyTree(list, 7, 1900, 85, 2100, 150);
+        arrowTechnologyTree(list, 7, 1900, 175, 2130, 175);
+        arrowTechnologyTree(list, 7, 1900, 135, 2100, 185);
+        arrowTechnologyTree(list, 7, 1900, 220, 2110, 220);
+        arrowTechnologyTree(list, 7, 1900, 220, 2110, 300);
 
         arrowTechnologyTree(list, 8, 2230, 85, 2410, 85);
         arrowTechnologyTree(list, 8, 2230, 135, 2410, 135);
@@ -1149,7 +1198,15 @@ public class Game extends Application {
         for(Technology technology : technologies) {
             Label label = new Label();
             label.setText(String.valueOf(technology));
-            if(gameController.getPlayerTurn().getTechnologies().contains(technology)) {
+            if(gameController.getPlayerTurn().getResearchingTechnology() == technology) {
+                label.setStyle("-fx-background-color: #00ff3c;" +
+                        "-fx-text-fill: #560000;" +
+                        "-fx-border-width: 4;" +
+                        "-fx-border-color: #ffffff;" +
+                        "-fx-border-radius: 5;" +
+                        "-fx-background-radius: 7");
+            }
+            else if(gameController.getPlayerTurn().getTechnologies().contains(technology)) {
                 label.setStyle("-fx-background-color: #ff0032;" +
                         "-fx-text-fill: #560000;" +
                         "-fx-border-width: 4;" +
