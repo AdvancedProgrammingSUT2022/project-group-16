@@ -114,16 +114,16 @@ public class GameController implements Serializable
 		updateUnitStates();
 
 		// decrement researching technology turns
-		
+		//cities
+//		updateCityConstructions();
 		// check for city growth
-		
 		
 		//TODO: check that this is not a duplicate from runGame while loop
 		if(players.indexOf(playerTurn) == 0)
 		{
 			turnCounter++;
 			updateFortifyTilHeal();
-			//updateCityConstructions();
+			updateCityConstructions();
 		}
 
 		// change playerTurn
@@ -1322,7 +1322,8 @@ public class GameController implements Serializable
 	}
 	public void updateCityConstructions(){
 		for (City city : playerTurn.getCities()) {
-			city.construct(city.getCurrentConstruction(), this);
+			if(city.getCurrentConstruction() != null)
+				city.construct(city.getCurrentConstruction(), this);
 		}
 	}
 	public void handleUnitCommands()
@@ -2136,6 +2137,24 @@ public class GameController implements Serializable
 		else
 			return gameEnum.nonSelect.regex;
 	}
+	public String buildBuilding(BuildingType buildingType){
+		if(playerTurn.getSelectedCity() != null)
+		{
+			if(!playerTurn.getCities().contains(playerTurn.getSelectedCity()))
+				return unitCommands.notYours.regex;
+			else
+			{
+				if (playerTurn.getGold() < buildingType.cost)
+					return gameEnum.notEnoughGold.regex;
+				else if(playerTurn.getSelectedCity().doesCityHaveBuilding(buildingType))
+					return "cannot build this type of building here";
+				return playerTurn.getSelectedCity().construct(new Building(buildingType,playerTurn.getSelectedCity().getCapitalTile()), this);
+			}
+		}
+		else
+			return gameEnum.nonSelect.regex;
+
+	}
 	public void resetSelectedObjects()
 	{
 		getPlayerTurn().setSelectedUnit(null);
@@ -2170,6 +2189,17 @@ public class GameController implements Serializable
 				return true;
 		return false;
 	}
+	public String buyBuilding(BuildingType buildingType){
+		if(playerTurn.getGold() < buildingType.cost)
+			return gameEnum.notEnoughGold.regex;
+		else if(playerTurn.getSelectedCity().doesCityHaveBuilding(buildingType))
+			return "cannot buy this type of building";
+		Random random = new Random();
+		int i = random.nextInt(0, playerTurn.getSelectedCity().getTerritory().size());
+		return playerTurn.getSelectedCity().buyBuilding(new Building(buildingType,
+				playerTurn.getSelectedCity().getTerritory().get(i)));
+	}
+
 	public String buyUnit(String type)
 	{
 		if(containTypeMid(type))
@@ -2178,7 +2208,7 @@ public class GameController implements Serializable
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
-			return playerTurn.getSelectedCity().buyProduct(new MidRange(playerTurn, MidRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+			return playerTurn.getSelectedCity().buyUnit(new MidRange(playerTurn, MidRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
 		}
 		else if(containTypeLong(type))
 		{
@@ -2186,7 +2216,7 @@ public class GameController implements Serializable
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
-			return playerTurn.getSelectedCity().buyProduct(new LongRange(playerTurn, LongRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
+			return playerTurn.getSelectedCity().buyUnit(new LongRange(playerTurn, LongRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
 		}
 		else if(type.equals("SETTLER"))
 		{
@@ -2194,7 +2224,7 @@ public class GameController implements Serializable
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
-			return playerTurn.getSelectedCity().buyProduct(new Settler(playerTurn, playerTurn.getSelectedCity().findTileWithNoNCUnit()));
+			return playerTurn.getSelectedCity().buyUnit(new Settler(playerTurn, playerTurn.getSelectedCity().findTileWithNoNCUnit()));
 		}
 		else if(type.equals("WORKER"))
 		{
@@ -2202,7 +2232,7 @@ public class GameController implements Serializable
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoNCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
-			return playerTurn.getSelectedCity().buyProduct(new Worker(playerTurn, playerTurn.getSelectedCity().findTileWithNoNCUnit()));
+			return playerTurn.getSelectedCity().buyUnit(new Worker(playerTurn, playerTurn.getSelectedCity().findTileWithNoNCUnit()));
 		}
 		return null;
 	}
