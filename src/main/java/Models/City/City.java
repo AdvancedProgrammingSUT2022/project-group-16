@@ -349,8 +349,6 @@ public class City
 		//unit.attack(enemy);
 		return null;
 	}
-
-	//==================================================================================================================
 	private boolean constructionCanBeBuilt(Construction construction){
 		if(construction instanceof Unit) {
 			if (this.getRulerPlayer().getGold() >= ((Unit) construction).getProductionCost()) {
@@ -362,6 +360,7 @@ public class City
 
 		else if(construction instanceof Building){
 			if(rulerPlayer.getGold() >= ((Building) construction).getBuildingType().cost){
+				if(!rulerPlayer.getTechnologies().contains(((Building) construction).getBuildingType().requiredTechnology)) return false;
 				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Building) construction).getBuildingType().cost);
 				return true;
 			}
