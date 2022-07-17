@@ -3,3 +3,4 @@ target
 README.md
 pom.xml
 *.log
+java/Database/userDatabase.json
