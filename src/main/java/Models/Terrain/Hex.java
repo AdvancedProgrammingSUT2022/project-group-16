@@ -319,11 +319,13 @@ public class Hex{
 
     private void onMouseMoved() {
         //city banner
-        for (City city : gameController.getPlayerTurn().getCities()) {
-            if (city.getCapitalTile().getPosition() == tile.getPosition() && !isBannerOpen) {
-                isBannerOpen = true;
-                cityBanner(city);
-            }
+        if(hasCity() != null && !isBannerOpen) {
+            isBannerOpen = true;
+            cityBanner(hasCity());
+        }
+        else if(!isBannerOpen){
+            isBannerOpen = true;
+            emptyTilePanel();
         }
     }
     private void cityBanner(City city) {
@@ -367,39 +369,82 @@ public class Hex{
             isBannerOpen = false;
         }
     }
+    private City hasCity() {
+        for (City city : gameController.getPlayerTurn().getCities())
+            if(city.getCapitalTile().getPosition() == tile.getPosition())
+                return city;
+        return null;
+    }
+    private Unit hasCUnit() {
+        for (Unit unit : gameController.getPlayerTurn().getUnits())
+            if(unit.getTile().getPosition() == tile.getPosition() && unit.getPower() != 0)
+                return unit;
+        return null;
+    }
+    private Unit hasNCUnit() {
+        for (Unit unit : gameController.getPlayerTurn().getUnits())
+            if(unit.getTile().getPosition().X == tile.getPosition().X &&
+                    unit.getTile().getPosition().Y == tile.getPosition().Y &&
+                    unit.getPower() == 0)
+                return unit;
+        return null;
+    }
     private void onMouseClicked()
     {
-        if(!isCityPanelOpen && !isCUnitPanelOpen && !isNCUnitPanelOpen) {
-            for (City city : gameController.getPlayerTurn().getCities())
-                if (city.getCapitalTile().getPosition() == tile.getPosition()) {
-                    isCityPanelOpen = true;
-                    cityPanel(city);
-                }
-        }
-        else if(isCityPanelOpen && !isCUnitPanelOpen && !isNCUnitPanelOpen) {
-            //combat unit panel
-            for (Unit unit : gameController.getPlayerTurn().getUnits()) {
-                if (unit.getTile().getPosition() == tile.getPosition() && unit.getPower() != 0) {
-                    isCityPanelOpen = false;
-                    isCUnitPanelOpen = true;
-                    parent.getChildren().remove(parent.getChildren().size() - 1);
-                    unitPanel(unit);
-                }
+        if(isCityPanelOpen) {
+            parent.getChildren().remove(parent.getChildren().size() - 1);
+            isCityPanelOpen = false;
+            if(hasCUnit() != null) {
+                isCUnitPanelOpen = true;
+                unitPanel(hasCUnit());
+            }
+            else if(hasNCUnit() != null) {
+                isNCUnitPanelOpen = true;
+                unitPanel(hasNCUnit());
             }
         }
-        else if(!isCityPanelOpen && isCUnitPanelOpen && !isNCUnitPanelOpen) {
-            //non combat unit panel
-            for (Unit unit : gameController.getPlayerTurn().getUnits()) {
-                if (unit.getTile().getPosition().X == tile.getPosition().X &&
-                        unit.getTile().getPosition().Y == tile.getPosition().Y &&
-                        unit.getPower() == 0) {
-                    isCUnitPanelOpen = false;
-                    isNCUnitPanelOpen = true;
-                    parent.getChildren().remove(parent.getChildren().size() - 1);
-                    unitPanel(unit);
-                }
+        else if(isCUnitPanelOpen) {
+            parent.getChildren().remove(parent.getChildren().size() - 1);
+            isCUnitPanelOpen = false;
+            if(hasNCUnit() != null) {
+                isNCUnitPanelOpen = true;
+                unitPanel(hasNCUnit());
             }
         }
+        else if(isNCUnitPanelOpen) {
+            parent.getChildren().remove(parent.getChildren().size() - 1);
+            isNCUnitPanelOpen = false;
+        }
+        else {
+            if(hasCity() != null) {
+                isCityPanelOpen = true;
+                cityPanel(hasCity());
+            }
+            else if (hasCUnit() != null) {
+                isCUnitPanelOpen = true;
+                unitPanel(hasCUnit());
+            }
+            else if (hasNCUnit() != null) {
+                isNCUnitPanelOpen = true;
+                unitPanel(hasNCUnit());
+            }
+        }
+    }
+    private void emptyTilePanel() {
+        Pane list = new Pane();
+        fade(list).play();
+        panelsPaneStyle(list, position.X + 40, position.Y - 65, 200, 50);
+        addLabelToPane(list, 10, -6, null, tile.getPosition().X + "," + tile.getPosition().Y);
+        if (tile.getResource() != null)
+            addLabelToPane(list, 10, 10, null, "resource: " + tile.getResource().getRESOURCE_TYPE().symbol +
+                    " " +
+                    tile.getResource().getRESOURCE_TYPE().toString());
+        else
+            addLabelToPane(list, 10, 10, null, "resource: nothing");
+        if((isCityPanelOpen || isCUnitPanelOpen || isNCUnitPanelOpen))
+            parent.getChildren().add(parent.getChildren().size() - 1, list);
+        else
+            parent.getChildren().add(list);
     }
     private void unitPanel(Unit unit) {
         Pane list = new Pane();
