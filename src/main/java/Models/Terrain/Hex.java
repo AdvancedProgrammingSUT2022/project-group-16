@@ -28,6 +28,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.AudioClip;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
@@ -56,52 +57,16 @@ public class Hex{
         this.gameController = gameController;
         this.position = position;
         this.pane = new Pane();
-        pane.setOnMousePressed(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                onMousePressed();
-            }
-        });
-        pane.setOnMouseMoved(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                onMouseMoved();
-            }
-        });
-        pane.setOnMouseReleased(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                onMouseReleased();
-            }
-        });
-        pane.setOnMouseExited(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                onMouseExited();
-            }
-        });
-        pane.setOnMouseClicked(new EventHandler<MouseEvent>()
-        {
-            @Override
-            public void handle(MouseEvent mouseEvent)
-            {
-                onMouseClicked();
-            }
-        });
+        pane.setOnMousePressed(mouseEvent -> onMousePressed());
+        pane.setOnMouseMoved(mouseEvent -> onMouseMoved());
+        pane.setOnMouseReleased(mouseEvent -> onMouseReleased());
+        pane.setOnMouseExited(mouseEvent -> onMouseExited());
+        pane.setOnMouseClicked(mouseEvent -> onMouseClicked());
         pane.setPrefWidth(90);
         pane.setPrefHeight(90);
         pane.setLayoutX(position.X);
         pane.setLayoutY(position.Y);
     }
-
     public static void setPane(Pane pane){
         parent = pane;
     }
@@ -115,8 +80,6 @@ public class Hex{
         setCUnits();
         setNCUnits();
     }
-
-
     private ImageView setImage(String url, int x, int y ,int width, int height){
         Image image = new Image(this.getClass().getResource(url).toExternalForm());
         ImageView imageView = new ImageView();

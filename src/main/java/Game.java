@@ -34,13 +34,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
 public class Game extends Application {
@@ -466,15 +466,22 @@ public class Game extends Application {
     }
     private void showTechnologies()
     {
+        //pane style
         Pane list = new Pane();
         panelsPaneStyle(list, 350, 800,false);
         VBox box = new VBox();
         list.getChildren().add(box);
-        setCoordinatesBox(list, box, 15, 15);
+        setCoordinatesBox(list, box, 15, 35);
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 10, 10);
         addLabelToBox(infoCommands.numberOfCup.regex + gameController.getPlayerTurn().getCup(), box);
         showGainedTechnologies(box);
         addLabelToBox(infoCommands.chooseTechnology.regex, box);
-        int max = 0, flag = -1;
+
+        //find candidates
+        int max = 0;
+        int flag = -1;
+        AtomicInteger number = new AtomicInteger(-1);
         Player tmp = gameController.getPlayerTurn();
         ArrayList<Technology> candidateTechs = new ArrayList<>();
         for(int i = 0; i < Technology.values().length; i++)
@@ -482,79 +489,43 @@ public class Game extends Application {
                     !tmp.getTechnologies().contains(Technology.values()[i]))
             {
                 if(tmp.getResearchingTechnology() != null &&
-                        Technology.values()[i].equals(tmp.getResearchingTechnology()))
-                {
+                        Technology.values()[i].equals(tmp.getResearchingTechnology())) {
                     addLabelToBox((max + 1) + ": " + Technology.values()[i].toString() +
                             infoCommands.currResearch.regex, box);
                     flag = max + 1;
+                    int finalMax = max;
+                    int finalFlag2 = flag;
+                    int finalI = i;
+                    box.getChildren().get(box.getChildren().size() - 1).setOnMouseMoved(mouseEvent ->
+                    {
+                        if(list.getChildren().get(list.getChildren().size() - 1).getClass() != Pane.class)
+                            technologyInformationBox(Technology.values()[finalI], finalI, list, tmp);
+                    });
+                    box.getChildren().get(box.getChildren().size() - 1).setOnMouseExited(mouseEvent ->
+                            list.getChildren().remove(list.getChildren().size() - 1));
+                    box.getChildren().get(box.getChildren().size() - 1).setOnMouseClicked(mouseEvent ->
+                            selectTechnology(list, box, number, finalMax, finalFlag2, candidateTechs, tmp));
                 }
-                else
-                {
-                    addLabelToBox((max + 1) + ": " + Technology.values()[i].toString() + infoCommands.requiredTurns.regex +
-                            (Technology.values()[i].cost / 10 - tmp.getResearchingTechCounter()[i]), box);
-                    if(gameController.requiredTechForBuilding(Technology.values()[i]) != null)
-                        addLabelToBox(infoCommands.willGain.regex + gameController.
-                                requiredTechForBuilding(Technology.values()[i]).name(), box);
-                    if(gameController.requiredTechForImprovement(Technology.values()[i]) != null)
-                        addLabelToBox(infoCommands.willGain.regex + gameController.
-                                requiredTechForImprovement(Technology.values()[i]).name(), box);
+                else {
+                    addLabelToBox((max + 1) + ": " + Technology.values()[i].toString(), box);
+                    int finalMax = max;
+                    int finalFlag2 = flag;
+                    int finalI = i;
+                    box.getChildren().get(box.getChildren().size() - 1).setOnMouseMoved(mouseEvent ->
+                    {
+                        if(list.getChildren().get(list.getChildren().size() - 1).getClass() != Pane.class)
+                            technologyInformationBox(Technology.values()[finalI], finalI, list, tmp);
+                    });
+                    box.getChildren().get(box.getChildren().size() - 1).setOnMouseExited(mouseEvent ->
+                            list.getChildren().remove(list.getChildren().size() - 1));
+                    box.getChildren().get(box.getChildren().size() - 1).setOnMouseClicked(mouseEvent ->
+                            selectTechnology(list, box, number, finalMax, finalFlag2, candidateTechs, tmp));
                 }
                 candidateTechs.add(Technology.values()[i]);
                 max++;
             }
-        addLabelToBox((max + 1) + infoCommands.backToGame.regex, box);
         pane.getChildren().add(list);
         setCoordinates(pane, 465, -1);
-        TextField textField = new TextField();
-        box.getChildren().add(textField);
-        int finalMax = max;
-        int finalFlag = flag;
-        textField.setOnKeyPressed(keyEvent -> {
-            String keyName = keyEvent.getCode().getName();
-            if(keyName.equals("Enter")) {
-                if(isValidNumber(textField.getText())) {
-                    int number = Integer.parseInt(textField.getText());
-                    if((number > finalMax + 1 || number == 0)&& (box.getChildren().get(box.getChildren().size() - 1).getClass() == TextField.class))
-                        addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (finalMax + 1), box);
-                    else if((number > finalMax + 1 || number == 0)&& (box.getChildren().get(box.getChildren().size() - 1).getClass() == Label.class &&
-                            !((Label) box.getChildren().get(box.getChildren().size() - 1)).getText().split(" ")[0].equals("please"))) {
-                        box.getChildren().remove(box.getChildren().size() - 1);
-                        addLabelToBox(mainCommands.pickBetween.regex + "1 and " + (finalMax + 1), box);
-                    }
-                    else if(number <= finalMax + 1)
-                    {
-                        if(box.getChildren().indexOf(textField) != box.getChildren().size() - 1)
-                            box.getChildren().remove(box.getChildren().size() - 1);
-                        int flg = -1;
-                        if(number != finalMax + 1)
-                            for(int i = 0; i < Technology.values().length; i++)
-                                if(Technology.values()[i] == candidateTechs.get(number - 1)) flg = i;
-                        if(number == finalFlag) {
-                            addLabelToBox(infoCommands.alreadyResearching.regex, box);
-                            updateBox(list);
-                        }
-                        else if(number != finalMax + 1 && tmp.getCup() >= candidateTechs.get(number - 1).cost / 10 - tmp.getResearchingTechCounter()[flg])
-                        {
-                            tmp.setResearchingTechnology(candidateTechs.get(number - 1));
-                            addLabelToBox(infoCommands.choose.regex + candidateTechs.get(number - 1).name() + infoCommands.successful.regex, box);
-                            tmp.reduceCup();
-                            pane.getChildren().remove(box);
-                            needUpdateScience = true;
-                            showTechnologies();
-                        }
-                        else if(number != finalMax + 1) {
-                            addLabelToBox(infoCommands.enoughCup.regex + candidateTechs.get(number - 1).name(), box);
-                            updateBox(list);
-                        }
-                        else {
-                            pane.getChildren().remove(list);
-                            pane.requestFocus();
-                        }
-                    }
-                }
-                textField.setText(null);
-            }
-        });
         box.setOnScroll((ScrollEvent event) -> {
             double yScale = 30;
             double deltaY = event.getDeltaY();
@@ -563,6 +534,68 @@ public class Game extends Application {
             if((box.getLayoutY() + box.getHeight() > 650 && yScale < 0) || box.getLayoutY() < 40 && yScale > 0)
                 box.setLayoutY(box.getLayoutY() + yScale);
         });
+    }
+    private void technologyInformationBox(Technology technology, int i, Pane parent, Player player) {
+        Pane list = new Pane();
+        list.setLayoutX(-280);
+        list.setLayoutY(180);
+        ImageView imageView = new ImageView();
+        try {
+            imageView.setImage(new Image(String.valueOf(new URL(getClass()
+                    .getResource("photos/backgrounds/icons/frontGamePage.jpg").toExternalForm()))));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        imageView.setFitWidth(250);
+        imageView.setFitHeight(80);
+        list.getChildren().add(0, imageView);
+        imageView.setStyle("-fx-background-radius: 8;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: white;" +
+                "-fx-border-radius: 5;");
+        VBox box = new VBox();
+        list.getChildren().add(box);
+        setCoordinates(list, -20, -20);
+        addLabelToPane(infoCommands.requiredTurns.regex +
+                            (technology.cost / 10 - player.getResearchingTechCounter()[i]), box);
+        if(gameController.requiredTechForBuilding(technology) != null)
+            addLabelToBox(infoCommands.willGain.regex + gameController.
+                    requiredTechForBuilding(technology).name(), box);
+        if(gameController.requiredTechForImprovement(technology) != null)
+            addLabelToBox(infoCommands.willGain.regex + gameController.
+                    requiredTechForImprovement(technology).name(), box);
+        parent.getChildren().add(list);
+    }
+    private void selectTechnology(Pane list, VBox box, AtomicInteger number, int max, int flag, ArrayList<Technology> candidateTechs, Player tmp) {
+        number.set(max + 1);
+        int boxActualSize = 4 + candidateTechs.size() + tmp.getTechnologies().size();
+        if (tmp.getTechnologies().size() == 0)
+            boxActualSize++;
+
+        if(box.getChildren().size() != boxActualSize)
+            box.getChildren().remove(box.getChildren().size() - 1);
+        int flg = -1;
+
+        for(int j = 0; j < Technology.values().length; j++)
+            if(Technology.values()[j] == candidateTechs.get(number.get() - 1)) flg = j;
+
+        if(number.get() == flag) {
+            addLabelToBox(infoCommands.alreadyResearching.regex, box);
+            updateBox(list);
+        }
+        else if(tmp.getCup() >= candidateTechs.get(number.get() - 1).cost / 10 - tmp.getResearchingTechCounter()[flg])
+        {
+            tmp.setResearchingTechnology(candidateTechs.get(number.get() - 1));
+            addLabelToBox(infoCommands.choose.regex + candidateTechs.get(number.get() - 1).name() + infoCommands.successful.regex, box);
+            tmp.reduceCup();
+            pane.getChildren().remove(list);
+            needUpdateScience = true;
+            showTechnologies();
+        }
+        else {
+            addLabelToBox(infoCommands.enoughCup.regex + candidateTechs.get(number.get() - 1).name(), box);
+            updateBox(list);
+        }
     }
     private void panelsVboxStyle(VBox box) {
         box.setAlignment(Pos.CENTER);
