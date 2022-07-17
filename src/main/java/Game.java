@@ -7,8 +7,6 @@ import Models.Player.Technology;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.Units.UnitState;
@@ -16,6 +14,7 @@ import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameEnum;
 import enums.mainCommands;
+import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -31,9 +30,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -54,12 +53,31 @@ public class Game extends Application {
     private boolean isShiftPressed = false;
     @FXML
     public Pane pane;
-    @Override
+    private Pane hexagonsPane;
+    private AnimationTimer animationTimer = new AnimationTimer()
+    {
+        @Override
+        public void handle(long l)
+        {
+            handleMovingMap();
+        }
+    };
+    private static final double MOVING_MAP_SPEED = 5;
+    // for map
+    private static boolean movingUP;
+    private static boolean movingLeft;
+    private static boolean movingDown;
+    private static boolean movingRight;
 
+    @Override
     public void start(Stage stage) throws Exception {
 //        gameDemo.play();
         Pane root = FXMLLoader.load(new URL(getClass().getResource("fxml/game.fxml").toExternalForm()));
-        stage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        scene.setOnKeyPressed(this::onKeyPressed);
+        scene.setOnKeyReleased(this::onKeyReleased);
+        scene.setOnKeyTyped(this::onKeyTyped);
+        stage.setScene(scene);
         root.requestFocus();
         stage.show();
     }
@@ -119,14 +137,25 @@ public class Game extends Application {
             }
         });
     }
-    public void initialize() {
+    //TODO when the turn changes delete playerTurnTiles from pane
+    @FXML
+    private void initialize() {
+        Platform.runLater(this::loadGame);
+    }
+    private void loadGame()
+    {
         gameController.initGame();
-        Hex.setPane(pane);
-        int x = 100;
+        hexagonsPane = (Pane) pane.getChildren().get(0);
+        hexagonsPane.setLayoutX(100);
+        hexagonsPane.setLayoutY(45);
+        hexagonsPane.setPrefWidth(gameController.MAP_SIZE * 90);
+        hexagonsPane.setPrefHeight(gameController.MAP_SIZE * 100);
+        Hex.setPane(hexagonsPane);
+        int x = 0;
         hexagons = new Hex[GameController.getInstance().MAP_SIZE][GameController.getInstance().MAP_SIZE];
         for(int i = 0; i < gameController.MAP_SIZE; i++)
         {
-            int y = (i % 2 == 0 ? 45 : 90);
+            int y = (i % 2 == 0 ? 0 : 45);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
                 hexagons[j][i] = new Hex(new Position(x, y), gameController);
                 y += 100;
@@ -160,36 +189,80 @@ public class Game extends Application {
 
         //cheatCode shortcut
         //TODO: do not remove this part :))))
-//        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
-//        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
-//        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
-//        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
-//        gameController.getPlayerTurn().setCup(10);
-//        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-//        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-//        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-//        gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
-//        gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
-//        gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
-//        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
-//        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
-//        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
-//        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-//        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
-//        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
-//        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
-//        gameController.getPlayerTurn().setCup(100);
+        //        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
+        //        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
+        //        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
+        //        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
+        //        gameController.getPlayerTurn().setCup(10);
+        //        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
+        //        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
+        //        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
+        //        gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+        //        gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
+        //        gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
+        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
+        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
+        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
+        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
+        //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+        //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
+        //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
+        //        gameController.getPlayerTurn().setCup(100);
+
+        animationTimer.start();
+    }
+
+
+    private void onKeyPressed(KeyEvent keyEvent)
+    {
+        if(keyEvent.getCode() == KeyCode.UP)
+        {
+            Game.movingUP = true;
+        }
+        else if(keyEvent.getCode() == KeyCode.LEFT)
+            Game.movingLeft = true;
+        else if(keyEvent.getCode() == KeyCode.DOWN)
+            Game.movingDown = true;
+        else if(keyEvent.getCode() == KeyCode.RIGHT)
+            Game.movingRight = true;
+    }
+    private void onKeyReleased(KeyEvent keyEvent)
+    {
+        if(keyEvent.getCode() == KeyCode.UP)
+            Game.movingUP = false;
+        else if(keyEvent.getCode() == KeyCode.LEFT)
+            Game.movingLeft = false;
+        else if(keyEvent.getCode() == KeyCode.DOWN)
+            Game.movingDown = false;
+        else if(keyEvent.getCode() == KeyCode.RIGHT)
+            Game.movingRight = false;
+    }
+    private void onKeyTyped(KeyEvent keyEvent)
+    {
 
     }
-    //TODO when the turn changes delete playerTurnTiles from pane
+
+    private void handleMovingMap()
+    {
+        if(Game.movingUP && hexagonsPane.getLayoutY() < 45)
+            hexagonsPane.setLayoutY(hexagonsPane.getLayoutY() + MOVING_MAP_SPEED);
+        if(Game.movingLeft && hexagonsPane.getLayoutX() < 100)
+            hexagonsPane.setLayoutX(hexagonsPane.getLayoutX() + MOVING_MAP_SPEED);
+        if(Game.movingDown && hexagonsPane.getLayoutY() > -1000)
+            hexagonsPane.setLayoutY(hexagonsPane.getLayoutY() - MOVING_MAP_SPEED);
+        if(Game.movingRight && hexagonsPane.getLayoutX() > -700)
+            hexagonsPane.setLayoutX(hexagonsPane.getLayoutX() - MOVING_MAP_SPEED);
+    }
+
+
     public void generateMapForPlayer(Player player){
         for (Tile tile : player.getMap().keySet()) {
             hexagons[tile.getPosition().X][tile.getPosition().Y].setTileState(player.getMap().get(tile));
@@ -322,20 +395,20 @@ public class Game extends Application {
         return ft;
     }
     private void setInformationStyles() {
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(6), informationVbox(String.valueOf(gameController.getPlayerTurn().getGold()), 12));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(7), productionInformationStyle());
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(8), informationVbox(String.valueOf(gameController.getPlayerTurn().getFood()), 14));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(9), informationVbox(String.valueOf(gameController.getPlayerTurn().getPopulation()), 15));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(10), informationVbox(String.valueOf(gameController.getPlayerTurn().getHappiness()), 16));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(11), scienceInformationStyle());
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(13), panelsVbox("cities", 20));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(15), panelsVbox("units", 75));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(17), panelsVbox("military", 130));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(19), panelsVbox("demographics", 185));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(21), panelsVbox("notifications", 240));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(23), panelsVbox("economics", 295));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(26), informationVbox("menu", 24));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(28), informationVbox("Technology Tree", 18));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(7), informationVbox(String.valueOf(gameController.getPlayerTurn().getGold()), 12));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(8), productionInformationStyle());
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(9), informationVbox(String.valueOf(gameController.getPlayerTurn().getFood()), 14));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(10), informationVbox(String.valueOf(gameController.getPlayerTurn().getPopulation()), 15));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(11), informationVbox(String.valueOf(gameController.getPlayerTurn().getHappiness()), 16));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(12), scienceInformationStyle());
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(14), panelsVbox("cities", 20));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(16), panelsVbox("units", 75));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(18), panelsVbox("military", 130));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(20), panelsVbox("demographics", 185));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(22), panelsVbox("notifications", 240));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(24), panelsVbox("economics", 295));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(27), informationVbox("menu", 24));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(29), informationVbox("Technology Tree", 18));
     }
 
     public static void main(String[] args) {
