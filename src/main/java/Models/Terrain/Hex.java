@@ -5,12 +5,14 @@ import Models.City.City;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Player.TileState;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import enums.gameCommands.infoCommands;
+import enums.gameCommands.unitCommands;
 import enums.gameEnum;
 import javafx.animation.FadeTransition;
 import javafx.event.EventHandler;
@@ -46,7 +48,9 @@ public class Hex{
     private ImageView tileImageView;
     private GameController gameController;
     private boolean isBannerOpen = false;
-    private boolean isPanelOpen = false;
+    private boolean isCityPanelOpen = false;
+    private boolean isCUnitPanelOpen = false;
+    private boolean isNCUnitPanelOpen = false;
 
     public Hex(Position position, GameController gameController){
         this.gameController = gameController;
@@ -318,24 +322,26 @@ public class Hex{
         for (City city : gameController.getPlayerTurn().getCities()) {
             if (city.getCapitalTile().getPosition() == tile.getPosition() && !isBannerOpen) {
                 isBannerOpen = true;
-                //box style
-                Pane list = new Pane();
-                fade(list).play();
-                panelsPaneStyle(list, position.X + 40, position.Y - 65, 200, 50);
-                addLabelToPane(list, 10, 10, "photos/gameIcons/Gold.png", String.valueOf(city.getGoldYield()));
-                addLabelToPane(list, 30, 10, "photos/gameIcons/Food.png", String.valueOf(city.getFoodYield()));
-                addLabelToPane(list, 50, 10, "photos/gameIcons/Production.png", String.valueOf(city.getProductionYield()));
-                addLabelToPane(list, 70, 10, "photos/gameIcons/Food.png", String.valueOf(city.getFoodYield()));
-                addLabelToPane(list, 90, 10, "photos/gameIcons/Population.png", String.valueOf(city.getPopulation()));
-                addLabelToPane(list, 110, 10, "photos/gameIcons/Hexagon.png", String.valueOf(city.getTerritory().size()));
-                addLabelToPane(list, 130, -6, null, city.getName());
-                addLabelToPane(list, 130, 10, null, "PF: " + String.valueOf(city.getCombatStrength()));
-                if(isPanelOpen)
-                    parent.getChildren().add(parent.getChildren().size() - 1, list);
-                else
-                    parent.getChildren().add(list);
+                cityBanner(city);
             }
         }
+    }
+    private void cityBanner(City city) {
+        Pane list = new Pane();
+        fade(list).play();
+        panelsPaneStyle(list, position.X + 40, position.Y - 65, 200, 50);
+        addLabelToPane(list, 10, 10, "photos/gameIcons/Gold.png", String.valueOf(city.getGoldYield()));
+        addLabelToPane(list, 30, 10, "photos/gameIcons/Food.png", String.valueOf(city.getFoodYield()));
+        addLabelToPane(list, 50, 10, "photos/gameIcons/Production.png", String.valueOf(city.getProductionYield()));
+        addLabelToPane(list, 70, 10, "photos/gameIcons/Food.png", String.valueOf(city.getFoodYield()));
+        addLabelToPane(list, 90, 10, "photos/gameIcons/Population.png", String.valueOf(city.getPopulation()));
+        addLabelToPane(list, 110, 10, "photos/gameIcons/Hexagon.png", String.valueOf(city.getTerritory().size()));
+        addLabelToPane(list, 130, -6, null, city.getName());
+        addLabelToPane(list, 130, 10, null, "PF: " + String.valueOf(city.getCombatStrength()));
+        if((isCityPanelOpen || isCUnitPanelOpen || isNCUnitPanelOpen))
+            parent.getChildren().add(parent.getChildren().size() - 1, list);
+        else
+            parent.getChildren().add(list);
     }
     private void onMouseReleased()
     {
@@ -343,56 +349,89 @@ public class Hex{
             return;
         if(tileState.equals(TileState.VISIBLE))
             tileImageView.setEffect(null);
-        else if (tileState.equals(TileState.REVEALED))
-        {
+        else if (tileState.equals(TileState.REVEALED)) {
             ColorAdjust colorAdjust = new ColorAdjust();
             colorAdjust.setBrightness(-.6);
             tileImageView.setEffect(colorAdjust);
         }
-
-
-
     }
     private void onMouseExited()
     {
         //remove banner
-        if (isBannerOpen && !isPanelOpen) {
+        if (isBannerOpen && !isCityPanelOpen && !isCUnitPanelOpen && !isNCUnitPanelOpen) {
             parent.getChildren().remove(parent.getChildren().size() - 1);
             isBannerOpen = false;
         }
-        else if (isBannerOpen && isPanelOpen) {
+        else if (isBannerOpen && (isCityPanelOpen || isCUnitPanelOpen || isNCUnitPanelOpen)) {
             parent.getChildren().remove(parent.getChildren().size() - 2);
             isBannerOpen = false;
         }
     }
     private void onMouseClicked()
     {
-        for (City city : gameController.getPlayerTurn().getCities())
-            if (city.getCapitalTile().getPosition() == tile.getPosition() && !isPanelOpen) {
-                isPanelOpen = true;
-                cityPanel(city);
+        if(!isCityPanelOpen && !isCUnitPanelOpen && !isNCUnitPanelOpen) {
+            for (City city : gameController.getPlayerTurn().getCities())
+                if (city.getCapitalTile().getPosition() == tile.getPosition()) {
+                    isCityPanelOpen = true;
+                    cityPanel(city);
+                }
+        }
+        else if(isCityPanelOpen && !isCUnitPanelOpen && !isNCUnitPanelOpen) {
+            //combat unit panel
+            for (Unit unit : gameController.getPlayerTurn().getUnits()) {
+                if (unit.getTile().getPosition() == tile.getPosition() && unit.getPower() != 0) {
+                    isCityPanelOpen = false;
+                    isCUnitPanelOpen = true;
+                    parent.getChildren().remove(parent.getChildren().size() - 1);
+                    unitPanel(unit);
+                }
             }
+        }
+        else if(!isCityPanelOpen && isCUnitPanelOpen && !isNCUnitPanelOpen) {
+            //non combat unit panel
+            for (Unit unit : gameController.getPlayerTurn().getUnits()) {
+                if (unit.getTile().getPosition().X == tile.getPosition().X &&
+                        unit.getTile().getPosition().Y == tile.getPosition().Y &&
+                        unit.getPower() == 0) {
+                    isCUnitPanelOpen = false;
+                    isNCUnitPanelOpen = true;
+                    parent.getChildren().remove(parent.getChildren().size() - 1);
+                    unitPanel(unit);
+                }
+            }
+        }
     }
-    private void addLabelToBox(String line, VBox box) {
-        Label label = new Label();
-        label.setText(line);
-        label.setStyle("-fx-text-fill: white;" +
-                "-fx-font-size: 18;");
-        box.getChildren().add(label);
-    }
-    private void panelsPaneStyle2(Pane box) {
-        box.setLayoutX(340);
-        box.setLayoutY(130);
-        box.setStyle("-fx-background-radius: 8;" +
-                "-fx-background-color: rgb(0,7,114);" +
-                "-fx-border-width: 3;" +
-                "-fx-border-color: white;" +
-                "-fx-border-radius: 5;" +
-                "-fx-pref-width: 600");
+    private void unitPanel(Unit unit) {
+        Pane list = new Pane();
+        panelsPaneStyle2(list);
+        VBox box = new VBox(), photos = new VBox();
+        box.setAlignment(Pos.TOP_LEFT);
+        photos.setAlignment(Pos.CENTER);
+        photos.setSpacing(14);
+        box.setSpacing(6);
+        addLabelToBox(unitCommands.unitType.regex + unit.toString(), box);
+        addPhotoToBox(photos, null);
+        addLabelToBox(unitCommands.unitMP.regex + unit.getMovementPoints(), box);
+        addPhotoToBox(photos, null);
+        addLabelToBox(unitCommands.unitHealth.regex + unit.getHealth(), box);
+        addPhotoToBox(photos, null);
+        addLabelToBox(unitCommands.unitState.regex + unit.getUnitState().symbol, box);
+        addPhotoToBox(photos, null);
+        addLabelToBox(unitCommands.unitPosition.regex + unit.getTile().getPosition().X + ","
+                + unit.getTile().getPosition().Y, box);
+        list.getChildren().add(box);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(75);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        list.getChildren().add(photos);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(50);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        parent.getChildren().add(list);
     }
     private void cityPanel(City city)
     {
-        isPanelOpen = true;
         Pane list = new Pane();
         panelsPaneStyle2(list);
         VBox box = new VBox(), photos = new VBox();
@@ -459,8 +498,6 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         parent.getChildren().add(list);
-        for (int i = 0; i < parent.getChildren().size() - 1; i++)
-            parent.getChildren().get(i).setDisable(true);
     }
     private void employedCitizensPanel(City city) {
         Pane list = new Pane();
@@ -537,22 +574,43 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         parent.getChildren().add(list);
     }
-    private void setCoordinatesBox(Pane list, VBox box, double x, double y) {
-        list.getChildren().get(list.getChildren().indexOf(box)).setLayoutX(x);
-        list.getChildren().get(list.getChildren().indexOf(box)).setLayoutY(y);
+    private ImageView exitButtonStyle(Pane list) {
+        ImageView exitButton = new ImageView();
+        exitButton.setOnMouseMoved(mouseEvent -> {
+            exitButton.setFitHeight(28);
+            exitButton.setFitWidth(28);
+        });
+        exitButton.setOnMouseExited(mouseEvent -> {
+            exitButton.setFitHeight(25);
+            exitButton.setFitWidth(25);
+        });
+        exitButton.setOnMousePressed(mouseEvent -> {
+            isCityPanelOpen = false;
+            isCUnitPanelOpen = false;
+            isNCUnitPanelOpen = false;
+            for (int i = 0; i < parent.getChildren().size() - 1; i++)
+                parent.getChildren().get(i).setDisable(false);
+            parent.getChildren().remove(list);
+            parent.setDisable(false);
+            parent.requestFocus();
+        });
+        exitButton.setImage(new Image("photos/gameIcons/panelsIcons/Close.png"));
+        exitButton.setFitHeight(25);
+        exitButton.setFitWidth(25);
+        parent.requestFocus();
+        return exitButton;
     }
-    private void panelsPaneStyle(Pane list, int x, int y, int width, int height) {
-        list.setLayoutX(x);
-        list.setLayoutY(y);
-        list.setPrefHeight(height);
-        list.setPrefWidth(width);
-        list.setStyle("-fx-background-color: #00009a;" +
-                "-fx-text-fill: white;" +
-                "-fx-border-width: 3;" +
-                "-fx-border-color: white;" +
-                "-fx-border-radius: 5;" +
-                "-fx-background-radius: 8;");
+    private FadeTransition fade(Node node) {
+        FadeTransition ft = new FadeTransition();
+        ft.setNode(node);
+        ft.setDuration(new Duration(200));
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        return ft;
     }
+
+
+    //styles
     private void addLabelToPane(Pane list, int x, int y, String url, String information) {
         if (url != null) {
             ImageView imageView = new ImageView();
@@ -582,36 +640,39 @@ public class Hex{
             box.getChildren().add(imageView);
         }
     }
-    private ImageView exitButtonStyle(Pane list) {
-        ImageView exitButton = new ImageView();
-        exitButton.setOnMouseMoved(mouseEvent -> {
-            exitButton.setFitHeight(28);
-            exitButton.setFitWidth(28);
-        });
-        exitButton.setOnMouseExited(mouseEvent -> {
-            exitButton.setFitHeight(25);
-            exitButton.setFitWidth(25);
-        });
-        exitButton.setOnMousePressed(mouseEvent -> {
-            isPanelOpen = false;
-            for (int i = 0; i < parent.getChildren().size() - 1; i++)
-                parent.getChildren().get(i).setDisable(false);
-            parent.getChildren().remove(list);
-            parent.setDisable(false);
-            parent.requestFocus();
-        });
-        exitButton.setImage(new Image("photos/gameIcons/panelsIcons/Close.png"));
-        exitButton.setFitHeight(25);
-        exitButton.setFitWidth(25);
-        parent.requestFocus();
-        return exitButton;
+    private void panelsPaneStyle(Pane list, int x, int y, int width, int height) {
+        list.setLayoutX(x);
+        list.setLayoutY(y);
+        list.setPrefHeight(height);
+        list.setPrefWidth(width);
+        list.setStyle("-fx-background-color: #00009a;" +
+                "-fx-text-fill: white;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: white;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;");
     }
-    private FadeTransition fade(Node node) {
-        FadeTransition ft = new FadeTransition();
-        ft.setNode(node);
-        ft.setDuration(new Duration(200));
-        ft.setFromValue(0);
-        ft.setToValue(1);
-        return ft;
+    private void addLabelToBox(String line, VBox box) {
+        Label label = new Label();
+        label.setText(line);
+        label.setStyle("-fx-text-fill: white;" +
+                "-fx-font-size: 18;");
+        box.getChildren().add(label);
+    }
+    private void panelsPaneStyle2(Pane box) {
+        box.setLayoutX(340);
+        box.setLayoutY(130);
+        box.setStyle("-fx-background-radius: 8;" +
+                "-fx-background-color: rgb(0,7,114);" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: white;" +
+                "-fx-border-radius: 5;" +
+                "-fx-pref-width: 600");
+    }
+
+    //coordinates
+    private void setCoordinatesBox(Pane list, VBox box, double x, double y) {
+        list.getChildren().get(list.getChildren().indexOf(box)).setLayoutX(x);
+        list.getChildren().get(list.getChildren().indexOf(box)).setLayoutY(y);
     }
 }

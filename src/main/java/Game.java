@@ -7,6 +7,8 @@ import Models.Player.Technology;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
+import Models.Units.CombatUnits.MidRange;
+import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.Units.UnitState;
@@ -182,12 +184,13 @@ public class Game extends Application {
         });
 
         setInformationStyles();
-        pane.getChildren().get(11).setOnMousePressed(mouseEvent -> {
+        pane.getChildren().get(12).setOnMousePressed(mouseEvent -> {
             showTechnologies();
             audioClip.play();
         });
 
         //cheatCode shortcut
+        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
         //TODO: do not remove this part :))))
         //        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
         //        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
