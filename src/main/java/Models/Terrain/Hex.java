@@ -364,7 +364,7 @@ public class Hex{
             parent.getChildren().remove(parent.getChildren().size() - 1);
             isBannerOpen = false;
         }
-        else if (isBannerOpen && (isCityPanelOpen || isCUnitPanelOpen || isNCUnitPanelOpen)) {
+        else if (isBannerOpen) {
             parent.getChildren().remove(parent.getChildren().size() - 2);
             isBannerOpen = false;
         }
@@ -396,11 +396,11 @@ public class Hex{
             isCityPanelOpen = false;
             if(hasCUnit() != null) {
                 isCUnitPanelOpen = true;
-                unitPanel(hasCUnit());
+                combatUnitPanel(hasCUnit());
             }
             else if(hasNCUnit() != null) {
                 isNCUnitPanelOpen = true;
-                unitPanel(hasNCUnit());
+                nonCombatUnitPanel(hasNCUnit());
             }
         }
         else if(isCUnitPanelOpen) {
@@ -408,7 +408,7 @@ public class Hex{
             isCUnitPanelOpen = false;
             if(hasNCUnit() != null) {
                 isNCUnitPanelOpen = true;
-                unitPanel(hasNCUnit());
+                nonCombatUnitPanel(hasNCUnit());
             }
         }
         else if(isNCUnitPanelOpen) {
@@ -422,11 +422,11 @@ public class Hex{
             }
             else if (hasCUnit() != null) {
                 isCUnitPanelOpen = true;
-                unitPanel(hasCUnit());
+                combatUnitPanel(hasCUnit());
             }
             else if (hasNCUnit() != null) {
                 isNCUnitPanelOpen = true;
-                unitPanel(hasNCUnit());
+                nonCombatUnitPanel(hasNCUnit());
             }
         }
     }
@@ -446,33 +446,103 @@ public class Hex{
         else
             parent.getChildren().add(list);
     }
-    private void unitPanel(Unit unit) {
-        Pane list = new Pane();
+    private void combatUnitPanel(Unit unit) {
+        Pane list = new Pane(), actions = new Pane();
         panelsPaneStyle2(list);
+        actions.setPrefHeight(150);
         VBox box = new VBox(), photos = new VBox();
         box.setAlignment(Pos.TOP_LEFT);
         photos.setAlignment(Pos.CENTER);
-        photos.setSpacing(14);
+        photos.setSpacing(12);
         box.setSpacing(6);
+
+        //information
         addLabelToBox(unitCommands.unitType.regex + unit.toString(), box);
         addPhotoToBox(photos, null);
         addLabelToBox(unitCommands.unitMP.regex + unit.getMovementPoints(), box);
         addPhotoToBox(photos, null);
         addLabelToBox(unitCommands.unitHealth.regex + unit.getHealth(), box);
-        addPhotoToBox(photos, null);
+        addPhotoToBox(photos, "photos/gameIcons/health.png");
         addLabelToBox(unitCommands.unitState.regex + unit.getUnitState().symbol, box);
         addPhotoToBox(photos, null);
         addLabelToBox(unitCommands.unitPosition.regex + unit.getTile().getPosition().X + ","
                 + unit.getTile().getPosition().Y, box);
+        addPhotoToBox(photos, "photos/gameIcons/target.png");
         list.getChildren().add(box);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(75);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
         list.getChildren().add(photos);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(50);
-        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
+
+        //actions
+        addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/Shield.png", "fortify");
+        addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
+        addPhotoToPane(actions, 110, 10, "photos/gameIcons/unitActions/Fire.png", "pillage");
+        addPhotoToPane(actions, 160, 10, "photos/gameIcons/unitActions/remove.png", "remove");
+        addPhotoToPane(actions, 10, 60, "photos/gameIcons/unitActions/Move.png", "move");
+        addPhotoToPane(actions, 10, 110, "photos/gameIcons/unitActions/Sleep.png", "sleep");
+        addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/garrison.png", "garrison");
+        addPhotoToPane(actions, 60, 110, "photos/gameIcons/unitActions/Fight.png", "fight");
+        addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/readyToFight.png", "ready");
+        addPhotoToPane(actions, 110, 110, "photos/gameIcons/unitActions/alert.png", "alert");
+        addPhotoToPane(actions, 160, 60, "photos/gameIcons/unitActions/fortifyTilHeal.png", "fortify til heal");
+        addPhotoToPane(actions, 160, 110, "photos/gameIcons/unitActions/Close.png", "close");
+
         list.getChildren().add(exitButtonStyle(list));
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        list.getChildren().add(actions);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(300);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(13);
+        parent.getChildren().add(list);
+    }
+    private void nonCombatUnitPanel(Unit unit) {
+        Pane list = new Pane(), actions = new Pane();
+        panelsPaneStyle2(list);
+        actions.setPrefHeight(150);
+        VBox box = new VBox(), photos = new VBox();
+        box.setAlignment(Pos.TOP_LEFT);
+        photos.setAlignment(Pos.CENTER);
+        photos.setSpacing(12);
+        box.setSpacing(6);
+
+        //information
+        addLabelToBox(unitCommands.unitType.regex + unit.toString(), box);
+        addPhotoToBox(photos, null);
+        addLabelToBox(unitCommands.unitMP.regex + unit.getMovementPoints(), box);
+        addPhotoToBox(photos, null);
+        addLabelToBox(unitCommands.unitHealth.regex + unit.getHealth(), box);
+        addPhotoToBox(photos, "photos/gameIcons/health.png");
+        addLabelToBox(unitCommands.unitState.regex + unit.getUnitState().symbol, box);
+        addPhotoToBox(photos, null);
+        addLabelToBox(unitCommands.unitPosition.regex + unit.getTile().getPosition().X + ","
+                + unit.getTile().getPosition().Y, box);
+        addPhotoToBox(photos, "photos/gameIcons/target.png");
+        list.getChildren().add(box);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(75);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        list.getChildren().add(photos);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(50);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
+
+        //actions
+        addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
+        addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/remove.png", "remove");
+        addPhotoToPane(actions, 110, 10, "photos/gameIcons/unitActions/Move.png", "move");
+        addPhotoToPane(actions, 10, 60, "photos/gameIcons/unitActions/Sleep.png", "sleep");
+        addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/Close.png", "close");
+        if(unit.getClass().equals(Settler.class))
+            addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/city.png", "found city");
+        else
+            addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/build.png", "build");
+
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        list.getChildren().add(actions);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(300);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(13);
         parent.getChildren().add(list);
     }
     private void cityPanel(City city)
@@ -683,6 +753,24 @@ public class Hex{
             imageView.setFitWidth(15);
             imageView.setFitHeight(15);
             box.getChildren().add(imageView);
+        }
+    }
+    private void addPhotoToPane(Pane box, int x, int y, String url, String information) {
+        if (url == null)
+            addLabelToPane(box, x, y, null, "");
+        else {
+            ImageView imageView = new ImageView();
+            imageView.setImage(new Image(url));
+            imageView.setFitWidth(25);
+            imageView.setFitHeight(25);
+            box.getChildren().add(imageView);
+            box.getChildren().get(box.getChildren().size() - 1).setLayoutX(x);
+            box.getChildren().get(box.getChildren().size() - 1).setLayoutY(y);
+            imageView.setOnMouseMoved(mouseEvent -> {
+                if(box.getChildren().get(box.getChildren().size() - 1).getClass() != Label.class)
+                    addLabelToPane(box, x + 22, y, null, information);
+            });
+            imageView.setOnMouseExited(mouseEvent -> box.getChildren().remove(box.getChildren().size() - 1));
         }
     }
     private void panelsPaneStyle(Pane list, int x, int y, int width, int height) {
