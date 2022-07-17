@@ -1342,6 +1342,8 @@ public class GameController implements Serializable
 	}
 	public String moveUnit(Matcher matcher)
 	{
+		if (matcher == null)
+			return unitCommands.wrongCoordinates.regex;
 		int newX = Integer.parseInt(matcher.group("x"));
 		int newY = Integer.parseInt(matcher.group("y"));
 		if(newX < 0 || newX > 9 || newY < 0 || newY > 9)
@@ -1403,22 +1405,25 @@ public class GameController implements Serializable
 				unit.setPower(((LongRange) unit).getType().combatStrength);
 		}
 	}
-	public void stayAlert()
+	public String stayAlert()
 	{
 		for(Player player : players)
 			for(Unit unit : player.getUnits())
 			{
 				if(!unit.getUnitState().equals(UnitState.ALERT))
-					continue;
+					return unitCommands.setAlert.regex;
 				for(Tile adjacentTile : playerTurn.getAdjacentTiles(unit.getTile(), 2))
 				{
 					CombatUnit combatUnitInAdjacentTile = adjacentTile.getCombatUnitInTile();
 					NonCombatUnit nonCombatUnitInAdjacentTile = adjacentTile.getNonCombatUnitInTile();
 					if((combatUnitInAdjacentTile != null && combatUnitInAdjacentTile.getRulerPlayer() != playerTurn) ||
-							(nonCombatUnitInAdjacentTile != null && nonCombatUnitInAdjacentTile.getRulerPlayer() != playerTurn))
+							(nonCombatUnitInAdjacentTile != null && nonCombatUnitInAdjacentTile.getRulerPlayer() != playerTurn)) {
 						unit.setUnitState(UnitState.ACTIVE);
+						return unitCommands.activeUnit.regex;
+					}
 				}
 			}
+		return null;
 	}
 	public String alert()
 	{
@@ -1547,6 +1552,8 @@ public class GameController implements Serializable
 	}
 	public String setup(Matcher matcher)
 	{
+		if (matcher == null)
+			return unitCommands.wrongCoordinates.regex;
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
@@ -1635,6 +1642,8 @@ public class GameController implements Serializable
 	}
 	public String attackCity(Matcher matcher)
 	{
+		if(matcher == null)
+			return unitCommands.wrongCoordinates.regex;
 		if(isValidCoordinate(matcher) == null)
 			return unitCommands.wrongCoordinates.regex;
 		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));

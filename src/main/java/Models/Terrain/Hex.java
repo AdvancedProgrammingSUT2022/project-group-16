@@ -414,6 +414,7 @@ public class Hex{
         else if(isNCUnitPanelOpen) {
             parent.getChildren().remove(parent.getChildren().size() - 1);
             isNCUnitPanelOpen = false;
+            gameController.getPlayerTurn().setSelectedUnit(null);
         }
         else {
             if(hasCity() != null) {
@@ -446,6 +447,11 @@ public class Hex{
         else
             parent.getChildren().add(list);
     }
+    private void removeAllPanels() {
+        isCUnitPanelOpen = false;
+        isNCUnitPanelOpen = false;
+        isCityPanelOpen = false;
+    }
     private void combatUnitPanel(Unit unit) {
         Pane list = new Pane(), actions = new Pane();
         panelsPaneStyle2(list);
@@ -476,19 +482,206 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
 
         //actions
+        gameController.getPlayerTurn().setSelectedUnit(unit);
         addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/Shield.png", "fortify");
+        actions.getChildren().get(0).setOnMousePressed(mouseEvent -> {
+            String result = gameController.fortify();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(unitCommands.fortifyActivated.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
+        actions.getChildren().get(1).setOnMousePressed(mouseEvent -> {
+            String result = gameController.wake();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(gameEnum.wokeUp.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 110, 10, "photos/gameIcons/unitActions/Fire.png", "pillage");
+        actions.getChildren().get(2).setOnMousePressed(mouseEvent -> {
+            String result = gameController.pillage();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(unitCommands.destroyImprovement.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 160, 10, "photos/gameIcons/unitActions/remove.png", "remove");
+        actions.getChildren().get(3).setOnMousePressed(mouseEvent -> {
+            String result = gameController.delete();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.endsWith(unitCommands.gold.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 10, 60, "photos/gameIcons/unitActions/Move.png", "move");
+        actions.getChildren().get(4).setOnMousePressed(mouseEvent -> {
+            TextField textField = new TextField();
+            textField.setPromptText("enter coordinates...");
+            actions.getChildren().add(textField);
+            actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(300);
+            actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(200);
+            textField.setOnKeyPressed(keyEvent -> {
+                String keyName = keyEvent.getCode().getName();
+                if(keyName.equals("Enter")) {
+                    Matcher matcher;
+                    if (textField.getText() == null)
+                        matcher = null;
+                    else
+                        matcher = unitCommands.compareRegex(textField.getText(), unitCommands.moveTo);
+                    String result = gameController.moveUnit(matcher);
+                    if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                        list.getChildren().remove(list.getChildren().size() - 1);
+                    addLabelToPane(list, 300, 200, null, result);
+                    if (result.equals(unitCommands.moveSuccessfull.regex)) {
+                        removeAllPanels();
+                        list.getChildren().remove(textField);
+                        parent.getChildren().remove(list);
+                    }
+                    if (textField.getText().equals("-")) {
+                        actions.getChildren().remove(textField);
+                        if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                            list.getChildren().remove(list.getChildren().size() - 1);
+                    }
+                    textField.setText(null);
+                }
+            });
+        });
         addPhotoToPane(actions, 10, 110, "photos/gameIcons/unitActions/Sleep.png", "sleep");
+        actions.getChildren().get(5).setOnMousePressed(mouseEvent -> {
+            String result = gameController.sleep();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(gameEnum.slept.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/garrison.png", "garrison");
+        actions.getChildren().get(6).setOnMousePressed(mouseEvent -> {
+            String result = gameController.garrison();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(unitCommands.garissonSet.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 60, 110, "photos/gameIcons/unitActions/Fight.png", "fight");
+        actions.getChildren().get(7).setOnMousePressed(mouseEvent -> {
+                    TextField textField = new TextField();
+                    textField.setPromptText("enter coordinates...");
+                    actions.getChildren().add(textField);
+                    actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(300);
+                    actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(200);
+                    textField.setOnKeyPressed(keyEvent -> {
+                        String keyName = keyEvent.getCode().getName();
+                        if (keyName.equals("Enter")) {
+                            Matcher matcher;
+                            if (textField.getText() == null)
+                                matcher = null;
+                            else
+                                matcher = unitCommands.compareRegex(textField.getText(), unitCommands.attack);
+                            String result = gameController.attackCity(matcher);
+                            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                                list.getChildren().remove(list.getChildren().size() - 1);
+                            if (result != null)
+                                addLabelToPane(list, 300, 200, null, result);
+                            if(result.equals(unitCommands.successfullAttack.regex) || result.equals(null))
+                            {
+                                removeAllPanels();
+                                list.getChildren().remove(textField);
+                                parent.getChildren().remove(list);
+                            }
+                            if (textField.getText().equals("-")) {
+                                actions.getChildren().remove(textField);
+                                if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                                    list.getChildren().remove(list.getChildren().size() - 1);
+                            }
+                            textField.setText(null);
+                        }
+                    });
+                });
         addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/readyToFight.png", "ready");
+        actions.getChildren().get(8).setOnMousePressed(mouseEvent -> {
+            TextField textField = new TextField();
+            textField.setPromptText("enter coordinates...");
+            actions.getChildren().add(textField);
+            actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(300);
+            actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(200);
+            textField.setOnKeyPressed(keyEvent -> {
+                        String keyName = keyEvent.getCode().getName();
+                        if (keyName.equals("Enter")) {
+                            Matcher matcher;
+                            if (textField.getText() == null)
+                                matcher = null;
+                            else
+                                matcher = unitCommands.compareRegex(textField.getText(), unitCommands.setup);
+                            String result = gameController.setup(matcher);
+                            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                                list.getChildren().remove(list.getChildren().size() - 1);
+                            addLabelToPane(list, 300, 200, null, result);
+                            if (result.equals(unitCommands.setupSuccessful.regex)) {
+                                removeAllPanels();
+                                parent.getChildren().remove(list);
+                            }
+                            if (textField.getText().equals("-")) {
+                                actions.getChildren().remove(textField);
+                                if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                                    list.getChildren().remove(list.getChildren().size() - 1);
+                            }
+                            textField.setText(null);
+                        }
+                    });
+        });
         addPhotoToPane(actions, 110, 110, "photos/gameIcons/unitActions/alert.png", "alert");
+        actions.getChildren().get(9).setOnMousePressed(mouseEvent -> {
+            String result = gameController.alert();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(unitCommands.alerted.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 160, 60, "photos/gameIcons/unitActions/fortifyTilHeal.png", "fortify til heal");
+        actions.getChildren().get(10).setOnMousePressed(mouseEvent -> {
+            String result = gameController.fortifyTilHeal();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(unitCommands.fortifyHealActivated.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 160, 110, "photos/gameIcons/unitActions/Close.png", "close");
-
+        actions.getChildren().get(11).setOnMousePressed(mouseEvent -> {
+            String result = gameController.cancel();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(unitCommands.cancelCommand.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         list.getChildren().add(exitButtonStyle(list));
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
@@ -527,15 +720,101 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
 
         //actions
+        gameController.getPlayerTurn().setSelectedUnit(unit);
         addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
+        actions.getChildren().get(0).setOnMousePressed(mouseEvent -> {
+            String result = gameController.wake();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(gameEnum.wokeUp.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/remove.png", "remove");
+        actions.getChildren().get(1).setOnMousePressed(mouseEvent -> {
+            String result = gameController.delete();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.endsWith(unitCommands.gold.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 110, 10, "photos/gameIcons/unitActions/Move.png", "move");
+        actions.getChildren().get(2).setOnMousePressed(mouseEvent -> {
+            TextField textField = new TextField();
+            textField.setPromptText("enter coordinates...");
+            actions.getChildren().add(textField);
+            actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(300);
+            actions.getChildren().get(actions.getChildren().size() - 1).setLayoutX(200);
+            textField.setOnKeyPressed(keyEvent -> {
+                String keyName = keyEvent.getCode().getName();
+                if(keyName.equals("Enter")) {
+                    Matcher matcher;
+                    if (textField.getText() == null)
+                        matcher = null;
+                    else
+                        matcher = unitCommands.compareRegex(textField.getText(), unitCommands.moveTo);
+                    String result = gameController.moveUnit(matcher);
+                    if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                        list.getChildren().remove(list.getChildren().size() - 1);
+                    addLabelToPane(list, 300, 200, null, result);
+                    if (result.equals(unitCommands.moveSuccessfull.regex)) {
+                        removeAllPanels();
+                        list.getChildren().remove(textField);
+                        parent.getChildren().remove(list);
+                    }
+                    if (textField.getText().equals("-")) {
+                        actions.getChildren().remove(textField);
+                        if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                            list.getChildren().remove(list.getChildren().size() - 1);
+                    }
+                    textField.setText(null);
+                }
+            });
+        });
         addPhotoToPane(actions, 10, 60, "photos/gameIcons/unitActions/Sleep.png", "sleep");
+        actions.getChildren().get(3).setOnMousePressed(mouseEvent -> {
+            String result = gameController.sleep();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(gameEnum.slept.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
         addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/Close.png", "close");
-        if(unit.getClass().equals(Settler.class))
+        actions.getChildren().get(4).setOnMousePressed(mouseEvent -> {
+            String result = gameController.cancel();
+            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                list.getChildren().remove(list.getChildren().size() - 1);
+            addLabelToPane(list, 300, 200, null, result);
+            if (result.equals(unitCommands.cancelCommand.regex)) {
+                removeAllPanels();
+                parent.getChildren().remove(list);
+            }
+        });
+        if(unit.getClass().equals(Settler.class)) {
             addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/city.png", "found city");
-        else
+            actions.getChildren().get(5).setOnMousePressed(mouseEvent -> {
+                String result = gameController.found();
+                if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                    list.getChildren().remove(list.getChildren().size() - 1);
+                addLabelToPane(list, 300, 200, null, result);
+                if (result.equals(unitCommands.cityBuilt.regex)) {
+                    removeAllPanels();
+                    parent.getChildren().remove(list);
+                }
+            });
+        }
+        else {
             addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/build.png", "build");
+            buildPanel();
+        }
 
         list.getChildren().add(exitButtonStyle(list));
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
@@ -544,6 +823,9 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(300);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(13);
         parent.getChildren().add(list);
+    }
+    private void buildPanel() {
+
     }
     private void cityPanel(City city)
     {
@@ -703,6 +985,7 @@ public class Hex{
             isCityPanelOpen = false;
             isCUnitPanelOpen = false;
             isNCUnitPanelOpen = false;
+            gameController.getPlayerTurn().setSelectedUnit(null);
             for (int i = 0; i < parent.getChildren().size() - 1; i++)
                 parent.getChildren().get(i).setDisable(false);
             parent.getChildren().remove(list);

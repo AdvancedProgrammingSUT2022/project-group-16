@@ -6,14 +6,16 @@ import java.util.regex.Pattern;
 public enum unitCommands
 {
     //commands
-    moveTo("^\\s*[uU]nit\\s+[mM]ove\\s*[tT]o\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+//    moveTo("^\\s*[uU]nit\\s+[mM]ove\\s*[tT]o\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    moveTo("^\\s*(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     sleep("^\\s*[uU]nit\\s+[sS]leep\\s*$"),
     alert("^\\s*[uU]nit\\s+[aA]lert\\s*$"),
     fortify("^\\s*[uU]nit\\s+[fF]ortify\\s*$"),
     fortifyHeal("^\\s*[uU]nit\\s+[fF]ortify\\s+[hH]eal\\s*$"),
     garrison("^\\s*[uU]nit\\s+[gG]arrison\\s*$"),
-    setup("^\\s*[uU]nit\\s+[sS]etup\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
-    attack("^\\s*[uU]nit\\s+[aA]ttack\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    setup("^\\s*(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+//    attack("^\\s*[uU]nit\\s+[aA]ttack\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    attack("^\\s*(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     pillage("^\\s*[uU]nit\\s+[pP]illage\\s*$"),
     foundCity("^\\s*[uU]nit\\s+[fF]ound\\s+[cC]ity\\s*$"),
     cancelMission("^\\s*[uU]nit\\s+[cC]ancel\\s+[mM]ission\\s*$"),
@@ -108,6 +110,8 @@ public enum unitCommands
     fortifyActivated("fortify activated"),
     fortifyHealActivated("fortify heal activated"),
     movedSuccessful("unit moved successfully"),
+    setAlert("unit is already alerted"),
+    activeUnit("unit activated successfully"),
     dontGainRequiredTech("you dont have the required technology");
 
     public final String regex;
