@@ -3,7 +3,6 @@ package Models.Units;
 import Controllers.GameController;
 import Models.City.City;
 import Models.City.Construction;
-import Models.Player.Notification;
 import Models.Terrain.Position;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -12,13 +11,9 @@ import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.LongRange;
-import Models.Units.CombatUnits.MidRange;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Worker;
-import enums.gameCommands.unitCommands;
-
 import java.util.ArrayList;
 
 public abstract class Unit extends Construction

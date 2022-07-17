@@ -2,6 +2,8 @@ package Models.City;
 
 import Controllers.GameController;
 import Models.Player.Player;
+import Models.Player.Technology;
+import Models.Resources.Resource;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.*;
@@ -25,7 +27,6 @@ public class City
 	private  ArrayList<Building> buildings = new ArrayList<>();
 	private  ArrayList<Citizen> citizens = new ArrayList<>();
 	private Construction currentConstruction = null;
-	private Product currentProduct = null; //what the city is producing
 	private CombatUnit garrison = null;
 	private NonCombatUnit nonCombatUnit = null;
 	private int combatStrength = 10;//this amount is default and may change later
@@ -118,12 +119,6 @@ public class City
 	}
 	public void setHitPoints(int hitPoints) {
 		this.hitPoints = hitPoints;
-	}
-
-	public void createBuilding(Building building) //TODO
-	{
-		buildings.add(building);
-		rulerPlayer.setHappiness(rulerPlayer.getHappiness() + building.happinessFromBuilding(building.getBuildingType())); //Increase happiness
 	}
 
 	public int getFoodYield()
@@ -219,6 +214,7 @@ public class City
 	public Tile getCapitalTile() {
 		return capitalTile;
 	}
+
 	public String purchaseTile(Tile tile){
 		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
 			return gameEnum.notEnoughGold.regex;
@@ -239,12 +235,7 @@ public class City
 		}
 		return false;
 	}
-	public String buyProduct(Unit product){
-		//TODO: add purchasing buildings for phase 2
 
-		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getCost((Unit) product));
-		return gameEnum.unitBought.regex;
-	}
 	private int getCost(Unit unit)
 	{
 		if(unit instanceof MidRange) return ((MidRange) unit).getType().getCost();
@@ -275,86 +266,6 @@ public class City
 			}
 		return null;
 	}
-
-	public String construct(Construction construction, GameController gameController)
-	{
-		if(currentConstruction == null || !(currentConstruction.equals(construction.toString())))
-		{
-			if(construction.toString() != null && gameController.containTypeMid(construction.toString()))
-				rulerPlayer.setGold(rulerPlayer.getGold() - MidRangeType.valueOf(construction.toString()).getCost());
-			if(construction.toString() != null && gameController.containTypeLong(construction.toString()))
-				rulerPlayer.setGold(rulerPlayer.getGold() - LongRangeType.valueOf(construction.toString()).getCost());
-			if(construction.toString() != null && construction.toString().equals("SETTLER"))
-				rulerPlayer.setGold(rulerPlayer.getGold() - 89);
-			if(construction.toString() != null && construction.toString().equals("WORKER"))
-				rulerPlayer.setGold(rulerPlayer.getGold() - 70);
-			currentConstruction = construction;
-			construction.setTurnTillBuild(4);
-			return null;
-		}
-		if(construction.getTurnTillBuild() == 1)
-		{
-			Tile destination;
-			System.out.println(currentConstruction);
-			if(gameController.containTypeMid(currentConstruction.toString())) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
-			}
-			else if(gameController.containTypeLong(currentConstruction.toString())) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
-			}
-			else if(currentConstruction.equals("SETTLER")) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new Settler(rulerPlayer, destination);
-			}
-			else if(currentConstruction.equals("WORKER")) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new Worker(rulerPlayer, destination);
-			}
-			construction.setTurnTillBuild(4);
-			currentConstruction = null;
-			return null;
-		}
-		if(construction.getTurnTillBuild() <= 4 && currentConstruction != null) {
-			construction.setTurnTillBuild(construction.getTurnTillBuild() - 1);
-			return null;
-		}
-		return "something else is being constructed or there is nothing to construct";
-	}
-
-	private boolean constructionCanBeBuilt(Construction construction){
-		if(construction instanceof Unit) {
-			if (this.getRulerPlayer().getGold() >= ((Unit) construction).getProductionCost()) {
-				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) construction).getProductionCost());
-				return true;
-			}
-			return false;
-		}
-		//TODO add building for phase 2;
-		return false;
-	}
-
-	public String changeConstruction(Construction construction){
-		//TODO save previous construction;
-		if(currentConstruction == null) return "nothing is being built";
-		if(constructionCanBeBuilt(construction)){
-			currentConstruction = construction;
-			currentConstruction.setTurnTillBuild(3);
-			return null;
-		}
-		return "cannot change construction";
-	}
-
-	public String buyBuilding(Building building){
-
-		return null;
-	}
-
 	public String destroyCity(){
 //		for (Player player : GameController.getPlayers()) {
 //			if(this == player.getCurrentCapitalCity()) {
@@ -439,6 +350,108 @@ public class City
 		return null;
 	}
 
+	//==================================================================================================================
+	private boolean constructionCanBeBuilt(Construction construction){
+		if(construction instanceof Unit) {
+			if (this.getRulerPlayer().getGold() >= ((Unit) construction).getProductionCost()) {
+				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) construction).getProductionCost());
+				return true;
+			}
+			return false;
+		}
+
+		else if(construction instanceof Building){
+			if(rulerPlayer.getGold() >= ((Building) construction).getBuildingType().cost){
+				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Building) construction).getBuildingType().cost);
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+
+
+	public String construct(Construction construction, GameController gameController)
+	{
+		if(currentConstruction == null) {
+			if(!constructionCanBeBuilt(construction)) return "cannot build";
+			currentConstruction = construction;
+			construction.setTurnTillBuild(4);
+			return null;
+		}
+		if(construction.getTurnTillBuild() == 0)
+		{
+			Tile destination;
+			if(gameController.containTypeMid(currentConstruction.toString())) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
+			}
+			else if(gameController.containTypeLong(currentConstruction.toString())) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
+			}
+			else if(currentConstruction.toString().equals("SETTLER")) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new Settler(rulerPlayer, destination);
+			}
+			else if(currentConstruction.toString().equals("WORKER")) {
+				if((destination = findTileWithNoCUnit()) == null)
+					return "no tile empty";
+				new Worker(rulerPlayer, destination);
+			}
+			else if(currentConstruction.toString().equals("Building")){
+				createBuilding((Building) currentConstruction);
+			}
+			construction.setTurnTillBuild(4);
+			currentConstruction = null;
+			return null;
+		}
+		if(construction.getTurnTillBuild() <= 4 && currentConstruction != null) {
+			construction.setTurnTillBuild(construction.getTurnTillBuild() - 1);
+			return null;
+		}
+		return "something else is being constructed or there is nothing to construct";
+	}
+
+	private void createBuilding(Building building)
+	{
+		buildings.add(building);
+		rulerPlayer.setHappiness(rulerPlayer.getHappiness() + building.happinessFromBuilding(building.getBuildingType())); //Increase happiness
+	}
+
+
+	public String changeConstruction(Construction construction){
+		//TODO save previous construction;
+		if(currentConstruction == null) return "nothing is being built";
+		if(constructionCanBeBuilt(construction)){
+			currentConstruction = construction;
+			currentConstruction.setTurnTillBuild(3);
+			return null;
+		}
+		return "cannot change construction";
+	}
+
+	public String buyBuilding(Building building){
+		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - building.getBuildingType().cost);
+		buildings.add(building);
+		return null;
+	}
+
+	public String buyUnit(Unit unit){
+		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getCost(unit));
+		return gameEnum.unitBought.regex;
+	}
+
+	public boolean doesCityHaveBuilding(BuildingType buildingType) {
+		for (Building building : buildings) {
+			if(building.getBuildingType().equals(buildingType))
+				return true;
+		}
+		return false;
+	}
 }
 
 
