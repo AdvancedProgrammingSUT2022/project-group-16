@@ -10,6 +10,7 @@ import Models.Terrain.Tile;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Settler;
+import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import enums.cheatCode;
@@ -191,6 +192,7 @@ public class Game extends Application {
 
         //cheatCode shortcut
         new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
+        new Worker(gameController.getPlayerTurn(), gameController.getMap().get(56));
         //TODO: do not remove this part :))))
         //        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
         //        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);

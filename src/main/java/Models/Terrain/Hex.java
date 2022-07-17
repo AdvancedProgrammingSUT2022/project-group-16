@@ -776,7 +776,18 @@ public class Hex{
         }
         else {
             addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/build.png", "build");
-            buildPanel();
+            actions.getChildren().get(5).setOnMousePressed(mouseEvent -> {
+                buildPanel();
+
+//                String result = gameController.found();
+//                if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+//                    list.getChildren().remove(list.getChildren().size() - 1);
+//                addLabelToPane(list, 300, 200, null, result);
+//                if (result.equals(unitCommands.cityBuilt.regex)) {
+//                    removeAllPanels();
+//                    parent.getChildren().remove(list);
+//                }
+            });
         }
 
         list.getChildren().add(exitButtonStyle(list));
@@ -787,8 +798,60 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(13);
         parent.getChildren().add(list);
     }
+    private void onBuildClicked(Pane list, String result, String matchResult) {
+        if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+            list.getChildren().remove(list.getChildren().size() - 1);
+        addLabelToPane(list, 300, 200, null, result);
+        if (result.endsWith(matchResult)) {
+            removeAllPanels();
+            parent.getChildren().remove(list);
+            for (int i = 0; i < parent.getChildren().size(); i++)
+                parent.getChildren().get(i).setDisable(false);
+        }
+    }
     private void buildPanel() {
+        Pane list = new Pane(), actions = new Pane();
+        panelsPaneStyle(list, 320, 50, 170, 300);
 
+        addPhotoToPane(list, 20, 50, "photos/gameIcons/workers/Road.png", "road");
+        list.getChildren().get(0).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.road(), unitCommands.roadBuilt.regex));
+        addPhotoToPane(list, 20, 100, "photos/gameIcons/workers/Railroad.png", "railroad");
+        list.getChildren().get(1).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.railRoad(), unitCommands.railRoadBuilt.regex));
+        addPhotoToPane(list, 20, 150, "photos/gameIcons/workers/Farm.png", "farm");
+        list.getChildren().get(2).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.farm(), unitCommands.farmBuild.regex));
+        addPhotoToPane(list, 20, 200, "photos/gameIcons/workers/Mine.png", "mine");
+        list.getChildren().get(3).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.mine(), unitCommands.mineBuild.regex));
+        addPhotoToPane(list, 20, 250, "photos/gameIcons/workers/TradingPost.png", "trading post");
+        list.getChildren().get(4).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.tradingPost(), unitCommands.tradingPostBuild.regex));
+        addPhotoToPane(list, 70, 50, "photos/gameIcons/workers/LumberMill.png", "lumber mill");
+        list.getChildren().get(5).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.lumberMill(), unitCommands.lumberMillBuild.regex));
+        addPhotoToPane(list, 70, 100, "photos/gameIcons/workers/factory.png", "factory");
+        list.getChildren().get(6).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.factory(), unitCommands.factoryBuild.regex));
+        addPhotoToPane(list, 70, 150, "photos/gameIcons/workers/Camp.png", "camp");
+        list.getChildren().get(7).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.camp(), unitCommands.campBuild.regex));
+        addPhotoToPane(list, 70, 200, "photos/gameIcons/workers/Pasture.png", "Pasture");
+        list.getChildren().get(8).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.pasture(), unitCommands.pastureBuild.regex));
+        addPhotoToPane(list, 70, 250, "photos/gameIcons/workers/Plantation.png", "Plantation");
+        list.getChildren().get(9).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.plantation(), unitCommands.plantationBuild.regex));
+        addPhotoToPane(list, 120, 50, "photos/gameIcons/workers/Quarry.png", "quarry");
+        list.getChildren().get(10).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.quarry(), unitCommands.quarryBuild.regex));
+        addPhotoToPane(list, 120, 100, "photos/gameIcons/workers/routeRemove.png", "route remove");
+        list.getChildren().get(11).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.removeRoute(), unitCommands.roadRemoved.regex));
+        addPhotoToPane(list, 120, 150, "photos/gameIcons/workers/forestRemove.png", "forest remove");
+        list.getChildren().get(12).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.removeJungle(), unitCommands.jungleRemoved.regex));
+        addPhotoToPane(list, 120, 200, "photos/gameIcons/workers/repair.png", "repair");
+        list.getChildren().get(13).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.repair(), unitCommands.repairedSuccessful.regex));
+
+
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        list.getChildren().add(actions);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(300);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(13);
+        parent.getChildren().add(list);
+        for (int i = 0; i < parent.getChildren().size() - 1; i++)
+            parent.getChildren().get(i).setDisable(true);
     }
     private void cityPanel(City city)
     {
@@ -1013,8 +1076,10 @@ public class Hex{
             box.getChildren().get(box.getChildren().size() - 1).setLayoutX(x);
             box.getChildren().get(box.getChildren().size() - 1).setLayoutY(y);
             imageView.setOnMouseMoved(mouseEvent -> {
-                if(box.getChildren().get(box.getChildren().size() - 1).getClass() != Label.class)
+                if(box.getChildren().get(box.getChildren().size() - 1).getClass() != Label.class) {
                     addLabelToPane(box, x + 22, y, null, information);
+                    fade(box.getChildren().get(box.getChildren().size() - 1)).play();
+                }
             });
             imageView.setOnMouseExited(mouseEvent -> box.getChildren().remove(box.getChildren().size() - 1));
         }
