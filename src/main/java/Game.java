@@ -191,36 +191,37 @@ public class Game extends Application {
         });
 
         //cheatCode shortcut
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
-        new Worker(gameController.getPlayerTurn(), gameController.getMap().get(56));
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
+//        new Worker(gameController.getPlayerTurn(), gameController.getMap().get(56));
         //TODO: do not remove this part :))))
-        //        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
-        //        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
-        //        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
-        //        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
-        //        gameController.getPlayerTurn().setCup(10);
-        //        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-        //        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-        //        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-        //        gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
-        //        gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
-        //        gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
-        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
-        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
-        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-        //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
-        //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
-        //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
-        //        gameController.getPlayerTurn().setCup(100);
+
+//                ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
+//                gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
+//                gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
+//                gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
+//                gameController.getPlayerTurn().setCup(10);
+//                new City(gameController.getMap().get(55), gameController.getPlayerTurn());
+//                new City(gameController.getMap().get(45), gameController.getPlayerTurn());
+//                new City(gameController.getMap().get(78), gameController.getPlayerTurn());
+//                gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+//                gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
+//                gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
+//                new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
+//                new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
+//                new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
+//                gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+//                gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
+//                gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
+//                gameController.getPlayerTurn().setCup(100);
 
         animationTimer.start();
     }
