@@ -22,7 +22,7 @@ import java.util.*;
 
 public class Player extends User
 {
-	final GameController gameController;
+	transient GameController gameController;
 	private Unit selectedUnit = null;
 	private City selectedCity = null;
 	private final Civilization civilization;
@@ -39,7 +39,10 @@ public class Player extends User
 	private ArrayList<Resource> resources = new ArrayList<>();
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
-	private final HashMap<Tile, TileState> map;
+	transient private HashMap<Tile, TileState> map;
+	public ArrayList<Tile> mapKeyset = new ArrayList<>();
+	public ArrayList<TileState> mapValueset = new ArrayList<>();
+
 	private ArrayList<City> cities = new ArrayList<>();
 	private final ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
@@ -100,6 +103,10 @@ public class Player extends User
 	}
 	public void setXP(int XP) {
 		this.XP = XP;
+	}
+	public void setMap(HashMap<Tile, TileState> map)
+	{
+		this.map = map;
 	}
 
 	public Civilization getCivilization()
@@ -390,6 +397,10 @@ public class Player extends User
 		else if(unit instanceof NonCombatUnit)
 			unit.getTile().setNonCombatUnitInTile(null);
 		unit.setTile(null);
+	}
+	public void setGameController(GameController gameController)
+	{
+		this.gameController = gameController;
 	}
 	public void updateTileStates()
 	{

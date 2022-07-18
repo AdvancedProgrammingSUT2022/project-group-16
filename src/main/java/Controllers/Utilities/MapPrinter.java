@@ -19,7 +19,7 @@ import java.util.HashMap;
 public class MapPrinter
 {
 	// our map is a square with size of MapSize * MapSize
-	private static HashMap<Tile, TileState> map;
+	transient private static HashMap<Tile, TileState> map;
 	private static Player player;
 	private static int mapSize;
 	private static StringBuilder mapString;

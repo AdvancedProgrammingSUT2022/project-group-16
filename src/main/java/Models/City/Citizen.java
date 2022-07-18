@@ -5,7 +5,7 @@ import enums.gameEnum;
 
 public class Citizen
 {
-	private final City city;
+	transient private City city;
 	private Tile workingTile;
 
 	public Citizen(City city) {
@@ -18,6 +18,10 @@ public class Citizen
 	}
 	public City getCity() {
 		return city;
+	}
+	public void setCity(City city)
+	{
+		this.city = city;
 	}
 
 	public String setCitizenOnTile(Tile workingTile)

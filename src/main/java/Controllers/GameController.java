@@ -20,6 +20,7 @@ import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import Models.User;
+import com.google.gson.GsonBuilder;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameCommands.selectCommands;
@@ -185,14 +186,6 @@ public class GameController implements Serializable
 		else
 			MAP_SIZE = 15;
 		initMap();
-//		try
-//		{
-//			System.out.println(getRawMapString());
-//		}
-//		catch (IOException e)
-//		{
-//			throw new RuntimeException(e);
-//		}
 		for (Player player : players)
 			player.initMap();
 		initPlayers();
