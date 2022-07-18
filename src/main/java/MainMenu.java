@@ -66,4 +66,9 @@ public class MainMenu extends Application {
         ScoreBoard scoreBoard = new ScoreBoard();
         scoreBoard.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
+
+    public void loadGame(MouseEvent mouseEvent) throws Exception {
+        LoadGame loadGame = new LoadGame();
+        loadGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+    }
 }
