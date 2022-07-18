@@ -79,11 +79,12 @@ public class GameController implements Serializable
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
+		//add building benefits
+		addBuildingBenefits();
 		//update cities combat strength
 		for(Player player : players)
 			for(City city : player.getCities())
 				city.updateCityCombatStrength();
-
 		// reset all units turns. TODO: is this needed?
 		
 		playerTurn.setSelectedUnit(null);
@@ -114,8 +115,6 @@ public class GameController implements Serializable
 		updateUnitStates();
 
 		// decrement researching technology turns
-		//cities
-//		updateCityConstructions();
 		// check for city growth
 		
 		//TODO: check that this is not a duplicate from runGame while loop
@@ -128,6 +127,59 @@ public class GameController implements Serializable
 
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+	}
+
+	private void addBuildingBenefits() {
+		for (City city : playerTurn.getCities()) {
+			for (Building building : city.getBuildings()) {
+				switch (building.getBuildingType()){
+					case BARRACKS, ARMORY, MILITARY_ACADEMY -> playerTurn.getUnits().forEach(unit -> unit.setXP(unit.getXP() + 15));
+					case GRANARY -> city.setFoodYield(city.getFoodYield() + 5);
+					case LIBRARY -> playerTurn.setCup(playerTurn.getCup() + (int) (city.getPopulation() / 2.0));
+					case WALLS -> city.setHitPoints(city.getHitPoints() + 5);
+					case WATER_MILL -> {
+						for (Tile tile : city.getTerritory()) {
+							if(Arrays.stream(tile.getBorders()).toList().contains(BorderType.RIVER)){
+								city.setFoodYield(city.getFoodYield() + 2);
+								break;
+							}
+						}
+					}
+					case BURIAL_TOMB -> playerTurn.setHappiness(playerTurn.getHappiness() + 2);
+					case CIRCUS ->  playerTurn.setHappiness(playerTurn.getHappiness() + 3);
+					case COLOSSEUM, THEATER -> playerTurn.setHappiness(playerTurn.getHappiness() + 4);
+					case COURTHOUSE -> playerTurn.isHappy();
+					case STABLE, WINDMILL -> city.setProductionYield((int) (city.getProductionYield() * 1.25));
+					case CASTLE -> city.setHitPoints(city.getHitPoints() + 8);
+					case FORGE -> city.setProductionYield((int) (city.getProductionYield() * 1.15));
+					case GARDEN -> {
+						for (Tile tile : city.getTerritory()) {
+							if(Arrays.stream(tile.getBorders()).toList().contains(BorderType.RIVER)){
+								city.addPopulation((int)(city.getPopulation() * 0.25));
+								break;
+							}
+						}
+					}
+					case MARKET, BANK -> city.setGoldYield((int) (city.getGoldYield() * 1.25));
+					case MINT -> {
+						for (Tile tile : city.getTerritory()) {
+							if(tile.getResource().getRESOURCE_TYPE().equals(ResourceType.GOLD ) ||
+									tile.getResource().getRESOURCE_TYPE().equals(ResourceType.SILVER ))
+								tile.getResource().getRESOURCE_TYPE().setGold(tile.getResource().getRESOURCE_TYPE().gold + 3);
+						}
+					}
+					case UNIVERSITY, PUBLIC_SCHOOL -> playerTurn.setCup((int) (playerTurn.getCup() * 1.5));
+					case WORKSHOP, ARSENAL -> city.setProductionYield((int) (city.getProductionYield() * 1.2));
+					case SATRAPS_COURT -> {
+						city.setGoldYield((int) (city.getGoldYield() * 1.25));
+						playerTurn.setHappiness(playerTurn.getHappiness() + 2);
+					}
+					case FACTORY -> city.setProductionYield((int) (city.getProductionYield() * 1.5));
+					case MILITARY_BASE -> city.setHitPoints(city.getHitPoints() + 12);
+					case STOCK_EXCHANGE -> city.setGoldYield((int) (city.getGoldYield() * 1.33));
+				}
+			}
+		}
 	}
 
 	private void updateUnitStates() {

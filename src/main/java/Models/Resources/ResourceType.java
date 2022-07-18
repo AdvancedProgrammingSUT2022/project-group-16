@@ -31,7 +31,7 @@ public enum ResourceType
 	
 	public final int food;
 	public final int production;
-	public final int gold;
+	public int gold;
 	public final Improvement requiredImprovement;
 	public final Technology requiredTechnology;
 	public final String symbol;
@@ -44,6 +44,9 @@ public enum ResourceType
 		this.requiredImprovement = requiredImprovement;
 		this.requiredTechnology = requiredTechnology;
 		this.symbol = symbol;
+	}
+	public void setGold(int gold){
+		this.gold = gold;
 	}
 }
 
