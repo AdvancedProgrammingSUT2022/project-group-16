@@ -2,17 +2,16 @@ import Controllers.GameController;
 import Controllers.RegisterController;
 import Models.City.City;
 import Models.City.CityState;
-import Models.Player.Civilization;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
+import Models.Resources.BonusResource;
+import Models.Resources.Resource;
+import Models.Resources.ResourceType;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Settler;
-import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import enums.cheatCode;
@@ -43,8 +42,10 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 
 public class Game extends Application {
@@ -1607,6 +1608,134 @@ public class Game extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         pane.getChildren().add(list);
     }
+    private void updateCoordinates(Rectangle rectangle1, Rectangle rectangle2,
+                                   double length, Pane list) {
+
+        selectedCoordinates(rectangle1, length);
+        nonSelectedCoordinates(rectangle2, length, list);
+    }
+    private void selectedCoordinates(Rectangle rectangle, double length) {
+        rectangle.setWidth(length + 110);
+    }
+    private void nonSelectedCoordinates(Rectangle rectangle, double length, Pane list) {
+        list.getChildren().get(list.getChildren().indexOf(rectangle)).
+                setLayoutX(length + 125);
+        rectangle.setWidth(108 - length);
+    }
+    private int getGoldOffer() {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 300, 75, false);
+        list.setLayoutX(800);
+        list.setLayoutY(500);
+        ImageView imageView = new ImageView();
+        try {
+            imageView.setImage(new Image(String.valueOf(new URL(getClass()
+                    .getResource("photos/gameIcons/Gold.png").toExternalForm()))));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        imageView.setFitWidth(35);
+        imageView.setFitHeight(35);
+
+        Rectangle selectedAmount = new Rectangle();
+        selectedAmount.setWidth(200);
+        selectedAmount.setHeight(10);
+        Rectangle nonSelectedAmount = new Rectangle();
+        nonSelectedAmount.setWidth(200);
+        nonSelectedAmount.setHeight(10);
+
+        selectedAmount.setStyle("-fx-arc-width: 60;" +
+                "-fx-arc-height: 60;" +
+                "-fx-fill: #d0a708");
+        nonSelectedAmount.setStyle("-fx-arc-width: 60;" +
+                "-fx-arc-height: 60;" +
+                "-fx-fill: #ffffff");
+
+
+        list.getChildren().add(selectedAmount);
+        setCoordinates(list, 50, 30);
+        list.getChildren().add(nonSelectedAmount);
+        setCoordinates(list, 50, 30);
+        list.getChildren().add(imageView);
+        setCoordinates(list, 125, 20);
+        AtomicReference<Double> number = new AtomicReference<>((double) 52.0);
+        addLabelToPane(String.format("%.0f", number.get()), list);
+        setCoordinates(list, 265, 25);
+        updateCoordinates(selectedAmount, nonSelectedAmount, 5, list);
+
+        imageView.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
+            if (event.getX() > -91 && event.getX() < 108) {
+                imageView.setX(event.getX());
+                updateCoordinates(selectedAmount, nonSelectedAmount, event.getX(), list);
+                number.set((100 * (event.getX() + 91)) / 199.0);
+                list.getChildren().remove(list.getChildren().size() - 1);
+                addLabelToPane(String.format("%.0f", number.get()), list);
+                setCoordinates(list, 265, 25);
+            }
+        });
+
+
+//        imageView.setOnMouseDragged(new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent mouseEvent) {
+//                list.getChildren().get(list.getChildren().indexOf(imageView)).setLayoutX(mouseEvent.getX());
+//                updateCoordinates(selectedAmount, nonSelectedAmount, imageView, list);
+//            }
+//        });
+        pane.getChildren().add(list);
+        return 0;
+    }
+    private Pane buyResource(Player player) {
+        player.getResources().add(new BonusResource(ResourceType.BANANA));
+        player.getResources().add(new BonusResource(ResourceType.DEER));
+        player.getResources().add(new BonusResource(ResourceType.CATTLE));
+        player.getResources().add(new BonusResource(ResourceType.DYES));
+        player.getResources().add(new BonusResource(ResourceType.COAL));
+        player.getResources().add(new BonusResource(ResourceType.FURS));
+        player.getResources().add(new BonusResource(ResourceType.GOLD));
+        player.getResources().add(new BonusResource(ResourceType.IRON));
+        player.getResources().add(new BonusResource(ResourceType.IVORY));
+        player.getResources().add(new BonusResource(ResourceType.SILK));
+        player.getResources().add(new BonusResource(ResourceType.WHEAT));
+        player.getResources().add(new BonusResource(ResourceType.INCENSE));
+        player.getResources().add(new BonusResource(ResourceType.MARBLE));
+        player.getResources().add(new BonusResource(ResourceType.SHEEP));
+        player.getResources().add(new BonusResource(ResourceType.SUGAR));
+        player.getResources().add(new BonusResource(ResourceType.IVORY));
+
+        Pane list = new Pane();
+        panelsPaneStyle(list, 500, 350, false);
+
+        list.setLayoutX(500);
+        list.setLayoutY(250);
+        ArrayList<Resource> resources = player.getResources();
+        int flag = 0;
+        while (flag < resources.size()){
+            VBox names = new VBox();
+            names.setSpacing(7);
+            names.setAlignment(Pos.CENTER);
+
+            for (int i = 0; i < 7; i++)
+                if (i + flag < resources.size()) {
+                    addLabelToBox(resources.get(i + flag).getRESOURCE_TYPE().name(), names);
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            getGoldOffer();
+                        }
+                    });
+                }
+
+            list.getChildren().add(names);
+            setCoordinates(list, 15 + (flag / 7.0) * 100, 50);
+            flag += 7;
+
+        }
+
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 10, 10);
+        return list;
+    }
     private Pane tradePanel(Player player) {
         Pane list = new Pane();
         panelsPaneStyle(list, 500, 350, false);
@@ -1614,6 +1743,20 @@ public class Game extends Application {
         setCoordinates(list, 50, 10);
         addLabelToPane("receiver: " + player.getUsername(), list);
         setCoordinates(list, 350, 10);
+        addLabelToPane("what do you want?", list);
+        setCoordinates(list, 170, 65);
+        addLabelToPane("buy resource", list);
+        list.getChildren().get(list.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                pane.getChildren().add(buyResource(player));
+                for (int i = 0; i < pane.getChildren().size() - 1; i++)
+                    pane.getChildren().get(i).setDisable(true);
+            }
+        });
+        setCoordinates(list, 100, 100);
+        addLabelToPane("sell resource", list);
+        setCoordinates(list, 300, 100);
         list.getChildren().add(exitButtonStyle());
         setCoordinates(list, 10, 10);
         return list;
