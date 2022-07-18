@@ -1,20 +1,26 @@
 import Controllers.GameController;
 import Controllers.RegisterController;
+import Controllers.Utilities.MapPrinter;
+import Models.City.Citizen;
 import Models.City.City;
 import Models.City.CityState;
-import Models.Player.Civilization;
-import Models.Player.Notification;
-import Models.Player.Player;
-import Models.Player.Technology;
+import Models.City.Construction;
+import Models.Player.*;
+import Models.Resources.Resource;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
+import Models.TypeAdapters.*;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import Models.Units.UnitState;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameEnum;
@@ -41,14 +47,21 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
 public class Game extends Application {
 
+    private static Game instance;
     private Hex[][] hexagons;
     private final GameController gameController = GameController.getInstance();
     private final RegisterController registerController = new RegisterController();
@@ -78,6 +91,7 @@ public class Game extends Application {
     private static boolean movingDown;
     private static boolean movingRight;
 
+	private Gson gson;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -154,6 +168,17 @@ public class Game extends Application {
     }
     private void loadGame()
     {
+        instance = this;
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
+        gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
+        gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
+        gsonBuilder.registerTypeAdapter(Resource.class, new ResourceTypeAdapter());
+        gsonBuilder.registerTypeAdapter(Unit.class, new UnitTypeAdapter());
+        gson = gsonBuilder.create();
+
+        // TODO: new game or load game?
         gameController.initGame();
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
@@ -161,18 +186,9 @@ public class Game extends Application {
         hexagonsPane.setPrefWidth(gameController.MAP_SIZE * 90);
         hexagonsPane.setPrefHeight(gameController.MAP_SIZE * 100);
         Hex.setPane(hexagonsPane);
-        int x = 0;
         hexagons = new Hex[GameController.getInstance().MAP_SIZE][GameController.getInstance().MAP_SIZE];
-        for(int i = 0; i < gameController.MAP_SIZE; i++)
-        {
-            int y = (i % 2 == 0 ? 0 : 45);
-            for(int j = 0; j < gameController.MAP_SIZE ; j++){
-                hexagons[j][i] = new Hex(new Position(x, y), gameController);
-                y += 100;
-            }
-            x += 90;
-        }
-        generateMapForPlayer(gameController.getPlayerTurn());
+        updateScreen();
+
         //cheatCode
         pane.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
             if(key.getCode() == KeyCode.C)
@@ -231,6 +247,27 @@ public class Game extends Application {
         animationTimer.start();
     }
 
+    public void updateScreen()
+    {
+        hexagonsPane.getChildren().clear();
+//        hexagonsPane.setLayoutX(100);
+//        hexagonsPane.setLayoutY(45);
+
+        // update tiles
+        int x = 0;
+        for(int i = 0; i < gameController.MAP_SIZE; i++)
+        {
+            int y = (i % 2 == 0 ? 0 : 45);
+            for(int j = 0; j < gameController.MAP_SIZE ; j++){
+                hexagons[j][i] = new Hex(new Position(x, y), gameController);
+                y += 100;
+            }
+            x += 90;
+        }
+
+        generateMapForPlayer(gameController.getPlayerTurn());
+        setInformationStyles();
+    }
 
     private void onKeyPressed(KeyEvent keyEvent)
     {
@@ -275,6 +312,7 @@ public class Game extends Application {
 
 
     public void generateMapForPlayer(Player player){
+        playerTurnTiles.clear();
         for (Tile tile : player.getMap().keySet()) {
             hexagons[tile.getPosition().X][tile.getPosition().Y].setTileState(player.getMap().get(tile));
             hexagons[tile.getPosition().X][tile.getPosition().Y].setTile(tile);
@@ -283,16 +321,101 @@ public class Game extends Application {
         playerTurnTiles.forEach(Hex::addHex);
     }
     public void changeTurn(MouseEvent mouseEvent) {
-        for(int i= 0; i < GameController.getInstance().MAP_SIZE; i++){
-            for(int j = 0; j < GameController.getInstance().MAP_SIZE; j++){
-                hexagons[i][j].removeHex();
-            }
-        }
-        playerTurnTiles.clear();
+        //        for(int i= 0; i < GameController.getInstance().MAP_SIZE; i++){
+//            for(int j = 0; j < GameController.getInstance().MAP_SIZE; j++){
+//                hexagons[i][j].removeHex();
+//            }
+//        }
+//        playerTurnTiles.clear();
         gameController.checkChangeTurn(); //TODO: fix bugs
-        generateMapForPlayer(gameController.getPlayerTurn());
-        setInformationStyles();
+        updateScreen();
+//        generateMapForPlayer(gameController.getPlayerTurn());
+//        setInformationStyles();
+        if(isAutoSaveOn)
+            saveGameToFile("autosave.json");
     }
+
+    public static Game getInstance()
+    {
+        return instance;
+    }
+
+    private void saveGameToFile(String fileName)
+    {
+        try
+        {
+            URI uri = GameController.class.getClassLoader().getResource("savedGames/" + fileName).toURI();
+            Path path = Paths.get(uri);
+            Files.write(path, gameControllerToJson(gameController).getBytes());
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    private GameController loadGameFromFile(String fileName)
+    {
+        try
+        {
+            URI uri = GameController.class.getClassLoader().getResource("savedGames/" + fileName).toURI();
+            Path path = Paths.get(uri);
+            String json = new String(Files.readAllBytes(path));
+            return jsonToGameController(json);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+	private String gameControllerToJson(GameController gameController)
+	{
+		for (Player player : gameController.getPlayers())
+		{
+			player.mapKeyset.clear();
+			player.mapValueset.clear();
+			for (Tile tile : player.getMap().keySet())
+			{
+				player.mapKeyset.add(tile);
+				player.mapValueset.add(player.getMap().get(tile));
+			}
+		}
+
+		String gameStr = gson.toJson(gameController);
+
+		return gameStr;
+	}
+	private GameController jsonToGameController(String jsonStr)
+	{
+		GameController loadedGameController = gson.fromJson(jsonStr, GameController.class);
+		for (Player player : loadedGameController.getPlayers())
+		{
+			// set player map
+			HashMap<Tile, TileState> playerMap = new HashMap<>();
+			for (int i = 0; i < player.mapValueset.size(); i++)
+				playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
+			player.setMap(playerMap);
+
+			// set transient fields
+			player.setGameController(loadedGameController);
+			for (City city : player.getCities())
+			{
+				city.setRulerPlayer(player);
+				for (Citizen citizen : city.getCitizens())
+					citizen.setCity(city);
+			}
+			for (Unit unit : player.getUnits())
+				unit.setRulerPlayer(player);
+			for (Tile tile : player.getMap().keySet())
+			{
+				if(tile.getCombatUnitInTile() != null)
+					tile.getCombatUnitInTile().setTile(tile);
+				if(tile.getNonCombatUnitInTile() != null)
+					tile.getNonCombatUnitInTile().setTile(tile);
+			}
+		}
+
+		return loadedGameController;
+	}
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
                 "-fx-background-color: #572e2e;" +
