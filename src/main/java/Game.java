@@ -59,6 +59,7 @@ public class Game extends Application {
     private final AudioClip gameDemo = new AudioClip(Game.class.getResource("audio/2.mp3").toExternalForm());
     private boolean isCPressed = false;
     private boolean isShiftPressed = false;
+    private boolean isAutoSaveOn = false;
     @FXML
     public Pane pane;
     private Pane hexagonsPane;
@@ -1298,6 +1299,7 @@ public class Game extends Application {
                 ((Node) mouseEvent1.getSource()).getScene().setCursor(Cursor.CROSSHAIR));
         list.getChildren().get(0).setOnMouseExited(mouseEvent1 ->
                 ((Node) mouseEvent1.getSource()).getScene().setCursor(Cursor.DEFAULT));
+        autoSaveButtonStyle(list);
         pane.getChildren().add(list);
         for(int i = 0; i < pane.getChildren().size() - 1; i++)
             pane.getChildren().get(i).setDisable(true);
@@ -1305,6 +1307,30 @@ public class Game extends Application {
 
     }
 
+    private void autoSaveButtonStyle(Pane list) {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setHeight(40);
+        rectangle.setWidth(100);
+        Label label = new Label();
+        label.setStyle("-fx-text-fill: white");
+        label.setText("auto save");
+        if(isAutoSaveOn)
+            rectangle.setStyle("-fx-fill: green");
+        else
+            rectangle.setStyle("-fx-fill: red");
+
+        rectangle.setOnMouseClicked(mouseEvent -> {
+            if(isAutoSaveOn)
+                rectangle.setStyle("-fx-fill: red");
+            else
+                rectangle.setStyle("-fx-fill: green");
+            isAutoSaveOn = !isAutoSaveOn;
+        });
+        list.getChildren().add(rectangle);
+        setCoordinates(list, 10, 250);
+        list.getChildren().add(label);
+        setCoordinates(list, 17, 258);
+    }
     public void technologyTree() {
         audioClip.play();
         Pane list = new Pane();
