@@ -16,6 +16,7 @@ import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.Units.UnitState;
+import com.google.gson.Gson;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameEnum;
