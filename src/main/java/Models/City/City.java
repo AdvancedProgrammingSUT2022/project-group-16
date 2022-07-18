@@ -31,7 +31,7 @@ public class City
 	private NonCombatUnit nonCombatUnit = null;
 	private int combatStrength = 10;//this amount is default and may change later
 	private int longRangeCombatStrength; // range is 2;
-	private Player rulerPlayer;
+	transient private Player rulerPlayer;
 	private final String name;
 	private CityState state = CityState.NONE;
 

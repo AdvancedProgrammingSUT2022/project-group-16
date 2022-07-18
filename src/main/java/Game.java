@@ -1,17 +1,26 @@
 import Controllers.GameController;
+import Models.City.Citizen;
 import Models.City.City;
 import Models.City.CityState;
+import Models.City.Construction;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
+import Models.Player.TileState;
+import Models.Resources.Resource;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
+import Models.TypeAdapters.*;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.CombatUnits.MidRangeType;
+import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
 import Models.Units.UnitState;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameEnum;
@@ -34,7 +43,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -45,7 +53,7 @@ import java.util.regex.Matcher;
 
 public class Game extends Application {
     private Hex[][] hexagons;
-    private final GameController gameController = GameController.getInstance();
+    private GameController gameController = GameController.getInstance();
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
     private boolean needUpdateProduction = true;
@@ -70,6 +78,8 @@ public class Game extends Application {
     private static boolean movingLeft;
     private static boolean movingDown;
     private static boolean movingRight;
+
+    Gson gson;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -146,6 +156,15 @@ public class Game extends Application {
     }
     private void loadGame()
     {
+        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+        gsonBuilder.registerTypeAdapter(Resource.class, new ResourceTypeAdapter());
+        gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
+        gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
+        gsonBuilder.registerTypeAdapter(Unit.class, new UnitTypeAdapter());
+        gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
+        gson = gsonBuilder.create();
+        //TODO: decide whether to load game or a new game
+
         gameController.initGame();
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
@@ -223,6 +242,55 @@ public class Game extends Application {
         animationTimer.start();
     }
 
+    private String gameControllerToJson(GameController gameController)
+    {
+        for (Player player : gameController.getPlayers())
+        {
+            player.mapKeyset.clear();
+            player.mapValueset.clear();
+            for (Tile tile : player.getMap().keySet())
+            {
+                player.mapKeyset.add(tile);
+                player.mapValueset.add(player.getMap().get(tile));
+            }
+        }
+
+        String gameStr = gson.toJson(gameController);
+
+        return gameStr;
+    }
+    private GameController jsonToGameController(String jsonStr)
+    {
+        GameController loadedGameController = gson.fromJson(jsonStr, GameController.class);
+        for (Player player : loadedGameController.getPlayers())
+        {
+            // set player map
+            HashMap<Tile, TileState> playerMap = new HashMap<>();
+            for (int i = 0; i < player.mapValueset.size(); i++)
+                playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
+            player.setMap(playerMap);
+
+            // set transient fields
+            player.setGameController(loadedGameController);
+            for (City city : player.getCities())
+            {
+                city.setRulerPlayer(player);
+                for (Citizen citizen : city.getCitizens())
+                    citizen.setCity(city);
+            }
+            for (Unit unit : player.getUnits())
+                unit.setRulerPlayer(player);
+            for (Tile tile : player.getMap().keySet())
+            {
+                if(tile.getCombatUnitInTile() != null)
+                    tile.getCombatUnitInTile().setTile(tile);
+                if(tile.getNonCombatUnitInTile() != null)
+                    tile.getNonCombatUnitInTile().setTile(tile);
+            }
+        }
+
+        return loadedGameController;
+    }
 
     private void onKeyPressed(KeyEvent keyEvent)
     {

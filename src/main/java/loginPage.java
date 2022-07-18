@@ -1,9 +1,4 @@
 import Controllers.RegisterController;
-import Models.User;
-import Models.chat.Message;
-import Models.chat.Request;
-import Models.chat.Respond;
-import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -14,12 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import server.ServerThread;
-import server.chatServer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.net.Socket;
 import java.net.URL;
 import java.time.LocalDateTime;
 
