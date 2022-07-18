@@ -40,6 +40,9 @@
 .demographic {
     -fx-image: url("../photos/gameIcons/panelsIcons/demographic.png");
 }
+.diplomacy {
+    -fx-image: url("../photos/gameIcons/panelsIcons/Diplomacy.png");
+}
 .notification {
     -fx-image: url("../photos/gameIcons/panelsIcons/notification.png");
 }

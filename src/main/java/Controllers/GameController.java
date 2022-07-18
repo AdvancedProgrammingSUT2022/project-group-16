@@ -743,6 +743,7 @@ public class GameController implements Serializable
 	private void initPlayers()
 	{
 		playerTurn = players.get(0);
+
 		// create two units for each player and set their starting positions and tileStates
 		for(int i = 0; i < players.size(); i++)
 		{
@@ -750,6 +751,9 @@ public class GameController implements Serializable
 			Tile startingTile = player.getTileByXY(startingPositions[i].X, startingPositions[i].Y);
 			new MidRange(player, MidRangeType.WARRIOR, startingTile);
 			new Settler(player, startingTile);
+			for (Player l : players)
+				System.out.println(l.getUnits());
+			System.out.println("   ........    ");
 			player.updateTileStates();
 		}
 	}

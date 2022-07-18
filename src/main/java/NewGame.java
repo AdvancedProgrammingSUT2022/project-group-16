@@ -145,14 +145,14 @@ public class NewGame extends Application {
             button.setOnMouseExited(mouseEvent -> setButtonStyle(button));
             button.setOnMousePressed(mouseEvent -> {
                 list.getChildren().get(list.getChildren().size() - 2).setDisable(false);
-//                if(((Text) list.getChildren().get(4)).getText().equals("4")) {
-//                    Game game = new Game();
-//                    try {
-//                        game.start((Stage) list.getScene().getWindow());
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
+                if(((Text) list.getChildren().get(4)).getText().equals("4")) {
+                    Game game = new Game();
+                    try {
+                        game.start((Stage) list.getScene().getWindow());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 if(((Text) list.getChildren().get(4)).getText().equals("2")) {
                     Button start = new Button();
                     start.setText("go");

@@ -1,3 +1,4 @@
+import Controllers.GameController;
 import Controllers.RegisterController;
 import Controllers.Utilities.chatController;
 import Models.Menu.Menu;
@@ -35,10 +36,16 @@ public class ChatMenu extends Application {
     private final VBox users = new VBox();
     private final VBox usersPhotos = new VBox();
     private final RegisterController registerController = new RegisterController();
-    private User receiver = null;
+    public static User sender = null;
+    public static User receiver = null;
     private final chatController chatController = new chatController();
     public static final chatServer server = new chatServer();
+    public static boolean isGameStarted = false;
+    private final GameController gameController = GameController.getInstance();
 
+    public Pane getList() {
+        return list;
+    }
     private void buttonStyle(Button button, String name) {
         button.setText(name);
         button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-pref-width: 300; " +
@@ -91,17 +98,17 @@ public class ChatMenu extends Application {
                     search.setText(null);
                     for(User user : Menu.allUsers)
                         if(user.getUsername().equals(username) &&
-                                !Menu.loggedInUser.getUsername().equals(user.getUsername()) &&
-                                !Menu.loggedInUser.getPrivateChats().containsKey(user.getUsername())) {
+                                !sender.getUsername().equals(user.getUsername()) &&
+                                !sender.getPrivateChats().containsKey(user.getUsername())) {
                             while (list.getChildren().size() > 6) {
                                 if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
                                     list.getChildren().remove(list.getChildren().size() - 1);
                                 else
                                     list.getChildren().remove(0);
                             }
-                            Menu.loggedInUser.getPrivateChats().put(username, new ArrayList<>());
-                            user.getPrivateChats().put(Menu.loggedInUser.getUsername(), new ArrayList<>());
-                            makeChat(Menu.loggedInUser, user);
+                            sender.getPrivateChats().put(username, new ArrayList<>());
+                            user.getPrivateChats().put(sender.getUsername(), new ArrayList<>());
+                            makeChat(sender, user);
                             receiver = user;
                         }
                 }
@@ -146,24 +153,24 @@ public class ChatMenu extends Application {
                                 list.getChildren().remove(0);
                         }
                         receiver = registerController.getUserByUsername(tmp.getText());
-                        makeChat(Menu.loggedInUser, receiver);
+                        makeChat(sender, receiver);
                     });
                 }
                 LocalDateTime now = LocalDateTime.now();
                 if(list.getChildren().get(2).getClass() == Label.class &&
                         ((Label) list.getChildren().get(2)).getText().equals("public chat")) {
-                    String message = Menu.loggedInUser.getUsername() + ": " + typeMessage.getText() + " - "
+                    String message = sender.getUsername() + ": " + typeMessage.getText() + " - "
                             + now.toString().substring(11,19);
-                    chatController.sendPublicMessage(Menu.loggedInUser, message, server);
+                    chatController.sendPublicMessage(sender, message, server);
                     Label label = new Label();
                     messageStyleSender(label, server.getPublicChats().get(server.getPublicChats().size() - 1).getMessage());
                     ((VBox) list.getChildren().get(1)).getChildren().add(label);
                 }
                 else {
-                    chatController.sendMessage(Menu.loggedInUser, receiver, typeMessage.getText() +
+                    chatController.sendMessage(sender, receiver, typeMessage.getText() +
                             " - " + now.toString().substring(11,19));
                     registerController.writeDataOnJson();
-                    ArrayList<Message> messages = Menu.loggedInUser.getPrivateChats().get(receiver.getUsername());
+                    ArrayList<Message> messages = sender.getPrivateChats().get(receiver.getUsername());
                     Label label = new Label();
                     messageStyleSender(label, messages.get(messages.size() - 1).getMessage());
                     ((VBox) list.getChildren().get(1)).getChildren().add(label);
@@ -176,7 +183,6 @@ public class ChatMenu extends Application {
     private void makePublicChat() {
         VBox senderChats = new VBox();
         VBox receiverChats = new VBox();
-        User sender = Menu.loggedInUser;
         ArrayList<publicMessage> messages = server.getPublicChats();
         for(publicMessage message : messages) {
             Label label = new Label();
@@ -234,7 +240,7 @@ public class ChatMenu extends Application {
         });
         users.getChildren().add(button);//public chat button
 
-        for(String user : Menu.loggedInUser.getPrivateChats().keySet()) {
+        for(String user : sender.getPrivateChats().keySet()) {
             Button tmp = new Button();
             tmp.setOnMousePressed(mouseEvent -> {
                 while (list.getChildren().size() > 6) {
@@ -243,8 +249,8 @@ public class ChatMenu extends Application {
                     else
                         list.getChildren().remove(0);
                 }
-                makeChat(Menu.loggedInUser, registerController.getUserByUsername(user));
                 receiver = registerController.getUserByUsername(user);
+                makeChat(sender, receiver);
             });
             buttonStyle(tmp, user);
             ImageView imageView = makePhoto(registerController.getUserByUsername(user).getPhoto());
@@ -259,6 +265,8 @@ public class ChatMenu extends Application {
         buttonStyle(back, "back");
         back.setLayoutY(670);
         back.setOnMousePressed(mouseEvent -> {
+            sender = null;
+            receiver = null;
             try {
                 backToMainMenu(mouseEvent);
             } catch (Exception e) {
@@ -298,7 +306,7 @@ public class ChatMenu extends Application {
                 "-fx-font-size: 20;" +
                 "-fx-background-radius: 8");
     }
-    private void makeChat(User sender, User receiver) {
+    public void makeChat(User sender, User receiver) {
         VBox senderChats = new VBox();
         VBox receiverChats = new VBox();
         for(Message message : sender.getPrivateChats().get(receiver.getUsername())) {
@@ -341,11 +349,11 @@ public class ChatMenu extends Application {
             }
             i--;
         }
-        int j = receiver.getPrivateChats().get(Menu.loggedInUser.getUsername()).size() - 1;
+        int j = receiver.getPrivateChats().get(sender.getUsername()).size() - 1;
         while (j >= 0) {
-            String message = receiver.getPrivateChats().get(Menu.loggedInUser.getUsername()).get(j).getMessage();
+            String message = receiver.getPrivateChats().get(sender.getUsername()).get(j).getMessage();
             if(message.endsWith(" - d")) {
-                receiver.getPrivateChats().get(Menu.loggedInUser.getUsername()).get(j).
+                receiver.getPrivateChats().get(sender.getUsername()).get(j).
                         setMessage(message.substring(0, message.length() - 4) + " - s");
                 registerController.writeDataOnJson();
             }
@@ -437,8 +445,8 @@ public class ChatMenu extends Application {
                                 list.getChildren().remove(list.getChildren().size() - 1);
                                 String finalMessage = result + message.substring(message.length() - 14);
                                 ((Label) box.getChildren().get(flag)).setText(finalMessage);
-                                Menu.loggedInUser.getPrivateChats().get(user).get(flag).setMessage(finalMessage);
-                                registerController.getUserByUsername(user).getPrivateChats().get(Menu.loggedInUser.getUsername())
+                                sender.getPrivateChats().get(user).get(flag).setMessage(finalMessage);
+                                registerController.getUserByUsername(user).getPrivateChats().get(sender.getUsername())
                                         .get(flag).setMessage(finalMessage);
                                 registerController.writeDataOnJson();
                             }
@@ -450,7 +458,7 @@ public class ChatMenu extends Application {
                         for (int i = 0; i < list.getChildren().size(); i++)
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
-                        Menu.loggedInUser.getPrivateChats().get(user).get(flag).setMessage("#deleted");
+                        sender.getPrivateChats().get(user).get(flag).setMessage("#deleted");
                         registerController.writeDataOnJson();
                     }); //delete message for me
                     choose.getChildren().get(2).setOnMousePressed(mouseEvent1 -> {
@@ -458,8 +466,8 @@ public class ChatMenu extends Application {
                         for (int i = 0; i < list.getChildren().size(); i++)
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
-                        Menu.loggedInUser.getPrivateChats().get(user).get(flag).setMessage("#deleted");
-                        registerController.getUserByUsername(user).getPrivateChats().get(Menu.loggedInUser.getUsername()).get(flag).setMessage("#deleted");
+                        sender.getPrivateChats().get(user).get(flag).setMessage("#deleted");
+                        registerController.getUserByUsername(user).getPrivateChats().get(sender.getUsername()).get(flag).setMessage("#deleted");
                         registerController.writeDataOnJson();
                     }); //delete message for me and user
                 }
@@ -520,11 +528,17 @@ public class ChatMenu extends Application {
         return imageView;
     }
     public void backToMainMenu(MouseEvent mouseEvent) throws Exception {
-        MainMenu mainMenu = new MainMenu();
-        mainMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+        if(!isGameStarted) {
+            MainMenu mainMenu = new MainMenu();
+            mainMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+        }
+        else
+            ((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow()).close();
     }
     @Override
     public void start(Stage stage) throws Exception {
+        if (sender == null)
+            sender = Menu.loggedInUser;
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/chatMenu.fxml").toExternalForm()))));
         stage.show();
