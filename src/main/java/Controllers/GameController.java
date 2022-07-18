@@ -206,11 +206,11 @@ public class GameController implements Serializable
 	}
 	public String getMapString()
 	{
-		return MapPrinter.getMapString(playerTurn);
+		return MapPrinter.getMapString(playerTurn, this);
 	}
 	public String getMapString(Player player)
 	{
-		return MapPrinter.getMapString(player);
+		return MapPrinter.getMapString(player, this);
 	}
 	// this method returns a mapString that all it's tiles are visible
 	public String getRawMapString() throws IOException
@@ -219,7 +219,7 @@ public class GameController implements Serializable
 		tmpPlayer.initMap();
 		tmpPlayer.getMap().replaceAll((k, v) -> TileState.VISIBLE);
 		
-		return MapPrinter.getMapString(tmpPlayer);
+		return MapPrinter.getMapString(tmpPlayer, this);
 	}
 	// this is called when GameController is created. this method only creates an array of Positions and fills grid with these positions
 	private void initGrid()

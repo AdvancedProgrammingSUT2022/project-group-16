@@ -25,11 +25,11 @@ public class MapPrinter
 	private static StringBuilder mapString;
 	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.BACK_COLOR(255, 255, 255); // JColor.Attribute of fog of war
 	
-	public static String getMapString(Player player)
+	public static String getMapString(Player player, GameController gc)
 	{
 		MapPrinter.player = player;
 		MapPrinter.map = player.getMap();
-		GameController gameController = GameController.getInstance();
+		GameController gameController = gc;
 		MapPrinter.mapSize = gameController.MAP_SIZE;
 		mapString = new StringBuilder();
 		
