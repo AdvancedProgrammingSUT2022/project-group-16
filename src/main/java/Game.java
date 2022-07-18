@@ -1,6 +1,8 @@
 import Controllers.GameController;
+import Controllers.RegisterController;
 import Models.City.City;
 import Models.City.CityState;
+import Models.Player.Civilization;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -21,6 +23,7 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -45,8 +48,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 
 public class Game extends Application {
+
     private Hex[][] hexagons;
     private final GameController gameController = GameController.getInstance();
+    private final RegisterController registerController = new RegisterController();
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
     private boolean needUpdateProduction = true;
@@ -72,9 +77,10 @@ public class Game extends Application {
     private static boolean movingDown;
     private static boolean movingRight;
 
+
     @Override
     public void start(Stage stage) throws Exception {
-//        gameDemo.play();
+        ChatMenu.isGameStarted = true;
         Pane root = FXMLLoader.load(new URL(getClass().getResource("fxml/game.fxml").toExternalForm()));
         Scene scene = new Scene(root);
         scene.setOnKeyPressed(this::onKeyPressed);
@@ -166,7 +172,6 @@ public class Game extends Application {
             x += 90;
         }
         generateMapForPlayer(gameController.getPlayerTurn());
-
         //cheatCode
         pane.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
             if(key.getCode() == KeyCode.C)
@@ -191,8 +196,8 @@ public class Game extends Application {
         });
 
         //cheatCode shortcut
-        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
-        new Worker(gameController.getPlayerTurn(), gameController.getMap().get(56));
+//        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
+//        new Worker(gameController.getPlayerTurn(), gameController.getMap().get(56));
         //TODO: do not remove this part :))))
         //        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
         //        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
@@ -412,8 +417,9 @@ public class Game extends Application {
         setHoverForInformationTitles((ImageView) pane.getChildren().get(20), panelsVbox("demographics", 185));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(22), panelsVbox("notifications", 240));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(24), panelsVbox("economics", 295));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(27), informationVbox("menu", 24));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(29), informationVbox("Technology Tree", 18));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(26), panelsVbox("diplomacy", 350));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(29), informationVbox("menu", 24));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(31), informationVbox("Technology Tree", 18));
     }
 
     public static void main(String[] args) {
@@ -1504,5 +1510,102 @@ public class Game extends Application {
         box.getChildren().remove(a);
         box.getChildren().add(a, labelB);
         box.getChildren().add(b, labelA);
+    }
+
+    private void showDiplomacy() {
+        audioClip.play();
+        Pane list = new Pane();
+        panelsPaneStyle(list, 1040, 500, false);
+        list.setLayoutX(100);
+        list.setLayoutY(110);
+        VBox civilizations = new VBox(), names = new VBox(), rulers = new VBox(), capital = new VBox(),
+                trade = new VBox(), chat = new VBox();
+        list.getChildren().addAll(civilizations, names, rulers, capital, trade, chat);
+        for(int i = 0; i < 6; i++) {
+            ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setSpacing(5);
+            ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setAlignment(Pos.CENTER);
+        }
+
+        ArrayList<Player> players = new ArrayList<>();
+        for (Player player : gameController.getPlayers())
+            if(player != gameController.getPlayerTurn())
+                players.add(player);
+        //information
+        if(players.size() != 0) {
+            addLabelToBox("civilization", civilizations);
+            addLabelToBox("leader name" , names);
+            addLabelToBox("ruler name" , rulers);
+            addLabelToBox("capital", capital);
+            addLabelToBox("trade", trade);
+            addLabelToBox("chat", chat);
+        }
+        for (Player player : players) {
+            addLabelToBox(player.getCivilization().name(), civilizations);
+            addLabelToBox(player.getCivilization().leaderName, names);
+            addLabelToBox(player.getUsername(), rulers);
+            if(player.getCities().size() == 0)
+                addLabelToBox("-", capital);
+            else
+                addLabelToBox(player.getCurrentCapitalCity().getName(), capital);
+            trade.getChildren().add(makeButton("trade"));
+            trade.getChildren().get(trade.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    //TODO: trade panel
+                }
+            });
+            chat.getChildren().add(makeButton("chat"));
+            chat.getChildren().get(chat.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                ChatMenu chatMenu = new ChatMenu();
+                ChatMenu.sender = registerController.getUserByUsername(gameController.getPlayerTurn().getUsername());
+                try {
+                    chatMenu.start(new Stage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        //coordinates
+        setCoordinatesBox(list, civilizations, 25, 60);
+        setCoordinatesBox(list, names, 230, 60);
+        setCoordinatesBox(list, rulers, 400, 60);
+        setCoordinatesBox(list, capital, 575, 60);
+        setCoordinatesBox(list, trade, 750, 60);
+        setCoordinatesBox(list, chat, 900, 60);
+
+        list.getChildren().add(exitButtonStyle());
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        pane.getChildren().add(list);
+    }
+    private Button makeButton(String text) {
+        Button button = new Button();
+        button.setText(text);
+        button.setStyle("-fx-background-color: #ffcc00;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: #000000;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-font-size: 10;" +
+                "-fx-pref-height: 15");
+        button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #c8ff00;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: #000000;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-font-size: 10;" +
+                "-fx-pref-height: 15"));
+        button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #ffcc00;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: #000000;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-font-size: 10;" +
+                "-fx-pref-height: 15"));
+        return button;
+    }
+    public void showDiplomacy(MouseEvent mouseEvent) {
+        showDiplomacy();
     }
 }

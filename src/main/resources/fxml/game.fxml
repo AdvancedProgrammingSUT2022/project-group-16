@@ -36,6 +36,8 @@
     <ImageView fitHeight="40" fitWidth="40" x="1220" y="235" styleClass="notification" onMouseClicked="#notifications"/>
     <Circle layoutX="1240" layoutY="310" radius="23" styleClass="brownCircle"/>
     <ImageView fitHeight="30" fitWidth="30" x="1225" y="295" styleClass="economic" onMouseClicked="#showEconomics"/>
+    <Circle layoutX="1240" layoutY="365" radius="23" styleClass="brownCircle"/>
+    <ImageView fitHeight="30" fitWidth="30" x="1225" y="350" styleClass="diplomacy" onMouseClicked="#showDiplomacy"/>
 
     <Circle layoutX="40" layoutY="690" radius="25" styleClass="whiteCircle"/>
     <Circle layoutX="40" layoutY="690" radius="23" styleClass="brownCircle"/>
