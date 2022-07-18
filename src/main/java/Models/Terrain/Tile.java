@@ -1,5 +1,8 @@
 package Models.Terrain;
 
+import Controllers.GameController;
+import Models.City.City;
+import Models.Player.Player;
 import Models.Resources.Resource;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.NonCombatUnits.NonCombatUnit;
@@ -166,6 +169,16 @@ public class Tile
 		else if(this.getPosition().S - tile.getPosition().S == 0){
 			if(tile.getPosition().R - this.getPosition().R == 1) return this.borders[2];
 			else if(tile.getPosition().R - this.getPosition().R == -1) return this.borders[5];
+		}
+		return null;
+	}
+	public Player GetTileRuler(){
+		for (Player player : GameController.getInstance().getPlayers()) {
+			for (City city : player.getCities()) {
+				for (Tile tile : city.getTerritory()) {
+					if(tile.getPosition().equals(this.position)) return player;
+				}
+			}
 		}
 		return null;
 	}

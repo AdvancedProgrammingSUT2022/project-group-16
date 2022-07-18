@@ -193,6 +193,9 @@ public abstract class Unit extends Construction
 	}
 
 	public String move(Tile destination){
+		Player player = destination.GetTileRuler();
+		//declare war:
+		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization())) return "not your tile";
 		this.destination = destination;
 		FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
 		this.moves = FindWay.getInstance().getMoves();
@@ -221,7 +224,8 @@ public abstract class Unit extends Construction
 		else if (this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
 			this.getTile().setNonCombatUnitInTile(null);
 		//this.movementPoints -= destination.getTileType().movementCost;
-		if(nextTile.getBoarderType(this.getTile()).equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad())) this.movementPoints = 0;
+		if(nextTile.getBoarderType(this.getTile()) != null && nextTile.getBoarderType(this.getTile()).equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad()))
+			this.movementPoints = 0;
 		//if (this.movementPoints < 0) this.movementPoints = 0;
 		//TODO check for railroad penalty
 		this.setTile(nextTile);
