@@ -1577,7 +1577,9 @@ public class Game extends Application {
             trade.getChildren().get(trade.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent mouseEvent) {
-                    //TODO: trade panel
+                    pane.getChildren().add(tradePanel(player));
+                    for (int i = 0; i < pane.getChildren().size() - 1; i++)
+                        pane.getChildren().get(i).setDisable(true);
                 }
             });
             chat.getChildren().add(makeButton("chat"));
@@ -1604,6 +1606,17 @@ public class Game extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         pane.getChildren().add(list);
+    }
+    private Pane tradePanel(Player player) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 500, 350, false);
+        addLabelToPane("you: " + gameController.getPlayerTurn().getUsername(), list);
+        setCoordinates(list, 50, 10);
+        addLabelToPane("receiver: " + player.getUsername(), list);
+        setCoordinates(list, 350, 10);
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 10, 10);
+        return list;
     }
     private Button makeButton(String text) {
         Button button = new Button();
