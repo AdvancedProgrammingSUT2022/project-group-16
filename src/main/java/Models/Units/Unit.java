@@ -206,7 +206,9 @@ public abstract class Unit extends Construction
 		Player player = destination.GetTileRuler();
 		//declare war:
 		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()) &&
-				!this.getRulerPlayer().getRelationStates().get(player).equals(RelationState.ENEMY)) return "not your tile";
+				!this.getRulerPlayer().getRelationStates().get(player.getCivilization()).equals(RelationState.ENEMY)) return "not your tile";
+
+		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization())) return "not your civilization";
 
 		this.destination = destination;
 		FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
@@ -214,8 +216,16 @@ public abstract class Unit extends Construction
 		return updateUnitMovements();
 	}
 	public String updateUnitMovements(){
-		if(this.getMovementPoints() == 0) return "no movementPoints";
-		if(this.moves.size() == 0 && !this.getTile().equals(this.destination)) return "cannot move to destination";
+		if(this.getMovementPoints() == 0){
+			this.destination = null;
+			this.moves = null;
+			return "no movementPoints";
+		}
+		if(this.moves.size() == 0 && !this.getTile().equals(this.destination)){
+			this.destination = null;
+			this.moves = null;
+			return "cannot move to destination";
+		}
 		if(this.moves.size() == 0 && this.getTile().equals(this.destination)){
 			if(this.destination.getTileType().equals(TileType.RUIN)){
 				getRuinBonus();
@@ -225,6 +235,7 @@ public abstract class Unit extends Construction
 				else if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
 			}
 			this.destination = null;
+			this.moves = null;
 			return null;
 		}
 		Tile nextTile;

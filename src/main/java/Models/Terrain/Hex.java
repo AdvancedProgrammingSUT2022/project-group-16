@@ -8,6 +8,7 @@ import Models.Player.TileState;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
+import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
@@ -162,42 +163,45 @@ public class Hex{
         if(tile.getCombatUnitInTile() == null || tileState.equals(TileState.FOG_OF_WAR))
             return;
 
-        String url = "/photos/units/";
-
-        Unit combatUnitInTile = tile.getCombatUnitInTile();
-        if(combatUnitInTile instanceof LongRange)
-            switch (((LongRange) combatUnitInTile).getType())
-            {
-                case ARCHER -> url += "archer.png";
-                case CHARIOT_A -> url += "chariotarcher.png";
-                case CATAPULT -> url += "catapult.png";
-                case CROSSMAN -> url += "crossbowman.png";
-                case TREBUCHET -> url += "trebuchet.png";
-                case CANON -> url += "cannon.png";
-                case ARTILLERY -> url += "artillery.png";
+        ArrayList<CombatUnit> combatUnitsInTile = GameController.getInstance().getTileCUnits(tile);
+        int i = 0;
+        for(CombatUnit combatUnitInTile : combatUnitsInTile) {
+            String url = "/photos/units/";
+            if (combatUnitInTile instanceof LongRange) {
+                switch (((LongRange) combatUnitInTile).getType()) {
+                    case ARCHER -> url += "archer.png";
+                    case CHARIOT_A -> url += "chariotarcher.png";
+                    case CATAPULT -> url += "catapult.png";
+                    case CROSSMAN -> url += "crossbowman.png";
+                    case TREBUCHET -> url += "trebuchet.png";
+                    case CANON -> url += "cannon.png";
+                    case ARTILLERY -> url += "artillery.png";
+                }
             }
-        else if(combatUnitInTile instanceof MidRange)
-			switch (((MidRange) combatUnitInTile).getType())
-			{
-				case SCOUT -> url += "scout.png";
-				case SPEARMAN -> url += "spearman.png";
-				case WARRIOR -> url += "warrior.png";
-				case HORSEMAN -> url += "horseman.png";
-                case SWORDSMAN -> url += "swordsman.png";
-                case KNIGHT -> url += "knight.png";
-                case LSWORDSMAN -> url += "longswordsman.png";
-                case PIKE_MAN -> url += "pikeman.png";
-                case CAVALRY -> url += "cavalry.png";
-                case LANCER -> url += "lancer.png";
-                case MUSKET_MAN -> url += "musketman.png";
-                case RIFLEMAN -> url += "rifleman.png";
-                case ANTI_TANK -> url += "antitankgun";
-                case INFANTRY -> url += "infantry";
-                case PANZER -> url += "panzer.png";
-                case TANK -> url += "tank.png";
-			}
+            else if (combatUnitInTile instanceof MidRange) {
+                switch (((MidRange) combatUnitInTile).getType()) {
+                    case SCOUT -> url += "scout.png";
+                    case SPEARMAN -> url += "spearman.png";
+                    case WARRIOR -> url += "warrior.png";
+                    case HORSEMAN -> url += "horseman.png";
+                    case SWORDSMAN -> url += "swordsman.png";
+                    case KNIGHT -> url += "knight.png";
+                    case LSWORDSMAN -> url += "longswordsman.png";
+                    case PIKE_MAN -> url += "pikeman.png";
+                    case CAVALRY -> url += "cavalry.png";
+                    case LANCER -> url += "lancer.png";
+                    case MUSKET_MAN -> url += "musketman.png";
+                    case RIFLEMAN -> url += "rifleman.png";
+                    case ANTI_TANK -> url += "antitankgun";
+                    case INFANTRY -> url += "infantry";
+                    case PANZER -> url += "panzer.png";
+                    case TANK -> url += "tank.png";
+                }
+            }
+            setImage(url, 30 - i, 0 - i, 60, 60);
+            i += 5;
+        }
 
-        setImage(url, 30, 0, 60, 60);
     }
 
     private void setNCUnits()
@@ -205,13 +209,18 @@ public class Hex{
         if(tile.getNonCombatUnitInTile() == null || tileState.equals(TileState.FOG_OF_WAR))
             return;
 
-        String url = "/photos/units/";
-        if(tile.getNonCombatUnitInTile() instanceof Worker)
-            url += "worker.png";
-        else if(tile.getNonCombatUnitInTile() instanceof Settler)
-            url += "settler.png";
+        ArrayList<NonCombatUnit> nonCombatUnits = GameController.getInstance().getTileNCUnits(tile);
+        int i = 0;
+        for(NonCombatUnit nonCombatUnit : nonCombatUnits) {
+            String url = "/photos/units/";
+            if (nonCombatUnit instanceof Worker)
+                url += "worker.png";
+            else if (nonCombatUnit instanceof Settler)
+                url += "settler.png";
 
-        setImage(url, 50, 50, 40, 40);
+            setImage(url, 50 -i , 50 - i, 30, 30);
+            i += 5;
+        }
     }
 
     private void setFeatureBackground() {
