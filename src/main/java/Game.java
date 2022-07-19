@@ -192,31 +192,26 @@ public class Game extends Application {
                 GameController newGameController = loadGameFromFile("autosave.json");
                 gameController = newGameController;
                 GameController.setInstance(newGameController);
-                gameController.initGame();
                 break;
             case "save1":
                 GameController newGameController1 = loadGameFromFile("save1.json");
                 gameController = newGameController1;
                 GameController.setInstance(newGameController1);
-                gameController.initGame();
                 break;
             case "save2":
                 GameController newGameController2 = loadGameFromFile("save2.json");
                 gameController = newGameController2;
                 GameController.setInstance(newGameController2);
-                gameController.initGame();
                 break;
             case "save3":
                 GameController newGameController3 = loadGameFromFile("save3.json");
                 gameController = newGameController3;
                 GameController.setInstance(newGameController3);
-                gameController.initGame();
                 break;
             case "save4":
                 GameController newGameController4 = loadGameFromFile("save4.json");
                 gameController = newGameController4;
                 GameController.setInstance(newGameController4);
-                gameController.initGame();
                 break;
             default:
                 throw new RuntimeException("invalid newGameMode");
@@ -407,6 +402,7 @@ public class Game extends Application {
     }
 	private String gameControllerToJson(GameController gameController)
 	{
+        gameController.playerTurnIndex = gameController.getPlayers().indexOf(gameController.getPlayerTurn());
 		for (Player player : gameController.getPlayers())
 		{
 			player.mapKeyset.clear();
@@ -451,6 +447,7 @@ public class Game extends Application {
 					tile.getNonCombatUnitInTile().setTile(tile);
 			}
 		}
+        loadedGameController.setPlayerTurn(loadedGameController.getPlayers().get(loadedGameController.playerTurnIndex));
 
 		return loadedGameController;
 	}

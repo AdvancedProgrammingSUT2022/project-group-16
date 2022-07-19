@@ -41,7 +41,8 @@ public class GameController implements Serializable
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public int MAP_SIZE;
 	private final ArrayList<Player> players = new ArrayList<>();
-	private Player playerTurn;
+	transient private Player playerTurn;
+	public int playerTurnIndex;
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
@@ -859,6 +860,10 @@ public class GameController implements Serializable
 	public Player getPlayerTurn()
 	{
 		return playerTurn;
+	}
+	public void setPlayerTurn(Player playerTurn)
+	{
+		this.playerTurn = playerTurn;
 	}
 	public int getTurnCounter()
 	{
