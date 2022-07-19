@@ -2,11 +2,13 @@ package Models.Terrain;
 
 import Controllers.GameController;
 import Models.City.Building;
+import Models.City.BuildingType;
 import Models.City.City;
 import Models.Player.*;
-import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.LongRange;
-import Models.Units.CombatUnits.MidRange;
+import Models.Resources.LuxuryResource;
+import Models.Resources.Resource;
+import Models.Resources.ResourceType;
+import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.NonCombatUnits.Worker;
@@ -44,6 +46,8 @@ public class Hex{
     private boolean isCityPanelOpen = false;
     private boolean isCUnitPanelOpen = false;
     private boolean isNCUnitPanelOpen = false;
+    private Unit selectedUnit = null;
+    private BuildingType selectedBuildingType = null;
 
     public Hex(Position position, GameController gameController){
         this.gameController = gameController;
@@ -77,6 +81,7 @@ public class Hex{
         setEnemyUnitsBorder();
     }
     private ImageView setImage(String url, int x, int y ,int width, int height){
+        System.out.println(url);
         Image image = new Image(this.getClass().getResource(url).toExternalForm());
         ImageView imageView = new ImageView();
         imageView.setX(x);
@@ -309,14 +314,13 @@ public class Hex{
                        case GARDEN -> url += "garden";
                        case MARKET -> url += "market";
                        case MINT -> url += "mint";
-                       case PALACE -> url += "palace";
                        case MONASTERY -> url += "monastery";
                        case UNIVERSITY -> url += "university";
                        case WORKSHOP -> url += "workshop";
                        case BANK -> url += "bank";
                        case MILITARY_ACADEMY -> url += "militaryacademy";
-                       case MUSEUM -> url += "museum";
                        case OPERA_HOUSE -> url += "operahouse";
+                       case MUSEUM -> url += "museum";
                        case PUBLIC_SCHOOL -> url += "publicschool";
                        case SATRAPS_COURT -> url += "satrapscourt";
                        case THEATER -> url += "theatre";
@@ -327,6 +331,7 @@ public class Hex{
                        case HOSPITAL -> url += "hospital";
                        case MILITARY_BASE -> url += "militarybase";
                        case STOCK_EXCHANGE -> url += "stockexchange";
+                       case PALACE -> url += "palace";
                        default -> {throw new RuntimeException("Unknown building type");}
                    }
                     url += ".png";
@@ -1090,6 +1095,18 @@ public class Hex{
             purchaseBuildingPanel(city);
             list.setDisable(true);
         });
+        //build building
+        addLabelToPane(list, 400, 104, null, "build building");
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            buildBuildingPanel(city);
+            list.setDisable(true);
+        });
+        //build unit
+        addLabelToPane(list, 400, 124, null, "build unit");
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            buildUnitPanel(city);
+            list.setDisable(true);
+        });
         list.getChildren().add(exitButtonStyle(list));
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
@@ -1250,6 +1267,137 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         parent.getChildren().add(list);
+    }
+
+    private boolean hasTechnology(City city, BuildingType buildingType) {
+        return buildingType.requiredTechnology == null ||
+                city.getRulerPlayer().getTechnologies().contains(buildingType.requiredTechnology);
+    }
+    private boolean hasTechnology(MidRangeType midRangeType) {
+        return midRangeType.requiredTech == null ||
+                gameController.getPlayerTurn().getTechnologies().contains(midRangeType.requiredTech);
+    }
+    private boolean hasTechnology(LongRangeType longRangeType) {
+        return longRangeType.requiredTech == null ||
+                gameController.getPlayerTurn().getTechnologies().contains(longRangeType.requiredTech);
+    }
+    private boolean hasResource(ResourceType resourceType) {
+        for (Resource resource : gameController.getPlayerTurn().getResources())
+            if (resource.getRESOURCE_TYPE().equals(resourceType))
+                return true;
+        return false;
+    }
+    private boolean hasResource(MidRangeType midRangeType) {
+        return midRangeType.requiredSource == null || hasResource(midRangeType.requiredSource);
+    }
+    private boolean hasResource(LongRangeType longRangeType) {
+        return longRangeType.requiredSource == null || hasResource(longRangeType.requiredSource);
+    }
+
+    private boolean hasBuilding(City city, BuildingType buildingType) {
+        if (buildingType.requiredBuilding == null)
+            return true;
+        for (Building building : city.getBuildings())
+            if (building.getBuildingType().equals(buildingType))
+                return true;
+        return false;
+    }
+    private void buildBuildingPanel(City city) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 390, 185, 500, 350);
+
+        ArrayList<BuildingType> buildingTypes = new ArrayList<>();
+        for (BuildingType buildingType : BuildingType.values())
+            if (hasTechnology(city, buildingType) && hasBuilding(city, buildingType))
+                buildingTypes.add(buildingType);
+
+        int flag = 0;
+        while (flag < buildingTypes.size()) {
+            VBox names = new VBox();
+            names.setSpacing(7);
+            names.setAlignment(Pos.CENTER);
+
+            for (int i = 0; i < 7; i++)
+                if (i + flag < buildingTypes.size()) {
+                    addLabelToBox(buildingTypes.get(i + flag).name(), names);
+                    int finalI = i;
+                    int finalFlag = flag;
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        selectedBuildingType = buildingTypes.get(finalI + finalFlag);
+                        //TODO: set selected buildingType as construction
+                    });
+                }
+
+            list.getChildren().add(names);
+            setCoordinatesBox(list, names,15 + (flag / 7.0) * 100, 50);
+            flag += 7;
+
+        }
+
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(10);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        parent.getChildren().add(list);
+        for (int i = 0; i < parent.getChildren().size() - 1; i++)
+            parent.getChildren().get(i).setDisable(true);
+    }
+
+    private void buildUnitPanel(City city) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 390, 185, 500, 350);
+
+        ArrayList<MidRangeType> midRangeTypes = new ArrayList<>();
+        ArrayList<LongRangeType> longRangeTypes = new ArrayList<>();
+        for (MidRangeType midRangeType : MidRangeType.values())
+            if (hasTechnology(midRangeType) && hasResource(midRangeType))
+                midRangeTypes.add(midRangeType);
+        for (LongRangeType longRangeType : LongRangeType.values())
+            if (hasTechnology(longRangeType) && hasResource(longRangeType))
+                longRangeTypes.add(longRangeType);
+
+        int flag = 0;
+        while (flag < midRangeTypes.size() + longRangeTypes.size() + 2) {
+            VBox names = new VBox();
+            names.setSpacing(7);
+            names.setAlignment(Pos.CENTER);
+
+            for (int i = 0; i < 7; i++) {
+                if (i + flag < midRangeTypes.size()) {
+                    addLabelToBox(midRangeTypes.get(i + flag).name(), names);
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        //TODO: set selected unit as construction
+                    });
+                }
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size()) {
+                    addLabelToBox(longRangeTypes.get(i + flag).name(), names);
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        //TODO: set selected unit as construction
+                    });
+                }
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size() + 1){
+                    addLabelToBox("SETTLER", names);
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        //TODO: set selected unit as construction
+                    });
+                    addLabelToBox("WORKER", names);
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        //TODO: set selected unit as construction
+                    });
+                }
+            }
+
+            list.getChildren().add(names);
+            setCoordinatesBox(list, names,15 + (flag / 7.0) * 100, 50);
+            flag += 7;
+
+        }
+
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(10);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        parent.getChildren().add(list);
+        for (int i = 0; i < parent.getChildren().size() - 1; i++)
+            parent.getChildren().get(i).setDisable(true);
     }
     private void employedCitizensPanel(City city) {
         Pane list = new Pane();
