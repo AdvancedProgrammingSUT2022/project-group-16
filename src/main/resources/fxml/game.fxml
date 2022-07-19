@@ -4,6 +4,7 @@
 
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.control.Label?>
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="Game"
@@ -50,4 +51,8 @@
     <Circle layoutX="1220" layoutY="660" radius="103" styleClass="whiteCircle"/>
     <Circle layoutX="1220" layoutY="660" radius="100" styleClass="blueCircle" onMouseClicked="#changeTurn"/>
     <ImageView fitWidth="65" fitHeight="65" x="1185" y="635" styleClass="turn"/>
+    <Label text="year: " prefWidth="110" prefHeight="25" layoutX="100" layoutY="8" styleClass="Label"/>
+    <Label text="2000" fx:id="year" layoutX="148" layoutY="11" style="-fx-text-fill: white"/>
+    <Label text="turn: " prefWidth="100" prefHeight="25" layoutX="250" layoutY="8" styleClass="Label"/>
+    <Label text="0" fx:id="turn" layoutX="300" layoutY="11" style="-fx-text-fill: white"/>
 </Pane>

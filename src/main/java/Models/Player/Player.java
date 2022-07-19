@@ -423,6 +423,7 @@ public class Player extends User
 			gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() + coins);
 			request.getSender().setGold(request.getSender().getGold() - coins);
 			request.getSender().addResource(resource);
+
 			//after trade, they become friends
 			gameController.getPlayerTurn().getRelationStates().replace(request.getSender().getCivilization(), RelationState.FRIEND);
 			request.getSender().getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.FRIEND);

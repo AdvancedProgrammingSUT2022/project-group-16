@@ -60,6 +60,8 @@ import java.util.regex.Matcher;
 
 public class Game extends Application {
 
+    public Label year;
+    public Label turn;
     private Hex[][] hexagons;
     private GameController gameController = GameController.getInstance();
     private final RegisterController registerController = new RegisterController();
@@ -373,6 +375,12 @@ public class Game extends Application {
 //        setInformationStyles();
         if(isAutoSaveOn)
             saveGameToFile("autosave.json");
+        if (gameController.getPlayerTurn() == gameController.getPlayers().get(0))
+        {
+            updateTurnNumber();
+            if (Integer.parseInt(turn.getText()) % 5 == 0) //5 turn == 1 year
+                updateYear();
+        }
     }
 
     private void saveGameToFile(String fileName)
@@ -475,6 +483,12 @@ public class Game extends Application {
         labelStyle(label);
         box.getChildren().add(label);
         return box;
+    }
+    private void updateYear() {
+        year.setText(String.valueOf(Integer.parseInt(year.getText()) + 1));
+    }
+    private void updateTurnNumber() {
+        turn.setText(String.valueOf(Integer.parseInt(turn.getText()) + 1));
     }
     private VBox scienceInformationStyle() {
         VBox box = new VBox();

@@ -71,3 +71,11 @@
     -fx-font-size: 20;
     -fx-text-fill: #673434;
 }
+.Label {
+    -fx-text-fill: white;
+    -fx-background-color: #673434;
+    -fx-border-width: 3;
+    -fx-border-color: white;
+    -fx-border-radius: 5;
+    -fx-background-radius: 8;
+}
