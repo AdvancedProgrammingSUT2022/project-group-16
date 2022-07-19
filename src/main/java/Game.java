@@ -64,7 +64,7 @@ import java.util.regex.Matcher;
 public class Game extends Application {
 
     private Hex[][] hexagons;
-    private final GameController gameController = GameController.getInstance();
+    private GameController gameController = GameController.getInstance();
     private final RegisterController registerController = new RegisterController();
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
@@ -174,7 +174,7 @@ public class Game extends Application {
     }
     private void loadGame()
     {
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
         gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
         gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
         gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
@@ -182,8 +182,46 @@ public class Game extends Application {
         gsonBuilder.registerTypeAdapter(Unit.class, new UnitTypeAdapter());
         gson = gsonBuilder.create();
 
-        // TODO: new game or load game?
-        gameController.initGame();
+        // new game or load game?
+        switch (NewGame.newGameMode)
+        {
+            case "newGame":
+                gameController.initGame();
+                break;
+            case "autosave":
+                GameController newGameController = loadGameFromFile("autosave.json");
+                gameController = newGameController;
+                GameController.setInstance(newGameController);
+                gameController.initGame();
+                break;
+            case "save1":
+                GameController newGameController1 = loadGameFromFile("save1.json");
+                gameController = newGameController1;
+                GameController.setInstance(newGameController1);
+                gameController.initGame();
+                break;
+            case "save2":
+                GameController newGameController2 = loadGameFromFile("save2.json");
+                gameController = newGameController2;
+                GameController.setInstance(newGameController2);
+                gameController.initGame();
+                break;
+            case "save3":
+                GameController newGameController3 = loadGameFromFile("save3.json");
+                gameController = newGameController3;
+                GameController.setInstance(newGameController3);
+                gameController.initGame();
+                break;
+            case "save4":
+                GameController newGameController4 = loadGameFromFile("save4.json");
+                gameController = newGameController4;
+                GameController.setInstance(newGameController4);
+                gameController.initGame();
+                break;
+            default:
+                throw new RuntimeException("invalid newGameMode");
+        }
+
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
         hexagonsPane.setLayoutY(45);
