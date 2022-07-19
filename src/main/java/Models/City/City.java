@@ -3,7 +3,6 @@ package Models.City;
 import Controllers.GameController;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Player.TileState;
 import Models.Resources.Resource;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
@@ -35,7 +34,6 @@ public class City
 	transient private Player rulerPlayer;
 	private final String name;
 	private CityState state = CityState.NONE;
-	private final GameController gameController = GameController.getInstance();
 
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
@@ -232,12 +230,10 @@ public class City
 		return capitalTile;
 	}
 
-	public String purchaseTile(Tile tile) {
+	public String purchaseTile(Tile tile){
 		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
 			return gameEnum.notEnoughGold.regex;
-		else if(gameController.getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR))
-			return gameEnum.fogOfWar.regex;
-		else if(isTileNeighbor(tile)) {
+		else if(isTileNeighbor(tile) && getRulerPlayer().getGold() >= getRulerPlayer().getTilePurchaseCost()) {
 			this.territory.add(tile);
 			this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getRulerPlayer().getTilePurchaseCost());
 			this.getRulerPlayer().setTilePurchaseCost((int) (1.2 * getRulerPlayer().getTilePurchaseCost()));
@@ -245,11 +241,11 @@ public class City
 		}
 		return gameEnum.cantBuyTile.regex;
 	}
-	private boolean isTileNeighbor(Tile newTile){
+	private boolean isTileNeighbor(Tile newTile){ //TODO: should be deleted
 		for (Tile tile : territory) {
 			if(tile.getPosition().Q - newTile.getPosition().Q == 1 || tile.getPosition().Q - newTile.getPosition().Q == -1 ||
 					tile.getPosition().R - newTile.getPosition().R == 1 || tile.getPosition().R - newTile.getPosition().R == -1 ||
-					tile.getPosition().S - newTile.getPosition().S == 1 || tile.getPosition().S - newTile.getPosition().S == -1)
+					tile.getPosition().S - newTile.getPosition().S == 1 || tile.getPosition().S - newTile.getPosition().S == -1 )
 				return true;
 		}
 		return false;

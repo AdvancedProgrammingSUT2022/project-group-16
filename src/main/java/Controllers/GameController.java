@@ -41,7 +41,8 @@ public class GameController implements Serializable
 	private final ArrayList<Tile> map = new ArrayList<>();
 	public int MAP_SIZE;
 	private final ArrayList<Player> players = new ArrayList<>();
-	private Player playerTurn;
+	transient private Player playerTurn;
+	public int playerTurnIndex;
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
@@ -861,6 +862,10 @@ public class GameController implements Serializable
 	{
 		return playerTurn;
 	}
+	public void setPlayerTurn(Player playerTurn)
+	{
+		this.playerTurn = playerTurn;
+	}
 	public int getTurnCounter()
 	{
 		return turnCounter;
@@ -1360,7 +1365,7 @@ public class GameController implements Serializable
 		for(Unit unit : this.getPlayerTurn().getUnits())
 		{
 			unit.setMovementPoints(unit.getMP());
-			if(unit.getMoves() != null && unit.getMoves().size() >= 0)
+			if( unit.getMoves() != null && unit.getMoves().size() >= 0)
 			{
 				//unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
 				unit.updateUnitMovements();
@@ -1742,10 +1747,12 @@ public class GameController implements Serializable
 		int x = tile.getPosition().X;
 		int y = tile.getPosition().Y;
 		for(Player player : players)
-			for(City city : player.getCities())
-				if(city.getCapitalTile().getPosition().X == x &&
-						city.getCapitalTile().getPosition().Y == y)
+			for(City city : player.getCities()) {
+				for(Tile tile1 : city.getTerritory())
+				if (tile1.getPosition().X == x &&
+						tile1.getPosition().Y == y)
 					return true;
+			}
 		return false;
 	}
 	private boolean hasCity(Tile tile)
@@ -1824,6 +1831,25 @@ public class GameController implements Serializable
 		else
 			return gameEnum.nonSelect.regex;
 	}
+	public ArrayList<CombatUnit> getTileCUnits(Tile tile){
+		ArrayList<CombatUnit> answer = new ArrayList<>();
+		for (Unit unit : playerTurn.getUnits()) {
+			if(unit instanceof CombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
+				answer.add((CombatUnit) unit);
+			}
+		}
+		return answer;
+	}
+	public ArrayList<NonCombatUnit> getTileNCUnits(Tile tile){
+		ArrayList<NonCombatUnit> answer = new ArrayList<>();
+		for (Unit unit : playerTurn.getUnits()) {
+			if(unit instanceof NonCombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
+				answer.add((NonCombatUnit) unit);
+			}
+		}
+		return answer;
+	}
+
 	private int getGoldOfUnit(Unit unit)
 	{
 		int number = 0;

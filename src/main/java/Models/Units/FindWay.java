@@ -1,6 +1,7 @@
 package Models.Units;
 
 import Controllers.GameController;
+import Models.Player.TileState;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
 
@@ -39,8 +40,8 @@ import java.util.ArrayList;
             directions.add(new Position(x + (flg % 2), y - 1));
             double distance = 10000;
             for (Position direction : directions) {
-                if ((direction.X >= 0 && direction.X < 10 && direction.Y >= 0 && direction.Y < 10) /*&&
-                        GameController.getInstance().isTileInPlayerTerritory(direction)*/) {
+                if ((direction.X >= 0 && direction.X < 10 && direction.Y >= 0 && direction.Y < 10) &&
+                       GameController.getInstance().getPlayerTurn().getMap().get(GameController.getInstance().getTileByXY(direction.X, direction.Y)).equals(TileState.VISIBLE)) {
                     if (distance > calculateDistance(direction, destination)) {
                         distance = calculateDistance(direction, destination);
                         xAns = direction.X;
