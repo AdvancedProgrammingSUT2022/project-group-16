@@ -109,7 +109,7 @@ public class GameController implements Serializable
 		playerTurn.setCup(playerTurn.getCup() + playerTurn.incomeCup());
 		
 		// handle units
-		handleUnitCommands();
+		//handleUnitCommands();
 		updatePlayersUnitLocations();
 		updateWorkersConstructions();
 		updateUnitStates();
@@ -1352,6 +1352,7 @@ public class GameController implements Serializable
 	{
 		for(Unit unit : this.getPlayerTurn().getUnits())
 		{
+			unit.setMovementPoints(unit.getMP());
 			if(unit.getMoves() != null && unit.getMoves().size() >= 0)
 			{
 				//unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));

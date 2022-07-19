@@ -7,7 +7,6 @@ import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
 import Models.Terrain.TileFeature;
 import Models.Terrain.TileType;
-import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import enums.gameCommands.unitCommands;
@@ -16,6 +15,7 @@ import enums.gameCommands.unitCommands;
 public abstract class CombatUnit extends Unit
 {
     private int defencePower = 10;
+
 
     public int getDefencePower() {
         return defencePower;

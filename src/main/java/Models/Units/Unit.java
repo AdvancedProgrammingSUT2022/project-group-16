@@ -20,6 +20,7 @@ public abstract class Unit extends Construction
 {
 	private Player rulerPlayer;
 	private int productionCost;
+	private int MP; //copy of movement but does not change;
 	private int movementPoints;
 	private Tile tile;
 	public final int MAX_HEALTH = 10;
@@ -35,6 +36,13 @@ public abstract class Unit extends Construction
 	private Tile destination = null;
 	private int XP = 10;
 
+	public int getMP() {
+		return MP;
+	}
+
+	protected void setMP(int MP) {
+		this.MP = MP;
+	}
 
 	public String toString(){
 		return "Unit";
@@ -223,10 +231,10 @@ public abstract class Unit extends Construction
 			this.getTile().setCombatUnitInTile(null);
 		else if (this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
 			this.getTile().setNonCombatUnitInTile(null);
-		//this.movementPoints -= destination.getTileType().movementCost;
+		this.movementPoints -= destination.getTileType().movementCost;
 		if(nextTile.getBoarderType(this.getTile()) != null && nextTile.getBoarderType(this.getTile()).equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad()))
 			this.movementPoints = 0;
-		//if (this.movementPoints < 0) this.movementPoints = 0;
+		if (this.movementPoints < 0) this.movementPoints = 0;
 		//TODO check for railroad penalty
 		this.setTile(nextTile);
 		this.getMoves().remove(0);

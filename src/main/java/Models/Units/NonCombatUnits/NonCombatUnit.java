@@ -4,6 +4,7 @@ import Models.Units.Unit;
 
 public abstract class NonCombatUnit extends Unit
 {
-	
-	public abstract NonCombatUnit clone();
+
+
+    public abstract NonCombatUnit clone();
 }
