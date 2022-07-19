@@ -2,6 +2,7 @@ package Models.Player;
 
 import Controllers.GameController;
 import Models.City.*;
+import Models.Resources.TradeRequest;
 import Models.Terrain.Position;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
@@ -22,7 +23,7 @@ import java.util.*;
 
 public class Player extends User
 {
-	final GameController gameController;
+	transient GameController gameController;
 	private Unit selectedUnit = null;
 	private City selectedCity = null;
 	private final Civilization civilization;
@@ -39,7 +40,11 @@ public class Player extends User
 	private ArrayList<Resource> resources = new ArrayList<>();
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
-	private final HashMap<Tile, TileState> map;
+	transient private HashMap<Tile, TileState> map;
+	public ArrayList<Tile> mapKeyset = new ArrayList<>();
+	public ArrayList<TileState> mapValueset = new ArrayList<>();
+	private ArrayList<TradeRequest> tradeRequests = new ArrayList<>();
+
 	private ArrayList<City> cities = new ArrayList<>();
 	private final ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
@@ -104,6 +109,10 @@ public class Player extends User
 	}
 	public void setXP(int XP) {
 		this.XP = XP;
+	}
+	public void setMap(HashMap<Tile, TileState> map)
+	{
+		this.map = map;
 	}
 
 	public Civilization getCivilization()
@@ -211,6 +220,10 @@ public class Player extends User
 			if(getHappiness() > 100)
 				setHappiness(100);
 		}
+	}
+
+	public ArrayList<TradeRequest> getTradeRequests() {
+		return tradeRequests;
 	}
 
 	public int getCup()
@@ -394,6 +407,40 @@ public class Player extends User
 		else if(unit instanceof NonCombatUnit)
 			unit.getTile().setNonCombatUnitInTile(null);
 		unit.setTile(null);
+	}
+	private Resource getResourceByName(String name) {
+		for (Resource resource : gameController.getPlayerTurn().getResources())
+			if (resource.getRESOURCE_TYPE().name().equals(name))
+				return resource;
+		return null;
+	}
+	public void checkRequests(TradeRequest request) {
+		int coins;
+		Resource resource;
+		boolean willGetCoin = false;
+		if(request.getOfferToSell().charAt(0) > 48 && request.getOfferToSell().charAt(0) < 57) {
+			coins = Integer.parseInt(request.getOfferToSell());
+			resource = getResourceByName(request.getWantToBuy());
+			willGetCoin = true;
+		}
+		else {
+			coins = Integer.parseInt(request.getWantToBuy());
+			resource = getResourceByName(request.getOfferToSell());
+		}
+		if (willGetCoin) {
+			gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() + coins);
+			request.getSender().setGold(request.getSender().getGold() - coins);
+			request.getSender().addResource(resource);
+		}
+		else if (coins <= gameController.getPlayerTurn().getGold()) {
+				gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() - coins);
+				gameController.getPlayerTurn().addResource(resource);
+				request.getSender().setGold(request.getSender().getGold() + coins);
+		}
+	}
+	public void setGameController(GameController gameController)
+	{
+		this.gameController = gameController;
 	}
 	public void updateTileStates()
 	{

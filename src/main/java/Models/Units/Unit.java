@@ -18,11 +18,11 @@ import java.util.ArrayList;
 
 public abstract class Unit extends Construction
 {
-	private Player rulerPlayer;
+	transient private Player rulerPlayer;
 	private int productionCost;
 	private int MP; //copy of movement but does not change;
 	private int movementPoints;
-	private Tile tile;
+	transient private Tile tile;
 	public final int MAX_HEALTH = 10;
 	private int health = MAX_HEALTH;
 	private int speed;

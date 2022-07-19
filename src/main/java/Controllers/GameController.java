@@ -20,6 +20,7 @@ import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import Models.User;
+import com.google.gson.GsonBuilder;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
 import enums.gameCommands.selectCommands;
@@ -237,14 +238,6 @@ public class GameController implements Serializable
 		else
 			MAP_SIZE = 15;
 		initMap();
-//		try
-//		{
-//			System.out.println(getRawMapString());
-//		}
-//		catch (IOException e)
-//		{
-//			throw new RuntimeException(e);
-//		}
 		for (Player player : players)
 			player.initMap();
 		initPlayers();
@@ -265,11 +258,11 @@ public class GameController implements Serializable
 	}
 	public String getMapString()
 	{
-		return MapPrinter.getMapString(playerTurn);
+		return MapPrinter.getMapString(playerTurn, this);
 	}
 	public String getMapString(Player player)
 	{
-		return MapPrinter.getMapString(player);
+		return MapPrinter.getMapString(player, this);
 	}
 	// this method returns a mapString that all it's tiles are visible
 	public String getRawMapString() throws IOException
@@ -278,7 +271,7 @@ public class GameController implements Serializable
 		tmpPlayer.initMap();
 		tmpPlayer.getMap().replaceAll((k, v) -> TileState.VISIBLE);
 		
-		return MapPrinter.getMapString(tmpPlayer);
+		return MapPrinter.getMapString(tmpPlayer, this);
 	}
 	// this is called when GameController is created. this method only creates an array of Positions and fills grid with these positions
 	private void initGrid()
