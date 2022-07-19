@@ -241,11 +241,11 @@ public class City
 		}
 		return gameEnum.cantBuyTile.regex;
 	}
-	private boolean isTileNeighbor(Tile newTile){ //TODO: should be deleted
+	private boolean isTileNeighbor(Tile newTile){
+		if(territory.contains(newTile))
+			return false;
 		for (Tile tile : territory) {
-			if(tile.getPosition().Q - newTile.getPosition().Q == 1 || tile.getPosition().Q - newTile.getPosition().Q == -1 ||
-					tile.getPosition().R - newTile.getPosition().R == 1 || tile.getPosition().R - newTile.getPosition().R == -1 ||
-					tile.getPosition().S - newTile.getPosition().S == 1 || tile.getPosition().S - newTile.getPosition().S == -1 )
+			if(tile.distanceTo(newTile) == 1)
 				return true;
 		}
 		return false;

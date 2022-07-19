@@ -171,6 +171,7 @@ public class NewGame extends Application {
                             setGoButtonStyle(start);
                     });
                     start.setOnMousePressed(mouseEvent131 -> {
+                        NewGame.newGameMode = "newGame";
                         Game game = new Game();
                         try {
                             game.start((Stage) list.getScene().getWindow());
