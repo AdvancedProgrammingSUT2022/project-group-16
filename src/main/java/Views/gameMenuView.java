@@ -782,7 +782,7 @@ public class gameMenuView
             }
             else if(unitCommands.compareRegex(command, unitCommands.removeJungle) != null)
             {
-                System.out.println(gameController.removeJungle());
+                System.out.println(gameController.removeFeature());
                 gameController.getPlayerTurn().setSelectedUnit(null);
             }
             else if(unitCommands.compareRegex(command, unitCommands.removeRoute) != null)

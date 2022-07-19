@@ -903,8 +903,8 @@ public class Hex{
         list.getChildren().get(10).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.quarry(), unitCommands.quarryBuild.regex));
         addPhotoToPane(list, 120, 100, "photos/gameIcons/workers/routeRemove.png", "route remove");
         list.getChildren().get(11).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.removeRoute(), unitCommands.roadRemoved.regex));
-        addPhotoToPane(list, 120, 150, "photos/gameIcons/workers/forestRemove.png", "forest remove");
-        list.getChildren().get(12).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.removeJungle(), unitCommands.jungleRemoved.regex));
+        addPhotoToPane(list, 120, 150, "photos/gameIcons/workers/forestRemove.png", "Feature remove");
+        list.getChildren().get(12).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.removeFeature(), unitCommands.jungleRemoved.regex));
         addPhotoToPane(list, 120, 200, "photos/gameIcons/workers/repair.png", "repair");
         list.getChildren().get(13).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.repair(), unitCommands.repairedSuccessful.regex));
 

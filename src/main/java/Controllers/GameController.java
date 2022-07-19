@@ -804,7 +804,7 @@ public class GameController implements Serializable
 			Player player = players.get(i);
 			Tile startingTile = player.getTileByXY(startingPositions[i].X, startingPositions[i].Y);
 			new MidRange(player, MidRangeType.WARRIOR, startingTile);
-			new Settler(player, startingTile);
+			new Worker(player, startingTile);
 			for (Player l : players)
 				System.out.println(l.getUnits());
 			System.out.println("   ........    ");
@@ -1902,6 +1902,7 @@ public class GameController implements Serializable
 				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().hasRoad())
 				return unitCommands.hasRoad.regex;
+			else if(!playerTurn.getSelectedUnit().getRulerPlayer().getTechnologies().contains(Technology.THE_WHEEL)) return "do not have Wheel technology";
 			else
 			{
 				((Worker) playerTurn.getSelectedUnit()).buildRoad();
@@ -1919,6 +1920,7 @@ public class GameController implements Serializable
 				return buildErrors();
 			else if(playerTurn.getSelectedUnit().getTile().hasRailRoad())
 				return unitCommands.hasRailRoad.regex;
+			else if(!playerTurn.getSelectedUnit().getRulerPlayer().getTechnologies().contains(Technology.THE_WHEEL)) return "do not have Wheel technology";
 			else
 			{
 				((Worker) playerTurn.getSelectedUnit()).buildRailRoad();
@@ -2125,19 +2127,24 @@ public class GameController implements Serializable
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public String removeJungle()
+	public String removeFeature()
 	{
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(buildErrors() != null)
 				return buildErrors();
 			else if(!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.JUNGLE) &&
-					!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.FOREST))
-				return unitCommands.hasntJungle.regex;
+					!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.FOREST) &&
+					!playerTurn.getSelectedUnit().getTile().getTileFeature().equals(TileFeature.MARSH))
+				return "tile does not have removable feature";
 			else
 			{
-				((Worker) playerTurn.getSelectedUnit()).removeJungle();
-				return unitCommands.jungleRemoved.regex;
+				switch (playerTurn.getSelectedUnit().getTile().getTileFeature()){
+					case MARSH -> ((Worker) playerTurn.getSelectedUnit()).removeMarsh();
+					case JUNGLE -> ((Worker) playerTurn.getSelectedUnit()).removeJungle();
+					case FOREST -> ((Worker) playerTurn.getSelectedUnit()).removeForest();
+				}
+				return "feature removed successfully";
 			}
 		}
 		else

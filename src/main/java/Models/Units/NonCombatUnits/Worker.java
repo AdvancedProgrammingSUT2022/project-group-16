@@ -75,29 +75,38 @@ public class Worker extends NonCombatUnit{
 
     private boolean canBuildRoad(){
         if(this.getTile().getTileType().equals(TileType.OCEAN) || this.getTile().getTileType().equals(TileType.MOUNTAIN) ||
-                this.getTile().getTileType().equals(TileType.TUNDRA) || this.getTile().getTileFeature().equals(TileFeature.ICE) ||
-                !this.getRulerPlayer().getTechnologies().contains(Technology.THE_WHEEL))
+                this.getTile().getTileType().equals(TileType.TUNDRA) || this.getTile().getTileFeature().equals(TileFeature.ICE))
             return false;
         return true;
     }
     public String buildRailRoad(){
-        if(this.getTile().hasRailRoad() == true) return "the tile has railroad";
-       if(this.getTurnsTillBuildRailRoad() == 3 && canBuildRoad())
-           this.setTurnsTillBuildRailRoad(2);
-       if(this.getTurnsTillBuildRailRoad() == 0) {
-           this.getTile().setHasRailRoad(true);
-           return null;
-       }
-        return null;
-    }
-    public String buildRoad(){
-        if(this.getTile().hasRoad() == true) return "the tile has road";
-        if(this.getTurnsTillBuildRoad() == 3 && canBuildRoad())
-            this.setTurnsTillBuildRoad(2);
-        if(this.getTurnsTillBuildRoad() == 0) {
-            this.getTile().setHasRoad(true);
+        if(this.getTurnsTillBuildRailRoad() == 0) {
+            this.getTile().setHasRailRoad(true);
+            this.setTurnsTillBuildRailRoad(3);
             return null;
         }
+        if(this.getTurnsTillBuildRailRoad() < 3){
+            this.setTurnsTillBuildRailRoad(this.getTurnsTillBuildRailRoad() - 1);
+            return null;
+        }
+       if(!canBuildRoad())
+           return "cannot build railRoad in this Tile";
+       this.setTurnsTillBuildRailRoad(2);
+       return null;
+    }
+    public String buildRoad(){
+        if(this.getTurnsTillBuildRoad() == 0) {
+            this.getTile().setHasRoad(true);
+            this.setTurnsTillBuildRoad(3);
+            return null;
+        }
+        if(this.getTurnsTillBuildRoad() < 3){
+            this.setTurnsTillBuildRoad(this.getTurnsTillBuildRoad() - 1);
+            return null;
+        }
+        if(this.getTile().hasRoad() == true) return "the tile has road";
+        if(!canBuildRoad()) return "cannot build road here";
+        this.setTurnsTillBuildRoad(2);
         return null;
     }
     public String buildFarm(){
@@ -269,7 +278,6 @@ public class Worker extends NonCombatUnit{
         if(getTurnsTillRepairment() == 0 && this.getTile().isRuined()){
             this.getTile().setRuined(false);
             this.setTurnsTillRepairment(3);
-            this.getCommands().remove(0);
             return null;
         }
         setTurnsTillRepairment(getTurnsTillRepairment() - 1);
