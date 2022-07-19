@@ -2244,6 +2244,8 @@ public class GameController implements Serializable
 
 	public String buyTile(Matcher matcher)
 	{
+		if (matcher == null)
+			return gameEnum.invalidCoordinate.regex;
 		if(isValidCoordinate(matcher) == null)
 			return unitCommands.wrongCoordinates.regex;
 		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
