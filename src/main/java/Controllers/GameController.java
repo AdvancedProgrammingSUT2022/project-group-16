@@ -2207,6 +2207,8 @@ public class GameController implements Serializable
 	public String buildBuilding(BuildingType buildingType){
 		if(playerTurn.getSelectedCity() != null)
 		{
+			Tile destination = playerTurn.getSelectedCity().getTileWithNoBuilding();
+			if(destination == null) return "no tile without building";
 			if(!playerTurn.getCities().contains(playerTurn.getSelectedCity()))
 				return unitCommands.notYours.regex;
 			else
@@ -2215,7 +2217,7 @@ public class GameController implements Serializable
 					return gameEnum.notEnoughGold.regex;
 				else if(playerTurn.getSelectedCity().doesCityHaveBuilding(buildingType))
 					return "cannot build this type of building here";
-				return playerTurn.getSelectedCity().construct(new Building(buildingType,playerTurn.getSelectedCity().getCapitalTile()), this);
+				return playerTurn.getSelectedCity().construct(new Building(buildingType,destination), this);
 			}
 		}
 		else
@@ -2261,10 +2263,10 @@ public class GameController implements Serializable
 			return gameEnum.notEnoughGold.regex;
 		else if(playerTurn.getSelectedCity().doesCityHaveBuilding(buildingType))
 			return "cannot buy this type of building";
-		Random random = new Random();
-		int i = random.nextInt(0, playerTurn.getSelectedCity().getTerritory().size());
+		Tile destination = playerTurn.getSelectedCity().getTileWithNoBuilding();
+		if(destination == null) return "no tile without building";
 		return playerTurn.getSelectedCity().buyBuilding(new Building(buildingType,
-				playerTurn.getSelectedCity().getTerritory().get(i)));
+				destination));
 	}
 
 	public String buyUnit(String type)
