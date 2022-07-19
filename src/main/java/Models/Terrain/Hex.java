@@ -5,6 +5,7 @@ import Models.City.City;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Player.TileState;
+import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CombatUnits.LongRange;
 import Models.Units.CombatUnits.MidRange;
 import Models.Units.NonCombatUnits.NonCombatUnit;

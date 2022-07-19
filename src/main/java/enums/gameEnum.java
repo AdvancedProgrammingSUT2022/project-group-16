@@ -74,6 +74,7 @@ public enum gameEnum
     nonSelect("nothing has been selected"),
     buyTile("tile bought successfully"),
     cantBuyTile("this tile is too far"),
+    belongToCivilization("this tile belongs to another player"),
     notEnoughGold("your gold is not enough"),
     unitBought("unit bought successfully"),
     noEmptyTile("there is no empty tile"),
