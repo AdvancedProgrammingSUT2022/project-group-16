@@ -78,6 +78,7 @@ public class City
 		}
 	}
 
+
 	public ArrayList<Citizen> getCitizens() {
 		return citizens;
 	}
@@ -143,9 +144,17 @@ public class City
 		
 		return gainingFood - consumingFood;
 	}
+	public void setFoodYield(int foodYield) {
+		this.foodYield = foodYield;
+	}
+
+	public void setGoldYield(int goldYield) {
+		this.goldYield = goldYield;
+	}
+
 	public int getGoldYield()
 	{
-		int gainingGold = 0;
+		int gainingGold = goldYield;
 		int goldConsumption = 0;
 		for(Citizen citizen : citizens)
 		{
@@ -169,6 +178,11 @@ public class City
 	public int getProductionYield() {
 		return productionYield;
 	}
+
+	public void setProductionYield(int productionYield) {
+		this.productionYield = productionYield;
+	}
+
 	public int getCupYield() {
 		return cupYield;
 	}
@@ -182,6 +196,7 @@ public class City
 	{
 		return citizens.size();
 	}
+
 	public void addPopulation(int amount)
 	{
 		for(int i = 0; i < amount; i++){
@@ -370,10 +385,41 @@ public class City
 	}
 
 
+	private String buildingHasRequirements(Construction construction){
+		boolean hasBuilding = false;
+		if (((Building)construction).getBuildingType().requiredBuilding == null) hasBuilding = true;
+		for (City city : this.getRulerPlayer().getCities()) {
+			for (Building building : city.getBuildings()) {
+				if(building.getBuildingType().equals(((Building) construction).getBuildingType().requiredBuilding)){
+					hasBuilding = true;
+					break;
+				}
+			}
+		}
+		if(!hasBuilding) return "do not have required building";
+		return null;
+	}
+
+	public Tile getTileWithNoBuilding() {
+		for (Tile tile : territory) {
+			boolean isEmpty = true;
+			for (Building building : buildings) {
+				if(building.getTile().getPosition().equals(tile.getPosition())){
+					isEmpty = false;
+					break ;
+				}
+			}
+			if(isEmpty) return tile;
+		}
+		return null;
+	}
+
 	public String construct(Construction construction, GameController gameController)
 	{
 		if(currentConstruction == null) {
 			if(!constructionCanBeBuilt(construction)) return "cannot build";
+			String result;
+			if(construction instanceof Building && (result = buildingHasRequirements(construction)) != null)return result;
 			currentConstruction = construction;
 			construction.setTurnTillBuild(4);
 			return null;
@@ -417,6 +463,7 @@ public class City
 
 	private void createBuilding(Building building)
 	{
+		building.setCity(this);
 		buildings.add(building);
 		rulerPlayer.setHappiness(rulerPlayer.getHappiness() + building.happinessFromBuilding(building.getBuildingType())); //Increase happiness
 	}
@@ -436,6 +483,7 @@ public class City
 	public String buyBuilding(Building building){
 		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - building.getBuildingType().cost);
 		buildings.add(building);
+		building.setCity(this);
 		return null;
 	}
 
@@ -451,6 +499,7 @@ public class City
 		}
 		return false;
 	}
+
 }
 
 

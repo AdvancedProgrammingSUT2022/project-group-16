@@ -10,6 +10,7 @@ public class Settler extends NonCombatUnit{
         this.setProductionCost(10);//TODO what is the max health/cost??
         this.setRequiredTechnology(null);
         this.setMovementPoints(1);
+        this.setMP(1);
         this.setTile(tile);
         tile.setNonCombatUnitInTile(this);
         this.setSpeed(1);

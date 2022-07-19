@@ -12,6 +12,7 @@ public class MidRange extends CombatUnit{
     public MidRange(Player rulerPlayer, MidRangeType midRangeType, Tile tile){
         this.setRulerPlayer(rulerPlayer);
         this.setType(midRangeType);
+        this.setMP(type.movement);
         this.setProductionCost(type.cost);
         this.setRequiredTechnology(type.requiredTech);
         this.setMovementPoints(type.movement);

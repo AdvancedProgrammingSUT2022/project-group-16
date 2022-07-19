@@ -769,6 +769,7 @@ public class Hex{
                     list.getChildren().remove(list.getChildren().size() - 1);
                 addLabelToPane(list, 300, 200, null, result);
                 if (result.equals(unitCommands.cityBuilt.regex)) {
+
                     removeAllPanels();
                     parent.getChildren().remove(list);
                 }

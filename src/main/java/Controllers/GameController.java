@@ -66,7 +66,10 @@ public class GameController implements Serializable
 			instance = new GameController();
 		return instance;
 	}
-
+	public static void setInstance(GameController instance)
+	{
+		GameController.instance = instance;
+	}
 	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns) //TODO: is this needed?
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
@@ -80,10 +83,15 @@ public class GameController implements Serializable
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
 	{
+		//add building benefits
+		addBuildingBenefits();
 		//update cities combat strength
 		for(Player player : players)
+		{
+			player.updateTileStates();
 			for(City city : player.getCities())
 				city.updateCityCombatStrength();
+		}
 
 		// reset all units turns. TODO: is this needed?
 		
@@ -109,14 +117,12 @@ public class GameController implements Serializable
 		playerTurn.setCup(playerTurn.getCup() + playerTurn.incomeCup());
 		
 		// handle units
-		handleUnitCommands();
+		//handleUnitCommands();
 		updatePlayersUnitLocations();
 		updateWorkersConstructions();
 		updateUnitStates();
 
 		// decrement researching technology turns
-		//cities
-//		updateCityConstructions();
 		// check for city growth
 		
 		//TODO: check that this is not a duplicate from runGame while loop
@@ -129,6 +135,59 @@ public class GameController implements Serializable
 
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+	}
+
+	private void addBuildingBenefits() {
+		for (City city : playerTurn.getCities()) {
+			for (Building building : city.getBuildings()) {
+				switch (building.getBuildingType()){
+					case BARRACKS, ARMORY, MILITARY_ACADEMY -> playerTurn.getUnits().forEach(unit -> unit.setXP(unit.getXP() + 15));
+					case GRANARY -> city.setFoodYield(city.getFoodYield() + 5);
+					case LIBRARY -> playerTurn.setCup(playerTurn.getCup() + (int) (city.getPopulation() / 2.0));
+					case WALLS -> city.setHitPoints(city.getHitPoints() + 5);
+					case WATER_MILL -> {
+						for (Tile tile : city.getTerritory()) {
+							if(Arrays.stream(tile.getBorders()).toList().contains(BorderType.RIVER)){
+								city.setFoodYield(city.getFoodYield() + 2);
+								break;
+							}
+						}
+					}
+					case BURIAL_TOMB -> playerTurn.setHappiness(playerTurn.getHappiness() + 2);
+					case CIRCUS ->  playerTurn.setHappiness(playerTurn.getHappiness() + 3);
+					case COLOSSEUM, THEATER -> playerTurn.setHappiness(playerTurn.getHappiness() + 4);
+					case COURTHOUSE -> playerTurn.isHappy();
+					case STABLE, WINDMILL -> city.setProductionYield((int) (city.getProductionYield() * 1.25));
+					case CASTLE -> city.setHitPoints(city.getHitPoints() + 8);
+					case FORGE -> city.setProductionYield((int) (city.getProductionYield() * 1.15));
+					case GARDEN -> {
+						for (Tile tile : city.getTerritory()) {
+							if(Arrays.stream(tile.getBorders()).toList().contains(BorderType.RIVER)){
+								city.addPopulation((int)(city.getPopulation() * 0.25));
+								break;
+							}
+						}
+					}
+					case MARKET, BANK -> city.setGoldYield((int) (city.getGoldYield() * 1.25));
+					case MINT -> {
+						for (Tile tile : city.getTerritory()) {
+							if(tile.getResource().getRESOURCE_TYPE().equals(ResourceType.GOLD ) ||
+									tile.getResource().getRESOURCE_TYPE().equals(ResourceType.SILVER ))
+								tile.getResource().getRESOURCE_TYPE().setGold(tile.getResource().getRESOURCE_TYPE().gold + 3);
+						}
+					}
+					case UNIVERSITY, PUBLIC_SCHOOL -> playerTurn.setCup((int) (playerTurn.getCup() * 1.5));
+					case WORKSHOP, ARSENAL -> city.setProductionYield((int) (city.getProductionYield() * 1.2));
+					case SATRAPS_COURT -> {
+						city.setGoldYield((int) (city.getGoldYield() * 1.25));
+						playerTurn.setHappiness(playerTurn.getHappiness() + 2);
+					}
+					case FACTORY -> city.setProductionYield((int) (city.getProductionYield() * 1.5));
+					case MILITARY_BASE -> city.setHitPoints(city.getHitPoints() + 12);
+					case STOCK_EXCHANGE -> city.setGoldYield((int) (city.getGoldYield() * 1.33));
+				}
+			}
+		}
 	}
 
 	private void updateUnitStates() {
@@ -1293,6 +1352,7 @@ public class GameController implements Serializable
 	{
 		for(Unit unit : this.getPlayerTurn().getUnits())
 		{
+			unit.setMovementPoints(unit.getMP());
 			if(unit.getMoves() != null && unit.getMoves().size() >= 0)
 			{
 				//unit.move(getTileByXY(unit.getMoves().get(0).X, unit.getMoves().get(0).Y));
@@ -1345,6 +1405,7 @@ public class GameController implements Serializable
 		int newY = Integer.parseInt(matcher.group("y"));
 		if(newX < 0 || newX > 9 || newY < 0 || newY > 9)
 			return unitCommands.wrongCoordinates.regex;
+		if(playerTurn.getMap().get(getTileByXY(newX,newY)).equals(TileState.FOG_OF_WAR)) return "tile is in fog of war";
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
@@ -2146,6 +2207,8 @@ public class GameController implements Serializable
 	public String buildBuilding(BuildingType buildingType){
 		if(playerTurn.getSelectedCity() != null)
 		{
+			Tile destination = playerTurn.getSelectedCity().getTileWithNoBuilding();
+			if(destination == null) return "no tile without building";
 			if(!playerTurn.getCities().contains(playerTurn.getSelectedCity()))
 				return unitCommands.notYours.regex;
 			else
@@ -2154,7 +2217,7 @@ public class GameController implements Serializable
 					return gameEnum.notEnoughGold.regex;
 				else if(playerTurn.getSelectedCity().doesCityHaveBuilding(buildingType))
 					return "cannot build this type of building here";
-				return playerTurn.getSelectedCity().construct(new Building(buildingType,playerTurn.getSelectedCity().getCapitalTile()), this);
+				return playerTurn.getSelectedCity().construct(new Building(buildingType,destination), this);
 			}
 		}
 		else
@@ -2200,10 +2263,10 @@ public class GameController implements Serializable
 			return gameEnum.notEnoughGold.regex;
 		else if(playerTurn.getSelectedCity().doesCityHaveBuilding(buildingType))
 			return "cannot buy this type of building";
-		Random random = new Random();
-		int i = random.nextInt(0, playerTurn.getSelectedCity().getTerritory().size());
+		Tile destination = playerTurn.getSelectedCity().getTileWithNoBuilding();
+		if(destination == null) return "no tile without building";
 		return playerTurn.getSelectedCity().buyBuilding(new Building(buildingType,
-				playerTurn.getSelectedCity().getTerritory().get(i)));
+				destination));
 	}
 
 	public String buyUnit(String type)

@@ -76,6 +76,10 @@ public class Player extends User
 		this.relationStates.replace(player.getCivilization(), RelationState.ENEMY);
 		player.getRelationStates().replace(this.civilization, RelationState.ENEMY);
 	}
+	public void declareFriendship(Player player){
+		this.relationStates.replace(player.getCivilization(), RelationState.FRIEND);
+		player.getRelationStates().replace(this.civilization, RelationState.FRIEND);
+	}
 
 	public City getSelectedCity()
 	{
