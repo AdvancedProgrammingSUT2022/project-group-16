@@ -19,8 +19,8 @@ public class Tile
 	private Improvement improvement = Improvement.NONE;
 	private boolean hasRoad;
 	private boolean hasRailRoad;
-	private CombatUnit combatUnitInTile = null;
-	private NonCombatUnit nonCombatUnitInTile = null;
+	transient private CombatUnit combatUnitInTile = null;
+	transient private NonCombatUnit nonCombatUnitInTile = null;
 	boolean isPillaged = false;
 	boolean isRuined = false;
 

@@ -191,31 +191,26 @@ public class Game extends Application {
                 GameController newGameController = loadGameFromFile("autosave.json");
                 gameController = newGameController;
                 GameController.setInstance(newGameController);
-                gameController.initGame();
                 break;
             case "save1":
                 GameController newGameController1 = loadGameFromFile("save1.json");
                 gameController = newGameController1;
                 GameController.setInstance(newGameController1);
-                gameController.initGame();
                 break;
             case "save2":
                 GameController newGameController2 = loadGameFromFile("save2.json");
                 gameController = newGameController2;
                 GameController.setInstance(newGameController2);
-                gameController.initGame();
                 break;
             case "save3":
                 GameController newGameController3 = loadGameFromFile("save3.json");
                 gameController = newGameController3;
                 GameController.setInstance(newGameController3);
-                gameController.initGame();
                 break;
             case "save4":
                 GameController newGameController4 = loadGameFromFile("save4.json");
                 gameController = newGameController4;
                 GameController.setInstance(newGameController4);
-                gameController.initGame();
                 break;
             default:
                 throw new RuntimeException("invalid newGameMode");
@@ -412,8 +407,12 @@ public class Game extends Application {
     }
 	private String gameControllerToJson(GameController gameController)
 	{
+        gameController.playerTurnIndex = gameController.getPlayers().indexOf(gameController.getPlayerTurn());
 		for (Player player : gameController.getPlayers())
 		{
+            for (Unit unit : player.getUnits())
+                unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
+
 			player.mapKeyset.clear();
 			player.mapValueset.clear();
 			for (Tile tile : player.getMap().keySet())
@@ -432,14 +431,19 @@ public class Game extends Application {
 		GameController loadedGameController = gson.fromJson(jsonStr, GameController.class);
 		for (Player player : loadedGameController.getPlayers())
 		{
+			player.setGameController(loadedGameController);
 			// set player map
 			HashMap<Tile, TileState> playerMap = new HashMap<>();
-			for (int i = 0; i < player.mapValueset.size(); i++)
-				playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
+			for (int i = 0; i < player.mapKeyset.size(); i++)
+            {
+                if(player.mapValueset.get(i).equals(TileState.REVEALED))
+				    playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
+                else
+                    playerMap.put(loadedGameController.getTileByXY(player.mapKeyset.get(i).getPosition().X, player.mapKeyset.get(i).getPosition().Y), player.mapValueset.get(i));
+            }
 			player.setMap(playerMap);
 
 			// set transient fields
-			player.setGameController(loadedGameController);
 			for (City city : player.getCities())
 			{
 				city.setRulerPlayer(player);
@@ -447,15 +451,18 @@ public class Game extends Application {
 					citizen.setCity(city);
 			}
 			for (Unit unit : player.getUnits())
+            {
 				unit.setRulerPlayer(player);
-			for (Tile tile : player.getMap().keySet())
-			{
-				if(tile.getCombatUnitInTile() != null)
-					tile.getCombatUnitInTile().setTile(tile);
-				if(tile.getNonCombatUnitInTile() != null)
-					tile.getNonCombatUnitInTile().setTile(tile);
-			}
+
+                Tile tile = player.getTileByXY(unit.lastPositionForSave.X, unit.lastPositionForSave.Y);
+                unit.setTile(tile);
+                if(unit instanceof CombatUnit)
+                    tile.setCombatUnitInTile((CombatUnit) unit);
+                else
+                    tile.setNonCombatUnitInTile((NonCombatUnit) unit);
+            }
 		}
+        loadedGameController.setPlayerTurn(loadedGameController.getPlayers().get(loadedGameController.playerTurnIndex));
 
 		return loadedGameController;
 	}
