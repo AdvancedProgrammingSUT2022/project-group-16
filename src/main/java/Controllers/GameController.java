@@ -2338,7 +2338,7 @@ public class GameController implements Serializable
 				return gameEnum.noEmptyTile.regex;
 			return playerTurn.getSelectedCity().buyUnit(new Worker(playerTurn, playerTurn.getSelectedCity().findTileWithNoNCUnit()));
 		}
-		return null;
+		return gameEnum.wrongName.regex;
 	}
 	public boolean validMidRange(MidRangeType type)
 	{

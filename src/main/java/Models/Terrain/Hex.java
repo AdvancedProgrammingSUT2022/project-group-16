@@ -918,6 +918,50 @@ public class Hex{
             purchaseTilePanel(city);
             list.setDisable(true);
         });
+        //purchase unit
+        addLabelToPane(list, 400, 64, null, "purchase unit");
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            purchaseUnitPanel(city);
+            list.setDisable(true);
+        });
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        parent.getChildren().add(list);
+    }
+    private void purchaseUnitPanel(City city) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 500, 300, 450, 230);
+        VBox box = new VBox();
+        list.getChildren().add(box);
+        setCoordinatesBox(list, box, 130, 25);
+        box.setSpacing(5);
+        box.setAlignment(Pos.CENTER);
+        addLabelToBox("you can purchase unit here", box);
+        addLabelToBox("your gold: " + city.getRulerPlayer().getGold(), box);
+        addLabelToBox("enter name of unit here: ", box);
+        addLabelToBox("note: enter all letters capital:)", box);
+        TextField textField = new TextField();
+        box.getChildren().add(textField);
+        textField.setOnKeyPressed(keyEvent -> {
+            String keyName = keyEvent.getCode().getName();
+            if(keyName.equals("Enter")) {
+                gameController.getPlayerTurn().setSelectedCity(city);
+                String result = gameController.buyUnit(textField.getText());
+                if(box.getChildren().size() == 5)
+                    addLabelToBox(result, box);
+                else {
+                    box.getChildren().remove(box.getChildren().size() - 1);
+                    addLabelToBox(result, box);
+                }
+                if(result.equals(gameEnum.unitBought.regex)) {
+                    parent.getChildren().remove(list);
+                    parent.getChildren().remove(parent.getChildren().size() - 1);
+                    cityPanel(city);
+                }
+                textField.setText(null);
+            }
+        });
         list.getChildren().add(exitButtonStyle(list));
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
