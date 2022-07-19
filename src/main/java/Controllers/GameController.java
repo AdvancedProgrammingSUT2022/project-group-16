@@ -66,7 +66,10 @@ public class GameController implements Serializable
 			instance = new GameController();
 		return instance;
 	}
-
+	public static void setInstance(GameController instance)
+	{
+		GameController.instance = instance;
+	}
 	// this method checks that everything before changing turn to the next player is done. (i.e. check if all units have used their turns) //TODO: is this needed?
 	// if everything is ok, it calls the changeTurn method
 	public String checkChangeTurn()
@@ -82,8 +85,11 @@ public class GameController implements Serializable
 	{
 		//update cities combat strength
 		for(Player player : players)
+		{
+			player.updateTileStates();
 			for(City city : player.getCities())
 				city.updateCityCombatStrength();
+		}
 
 		// reset all units turns. TODO: is this needed?
 		
