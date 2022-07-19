@@ -2,6 +2,7 @@ package Models.Player;
 
 import Controllers.GameController;
 import Models.City.*;
+import Models.Resources.TradeRequest;
 import Models.Terrain.Position;
 import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
@@ -42,6 +43,7 @@ public class Player extends User
 	transient private HashMap<Tile, TileState> map;
 	public ArrayList<Tile> mapKeyset = new ArrayList<>();
 	public ArrayList<TileState> mapValueset = new ArrayList<>();
+	private ArrayList<TradeRequest> tradeRequests = new ArrayList<>();
 
 	private ArrayList<City> cities = new ArrayList<>();
 	private final ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
@@ -73,6 +75,10 @@ public class Player extends User
 	public void declareWar(Player player){
 		this.relationStates.replace(player.getCivilization(), RelationState.ENEMY);
 		player.getRelationStates().replace(this.civilization, RelationState.ENEMY);
+	}
+	public void declareFriendship(Player player){
+		this.relationStates.replace(player.getCivilization(), RelationState.FRIEND);
+		player.getRelationStates().replace(this.civilization, RelationState.FRIEND);
 	}
 
 	public City getSelectedCity()
@@ -214,6 +220,10 @@ public class Player extends User
 			if(getHappiness() > 100)
 				setHappiness(100);
 		}
+	}
+
+	public ArrayList<TradeRequest> getTradeRequests() {
+		return tradeRequests;
 	}
 
 	public int getCup()
@@ -397,6 +407,36 @@ public class Player extends User
 		else if(unit instanceof NonCombatUnit)
 			unit.getTile().setNonCombatUnitInTile(null);
 		unit.setTile(null);
+	}
+	private Resource getResourceByName(String name) {
+		for (Resource resource : gameController.getPlayerTurn().getResources())
+			if (resource.getRESOURCE_TYPE().name().equals(name))
+				return resource;
+		return null;
+	}
+	public void checkRequests(TradeRequest request) {
+		int coins;
+		Resource resource;
+		boolean willGetCoin = false;
+		if(request.getOfferToSell().charAt(0) > 48 && request.getOfferToSell().charAt(0) < 57) {
+			coins = Integer.parseInt(request.getOfferToSell());
+			resource = getResourceByName(request.getWantToBuy());
+			willGetCoin = true;
+		}
+		else {
+			coins = Integer.parseInt(request.getWantToBuy());
+			resource = getResourceByName(request.getOfferToSell());
+		}
+		if (willGetCoin) {
+			gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() + coins);
+			request.getSender().setGold(request.getSender().getGold() - coins);
+			request.getSender().addResource(resource);
+		}
+		else if (coins <= gameController.getPlayerTurn().getGold()) {
+				gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() - coins);
+				gameController.getPlayerTurn().addResource(resource);
+				request.getSender().setGold(request.getSender().getGold() + coins);
+		}
 	}
 	public void setGameController(GameController gameController)
 	{

@@ -14,6 +14,7 @@ public class LongRange extends CombatUnit{
     public LongRange(Player rulerPlayer, LongRangeType longRangeType, Tile tile){
         this.setRulerPlayer(rulerPlayer);
         this.setType(longRangeType);
+        this.setMP(type.movement);
         this.setProductionCost(type.cost);
         this.setRequiredTechnology(type.requiredTech);
         this.setMovementPoints(type.movement);

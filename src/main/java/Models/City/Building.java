@@ -7,13 +7,22 @@ public class Building extends Construction
 	private final BuildingType buildingType;
 	private final Tile tile;
 	private int hitPoints;
+	private City city;
 	
 	public Building(BuildingType buildingType, Tile tile)
 	{
 		this.buildingType = buildingType;
 		this.tile = tile;
 	}
-	
+
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
+	}
+
 	public BuildingType getBuildingType()
 	{
 		return buildingType;

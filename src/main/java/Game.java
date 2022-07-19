@@ -1,6 +1,5 @@
 import Controllers.GameController;
 import Controllers.RegisterController;
-import Controllers.Utilities.MapPrinter;
 import Models.City.Citizen;
 import Models.City.City;
 import Models.City.CityState;
@@ -12,14 +11,12 @@ import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.City.Construction;
 import Models.Player.*;
-import Models.Resources.Resource;
+import Models.Resources.TradeRequest;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
 import Models.TypeAdapters.*;
 import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.MidRange;
-import Models.Units.CombatUnits.MidRangeType;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.Unit;
@@ -53,11 +50,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -79,6 +74,8 @@ public class Game extends Application {
     private boolean isCPressed = false;
     private boolean isShiftPressed = false;
     private boolean isAutoSaveOn = false;
+    private Double selectedCoins = 0.0;
+    private Resource selectedResource = null;
     @FXML
     public Pane pane;
     private Pane hexagonsPane;
@@ -160,6 +157,9 @@ public class Game extends Application {
                 else if(command.equals("a")) {
                     ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
                     gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+                }
+                else if(command.equals("b")) {
+                    System.out.println(selectedCoins);
                 }
                 pane.getChildren().remove(textField);
                 setInformationStyles();
@@ -258,33 +258,34 @@ public class Game extends Application {
 //        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
 //        new Worker(gameController.getPlayerTurn(), gameController.getMap().get(56));
         //TODO: do not remove this part :))))
-        //        ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
-        //        gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
-        //        gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
-        //        gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
-        //        gameController.getPlayerTurn().setCup(10);
-        //        new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-        //        new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-        //        new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-        //        gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
-        //        gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
-        //        gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
-        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
-        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
-        //        new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
-        //        new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-        //        gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
-        //        gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
-        //        gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
-        //        gameController.getPlayerTurn().setCup(100);
+
+//                ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
+//                gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
+//                gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
+//                gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
+//                gameController.getPlayerTurn().setCup(10);
+//                new City(gameController.getMap().get(55), gameController.getPlayerTurn());
+//                new City(gameController.getMap().get(45), gameController.getPlayerTurn());
+//                new City(gameController.getMap().get(78), gameController.getPlayerTurn());
+//                gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+//                gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
+//                gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
+//                new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
+//                new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
+//                new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
+//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
+//                gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
+//                gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
+//                gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
+//                gameController.getPlayerTurn().setCup(100);
 
         animationTimer.start();
     }
@@ -1102,6 +1103,31 @@ public class Game extends Application {
         box.getChildren().get(box.getChildren().size() - 1).setLayoutX(x);
         box.getChildren().get(box.getChildren().size() - 1).setLayoutY(y);
     }
+    private ImageView checkmarkButtonStyle(String type, Player player, AtomicReference<Double> number) {
+        ImageView checkmark = new ImageView();
+        checkmark.setOnMousePressed(mouseEvent -> {
+            for (int i = 0; i < 4; i++)
+                pane.getChildren().remove(pane.getChildren().size() - 1);
+            for(int i = 0; i < pane.getChildren().size(); i++)
+                pane.getChildren().get(i).setDisable(false);
+            selectedCoins = number.get();
+            if(type.equals("buy"))
+                player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,String.format("%.0f", selectedCoins), selectedResource.getRESOURCE_TYPE().name()));
+            else
+                player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,selectedResource.getRESOURCE_TYPE().name(), String.format("%.0f", selectedCoins)));
+            selectedResource = null;
+            selectedCoins = 0.0;
+        });
+        try {
+            checkmark.setImage(new Image(String.valueOf(new URL(getClass().getResource("photos/gameIcons/panelsIcons/Checkmark.png").toExternalForm()))));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        checkmark.setFitHeight(25);
+        checkmark.setFitWidth(25);
+        pane.requestFocus();
+        return checkmark;
+    }
     private ImageView exitButtonStyle() {
         ImageView exitButton = new ImageView();
         exitButton.setOnMouseMoved(mouseEvent -> {
@@ -1214,10 +1240,8 @@ public class Game extends Application {
             list.getChildren().add(1, imageView);
         else
             list.getChildren().add(0, imageView);
-        imageView.setStyle("-fx-background-radius: 8;" +
-                "-fx-border-width: 3;" +
+        imageView.setStyle("-fx-border-width: 3;" +
                 "-fx-border-color: white;" +
-                "-fx-border-radius: 5;" +
                 "-fx-pref-height: 500;");
         list.setPrefWidth(width);
     }
@@ -1762,6 +1786,68 @@ public class Game extends Application {
         setCoordinatesBox(list, trade, 750, 60);
         setCoordinatesBox(list, chat, 900, 60);
 
+        //requests
+        VBox requests = new VBox();
+        list.getChildren().add(requests);
+        setCoordinates(list, 15, 250);
+        requests.setSpacing(5);
+        requests.setAlignment(Pos.TOP_LEFT);
+        for (TradeRequest request : gameController.getPlayerTurn().getTradeRequests()) {
+            Label label = new Label();
+            label.setText(request.getSender().getUsername() + ": \nyou'll get: " + request.getOfferToSell() +
+                    ": \nyou'll sell: " + request.getWantToBuy());
+            labelStyle(label);
+            requests.getChildren().add(label);
+            requests.getChildren().get(requests.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    Pane yesOrNo = new Pane();
+                    panelsPaneStyle(yesOrNo, 200, 100, false);
+                    pane.getChildren().add(yesOrNo);
+                    setCoordinates(pane, 540, 310);
+                    Button yes = new Button();
+                    yesOrNo.getChildren().add(yes);
+                    setCoordinates(yesOrNo, 25, 30);
+                    yes.setText("yes");
+                    yes.setStyle("-fx-background-color: green;" +
+                            "-fx-font-size: 17;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-pref-width: 50;" +
+                            "-fx-pref-height: 30");
+                    yes.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent mouseEvent) {
+                            pane.getChildren().remove(yesOrNo);
+                            requests.getChildren().remove(label);
+                            gameController.getPlayerTurn().getTradeRequests().remove(request);
+                            list.getChildren().remove(requests);
+                            list.getChildren().add(requests);
+                            setCoordinates(list, 15, 250);
+                            gameController.getPlayerTurn().checkRequests(request);
+                            setInformationStyles();
+                            pane.requestFocus();
+                        }
+                    });
+                    Button no = new Button();
+                    yesOrNo.getChildren().add(no);
+                    setCoordinates(yesOrNo, 125, 30);
+                    no.setText("no");
+                    no.setStyle("-fx-background-color: red;" +
+                            "-fx-font-size: 17;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-pref-width: 50;" +
+                            "-fx-pref-height: 30");
+                    no.setOnMouseClicked(mouseEvent1 -> {
+                        pane.getChildren().remove(yesOrNo);
+                        requests.getChildren().remove(label);
+                        gameController.getPlayerTurn().getTradeRequests().remove(request);
+                        list.getChildren().remove(requests);
+                        list.getChildren().add(requests);
+                        setCoordinates(list, 15, 250);
+                    });
+                }
+            });
+        }
         list.getChildren().add(exitButtonStyle());
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
@@ -1781,7 +1867,7 @@ public class Game extends Application {
                 setLayoutX(length + 125);
         rectangle.setWidth(108 - length);
     }
-    private int getGoldOffer() {
+    private int getGoldOffer(String type, Player player) {
         Pane list = new Pane();
         panelsPaneStyle(list, 300, 75, false);
         list.setLayoutX(800);
@@ -1833,34 +1919,12 @@ public class Game extends Application {
             }
         });
 
-
-//        imageView.setOnMouseDragged(new EventHandler<MouseEvent>() {
-//            @Override
-//            public void handle(MouseEvent mouseEvent) {
-//                list.getChildren().get(list.getChildren().indexOf(imageView)).setLayoutX(mouseEvent.getX());
-//                updateCoordinates(selectedAmount, nonSelectedAmount, imageView, list);
-//            }
-//        });
+        list.getChildren().add(list.getChildren().size() - 1, checkmarkButtonStyle(type, player, number));
         pane.getChildren().add(list);
         return 0;
     }
-    private Pane buyResource(Player player) {
-        player.getResources().add(new BonusResource(ResourceType.BANANA));
-        player.getResources().add(new BonusResource(ResourceType.DEER));
-        player.getResources().add(new BonusResource(ResourceType.CATTLE));
-        player.getResources().add(new BonusResource(ResourceType.DYES));
-        player.getResources().add(new BonusResource(ResourceType.COAL));
-        player.getResources().add(new BonusResource(ResourceType.FURS));
-        player.getResources().add(new BonusResource(ResourceType.GOLD));
-        player.getResources().add(new BonusResource(ResourceType.IRON));
-        player.getResources().add(new BonusResource(ResourceType.IVORY));
-        player.getResources().add(new BonusResource(ResourceType.SILK));
-        player.getResources().add(new BonusResource(ResourceType.WHEAT));
-        player.getResources().add(new BonusResource(ResourceType.INCENSE));
-        player.getResources().add(new BonusResource(ResourceType.MARBLE));
-        player.getResources().add(new BonusResource(ResourceType.SHEEP));
-        player.getResources().add(new BonusResource(ResourceType.SUGAR));
-        player.getResources().add(new BonusResource(ResourceType.IVORY));
+    private Pane buyResource(String type, Player player) {
+        gameController.getPlayers().get(1).getResources().add(new BonusResource(ResourceType.BANANA));
 
         Pane list = new Pane();
         panelsPaneStyle(list, 500, 350, false);
@@ -1877,11 +1941,11 @@ public class Game extends Application {
             for (int i = 0; i < 7; i++)
                 if (i + flag < resources.size()) {
                     addLabelToBox(resources.get(i + flag).getRESOURCE_TYPE().name(), names);
-                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            getGoldOffer();
-                        }
+                    int finalI = i;
+                    int finalFlag = flag;
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        selectedResource = resources.get(finalI + finalFlag);
+                        getGoldOffer(type, player);
                     });
                 }
 
@@ -1905,16 +1969,18 @@ public class Game extends Application {
         addLabelToPane("what do you want?", list);
         setCoordinates(list, 170, 65);
         addLabelToPane("buy resource", list);
-        list.getChildren().get(list.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                pane.getChildren().add(buyResource(player));
-                for (int i = 0; i < pane.getChildren().size() - 1; i++)
-                    pane.getChildren().get(i).setDisable(true);
-            }
+        list.getChildren().get(list.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+            pane.getChildren().add(buyResource("buy", player));
+            for (int i = 0; i < pane.getChildren().size() - 1; i++)
+                pane.getChildren().get(i).setDisable(true);
         });
         setCoordinates(list, 100, 100);
         addLabelToPane("sell resource", list);
+        list.getChildren().get(list.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+            pane.getChildren().add(buyResource("sell", player));
+            for (int i = 0; i < pane.getChildren().size() - 1; i++)
+                pane.getChildren().get(i).setDisable(true);
+        });
         setCoordinates(list, 300, 100);
         list.getChildren().add(exitButtonStyle());
         setCoordinates(list, 10, 10);
