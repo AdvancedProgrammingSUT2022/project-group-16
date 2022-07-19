@@ -1442,6 +1442,31 @@ public class Game extends Application {
                 "-fx-font-size: 20"));
         box.getChildren().add(button);
     }
+    private void saveGamePanel() {
+        audioClip.play();
+        Pane list = new Pane();
+        panelsPaneStyle(list, 300, 300, false);
+        VBox box = new VBox();
+        box.setAlignment(Pos.CENTER);
+        box.setSpacing(8);
+        for (int i = 0; i < 4; i++) {
+            Button button = makeButtonLarge("save " + (i + 1));
+            box.getChildren().add(button);
+        }
+
+        box.getChildren().get(0).setOnMouseClicked(mouseEvent -> loadSave1());
+        box.getChildren().get(1).setOnMouseClicked(mouseEvent -> loadSave2());
+        box.getChildren().get(2).setOnMouseClicked(mouseEvent -> loadSave3());
+        box.getChildren().get(3).setOnMouseClicked(mouseEvent -> loadSave4());
+
+        list.getChildren().add(box);
+        setCoordinates(list, 100, 45);
+        list.getChildren().add(exitButtonStyle());
+        setCoordinates(list, 10, 10);
+        pane.getChildren().add(list);
+        for (int i = 0; i < pane.getChildren().size() - 1; i++)
+            pane.getChildren().get(i).setDisable(true);
+    }
     public void options(MouseEvent mouseEvent) {
         audioClip.play();
         Pane list = new Pane();
@@ -1478,12 +1503,7 @@ public class Game extends Application {
                 });
         addButtonToBox("save game", box);
         (box.getChildren().get(box.getChildren().size() - 1)).setOnMousePressed(
-                mouseEvent1 -> {
-                    pane.getChildren().remove(list);
-                    for(Node node : pane.getChildren())
-                        node.setDisable(false);
-                    pane.requestFocus();
-                });
+                mouseEvent1 -> saveGamePanel());
         addButtonToBox("exit", box);
         (box.getChildren().get(box.getChildren().size() - 1)).setOnMousePressed(
                 mouseEvent1 -> Platform.exit());
@@ -2019,33 +2039,69 @@ public class Game extends Application {
         setCoordinates(list, 10, 10);
         return list;
     }
-    private Button makeButton(String text) {
+    private Button makeButtonLarge(String text) {
         Button button = new Button();
         button.setText(text);
+        button.setPrefWidth(100);
+        button.setPrefHeight(40);
         button.setStyle("-fx-background-color: #ffcc00;" +
                 "-fx-border-width: 3;" +
                 "-fx-border-color: #000000;" +
                 "-fx-border-radius: 5;" +
                 "-fx-background-radius: 8;" +
-                "-fx-font-size: 10;" +
-                "-fx-pref-height: 15");
+                "-fx-font-size: 20;");
         button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #c8ff00;" +
                 "-fx-border-width: 3;" +
                 "-fx-border-color: #000000;" +
                 "-fx-border-radius: 5;" +
                 "-fx-background-radius: 8;" +
-                "-fx-font-size: 10;" +
-                "-fx-pref-height: 15"));
+                "-fx-font-size: 20;"));
         button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #ffcc00;" +
                 "-fx-border-width: 3;" +
                 "-fx-border-color: #000000;" +
                 "-fx-border-radius: 5;" +
                 "-fx-background-radius: 8;" +
-                "-fx-font-size: 10;" +
-                "-fx-pref-height: 15"));
+                "-fx-font-size: 20;"));
+        return button;
+    }
+    private Button makeButton(String text) {
+        Button button = new Button();
+        button.setText(text);
+        button.setPrefWidth(45);
+        button.setPrefHeight(15);
+        button.setStyle("-fx-background-color: #ffcc00;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: #000000;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-font-size: 10;");
+        button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #c8ff00;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: #000000;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-font-size: 10;"));
+        button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #ffcc00;" +
+                "-fx-border-width: 3;" +
+                "-fx-border-color: #000000;" +
+                "-fx-border-radius: 5;" +
+                "-fx-background-radius: 8;" +
+                "-fx-font-size: 10;"));
         return button;
     }
     public void showDiplomacy(MouseEvent mouseEvent) {
         showDiplomacy();
+    }
+    private void loadSave1() {
+
+    }
+    private void loadSave2() {
+
+    }
+    private void loadSave3() {
+
+    }
+    private void loadSave4() {
+
     }
 }
