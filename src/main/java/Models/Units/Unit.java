@@ -3,6 +3,7 @@ package Models.Units;
 import Controllers.GameController;
 import Models.City.City;
 import Models.City.Construction;
+import Models.Player.RelationState;
 import Models.Terrain.Position;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -203,7 +204,9 @@ public abstract class Unit extends Construction
 	public String move(Tile destination){
 		Player player = destination.GetTileRuler();
 		//declare war:
-		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization())) return "not your tile";
+		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()) &&
+				!this.getRulerPlayer().getRelationStates().get(player).equals(RelationState.ENEMY)) return "not your tile";
+
 		this.destination = destination;
 		FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
 		this.moves = FindWay.getInstance().getMoves();
