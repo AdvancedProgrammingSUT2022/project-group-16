@@ -1398,6 +1398,7 @@ public class GameController implements Serializable
 		int newY = Integer.parseInt(matcher.group("y"));
 		if(newX < 0 || newX > 9 || newY < 0 || newY > 9)
 			return unitCommands.wrongCoordinates.regex;
+		if(playerTurn.getMap().get(getTileByXY(newX,newY)).equals(TileState.FOG_OF_WAR)) return "tile is in fog of war";
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
