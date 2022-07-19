@@ -77,6 +77,7 @@ public enum gameEnum
     belongToCivilization("this tile belongs to another player"),
     notEnoughGold("your gold is not enough"),
     unitBought("unit bought successfully"),
+    wrongName("wrong unit name"),
     noEmptyTile("there is no empty tile"),
     noUnemployed("no unemployed citizen"),
     successfulLock("citizen locked on the tile successfully"),

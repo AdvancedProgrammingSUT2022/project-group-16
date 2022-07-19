@@ -17,6 +17,10 @@ public enum mainCommands
     loginMenu("^\\s*[lL]ogin\\s+[mM]enu\\s*$"),
 
     //messsages
+    unitLimit("there is a unit in this tile"),
+    requiredTech("you dont have required technology"),
+    requiredTechAndBuild("you dont have required technology and building"),
+    buildingBuilt("building built successfully"),
     invalidCommand("invalid command"),
     alreadyExist(" already exists"),
     specificNickname("user with nickname "),
