@@ -1462,10 +1462,10 @@ public class Game extends Application {
             box.getChildren().add(button);
         }
 
-        box.getChildren().get(0).setOnMouseClicked(mouseEvent -> loadSave1());
-        box.getChildren().get(1).setOnMouseClicked(mouseEvent -> loadSave2());
-        box.getChildren().get(2).setOnMouseClicked(mouseEvent -> loadSave3());
-        box.getChildren().get(3).setOnMouseClicked(mouseEvent -> loadSave4());
+        box.getChildren().get(0).setOnMouseClicked(mouseEvent -> save1());
+        box.getChildren().get(1).setOnMouseClicked(mouseEvent -> save2());
+        box.getChildren().get(2).setOnMouseClicked(mouseEvent -> save3());
+        box.getChildren().get(3).setOnMouseClicked(mouseEvent -> save4());
 
         list.getChildren().add(box);
         setCoordinates(list, 100, 45);
@@ -2100,16 +2100,16 @@ public class Game extends Application {
     public void showDiplomacy(MouseEvent mouseEvent) {
         showDiplomacy();
     }
-    private void loadSave1() {
-
+    private void save1() {
+        saveGameToFile("save1.json");
     }
-    private void loadSave2() {
-
+    private void save2() {
+        saveGameToFile("save2.json");
     }
-    private void loadSave3() {
-
+    private void save3() {
+        saveGameToFile("save3.json");
     }
-    private void loadSave4() {
-
+    private void save4() {
+        saveGameToFile("save4.json");
     }
 }
