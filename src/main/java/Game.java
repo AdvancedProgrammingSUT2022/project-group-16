@@ -377,13 +377,6 @@ public class Game extends Application {
             if (Integer.parseInt(turn.getText()) % 5 == 0) //5 turn == 1 year
                 updateYear();
         }
-
-        // debug
-        System.out.println("-------");
-        System.out.println(gameController.getTileByXY(2, 5));
-        System.out.println(gameController.getPlayers().get(0).getTileByXY(2, 5));
-        System.out.println(gameController.getPlayers().get(1).getTileByXY(2, 5));
-        System.out.println("-------");
     }
 
     private void saveGameToFile(String fileName)

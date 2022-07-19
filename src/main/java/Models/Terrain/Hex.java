@@ -1,6 +1,7 @@
 package Models.Terrain;
 
 import Controllers.GameController;
+import Models.City.Building;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -130,27 +131,28 @@ public class Hex{
         String url = "/photos/resources/";
         switch (this.tile.getResource().getRESOURCE_TYPE())
         {
-            case BANANA -> url += "Bananas.png";
-            case CATTLE -> url += "Cattle.png";
-            case DEER -> url += "Deer.png";
-            case SHEEP -> url += "Sheep.png";
-            case WHEAT -> url += "Wheat.png";
-            case COAL -> url += "Coal.png";
-            case HORSES -> url += "Horses.png";
-            case IRON -> url += "Iron.png";
-            case COTTON -> url += "Cotton.png";
-            case DYES -> url += "Dyes.png";
-            case FURS -> url += "Furs.png";
-            case GEMS -> url += "Gems.png";
-            case GOLD -> url += "Gold.png";
-            case INCENSE -> url += "Incense.png";
-            case IVORY -> url += "Ivory.png";
-            case MARBLE -> url += "Marble.png";
-            case SILK -> url += "Silk.png";
-            case SILVER -> url += "Silver.png";
-            case SUGAR -> url += "Sugar.png";
+            case BANANA -> url += "Bananas";
+            case CATTLE -> url += "Cattle";
+            case DEER -> url += "Deer";
+            case SHEEP -> url += "Sheep";
+            case WHEAT -> url += "Wheat";
+            case COAL -> url += "Coal";
+            case HORSES -> url += "Horses";
+            case IRON -> url += "Iron";
+            case COTTON -> url += "Cotton";
+            case DYES -> url += "Dyes";
+            case FURS -> url += "Furs";
+            case GEMS -> url += "Gems";
+            case GOLD -> url += "Gold";
+            case INCENSE -> url += "Incense";
+            case IVORY -> url += "Ivory";
+            case MARBLE -> url += "Marble";
+            case SILK -> url += "Silk";
+            case SILVER -> url += "Silver";
+            case SUGAR -> url += "Sugar";
         }
-        setImage(url, 15, 45, 30, 30);
+        url += ".png";
+        setImage(url, 0, 50, 30, 30);
     }
 
     private void setCUnits()
@@ -193,10 +195,9 @@ public class Hex{
                     case TANK -> url += "tank.png";
                 }
             }
-            setImage(url, 30 - i, 0 - i, 60, 60);
+            setImage(url, 40, 0, 60, 60);
             i += 5;
         }
-
     }
 
     private void setNCUnits()
@@ -213,7 +214,7 @@ public class Hex{
             else if (nonCombatUnit instanceof Settler)
                 url += "settler.png";
 
-            setImage(url, 50 -i , 50 - i, 30, 30);
+            setImage(url, 60 , 60, 30, 30);
             i += 5;
         }
     }
@@ -280,12 +281,83 @@ public class Hex{
 
     private void setBuildings()
     {
+        if(tileState.equals(TileState.FOG_OF_WAR))
+            return;
 
+        for (City city : gameController.getPlayerTurn().getCities())
+            for (Building building : city.getBuildings())
+                if(building.getTile().getPosition().equals(tile.getPosition()))
+                {
+                    String url = "/photos/Buildings/";
+
+                    switch (building.getBuildingType())
+                    {
+                       case BARRACKS -> url += "barracks";
+                       case GRANARY -> url += "granary";
+                       case LIBRARY -> url += "library";
+                       case MONUMENT -> url += "monument";
+                       case WALLS -> url += "walls";
+                       case WATER_MILL -> url += "watermill";
+                       case ARMORY -> url += "armory";
+                       case BURIAL_TOMB -> url += "burialtomb";
+                       case CIRCUS -> url += "circus";
+                       case COLOSSEUM -> url += "colosseum";
+                       case COURTHOUSE -> url += "courthouse";
+                       case STABLE -> url += "stable";
+                       case TEMPLE -> url += "temple";
+                       case CASTLE -> url += "castle";
+                       case FORGE -> url += "forge";
+                       case GARDEN -> url += "garden";
+                       case MARKET -> url += "market";
+                       case MINT -> url += "mint";
+                       case PALACE -> url += "palace";
+                       case MONASTERY -> url += "monastery";
+                       case UNIVERSITY -> url += "university";
+                       case WORKSHOP -> url += "workshop";
+                       case BANK -> url += "bank";
+                       case MILITARY_ACADEMY -> url += "militaryacademy";
+                       case MUSEUM -> url += "museum";
+                       case OPERA_HOUSE -> url += "operahouse";
+                       case PUBLIC_SCHOOL -> url += "publicschool";
+                       case SATRAPS_COURT -> url += "satrapscourt";
+                       case THEATER -> url += "theatre";
+                       case WINDMILL -> url += "windmill";
+                       case ARSENAL -> url += "arsenal";
+                       case BROADCAST_TOWER -> url += "broadcasttower";
+                       case FACTORY -> url += "factory";
+                       case HOSPITAL -> url += "hospital";
+                       case MILITARY_BASE -> url += "militarybase";
+                       case STOCK_EXCHANGE -> url += "stockexchange";
+                       default -> {throw new RuntimeException("Unknown building type");}
+                   }
+                    url += ".png";
+
+                    setImage(url, 30, 50, 40, 40);
+                    return;
+                }
     }
 
     private void setImprovements()
     {
+        if(tileState.equals(TileState.FOG_OF_WAR) || tile.getImprovement() == null || tile.getImprovement().equals(Improvement.NONE))
+            return;
 
+        String url = "/photos/Improvements/";
+        switch (tile.getImprovement())
+        {
+            case CAMP -> url += "Camp";
+            case FARM -> url += "Farm";
+            case MINE -> url += "Mine";
+            case LUMBER_MILL -> url += "LumberMill";
+            case TRADING_POST -> url += "TradingPost";
+            case PASTURE -> url += "Pasture";
+            case PLANTATION -> url += "Plantation";
+            case QUARRY -> url += "Quarry";
+            case FACTORY -> url += "Manufactory";
+            default -> {throw new RuntimeException("Unknown improvement type");}
+        }
+        url += ".png";
+        setImage(url, 0, 0, 20, 20);
     }
 
     private void setFeatureBackground() {
@@ -299,7 +371,7 @@ public class Hex{
             case OASIS -> url = "/photos/features/Oasis.png";
             case ICE -> url = "/photos/features/Ice.png";
         }
-        setImage(url,  15, 5, 30, 30 );
+        setImage(url,  10, 10, 30, 30 );
     }
 
     public void setTileState(TileState tileState) {
