@@ -20,4 +20,20 @@ public class LoadGame extends Application {
         MainMenu mainMenu = new MainMenu();
         mainMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
+
+    public void loadAutoSave(MouseEvent mouseEvent) {
+
+    }
+    public void loadSave1(MouseEvent mouseEvent) {
+
+    }
+    public void loadSave2(MouseEvent mouseEvent) {
+
+    }
+    public void loadSave3(MouseEvent mouseEvent) {
+
+    }
+    public void loadSave4(MouseEvent mouseEvent) {
+
+    }
 }
