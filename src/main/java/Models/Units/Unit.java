@@ -24,6 +24,7 @@ public abstract class Unit extends Construction
 	private int MP; //copy of movement but does not change;
 	private int movementPoints;
 	transient private Tile tile;
+	public Position lastPositionForSave;
 	public final int MAX_HEALTH = 10;
 	private int health = MAX_HEALTH;
 	private int speed;

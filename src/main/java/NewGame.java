@@ -35,7 +35,7 @@ public class NewGame extends Application {
     public static ArrayList<Player> players = new ArrayList<>();
 
     // newGame, autosave, save1, save2, save3, save4
-    public static String newGameMode = "autosave";
+    public static String newGameMode = "newGame";
 
     private void makeButtons() {
         for(int i = 0; i < 10; i++) {
