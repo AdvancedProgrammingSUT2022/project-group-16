@@ -213,6 +213,62 @@ public class Hex{
             i += 5;
         }
     }
+    private void setEnemyUnitsBorder()
+    {
+        if(tileState.equals(TileState.FOG_OF_WAR) || tile.getCombatUnitInTile() == null || gameController.getPlayerTurn().getUnits().contains(tile.getCombatUnitInTile()))
+            return;
+
+        ArrayList<Tile> adjacentTiles = gameController.getPlayerTurn().getAdjacentTiles(tile, 1);
+        for (Tile adjacentTile : adjacentTiles)
+        {
+            if(adjacentTile.getPosition().Q == tile.getPosition().Q && adjacentTile.getPosition().R == tile.getPosition().R - 1)
+            {
+                // north neighbor
+                String url = "/photos/Tiles/enemyBorder0.png";
+                setImage(url, -8,  -8, 106, 106);
+            }
+            else if(adjacentTile.getPosition().Q == tile.getPosition().Q && adjacentTile.getPosition().R == tile.getPosition().R + 1)
+            {
+                // south neighbor
+                String url = "/photos/Tiles/enemyBorder3.png";
+                setImage(url, -8,  -8, 106, 106);
+            }
+            else if(adjacentTile.getPosition().Q == tile.getPosition().Q - 1 && adjacentTile.getPosition().R == tile.getPosition().R)
+            {
+                // north-west neighbor
+                String url = "/photos/Tiles/enemyBorder1.png";
+                setImage(url, -8,  -8, 106, 106);
+            }
+            else if(adjacentTile.getPosition().Q == tile.getPosition().Q + 1 && adjacentTile.getPosition().R == tile.getPosition().R)
+            {
+                // south-east neighbor
+                String url = "/photos/Tiles/enemyBorder4.png";
+                setImage(url, -8,  -8, 106, 106);
+            }
+            else if(adjacentTile.getPosition().Q == tile.getPosition().Q + 1 && adjacentTile.getPosition().S == tile.getPosition().S)
+            {
+                // north-east neighbor
+                String url = "/photos/Tiles/enemyBorder5.png";
+                setImage(url, -8,  -8, 106, 106);
+            }
+            else if(adjacentTile.getPosition().Q == tile.getPosition().Q - 1 && adjacentTile.getPosition().S == tile.getPosition().S)
+            {
+                // south-west neighbor
+                String url = "/photos/Tiles/enemyBorder2.png";
+                setImage(url, -8,  -8, 106, 106);
+            }
+        }
+    }
+
+    private void setBuildings()
+    {
+
+    }
+
+    private void setImprovements()
+    {
+
+    }
 
     private void setFeatureBackground() {
         if(tile.getTileFeature() == null || tile.getTileFeature().equals(TileFeature.NONE) || this.tileState.equals(TileState.FOG_OF_WAR)) return;
