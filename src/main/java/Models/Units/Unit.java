@@ -15,6 +15,9 @@ import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Worker;
+import enums.gameCommands.unitCommands;
+import enums.gameEnum;
+
 import java.util.ArrayList;
 
 public abstract class Unit extends Construction
@@ -202,13 +205,17 @@ public abstract class Unit extends Construction
 		commands.remove(i);
 	}
 
+
 	public String move(Tile destination){
 		Player player = destination.GetTileRuler();
 		//declare war:
 		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()) &&
-				!this.getRulerPlayer().getRelationStates().get(player.getCivilization()).equals(RelationState.ENEMY)) return "not your tile";
-
-		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization())) return "not your civilization";
+				!this.getRulerPlayer().getRelationStates().get(player.getCivilization()).equals(RelationState.ENEMY))
+			return gameEnum.notYourTile.regex;
+//
+//		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()))
+//			return gameEnum.notYourCivilization.regex;
+		//TODO: is this needed?
 
 		this.destination = destination;
 		FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
@@ -253,7 +260,7 @@ public abstract class Unit extends Construction
 		//TODO check for railroad penalty
 		this.setTile(nextTile);
 		this.getMoves().remove(0);
-		return null;
+		return unitCommands.moveSuccessfull.regex;
 	}
 
 	private void getRuinBonus() {

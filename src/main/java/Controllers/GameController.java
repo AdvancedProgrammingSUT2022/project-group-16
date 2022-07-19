@@ -46,7 +46,7 @@ public class GameController implements Serializable
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
-	private int year = 2000;
+	private int yearCounter = 2000;
 
 	public int getMAP_SIZE() {
 		return MAP_SIZE;
@@ -131,6 +131,8 @@ public class GameController implements Serializable
 		if(players.indexOf(playerTurn) == 0)
 		{
 			turnCounter++;
+			if (turnCounter % 5 == 0)
+				yearCounter++;
 			updateFortifyTilHeal();
 			updateCityConstructions();
 		}
@@ -1055,10 +1057,10 @@ public class GameController implements Serializable
 	}
 
 	public int getYear() {
-		return year;
+		return yearCounter;
 	}
-	public void setYear(int year) {
-		this.year = year;
+	public void setYear(int yearCounter) {
+		this.yearCounter = yearCounter;
 	}
 	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{
@@ -1438,8 +1440,7 @@ public class GameController implements Serializable
 					return mainCommands.unitLimit.regex;
 
 				// move unit
-				unitToMove.move(destinationTile);
-				return unitCommands.moveSuccessfull.regex;
+				return unitToMove.move(destinationTile);
 			}
 		}
 		return gameEnum.nonSelect.regex;
