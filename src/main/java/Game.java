@@ -173,6 +173,7 @@ public class Game extends Application {
     }
     private void loadGame()
     {
+
         GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
         gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
         gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());

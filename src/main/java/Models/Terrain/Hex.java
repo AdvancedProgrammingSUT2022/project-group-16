@@ -13,31 +13,21 @@ import Models.Units.NonCombatUnits.Settler;
 import Models.Units.NonCombatUnits.Worker;
 import Models.Units.Unit;
 import enums.gameCommands.infoCommands;
+import enums.gameCommands.selectCommands;
 import enums.gameCommands.unitCommands;
 import enums.gameEnum;
 import javafx.animation.FadeTransition;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.media.AudioClip;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Timer;
 import java.util.regex.Matcher;
 
 public class Hex{
@@ -67,6 +57,7 @@ public class Hex{
         pane.setPrefHeight(90);
         pane.setLayoutX(position.X);
         pane.setLayoutY(position.Y);
+
     }
     public static void setPane(Pane pane){
         parent = pane;
@@ -295,7 +286,7 @@ public class Hex{
             isBannerOpen = true;
             cityBanner(hasCity());
         }
-        else if(!isBannerOpen){
+        else if(!isBannerOpen && !gameController.getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR)){
             isBannerOpen = true;
             emptyTilePanel();
         }
@@ -908,6 +899,8 @@ public class Hex{
         list.getChildren().add(photos);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(50);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+
+        //lock and unlock citizens to tile
         addLabelToPane(list, 400, 4, null, "unEmployed citizens");
         list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
             unEmployedCitizensPanel(city);
@@ -917,6 +910,51 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
             employedCitizensPanel(city);
             list.setDisable(true);
+        });
+
+        //purchase tile
+        addLabelToPane(list, 400, 44, null, "purchase tile");
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            purchaseTilePanel(city);
+            list.setDisable(true);
+        });
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
+        parent.getChildren().add(list);
+    }
+    private void purchaseTilePanel(City city) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 500, 300, 450, 170);
+        VBox box = new VBox();
+        list.getChildren().add(box);
+        setCoordinatesBox(list, box, 130, 25);
+        box.setSpacing(5);
+        box.setAlignment(Pos.CENTER);
+        addLabelToBox("you can purchase tile here", box);
+        addLabelToBox("your gold: " + city.getRulerPlayer().getGold(), box);
+        addLabelToBox("enter position of tile here: ", box);
+        TextField textField = new TextField();
+        box.getChildren().add(textField);
+        textField.setOnKeyPressed(keyEvent -> {
+            String keyName = keyEvent.getCode().getName();
+            if(keyName.equals("Enter")) {
+                Matcher matcher = selectCommands.compareRegex(textField.getText(), selectCommands.buyTile);
+                gameController.getPlayerTurn().setSelectedCity(city);
+                String result = gameController.buyTile(matcher);
+                if(box.getChildren().size() == 4)
+                    addLabelToBox(result, box);
+                else {
+                    box.getChildren().remove(box.getChildren().size() - 1);
+                    addLabelToBox(result, box);
+                }
+                if(result.equals(gameEnum.buyTile.regex)) {
+                    parent.getChildren().remove(list);
+                    parent.getChildren().remove(parent.getChildren().size() - 1);
+                    cityPanel(city);
+                }
+                textField.setText(null);
+            }
         });
         list.getChildren().add(exitButtonStyle(list));
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
@@ -999,6 +1037,8 @@ public class Hex{
         parent.getChildren().add(list);
     }
     private ImageView exitButtonStyle(Pane list) {
+
+
         ImageView exitButton = new ImageView();
         exitButton.setOnMouseMoved(mouseEvent -> {
             exitButton.setFitHeight(28);
@@ -1009,6 +1049,7 @@ public class Hex{
             exitButton.setFitWidth(25);
         });
         exitButton.setOnMousePressed(mouseEvent -> {
+
             isCityPanelOpen = false;
             isCUnitPanelOpen = false;
             isNCUnitPanelOpen = false;
@@ -1121,3 +1162,4 @@ public class Hex{
         list.getChildren().get(list.getChildren().indexOf(box)).setLayoutY(y);
     }
 }
+
