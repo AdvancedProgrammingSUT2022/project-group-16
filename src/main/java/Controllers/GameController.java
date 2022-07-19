@@ -1435,7 +1435,7 @@ public class GameController implements Serializable
 					return mainCommands.invalidCommand.regex;
 				if((unitToMove instanceof CombatUnit && destinationTile.getCombatUnitInTile() != null) ||
 						(unitToMove instanceof NonCombatUnit && destinationTile.getNonCombatUnitInTile() != null))
-					return mainCommands.invalidCommand.regex;
+					return mainCommands.unitLimit.regex;
 
 				// move unit
 				unitToMove.move(destinationTile);
@@ -2199,7 +2199,7 @@ public class GameController implements Serializable
 				return unitCommands.notYours.regex;
 			else
 			{
-				if(containTypeMid(type))
+				if(containTypeMid(type) != null)
 				{
 					if (playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
 						return gameEnum.notEnoughGold.regex;
@@ -2207,7 +2207,7 @@ public class GameController implements Serializable
 						return gameEnum.noEmptyTile.regex;
 					return playerTurn.getSelectedCity().construct(new MidRange(), this);
 				}
-				else if(containTypeLong(type))
+				else if(containTypeLong(type) != null)
 				{
 					if (playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
 						return gameEnum.notEnoughGold.regex;
@@ -2279,21 +2279,33 @@ public class GameController implements Serializable
 			return playerTurn.getSelectedCity().purchaseTile(tile);
 		return gameEnum.nonSelect.regex;
 	}
-	public boolean containTypeMid(String type)
+	public MidRangeType containTypeMid(String type)
 	{
 		for(MidRangeType midRangeType : MidRangeType.values())
 			if(midRangeType.name().equals(type))
-				return true;
-		return false;
+				return midRangeType;
+		return null;
 	}
-	public boolean containTypeLong(String type)
+	public BuildingType containTypeBuilding(String type)
+	{
+		for(BuildingType buildingType : BuildingType.values())
+			if(buildingType.name().equals(type))
+				return buildingType;
+		return null;
+	}
+	public LongRangeType containTypeLong(String type)
 	{
 		for(LongRangeType longRangeType : LongRangeType.values())
 			if(longRangeType.name().equals(type))
-				return true;
-		return false;
+				return longRangeType;
+		return null;
 	}
-	public String buyBuilding(BuildingType buildingType){
+	public String buyBuilding(String type) {
+		if (containTypeBuilding(type) == null)
+			return gameEnum.invalidCommand.regex;
+		BuildingType buildingType = containTypeBuilding(type);
+		if (!(buildingRequiredTech(buildingType) && buildingRequiredBuilding(buildingType)))
+			return mainCommands.requiredTechAndBuild.regex;
 		if(playerTurn.getGold() < buildingType.cost)
 			return gameEnum.notEnoughGold.regex;
 		else if(playerTurn.getSelectedCity().doesCityHaveBuilding(buildingType))
@@ -2306,16 +2318,20 @@ public class GameController implements Serializable
 
 	public String buyUnit(String type)
 	{
-		if(containTypeMid(type))
+		if(containTypeMid(type) != null)
 		{
-			if(playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
+			if(!validMidRange(containTypeMid(type)))
+				return mainCommands.requiredTech.regex;
+			else if(playerTurn.getGold() < MidRangeType.valueOf(type).getCost())
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 				return gameEnum.noEmptyTile.regex;
 			return playerTurn.getSelectedCity().buyUnit(new MidRange(playerTurn, MidRangeType.valueOf(type), playerTurn.getSelectedCity().findTileWithNoCUnit()));
 		}
-		else if(containTypeLong(type))
+		else if(containTypeLong(type) != null)
 		{
+			if(!validLongRange(containTypeLong(type)))
+				return mainCommands.requiredTech.regex;
 			if(playerTurn.getGold() < LongRangeType.valueOf(type).getCost())
 				return gameEnum.notEnoughGold.regex;
 			else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
@@ -2339,6 +2355,20 @@ public class GameController implements Serializable
 			return playerTurn.getSelectedCity().buyUnit(new Worker(playerTurn, playerTurn.getSelectedCity().findTileWithNoNCUnit()));
 		}
 		return gameEnum.wrongName.regex;
+	}
+	private boolean buildingRequiredBuilding(BuildingType type)
+	{
+		if (type.requiredBuilding == null)
+			return true;
+		for (Building building : playerTurn.getSelectedCity().getBuildings())
+			if (building.getBuildingType() == type)
+				return true;
+		return false;
+	}
+	private boolean buildingRequiredTech(BuildingType type)
+	{
+		return (type.requiredTechnology == null ||
+				(type.requiredTechnology != null && playerTurn.getTechnologies().contains(type.requiredTechnology)));
 	}
 	public boolean validMidRange(MidRangeType type)
 	{

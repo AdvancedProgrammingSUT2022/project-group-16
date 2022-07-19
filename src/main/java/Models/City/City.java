@@ -13,6 +13,7 @@ import Models.Units.Unit;
 import Models.Units.UnitState;
 import com.sun.nio.sctp.Notification;
 import enums.gameEnum;
+import enums.mainCommands;
 
 import java.util.ArrayList;
 
@@ -435,12 +436,12 @@ public class City
 		if(construction.getTurnTillBuild() == 0)
 		{
 			Tile destination;
-			if(gameController.containTypeMid(currentConstruction.toString())) {
+			if(gameController.containTypeMid(currentConstruction.toString()) != null) {
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
 				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
 			}
-			else if(gameController.containTypeLong(currentConstruction.toString())) {
+			else if(gameController.containTypeLong(currentConstruction.toString()) != null) {
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
 				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
@@ -492,7 +493,7 @@ public class City
 		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - building.getBuildingType().cost);
 		buildings.add(building);
 		building.setCity(this);
-		return null;
+		return mainCommands.buildingBuilt.regex;
 	}
 
 	public String buyUnit(Unit unit){
