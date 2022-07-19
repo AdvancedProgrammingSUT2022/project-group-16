@@ -6,12 +6,9 @@ import Models.City.CityState;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
-import Models.Resources.BonusResource;
-import Models.Resources.Resource;
-import Models.Resources.ResourceType;
+import Models.Resources.*;
 import Models.City.Construction;
 import Models.Player.*;
-import Models.Resources.TradeRequest;
 import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
@@ -1074,7 +1071,7 @@ public class Game extends Application {
             selectedCoins = number.get();
             if(type.equals("buy"))
                 player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,String.format("%.0f", selectedCoins), selectedResource.getRESOURCE_TYPE().name()));
-            else
+            else if(type.equals("sell"))
                 player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,selectedResource.getRESOURCE_TYPE().name(), String.format("%.0f", selectedCoins)));
             selectedResource = null;
             selectedCoins = 0.0;
@@ -1689,10 +1686,10 @@ public class Game extends Application {
         panelsPaneStyle(list, 1040, 500, false);
         list.setLayoutX(100);
         list.setLayoutY(110);
-        VBox civilizations = new VBox(), names = new VBox(), rulers = new VBox(), capital = new VBox(),
-                trade = new VBox(), chat = new VBox();
-        list.getChildren().addAll(civilizations, names, rulers, capital, trade, chat);
-        for(int i = 0; i < 6; i++) {
+        VBox civilizations = new VBox(), names = new VBox(), rulers = new VBox(), relationState = new VBox(),
+                trade = new VBox(), chat = new VBox(), declareWar = new VBox(), makePeace = new VBox();
+        list.getChildren().addAll(civilizations, names, rulers, relationState, trade, chat, declareWar, makePeace);
+        for(int i = 0; i < 8; i++) {
             ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setSpacing(5);
             ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setAlignment(Pos.CENTER);
         }
@@ -1706,7 +1703,9 @@ public class Game extends Application {
             addLabelToBox("civilization", civilizations);
             addLabelToBox("leader name" , names);
             addLabelToBox("ruler name" , rulers);
-            addLabelToBox("capital", capital);
+            addLabelToBox("declare war" , declareWar);
+            addLabelToBox("peace" , makePeace);
+            addLabelToBox("relation", relationState);
             addLabelToBox("trade", trade);
             addLabelToBox("chat", chat);
         }
@@ -1714,18 +1713,30 @@ public class Game extends Application {
             addLabelToBox(player.getCivilization().name(), civilizations);
             addLabelToBox(player.getCivilization().leaderName, names);
             addLabelToBox(player.getUsername(), rulers);
-            if(player.getCities().size() == 0)
-                addLabelToBox("-", capital);
-            else
-                addLabelToBox(player.getCurrentCapitalCity().getName(), capital);
-            trade.getChildren().add(makeButton("trade"));
-            trade.getChildren().get(trade.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+            declareWar.getChildren().add(makeButton("war"));
+            declareWar.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent mouseEvent) {
-                    pane.getChildren().add(tradePanel(player));
-                    for (int i = 0; i < pane.getChildren().size() - 1; i++)
-                        pane.getChildren().get(i).setDisable(true);
+                    player.getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.ENEMY);
+                    gameController.getPlayerTurn().getRelationStates().replace(player.getCivilization(), RelationState.ENEMY);
                 }
+            });
+            makePeace.getChildren().add(makeButton("peace"));
+            makePeace.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,"peace", "peace"));
+                }
+            });
+
+            addLabelToBox(player.getRelationStates().
+                    get(gameController.getPlayerTurn().getCivilization()).name(), relationState);
+            trade.getChildren().add(makeButton("trade"));
+            trade.getChildren().get(trade.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                pane.getChildren().add(tradePanel(player));
+                for (int i = 0; i < pane.getChildren().size() - 1; i++)
+                    pane.getChildren().get(i).setDisable(true);
             });
             chat.getChildren().add(makeButton("chat"));
             chat.getChildren().get(chat.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
@@ -1743,9 +1754,11 @@ public class Game extends Application {
         setCoordinatesBox(list, civilizations, 25, 60);
         setCoordinatesBox(list, names, 230, 60);
         setCoordinatesBox(list, rulers, 400, 60);
-        setCoordinatesBox(list, capital, 575, 60);
-        setCoordinatesBox(list, trade, 750, 60);
-        setCoordinatesBox(list, chat, 900, 60);
+        setCoordinatesBox(list, relationState, 535, 60);
+        setCoordinatesBox(list, declareWar, 670, 60);
+        setCoordinatesBox(list, makePeace, 780, 60);
+        setCoordinatesBox(list, trade, 870, 60);
+        setCoordinatesBox(list, chat, 940, 60);
 
         //requests
         VBox requests = new VBox();
@@ -1755,59 +1768,62 @@ public class Game extends Application {
         requests.setAlignment(Pos.TOP_LEFT);
         for (TradeRequest request : gameController.getPlayerTurn().getTradeRequests()) {
             Label label = new Label();
-            label.setText(request.getSender().getUsername() + ": \nyou'll get: " + request.getOfferToSell() +
-                    ": \nyou'll sell: " + request.getWantToBuy());
+            if (request.getOfferToSell().equals("peace")) {
+                label.setText(request.getSender().getUsername() + " want's to make peace:)");
+            }
+            else {
+                label.setText(request.getSender().getUsername() + ": \n    you'll get: " + request.getOfferToSell() +
+                        ": \n    you'll sell: " + request.getWantToBuy());
+            }
             labelStyle(label);
             requests.getChildren().add(label);
-            requests.getChildren().get(requests.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent mouseEvent) {
-                    Pane yesOrNo = new Pane();
-                    panelsPaneStyle(yesOrNo, 200, 100, false);
-                    pane.getChildren().add(yesOrNo);
-                    setCoordinates(pane, 540, 310);
-                    Button yes = new Button();
-                    yesOrNo.getChildren().add(yes);
-                    setCoordinates(yesOrNo, 25, 30);
-                    yes.setText("yes");
-                    yes.setStyle("-fx-background-color: green;" +
-                            "-fx-font-size: 17;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-pref-width: 50;" +
-                            "-fx-pref-height: 30");
-                    yes.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent mouseEvent) {
-                            pane.getChildren().remove(yesOrNo);
-                            requests.getChildren().remove(label);
-                            gameController.getPlayerTurn().getTradeRequests().remove(request);
-                            list.getChildren().remove(requests);
-                            list.getChildren().add(requests);
-                            setCoordinates(list, 15, 250);
-                            gameController.getPlayerTurn().checkRequests(request);
-                            setInformationStyles();
-                            pane.requestFocus();
-                        }
-                    });
-                    Button no = new Button();
-                    yesOrNo.getChildren().add(no);
-                    setCoordinates(yesOrNo, 125, 30);
-                    no.setText("no");
-                    no.setStyle("-fx-background-color: red;" +
-                            "-fx-font-size: 17;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-pref-width: 50;" +
-                            "-fx-pref-height: 30");
-                    no.setOnMouseClicked(mouseEvent1 -> {
-                        pane.getChildren().remove(yesOrNo);
-                        requests.getChildren().remove(label);
-                        gameController.getPlayerTurn().getTradeRequests().remove(request);
-                        list.getChildren().remove(requests);
-                        list.getChildren().add(requests);
-                        setCoordinates(list, 15, 250);
-                    });
-                }
+            requests.getChildren().get(requests.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                Pane yesOrNo = new Pane();
+                panelsPaneStyle(yesOrNo, 200, 100, false);
+                pane.getChildren().add(yesOrNo);
+                setCoordinates(pane, 540, 310);
+                Button yes = new Button();
+                yesOrNo.getChildren().add(yes);
+                setCoordinates(yesOrNo, 25, 30);
+                yes.setText("yes");
+                yes.setStyle("-fx-background-color: green;" +
+                        "-fx-font-size: 17;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-pref-width: 50;" +
+                        "-fx-pref-height: 30");
+                yes.setOnMouseClicked(mouseEvent12 -> {
+                    pane.getChildren().remove(yesOrNo);
+                    requests.getChildren().remove(label);
+                    gameController.getPlayerTurn().getTradeRequests().remove(request);
+                    list.getChildren().remove(requests);
+                    list.getChildren().add(requests);
+                    setCoordinates(list, 15, 250);
+                    gameController.getPlayerTurn().checkRequests(request);
+                    list.getChildren().remove(relationState);
+                    list.getChildren().add(relationState);
+                    setCoordinatesBox(list, relationState, 535, 60);
+                    setInformationStyles();
+                    pane.requestFocus();
+                });
+                Button no = new Button();
+                yesOrNo.getChildren().add(no);
+                setCoordinates(yesOrNo, 125, 30);
+                no.setText("no");
+                no.setStyle("-fx-background-color: red;" +
+                        "-fx-font-size: 17;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-pref-width: 50;" +
+                        "-fx-pref-height: 30");
+                no.setOnMouseClicked(mouseEvent1 -> {
+                    pane.getChildren().remove(yesOrNo);
+                    requests.getChildren().remove(label);
+                    gameController.getPlayerTurn().getTradeRequests().remove(request);
+                    list.getChildren().remove(requests);
+                    list.getChildren().add(requests);
+                    setCoordinates(list, 15, 250);
+                });
             });
+
         }
         list.getChildren().add(exitButtonStyle());
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
@@ -1884,15 +1900,18 @@ public class Game extends Application {
         pane.getChildren().add(list);
         return 0;
     }
-    private Pane buyResource(String type, Player player) {
-        gameController.getPlayers().get(1).getResources().add(new BonusResource(ResourceType.BANANA));
-
+    private Pane resourcePanel(String type, Player player) {
+        gameController.getPlayers().get(1).getResources().add(new LuxuryResource(ResourceType.IVORY));
         Pane list = new Pane();
         panelsPaneStyle(list, 500, 350, false);
 
         list.setLayoutX(500);
         list.setLayoutY(250);
-        ArrayList<Resource> resources = player.getResources();
+        ArrayList<Resource> resources;
+        if (type.equals("buy"))
+            resources = player.getResources();
+        else
+            resources = gameController.getPlayerTurn().getResources();
         int flag = 0;
         while (flag < resources.size()){
             VBox names = new VBox();
@@ -1931,14 +1950,14 @@ public class Game extends Application {
         setCoordinates(list, 170, 65);
         addLabelToPane("buy resource", list);
         list.getChildren().get(list.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
-            pane.getChildren().add(buyResource("buy", player));
+            pane.getChildren().add(resourcePanel("buy", player));
             for (int i = 0; i < pane.getChildren().size() - 1; i++)
                 pane.getChildren().get(i).setDisable(true);
         });
         setCoordinates(list, 100, 100);
         addLabelToPane("sell resource", list);
         list.getChildren().get(list.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
-            pane.getChildren().add(buyResource("sell", player));
+            pane.getChildren().add(resourcePanel("sell", player));
             for (int i = 0; i < pane.getChildren().size() - 1; i++)
                 pane.getChildren().get(i).setDisable(true);
         });

@@ -413,25 +413,32 @@ public class Player extends User
 	public void checkRequests(TradeRequest request) {
 		int coins;
 		Resource resource;
-		boolean willGetCoin = false;
 		if(request.getOfferToSell().charAt(0) > 48 && request.getOfferToSell().charAt(0) < 57) {
 			coins = Integer.parseInt(request.getOfferToSell());
 			resource = getResourceByName(request.getWantToBuy());
-			willGetCoin = true;
+			gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() + coins);
+			request.getSender().setGold(request.getSender().getGold() - coins);
+			request.getSender().addResource(resource);
+			//after trade, they become friends
+			gameController.getPlayerTurn().getRelationStates().replace(request.getSender().getCivilization(), RelationState.FRIEND);
+			request.getSender().getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.FRIEND);
+		}
+		else if(request.getOfferToSell().equals("peace")) {
+			relationStates.replace(request.getSender().getCivilization(), RelationState.NEUTRAL);
+			request.getSender().getRelationStates().replace(this.getCivilization(), RelationState.NEUTRAL);
+
 		}
 		else {
 			coins = Integer.parseInt(request.getWantToBuy());
 			resource = getResourceByName(request.getOfferToSell());
-		}
-		if (willGetCoin) {
-			gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() + coins);
-			request.getSender().setGold(request.getSender().getGold() - coins);
-			request.getSender().addResource(resource);
-		}
-		else if (coins <= gameController.getPlayerTurn().getGold()) {
+			if (coins <= gameController.getPlayerTurn().getGold()) {
 				gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() - coins);
 				gameController.getPlayerTurn().addResource(resource);
 				request.getSender().setGold(request.getSender().getGold() + coins);
+			}
+			//after trade, they become friends
+			gameController.getPlayerTurn().getRelationStates().replace(request.getSender().getCivilization(), RelationState.FRIEND);
+			request.getSender().getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.FRIEND);
 		}
 	}
 	public void setGameController(GameController gameController)

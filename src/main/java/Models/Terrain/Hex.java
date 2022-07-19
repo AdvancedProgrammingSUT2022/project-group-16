@@ -778,15 +778,6 @@ public class Hex{
             addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/build.png", "build");
             actions.getChildren().get(5).setOnMousePressed(mouseEvent -> {
                 buildPanel();
-
-//                String result = gameController.found();
-//                if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
-//                    list.getChildren().remove(list.getChildren().size() - 1);
-//                addLabelToPane(list, 300, 200, null, result);
-//                if (result.equals(unitCommands.cityBuilt.regex)) {
-//                    removeAllPanels();
-//                    parent.getChildren().remove(list);
-//                }
             });
         }
 
