@@ -69,8 +69,11 @@ public class Hex{
         setRiverBorders();
         setCitiesBorder();
         setResources();
+        setBuildings();
+        setImprovements();
         setCUnits();
         setNCUnits();
+        setEnemyUnitsBorder();
     }
     private ImageView setImage(String url, int x, int y ,int width, int height){
         Image image = new Image(this.getClass().getResource(url).toExternalForm());
@@ -215,47 +218,61 @@ public class Hex{
     }
     private void setEnemyUnitsBorder()
     {
-        if(tileState.equals(TileState.FOG_OF_WAR) || tile.getCombatUnitInTile() == null || gameController.getPlayerTurn().getUnits().contains(tile.getCombatUnitInTile()))
+        if(tileState.equals(TileState.FOG_OF_WAR))
             return;
 
         ArrayList<Tile> adjacentTiles = gameController.getPlayerTurn().getAdjacentTiles(tile, 1);
         for (Tile adjacentTile : adjacentTiles)
         {
+            if(adjacentTile.getCombatUnitInTile() == null || gameController.getPlayerTurn().getUnits().contains(adjacentTile.getCombatUnitInTile()))
+                continue;
             if(adjacentTile.getPosition().Q == tile.getPosition().Q && adjacentTile.getPosition().R == tile.getPosition().R - 1)
             {
-                // north neighbor
-                String url = "/photos/Tiles/enemyBorder0.png";
-                setImage(url, -8,  -8, 106, 106);
+                // south neighbor
+                String url = "/photos/Tiles/enemyBorder";
+                setImage(url + "3.png", -8,  -8, 106, 106);
+                setImage(url + "2.png", -8,  -8, 106, 106);
+                setImage(url + "4.png", -8,  -8, 106, 106);
             }
             else if(adjacentTile.getPosition().Q == tile.getPosition().Q && adjacentTile.getPosition().R == tile.getPosition().R + 1)
             {
-                // south neighbor
-                String url = "/photos/Tiles/enemyBorder3.png";
-                setImage(url, -8,  -8, 106, 106);
+                // north neighbor
+                String url = "/photos/Tiles/enemyBorder";
+                setImage(url + "0.png", -8,  -8, 106, 106);
+                setImage(url + "1.png", -8,  -8, 106, 106);
+                setImage(url + "5.png", -8,  -8, 106, 106);
             }
             else if(adjacentTile.getPosition().Q == tile.getPosition().Q - 1 && adjacentTile.getPosition().R == tile.getPosition().R)
             {
-                // north-west neighbor
-                String url = "/photos/Tiles/enemyBorder1.png";
-                setImage(url, -8,  -8, 106, 106);
+                // south-east neighbor
+                String url = "/photos/Tiles/enemyBorder";
+                setImage(url + "4.png", -8,  -8, 106, 106);
+                setImage(url + "3.png", -8,  -8, 106, 106);
+                setImage(url + "5.png", -8,  -8, 106, 106);
             }
             else if(adjacentTile.getPosition().Q == tile.getPosition().Q + 1 && adjacentTile.getPosition().R == tile.getPosition().R)
             {
-                // south-east neighbor
-                String url = "/photos/Tiles/enemyBorder4.png";
-                setImage(url, -8,  -8, 106, 106);
+                // north-west neighbor
+                String url = "/photos/Tiles/enemyBorder";
+                setImage(url + "1.png", -8,  -8, 106, 106);
+                setImage(url + "0.png", -8,  -8, 106, 106);
+                setImage(url + "2.png", -8,  -8, 106, 106);
             }
             else if(adjacentTile.getPosition().Q == tile.getPosition().Q + 1 && adjacentTile.getPosition().S == tile.getPosition().S)
             {
-                // north-east neighbor
-                String url = "/photos/Tiles/enemyBorder5.png";
-                setImage(url, -8,  -8, 106, 106);
+                // south-west neighbor
+                String url = "/photos/Tiles/enemyBorder";
+                setImage(url + "2.png", -8,  -8, 106, 106);
+                setImage(url + "1.png", -8,  -8, 106, 106);
+                setImage(url + "3.png", -8,  -8, 106, 106);
             }
             else if(adjacentTile.getPosition().Q == tile.getPosition().Q - 1 && adjacentTile.getPosition().S == tile.getPosition().S)
             {
-                // south-west neighbor
-                String url = "/photos/Tiles/enemyBorder2.png";
-                setImage(url, -8,  -8, 106, 106);
+                // north-east neighbor
+                String url = "/photos/Tiles/enemyBorder";
+                setImage(url + "5.png", -8,  -8, 106, 106);
+                setImage(url + "0.png", -8,  -8, 106, 106);
+                setImage(url + "4.png", -8,  -8, 106, 106);
             }
         }
     }

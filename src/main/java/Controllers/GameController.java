@@ -1833,18 +1833,22 @@ public class GameController implements Serializable
 	}
 	public ArrayList<CombatUnit> getTileCUnits(Tile tile){
 		ArrayList<CombatUnit> answer = new ArrayList<>();
-		for (Unit unit : playerTurn.getUnits()) {
-			if(unit instanceof CombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
-				answer.add((CombatUnit) unit);
+		for (Player player : players) {
+			for (Unit unit : player.getUnits()) {
+				if(unit instanceof CombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
+					answer.add((CombatUnit) unit);
+				}
 			}
 		}
 		return answer;
 	}
 	public ArrayList<NonCombatUnit> getTileNCUnits(Tile tile){
 		ArrayList<NonCombatUnit> answer = new ArrayList<>();
-		for (Unit unit : playerTurn.getUnits()) {
-			if(unit instanceof NonCombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
-				answer.add((NonCombatUnit) unit);
+		for (Player player : players) {
+			for (Unit unit : player.getUnits()) {
+				if(unit instanceof NonCombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
+					answer.add((NonCombatUnit) unit);
+				}
 			}
 		}
 		return answer;
