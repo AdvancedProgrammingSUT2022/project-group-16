@@ -80,6 +80,7 @@ public enum gameEnum
     wrongName("wrong unit name"),
     notYourTile("not your tile"),
     notYourCivilization("not your civilization"),
+    successfulBuild("build successfully"),
     noEmptyTile("there is no empty tile"),
     noUnemployed("no unemployed citizen"),
     successfulLock("citizen locked on the tile successfully"),

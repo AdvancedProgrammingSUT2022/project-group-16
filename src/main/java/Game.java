@@ -9,7 +9,6 @@ import Models.Player.Technology;
 import Models.Resources.*;
 import Models.City.Construction;
 import Models.Player.*;
-import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
 import Models.TypeAdapters.*;
@@ -28,7 +27,6 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -297,7 +295,7 @@ public class Game extends Application {
         {
             int y = (i % 2 == 0 ? 0 : 45);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
-                hexagons[j][i] = new Hex(new Position(x, y), gameController);
+                hexagons[j][i] = new Hex(new Position(x, y), gameController, this);
                 y += 100;
             }
             x += 90;

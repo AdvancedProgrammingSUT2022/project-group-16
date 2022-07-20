@@ -2210,7 +2210,7 @@ public class GameController implements Serializable
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(new MidRange(), this);
+					return playerTurn.getSelectedCity().construct(new MidRange(containTypeMid(type)), this);
 				}
 				else if(containTypeLong(type) != null)
 				{
@@ -2218,7 +2218,7 @@ public class GameController implements Serializable
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(new LongRange(), this);
+					return playerTurn.getSelectedCity().construct(new LongRange(containTypeLong(type)), this);
 				}
 				else if(type.equals("SETTLER"))
 				{
@@ -2242,11 +2242,12 @@ public class GameController implements Serializable
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public String buildBuilding(BuildingType buildingType){
+	public String buildBuilding(BuildingType buildingType) {
 		if(playerTurn.getSelectedCity() != null)
 		{
 			Tile destination = playerTurn.getSelectedCity().getTileWithNoBuilding();
-			if(destination == null) return "no tile without building";
+			if(destination == null)
+				return "no tile without building";
 			if(!playerTurn.getCities().contains(playerTurn.getSelectedCity()))
 				return unitCommands.notYours.regex;
 			else
