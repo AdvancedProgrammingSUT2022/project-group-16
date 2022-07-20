@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Main
 {
-	static final int SERVER_PORT = 444;
+	static final int SERVER_PORT = 1111;
 	static ServerSocket serverSocket;
 
 	public static void main(String[] args) {

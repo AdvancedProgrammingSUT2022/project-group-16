@@ -71,8 +71,12 @@ public class Game extends Application {
     private boolean isCPressed = false;
     private boolean isShiftPressed = false;
     private boolean isAutoSaveOn = false;
+    private boolean isAlertTechOn = false;
+    private boolean isAlertDiplomacyOn = false;
     private Double selectedCoins = 0.0;
     private Resource selectedResource = null;
+    private final ImageView techAlert = new ImageView();
+    private final ImageView diplomacyAlert = new ImageView();
     @FXML
     public Pane pane;
     private Pane hexagonsPane;
@@ -124,8 +128,11 @@ public class Game extends Application {
                 String command = textField.getText();
                 if((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
                     gameController.increaseGold(matcher);
-                else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) //Almost done
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) {
                     gameController.increaseTurns(matcher);
+                    setInformationStyles();
+                    updateScreen();
+                }
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
                     gameController.increaseFood(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
@@ -171,7 +178,6 @@ public class Game extends Application {
     }
     private void loadGame()
     {
-
         GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
         gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
         gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
@@ -246,6 +252,19 @@ public class Game extends Application {
             showTechnologies();
             audioClip.play();
         });
+
+        try {
+            techAlert.setFitHeight(25);
+            techAlert.setFitWidth(25);
+            techAlert.setImage(new Image(String.valueOf(new
+                    URL(getClass().getResource("photos/gameIcons/alert.png").toExternalForm()))));
+            diplomacyAlert.setFitHeight(25);
+            diplomacyAlert.setFitWidth(25);
+            diplomacyAlert.setImage(new Image(String.valueOf(new
+                    URL(getClass().getResource("photos/gameIcons/alert.png").toExternalForm()))));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
         //cheatCode shortcut
 //        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
@@ -363,10 +382,26 @@ public class Game extends Application {
 //            }
 //        }
 //        playerTurnTiles.clear();
-        gameController.checkChangeTurn(); //TODO: fix bugs
+        String changeTurnResult = gameController.checkChangeTurn();
+        if (changeTurnResult != null && changeTurnResult.equals("game Ended"))
+        {
+            winPanel(gameController.getPlayers().get(0));
+        }
+        //TODO: fix bugs
         updateScreen();
-//        generateMapForPlayer(gameController.getPlayerTurn());
-//        setInformationStyles();
+        setInformationStyles();
+        if (gameController.getPlayerTurn().getResearchingTechnology() != null)
+            pane.getChildren().remove(techAlert);
+        else if (!pane.getChildren().contains(techAlert)) {
+            pane.getChildren().add(techAlert);
+            setCoordinates(pane, 50, 290);
+        }
+        if (gameController.getPlayerTurn().getTradeRequests().size() == 0)
+            pane.getChildren().remove(diplomacyAlert);
+        else if (!pane.getChildren().contains(diplomacyAlert)){
+            pane.getChildren().add(diplomacyAlert);
+            setCoordinates(pane, 1210, 335);
+        }
         if(isAutoSaveOn)
             saveGameToFile("autosave.json");
         if (gameController.getPlayerTurn() == gameController.getPlayers().get(0))
@@ -605,6 +640,20 @@ public class Game extends Application {
                 e.printStackTrace();
             }
         }
+        if (gameController.getPlayerTurn().getResearchingTechnology() == null && !isAlertTechOn) {
+            isAlertTechOn = true;
+            pane.getChildren().add(techAlert);
+            setCoordinates(pane, 50, 290);
+        }
+        else if (!isAlertTechOn)
+            pane.getChildren().remove(techAlert);
+        if (gameController.getPlayerTurn().getTradeRequests().size() != 0 && !isAlertDiplomacyOn) {
+            isAlertDiplomacyOn = true;
+            pane.getChildren().add(diplomacyAlert);
+            setCoordinates(pane, 1210, 335);
+        }
+        else if (!isAlertDiplomacyOn)
+            pane.getChildren().remove(diplomacyAlert);
     }
 
     public static void main(String[] args) {
@@ -781,6 +830,8 @@ public class Game extends Application {
             tmp.setResearchingTechnology(candidateTechs.get(number.get() - 1));
             addLabelToBox(infoCommands.choose.regex + candidateTechs.get(number.get() - 1).name() + infoCommands.successful.regex, box);
             tmp.reduceCup();
+            isAlertTechOn = false;
+            pane.getChildren().remove(techAlert);
             pane.getChildren().remove(list);
             needUpdateScience = true;
             showTechnologies();
@@ -891,6 +942,13 @@ public class Game extends Application {
         }
         list.getChildren().add(box);
         pane.getChildren().add(list);
+    }
+    private void winPanel(Player player) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 500, 500, false);
+        pane.getChildren().add(list);
+        setCoordinates(pane, 390, 85);
+        addLabelToPane(player.getUsername() + " won the game\nscore: " + player.getScore(), list);
     }
     public void showEconomics()
     {
@@ -1771,10 +1829,10 @@ public class Game extends Application {
         panelsPaneStyle(list, 1040, 500, false);
         list.setLayoutX(100);
         list.setLayoutY(110);
-        VBox civilizations = new VBox(), names = new VBox(), rulers = new VBox(), relationState = new VBox(),
+        VBox civilizations = new VBox(), score = new VBox(), names = new VBox(), rulers = new VBox(), relationState = new VBox(),
                 trade = new VBox(), chat = new VBox(), declareWar = new VBox(), makePeace = new VBox();
-        list.getChildren().addAll(civilizations, names, rulers, relationState, trade, chat, declareWar, makePeace);
-        for(int i = 0; i < 8; i++) {
+        list.getChildren().addAll(civilizations, score, names, rulers, relationState, trade, chat, declareWar, makePeace);
+        for(int i = 0; i < 9; i++) {
             ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setSpacing(5);
             ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setAlignment(Pos.CENTER);
         }
@@ -1786,6 +1844,7 @@ public class Game extends Application {
         //information
         if(players.size() != 0) {
             addLabelToBox("civilization", civilizations);
+            addLabelToBox("score", score);
             addLabelToBox("leader name" , names);
             addLabelToBox("ruler name" , rulers);
             addLabelToBox("declare war" , declareWar);
@@ -1796,6 +1855,7 @@ public class Game extends Application {
         }
         for (Player player : players) {
             addLabelToBox(player.getCivilization().name(), civilizations);
+            addLabelToBox(String.valueOf(player.getScore()), score);
             addLabelToBox(player.getCivilization().leaderName, names);
             addLabelToBox(player.getUsername(), rulers);
 
@@ -1829,6 +1889,7 @@ public class Game extends Application {
 
         //coordinates
         setCoordinatesBox(list, civilizations, 25, 60);
+        setCoordinatesBox(list, score, 135, 60);
         setCoordinatesBox(list, names, 230, 60);
         setCoordinatesBox(list, rulers, 400, 60);
         setCoordinatesBox(list, relationState, 535, 60);
@@ -1879,6 +1940,8 @@ public class Game extends Application {
                     list.getChildren().remove(relationState);
                     list.getChildren().add(relationState);
                     setCoordinatesBox(list, relationState, 535, 60);
+                    if (gameController.getPlayerTurn().getTradeRequests().size() == 0)
+                        pane.getChildren().remove(diplomacyAlert);
                     setInformationStyles();
                     pane.requestFocus();
                 });
@@ -1898,6 +1961,8 @@ public class Game extends Application {
                     list.getChildren().remove(requests);
                     list.getChildren().add(requests);
                     setCoordinates(list, 15, 250);
+                    if (gameController.getPlayerTurn().getTradeRequests().size() == 0)
+                        pane.getChildren().remove(diplomacyAlert);
                 });
             });
 

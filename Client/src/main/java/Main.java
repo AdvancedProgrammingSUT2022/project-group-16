@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Main extends Application
 {
-	static final int SERVER_PORT = 444;
+	static final int SERVER_PORT = 1111;
 	static DataInputStream dataInputStream;
 	static DataOutputStream dataOutputStream;
 	public static DateTimeFormatter timeAndDate = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -27,8 +27,7 @@ public class Main extends Application
 
 		chatServer server = new chatServer();
 		server.update();
-		AudioClip audioClip = new AudioClip(Main.class.getResource("audio/1.mp3").toExternalForm());
-		audioClip.play();
+//		audioClip.play();
 		WelcomePage welcomePage = new WelcomePage();
 		welcomePage.start(stage);
 	}

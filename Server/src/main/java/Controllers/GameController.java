@@ -78,7 +78,9 @@ public class GameController implements Serializable
 	{
 		// if there is a unit which has not used its turn, it returns the unit's name with error message //TODO: is this needed?
 		//TODO: check if unit has used its turn
-		
+
+		if (isGameEnd() != null)
+			return "game Ended";
 		changeTurn();
 		return null; //TODO: return: "turn changed successfully"
 	}
@@ -96,16 +98,16 @@ public class GameController implements Serializable
 		}
 
 		// reset all units turns. TODO: is this needed?
-		
+
 		playerTurn.setSelectedUnit(null);
 		playerTurn.setSelectedCity(null);
-		
+
 		processResearchingTechnology();
 		processFoodForChangingTurn();
 		processGoldForChangingTurn();
 		processResourcesForChangingTurn();
 		// gain production (maybe?)
-		
+
 		//happiness
 		if(playerTurn.getTotalPopulation() >= playerTurn.getMaxPopulation() + 10)
 		{
@@ -114,10 +116,10 @@ public class GameController implements Serializable
 		}
 		if(!playerTurn.getIsUnHappy() && playerTurn.getHappiness() < 0)
 			playerTurn.isUnHappy();
-		
+
 		// update cups
 		playerTurn.setCup(playerTurn.getCup() + playerTurn.incomeCup());
-		
+
 		// handle units
 		//handleUnitCommands();
 		updatePlayersUnitLocations();
@@ -126,7 +128,7 @@ public class GameController implements Serializable
 
 		// decrement researching technology turns
 		// check for city growth
-		
+
 		//TODO: check that this is not a duplicate from runGame while loop
 		if(players.indexOf(playerTurn) == 0)
 		{
@@ -208,7 +210,7 @@ public class GameController implements Serializable
 			foodYieldOfPlayerTurn += city.getFoodYield();
 		//TODO: if foodYield is negative, some citizens should starve to death :')
 		playerTurn.setFood(playerTurn.getFood() + foodYieldOfPlayerTurn);
-		
+
 		// food penalty when citizens are unhappy (our food *= 33%)
 		if(playerTurn.getHappiness() < 0 && playerTurn.getFood() > 0)
 			playerTurn.setFood((int) (playerTurn.getFood() * 0.33));
@@ -220,7 +222,7 @@ public class GameController implements Serializable
 		int goldYieldOfPlayerTurn = 0;
 		for(City city : playerTurn.getCities())
 			goldYieldOfPlayerTurn += city.getGoldYield();
-		
+
 		playerTurn.setGold(playerTurn.getGold() + goldYieldOfPlayerTurn);
 	}
 	private void processResourcesForChangingTurn()
@@ -235,7 +237,7 @@ public class GameController implements Serializable
 					continue;
 				if(!citizen.getWorkingTile().getResource().getRESOURCE_TYPE().requiredImprovement.equals(citizen.getWorkingTile().getImprovement()))
 					continue;
-				
+
 				playerTurn.addResource(citizen.getWorkingTile().getResource().clone());
 			}
 		}
@@ -281,7 +283,7 @@ public class GameController implements Serializable
 		Player tmpPlayer = new Player(Civilization.PERSIAN, "tmpPlayer", "tmpPlayer", "tmpPlayer", 0);
 		tmpPlayer.initMap();
 		tmpPlayer.getMap().replaceAll((k, v) -> TileState.VISIBLE);
-		
+
 		return MapPrinter.getMapString(tmpPlayer, this);
 	}
 	// this is called when GameController is created. this method only creates an array of Positions and fills grid with these positions
@@ -295,11 +297,11 @@ public class GameController implements Serializable
 	{
 		if(x < 0 || y < 0 || x >= MAX_GRID_LENGTH || y >= MAX_GRID_LENGTH)
 			return null;
-		
+
 		for(Position position : grid)
 			if(position.X == x && position.Y == y)
 				return position;
-		
+
 		return null;
 	}
 	private void initMap()
@@ -314,7 +316,7 @@ public class GameController implements Serializable
 	private void makeMap1()
 	{
 		map.clear();
-		
+
 		map.add(new Tile(getPosition(0, 0), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
 		map.add(new Tile(getPosition(0, 1), TileType.DESERT, TileFeature.OASIS, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
 		map.add(new Tile(getPosition(0, 2), TileType.DESERT, TileFeature.FLOOD_PLAIN, new BorderType[]{BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE, BorderType.NONE}, null));
@@ -818,7 +820,7 @@ public class GameController implements Serializable
 				if(tile.getPosition().equals(position))
 					return true;
 			}
-		
+
 		return false;
 	}
 	public Tile getTileByXY(int X, int Y)
@@ -878,7 +880,7 @@ public class GameController implements Serializable
 		if(players.size() > 0)
 			players.subList(0, players.size()).clear();
 	}
-	
+
 	private boolean existingPlayers(HashMap<String, String> players)
 	{ //TODO: probable bug
 		for(Object key : players.keySet())
@@ -897,7 +899,7 @@ public class GameController implements Serializable
 		{
 			Matcher matcher1 = gameEnum.compareRegex(command.substring(i), gameEnum.newPlayer);
 			Matcher matcher2 = gameEnum.compareRegex(command.substring(i), gameEnum.shortNewPlayer);
-			
+
 			if(matcher1 != null && !matcher1.group("username").equals(Menu.loggedInUser.getUsername()))
 			{
 				players.put(matcher1.group("number"), matcher1.group("username"));
@@ -932,7 +934,7 @@ public class GameController implements Serializable
 			return ((LongRange) unit).getType().getCombatStrength();
 		return 0;
 	}
-	
+
 	//cheat codes
 	public String increaseGold(Matcher matcher)
 	{
@@ -974,7 +976,7 @@ public class GameController implements Serializable
 		Unit unit = tile.getCombatUnitInTile();
 		if(unit == null)
 			return mainCommands.invalidCommand.regex;
-		
+
 		// increase health
 		unit.setHealth(10);
 
@@ -1003,6 +1005,7 @@ public class GameController implements Serializable
 			if(Technology.values()[i].name().toLowerCase(Locale.ROOT).equals(matcher.group("name").toLowerCase(Locale.ROOT)) &&
 					playerTurn.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies))
 			{
+				playerTurn.setScore(playerTurn.getScore() + 3 * MAP_SIZE);
 				playerTurn.addTechnology(Technology.values()[i]);
 				return matcher.group("name") + cheatCode.addSuccessful.regex;
 			}
@@ -1012,9 +1015,9 @@ public class GameController implements Serializable
 	{ //TODO: check for bugs
 		int x = Integer.parseInt(matcher.group("positionX"));
 		int y = Integer.parseInt(matcher.group("positionY"));
-		
+
 		Tile givenTile = getTileByXY(x, y);
-		
+
 		// validation
 		if(givenTile == null)
 			return mainCommands.invalidCommand.regex;
@@ -1022,34 +1025,34 @@ public class GameController implements Serializable
 		NonCombatUnit enemyNonCombatUnit = givenTile.getNonCombatUnitInTile();
 		if(enemyCombatUnit == null && enemyNonCombatUnit == null)
 			return mainCommands.invalidCommand.regex;
-		
+
 		// kill enemy unit
 		if(enemyCombatUnit != null)
 			enemyCombatUnit.getRulerPlayer().removeUnit(enemyCombatUnit);
 		if(enemyNonCombatUnit != null)
 			enemyNonCombatUnit.getRulerPlayer().removeUnit(enemyNonCombatUnit);
-		
+
 		return cheatCode.unitKilled.regex;
 	}
 	public String gainBonusResourceCheat()
 	{
 		for(int i = 0; i < 5; i++)
 			playerTurn.addResource(new BonusResource(ResourceType.values()[i + 1]));
-		
+
 		return "bonus resources added successfully";
 	}
 	public String gainStrategicResourceCheat()
 	{
 		for(int i = 0; i < 3; i++)
 			playerTurn.addResource(new StrategicResource(ResourceType.values()[i + 6]));
-		
+
 		return "strategic resources added successfully";
 	}
 	public String gainLuxuryResourceCheat()
 	{
 		for(int i = 0; i < 11; i++)
 			playerTurn.addResource(new LuxuryResource(ResourceType.values()[i + 9]));
-		
+
 		return "luxury resources added successfully";
 	}
 
@@ -1145,14 +1148,14 @@ public class GameController implements Serializable
 		}
 		return true;
 	}
-	
+
 	// this method is called every turn to update the technologyCounter of the player
 	public String processResearchingTechnology()
 	{
 		Technology researchingTechnology = playerTurn.getResearchingTechnology();
 		if(researchingTechnology == null)
 			return null;
-		
+
 		int technologyIndex = -1;
 		for(int i = 0; i < Technology.values().length; i++)
 			if(researchingTechnology.equals(Technology.values()[i]))
@@ -1165,7 +1168,7 @@ public class GameController implements Serializable
 			System.err.println("technologyIndex is -1 :(");
 			System.exit(1);
 		}
-		
+
 		playerTurn.getResearchingTechCounter()[technologyIndex]++;
 		//TODO: probably should change how many turns it takes to get the researchingTechnology
 		if(playerTurn.getResearchingTechCounter()[technologyIndex] >= researchingTechnology.cost / 10)
@@ -1747,9 +1750,9 @@ public class GameController implements Serializable
 		for(Player player : players)
 			for(City city : player.getCities()) {
 				for(Tile tile1 : city.getTerritory())
-				if (tile1.getPosition().X == x &&
-						tile1.getPosition().Y == y)
-					return true;
+					if (tile1.getPosition().X == x &&
+							tile1.getPosition().Y == y)
+						return true;
 			}
 		return false;
 	}
@@ -1779,6 +1782,7 @@ public class GameController implements Serializable
 				return unitCommands.hasCity.regex;
 			else
 			{
+				playerTurn.setScore(playerTurn.getScore() + 5 * MAP_SIZE);
 				((Settler) playerTurn.getSelectedUnit()).createCity();
 				if(playerTurn.getCities().size() != 1)
 					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
@@ -2385,14 +2389,14 @@ public class GameController implements Serializable
 		return (type.getRequiredTech() == null ||
 				(type.getRequiredTech() != null && playerTurn.getTechnologies().contains(type.getRequiredTech()))) &&
 				(type.getRequiredSource() == null ||
-				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
+						(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
 	}
 	public boolean validLongRange(LongRangeType type)
 	{
 		return (type.getRequiredTech() == null ||
 				(type.getRequiredTech() != null && playerTurn.getTechnologies().contains(type.getRequiredTech()))) &&
 				(type.getRequiredSource() == null ||
-				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
+						(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
 	}
 
 	public Citizen isUnemployed(City city)
@@ -2456,5 +2460,24 @@ public class GameController implements Serializable
 
 	private boolean playerHasBuilding(Player playerTurn, BuildingType buildingType) {
 		return false;
+	}
+
+	public Player isGameEnd() {
+		//year 2050 and return winner
+		if (yearCounter >= 2050) {
+			int max = 0;
+			for (Player player : players)
+				if (player.getScore() > max)
+					max = player.getScore();
+			for (Player player : players)
+				if (player.getScore() == max)
+					return player;
+		}
+
+		//players size == 1
+		if (players.size() == 1)
+			return players.get(0);
+
+		return null;
 	}
 }

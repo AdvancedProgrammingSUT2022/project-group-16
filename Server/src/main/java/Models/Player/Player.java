@@ -34,6 +34,7 @@ public class Player extends User
 	private int XP = 0;
 	private int population = 0;
 	private int maxPopulation = 0;
+	private int score = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
@@ -62,6 +63,14 @@ public class Player extends User
 		gameController = GameController.getInstance();
 		this.map = new HashMap<>();
 		this.setScore(score);
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
 	}
 
 	public HashMap<Civilization, RelationState> getRelationStates() {
@@ -306,22 +315,22 @@ public class Player extends User
 			if(city.getTerritory().contains(tile))
 			{
 				if(getTileByQRS(tile.getPosition().Q, tile.getPosition().R - 1, tile.getPosition().S + 1) != null
-					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q, tile.getPosition().R - 1, tile.getPosition().S + 1)))
+						&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q, tile.getPosition().R - 1, tile.getPosition().S + 1)))
 					cityBorderIndexes.add(0);
 				if(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1) != null
-					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1)))
+						&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R, tile.getPosition().S + 1)))
 					cityBorderIndexes.add(1);
 				if(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S) != null
-					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S)))
+						&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q - 1, tile.getPosition().R + 1, tile.getPosition().S)))
 					cityBorderIndexes.add(2);
 				if(getTileByQRS(tile.getPosition().Q, tile.getPosition().R + 1, tile.getPosition().S - 1) != null
-					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q, tile.getPosition().R + 1, tile.getPosition().S - 1)))
+						&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q, tile.getPosition().R + 1, tile.getPosition().S - 1)))
 					cityBorderIndexes.add(3);
 				if(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1) != null
-					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1)))
+						&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1)))
 					cityBorderIndexes.add(4);
 				if(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S) != null
-					&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S)))
+						&& !city.getTerritory().contains(getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S)))
 					cityBorderIndexes.add(5);
 
 				break;
@@ -467,76 +476,76 @@ public class Player extends User
 					tilesInSight.add(tile);
 				else if(distance == 2)
 				{
-						Position unitPosition = unit.getTile().getPosition();
-						Position tilePosition = tile.getPosition();
+					Position unitPosition = unit.getTile().getPosition();
+					Position tilePosition = tile.getPosition();
 
-						if(unitPosition.Q == tilePosition.Q)
-						{
-							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.isBlocker())
-								tilesInSight.add(tile);
-						}
-						else if(unitPosition.R == tilePosition.R)
-						{
-							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.isBlocker())
-								tilesInSight.add(tile);
-						}
-						else if(unitPosition.S == tilePosition.S)
-						{
-							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
-							if(!tileBetween.isBlocker())
-								tilesInSight.add(tile);
-						} //----------------
-						if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
-						{
-							Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
-							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							if((northNeighbor != null && !northNeighbor.isBlocker()) ||
-									(northEastNeighbor != null && !northEastNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
-						{
-							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
-							if((northEastNeighbor != null && !northEastNeighbor.isBlocker()) ||
-									(southEastNeighbor != null && !southEastNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
-						{
-							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
-							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							if((southEastNeighbor != null && !southEastNeighbor.isBlocker()) ||
-									(southNeighbor != null && !southNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
-						{
-							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
-							if((southNeighbor != null && !southNeighbor.isBlocker()) ||
-									(southWestNeighbor != null && !southWestNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
-						{
-							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
-							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
-							if((southWestNeighbor != null && !southWestNeighbor.isBlocker()) ||
-									(northWestNeighbor != null && !northWestNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
-						{
-							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
-							Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
-							if((northWestNeighbor != null && !northWestNeighbor.isBlocker()) ||
-									(northNeighbor != null && !northNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
+					if(unitPosition.Q == tilePosition.Q)
+					{
+						Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
+						if(!tileBetween.isBlocker())
+							tilesInSight.add(tile);
 					}
+					else if(unitPosition.R == tilePosition.R)
+					{
+						Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
+						if(!tileBetween.isBlocker())
+							tilesInSight.add(tile);
+					}
+					else if(unitPosition.S == tilePosition.S)
+					{
+						Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
+						if(!tileBetween.isBlocker())
+							tilesInSight.add(tile);
+					} //----------------
+					if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
+					{
+						Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
+						Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
+						if((northNeighbor != null && !northNeighbor.isBlocker()) ||
+								(northEastNeighbor != null && !northEastNeighbor.isBlocker()))
+							tilesInSight.add(tile);
+					}
+					else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
+					{
+						Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
+						Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+						if((northEastNeighbor != null && !northEastNeighbor.isBlocker()) ||
+								(southEastNeighbor != null && !southEastNeighbor.isBlocker()))
+							tilesInSight.add(tile);
+					}
+					else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
+					{
+						Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+						Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
+						if((southEastNeighbor != null && !southEastNeighbor.isBlocker()) ||
+								(southNeighbor != null && !southNeighbor.isBlocker()))
+							tilesInSight.add(tile);
+					}
+					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
+					{
+						Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
+						Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
+						if((southNeighbor != null && !southNeighbor.isBlocker()) ||
+								(southWestNeighbor != null && !southWestNeighbor.isBlocker()))
+							tilesInSight.add(tile);
+					}
+					else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
+					{
+						Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
+						Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
+						if((southWestNeighbor != null && !southWestNeighbor.isBlocker()) ||
+								(northWestNeighbor != null && !northWestNeighbor.isBlocker()))
+							tilesInSight.add(tile);
+					}
+					else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
+					{
+						Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
+						Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
+						if((northWestNeighbor != null && !northWestNeighbor.isBlocker()) ||
+								(northNeighbor != null && !northNeighbor.isBlocker()))
+							tilesInSight.add(tile);
+					}
+				}
 			}
 		//tiles in sight of cities
 		for(City city : cities)

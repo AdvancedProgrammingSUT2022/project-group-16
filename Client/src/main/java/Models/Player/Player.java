@@ -34,6 +34,7 @@ public class Player extends User
 	private int XP = 0;
 	private int population = 0;
 	private int maxPopulation = 0;
+	private int score = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
@@ -62,6 +63,14 @@ public class Player extends User
 		gameController = GameController.getInstance();
 		this.map = new HashMap<>();
 		this.setScore(score);
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
 	}
 
 	public HashMap<Civilization, RelationState> getRelationStates() {

@@ -8,7 +8,7 @@ public class Building extends Construction
 	private final Tile tile;
 	private int hitPoints;
 	private City city;
-	
+
 	public Building(BuildingType buildingType, Tile tile)
 	{
 		this.buildingType = buildingType;
