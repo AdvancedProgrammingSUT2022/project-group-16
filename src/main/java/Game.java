@@ -9,7 +9,6 @@ import Models.Player.Technology;
 import Models.Resources.*;
 import Models.City.Construction;
 import Models.Player.*;
-import Models.Terrain.Hex;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
 import Models.TypeAdapters.*;
@@ -28,7 +27,6 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -297,7 +295,7 @@ public class Game extends Application {
         {
             int y = (i % 2 == 0 ? 0 : 45);
             for(int j = 0; j < gameController.MAP_SIZE ; j++){
-                hexagons[j][i] = new Hex(new Position(x, y), gameController);
+                hexagons[j][i] = new Hex(new Position(x, y), gameController, this);
                 y += 100;
             }
             x += 90;
@@ -374,8 +372,7 @@ public class Game extends Application {
         if (gameController.getPlayerTurn() == gameController.getPlayers().get(0))
         {
             updateTurnNumber();
-            if (Integer.parseInt(turn.getText()) % 5 == 0) //5 turn == 1 year
-                updateYear();
+            updateYear(); //5 turn == 1 year
         }
     }
 
@@ -493,10 +490,10 @@ public class Game extends Application {
         return box;
     }
     private void updateYear() {
-        year.setText(String.valueOf(Integer.parseInt(year.getText()) + 1));
+        year.setText(String.valueOf(gameController.getYear()));
     }
     private void updateTurnNumber() {
-        turn.setText(String.valueOf(Integer.parseInt(turn.getText()) + 1));
+        turn.setText(String.valueOf(gameController.getTurnCounter()));
     }
     private VBox scienceInformationStyle() {
         VBox box = new VBox();
@@ -601,6 +598,13 @@ public class Game extends Application {
         setHoverForInformationTitles((ImageView) pane.getChildren().get(26), panelsVbox("diplomacy", 350));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(29), informationVbox("menu", 24));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(31), informationVbox("Technology Tree", 18));
+        if (gameController.getPlayerTurn().getHappiness() < 50) {
+            try {
+                ((ImageView) pane.getChildren().get(11)).setImage(new Image(String.valueOf(new URL("photos/gameIcons/Malcontent.png"))));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -1796,21 +1800,12 @@ public class Game extends Application {
             addLabelToBox(player.getUsername(), rulers);
 
             declareWar.getChildren().add(makeButton("war"));
-            declareWar.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent mouseEvent) {
-                    player.getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.ENEMY);
-                    gameController.getPlayerTurn().getRelationStates().replace(player.getCivilization(), RelationState.ENEMY);
-                }
+            declareWar.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                player.getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.ENEMY);
+                gameController.getPlayerTurn().getRelationStates().replace(player.getCivilization(), RelationState.ENEMY);
             });
             makePeace.getChildren().add(makeButton("peace"));
-            makePeace.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent mouseEvent) {
-                    player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,"peace", "peace"));
-                }
-            });
-
+            makePeace.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,"peace", "peace")));
             addLabelToBox(player.getRelationStates().
                     get(gameController.getPlayerTurn().getCivilization()).name(), relationState);
             trade.getChildren().add(makeButton("trade"));
@@ -1823,6 +1818,7 @@ public class Game extends Application {
             chat.getChildren().get(chat.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
                 ChatMenu chatMenu = new ChatMenu();
                 ChatMenu.sender = registerController.getUserByUsername(gameController.getPlayerTurn().getUsername());
+                ChatMenu.receiver = player;
                 try {
                     chatMenu.start(new Stage());
                 } catch (Exception e) {

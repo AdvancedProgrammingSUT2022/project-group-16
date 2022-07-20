@@ -46,7 +46,7 @@ public class GameController implements Serializable
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
-	private int year = 2000;
+	private int yearCounter = 2000;
 
 	public int getMAP_SIZE() {
 		return MAP_SIZE;
@@ -131,6 +131,8 @@ public class GameController implements Serializable
 		if(players.indexOf(playerTurn) == 0)
 		{
 			turnCounter++;
+			if (turnCounter % 5 == 0)
+				yearCounter++;
 			updateFortifyTilHeal();
 			updateCityConstructions();
 		}
@@ -1055,10 +1057,10 @@ public class GameController implements Serializable
 	}
 
 	public int getYear() {
-		return year;
+		return yearCounter;
 	}
-	public void setYear(int year) {
-		this.year = year;
+	public void setYear(int yearCounter) {
+		this.yearCounter = yearCounter;
 	}
 	public static String enterMenu(Scanner scanner, Matcher matcher)
 	{
@@ -1438,8 +1440,7 @@ public class GameController implements Serializable
 					return mainCommands.unitLimit.regex;
 
 				// move unit
-				unitToMove.move(destinationTile);
-				return unitCommands.moveSuccessfull.regex;
+				return unitToMove.move(destinationTile);
 			}
 		}
 		return gameEnum.nonSelect.regex;
@@ -2216,7 +2217,7 @@ public class GameController implements Serializable
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(new MidRange(), this);
+					return playerTurn.getSelectedCity().construct(new MidRange(containTypeMid(type)), this);
 				}
 				else if(containTypeLong(type) != null)
 				{
@@ -2224,7 +2225,7 @@ public class GameController implements Serializable
 						return gameEnum.notEnoughGold.regex;
 					else if(playerTurn.getSelectedCity().findTileWithNoCUnit() == null)
 						return gameEnum.noEmptyTile.regex;
-					return playerTurn.getSelectedCity().construct(new LongRange(), this);
+					return playerTurn.getSelectedCity().construct(new LongRange(containTypeLong(type)), this);
 				}
 				else if(type.equals("SETTLER"))
 				{
@@ -2248,11 +2249,12 @@ public class GameController implements Serializable
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public String buildBuilding(BuildingType buildingType){
+	public String buildBuilding(BuildingType buildingType) {
 		if(playerTurn.getSelectedCity() != null)
 		{
 			Tile destination = playerTurn.getSelectedCity().getTileWithNoBuilding();
-			if(destination == null) return "no tile without building";
+			if(destination == null)
+				return "no tile without building";
 			if(!playerTurn.getCities().contains(playerTurn.getSelectedCity()))
 				return unitCommands.notYours.regex;
 			else

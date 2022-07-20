@@ -24,9 +24,10 @@ public class LongRange extends CombatUnit{
         //this.setRequiredResource();
         rulerPlayer.addUnit(this);
     }
-    //for mocking a unit while constructing in city
-    public LongRange() {
 
+    //for mocking a unit while constructing in city
+    public LongRange(LongRangeType type){
+        this.type = type;
     }
 
     public String attack(CombatUnit unit){
@@ -79,11 +80,6 @@ public class LongRange extends CombatUnit{
     public void setType(LongRangeType type) {
         this.type = type;
     }
-
-    public LongRange(LongRangeType type){
-        this.type = type;
-    }
-
 
     @Override
     public String toString()

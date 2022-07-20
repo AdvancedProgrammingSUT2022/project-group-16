@@ -373,41 +373,40 @@ public class City
 		//unit.attack(enemy);
 		return null;
 	}
-	private boolean constructionCanBeBuilt(Construction construction){
+	private String constructionCanBeBuilt(Construction construction){
 		if(construction instanceof Unit) {
 			if (this.getRulerPlayer().getGold() >= ((Unit) construction).getProductionCost()) {
 				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Unit) construction).getProductionCost());
-				return true;
+				return "built successfully";
 			}
-			return false;
+			return gameEnum.notEnoughGold.regex;
 		}
 
 		else if(construction instanceof Building){
-			if(rulerPlayer.getGold() >= ((Building) construction).getBuildingType().cost){
-				if(!rulerPlayer.getTechnologies().contains(((Building) construction).getBuildingType().requiredTechnology)) return false;
+			if(rulerPlayer.getGold() >= ((Building) construction).getBuildingType().cost) {
 				this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - ((Building) construction).getBuildingType().cost);
-				return true;
+				return "built successfully";
 			}
-			return false;
+			return gameEnum.notEnoughGold.regex;
 		}
-		return false;
-	}
-
-
-	private String buildingHasRequirements(Construction construction){
-		boolean hasBuilding = false;
-		if (((Building)construction).getBuildingType().requiredBuilding == null) hasBuilding = true;
-		for (City city : this.getRulerPlayer().getCities()) {
-			for (Building building : city.getBuildings()) {
-				if(building.getBuildingType().equals(((Building) construction).getBuildingType().requiredBuilding)){
-					hasBuilding = true;
-					break;
-				}
-			}
-		}
-		if(!hasBuilding) return "do not have required building";
 		return null;
 	}
+
+
+//	private String buildingHasRequirements(Construction construction){
+//		boolean hasBuilding = false;
+//		if (((Building)construction).getBuildingType().requiredBuilding == null) hasBuilding = true;
+//		for (City city : this.getRulerPlayer().getCities()) {
+//			for (Building building : city.getBuildings()) {
+//				if(building.getBuildingType().equals(((Building) construction).getBuildingType().requiredBuilding)){
+//					hasBuilding = true;
+//					break;
+//				}
+//			}
+//		}
+//		if(!hasBuilding) return "do not have required building";
+//		return null;
+//	}
 
 	public Tile getTileWithNoBuilding() {
 		for (Tile tile : territory) {
@@ -426,12 +425,13 @@ public class City
 	public String construct(Construction construction, GameController gameController)
 	{
 		if(currentConstruction == null) {
-			if(!constructionCanBeBuilt(construction)) return "cannot build";
-			String result;
-			if(construction instanceof Building && (result = buildingHasRequirements(construction)) != null)return result;
+			if(!constructionCanBeBuilt(construction).equals("built successfully"))
+				return "cannot build";
 			currentConstruction = construction;
+			System.out.println(construction);
+			System.out.println(currentConstruction);
 			construction.setTurnTillBuild(4);
-			return null;
+			return gameEnum.successfulBuild.regex;
 		}
 		if(construction.getTurnTillBuild() == 0)
 		{
@@ -478,16 +478,16 @@ public class City
 	}
 
 
-	public String changeConstruction(Construction construction){
-		//TODO save previous construction;
-		if(currentConstruction == null) return "nothing is being built";
-		if(constructionCanBeBuilt(construction)){
-			currentConstruction = construction;
-			currentConstruction.setTurnTillBuild(3);
-			return null;
-		}
-		return "cannot change construction";
-	}
+//	public String changeConstruction(Construction construction){
+//		//TODO save previous construction;
+//		if(currentConstruction == null) return "nothing is being built";
+//		if(constructionCanBeBuilt(construction)){
+//			currentConstruction = construction;
+//			currentConstruction.setTurnTillBuild(3);
+//			return null;
+//		}
+//		return "cannot change construction";
+//	}
 
 	public String buyBuilding(Building building){
 		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - building.getBuildingType().cost);

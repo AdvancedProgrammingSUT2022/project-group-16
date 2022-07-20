@@ -1,14 +1,13 @@
-package Models.Terrain;
-
 import Controllers.GameController;
 import Models.City.Building;
+import Models.City.BuildingType;
 import Models.City.City;
-import Models.Player.Player;
-import Models.Player.Technology;
-import Models.Player.TileState;
-import Models.Units.CombatUnits.CombatUnit;
-import Models.Units.CombatUnits.LongRange;
-import Models.Units.CombatUnits.MidRange;
+import Models.Player.*;
+import Models.Resources.LuxuryResource;
+import Models.Resources.Resource;
+import Models.Resources.ResourceType;
+import Models.Terrain.*;
+import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Settler;
 import Models.Units.NonCombatUnits.Worker;
@@ -19,20 +18,24 @@ import enums.gameCommands.unitCommands;
 import enums.gameEnum;
 import enums.mainCommands;
 import javafx.animation.FadeTransition;
+import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
-public class Hex{
+public class Hex extends Application {
     private static Pane parent;
     private final Pane pane;
     private Position position;
@@ -45,8 +48,11 @@ public class Hex{
     private boolean isCityPanelOpen = false;
     private boolean isCUnitPanelOpen = false;
     private boolean isNCUnitPanelOpen = false;
+    private Unit selectedUnit = null;
+    private BuildingType selectedBuildingType = null;
+    private Game game;
 
-    public Hex(Position position, GameController gameController){
+    public Hex(Position position, GameController gameController, Game game){
         this.gameController = gameController;
         this.position = position;
         this.pane = new Pane();
@@ -59,6 +65,7 @@ public class Hex{
         pane.setPrefHeight(90);
         pane.setLayoutX(position.X);
         pane.setLayoutY(position.Y);
+        this.game = game;
 
     }
     public static void setPane(Pane pane){
@@ -310,14 +317,13 @@ public class Hex{
                        case GARDEN -> url += "garden";
                        case MARKET -> url += "market";
                        case MINT -> url += "mint";
-                       case PALACE -> url += "palace";
                        case MONASTERY -> url += "monastery";
                        case UNIVERSITY -> url += "university";
                        case WORKSHOP -> url += "workshop";
                        case BANK -> url += "bank";
                        case MILITARY_ACADEMY -> url += "militaryacademy";
-                       case MUSEUM -> url += "museum";
                        case OPERA_HOUSE -> url += "operahouse";
+                       case MUSEUM -> url += "museum";
                        case PUBLIC_SCHOOL -> url += "publicschool";
                        case SATRAPS_COURT -> url += "satrapscourt";
                        case THEATER -> url += "theatre";
@@ -328,6 +334,7 @@ public class Hex{
                        case HOSPITAL -> url += "hospital";
                        case MILITARY_BASE -> url += "militarybase";
                        case STOCK_EXCHANGE -> url += "stockexchange";
+                       case PALACE -> url += "palace";
                        default -> {throw new RuntimeException("Unknown building type");}
                    }
                     url += ".png";
@@ -440,7 +447,7 @@ public class Hex{
     private void cityBanner(City city) {
         Pane list = new Pane();
         fade(list).play();
-        panelsPaneStyle(list, position.X + 40, position.Y - 65, 200, 50);
+        panelsPaneStyle(list, position.X + 40, position.Y - 80, 200, 50);
         addLabelToPane(list, 10, 10, "photos/gameIcons/Gold.png", String.valueOf(city.getGoldYield()));
         addLabelToPane(list, 30, 10, "photos/gameIcons/Food.png", String.valueOf(city.getFoodYield()));
         addLabelToPane(list, 50, 10, "photos/gameIcons/Production.png", String.valueOf(city.getProductionYield()));
@@ -466,6 +473,7 @@ public class Hex{
             tileImageView.setEffect(colorAdjust);
         }
     }
+   
     private void onMouseExited()
     {
         //remove banner
@@ -514,6 +522,7 @@ public class Hex{
         }
         else if(isCUnitPanelOpen) {
             parent.getChildren().remove(parent.getChildren().size() - 1);
+            
             isCUnitPanelOpen = false;
             if(hasNCUnit() != null) {
                 isNCUnitPanelOpen = true;
@@ -522,6 +531,7 @@ public class Hex{
         }
         else if(isNCUnitPanelOpen) {
             parent.getChildren().remove(parent.getChildren().size() - 1);
+            
             isNCUnitPanelOpen = false;
             gameController.getPlayerTurn().setSelectedUnit(null);
         }
@@ -543,14 +553,28 @@ public class Hex{
     private void emptyTilePanel() {
         Pane list = new Pane();
         fade(list).play();
-        panelsPaneStyle(list, position.X + 40, position.Y - 65, 200, 50);
-        addLabelToPane(list, 10, -6, null, tile.getPosition().X + "," + tile.getPosition().Y);
-        if (tile.getResource() != null)
-            addLabelToPane(list, 10, 10, null, "resource: " + tile.getResource().getRESOURCE_TYPE().symbol +
+        panelsPaneStyle(list, position.X + 40, position.Y - 140, 400, 105);
+        addLabelToPane(list, 10, 10, "photos/gameIcons/Food.png", String.valueOf(tile.getTileFeature().food));
+        addLabelToPane(list, 50, 10, "photos/gameIcons/Production.png", String.valueOf(tile.getTileFeature().production));
+        addLabelToPane(list, 90, 10, "photos/gameIcons/Gold.png", String.valueOf(tile.getTileFeature().gold));
+        addLabelToPane(list, 130, 10, "photos/gameIcons/Resistance.png", String.valueOf(tile.getTileFeature().combatModifier));
+        addLabelToPane(list, 170, 10, "photos/gameIcons/target.png", String.valueOf(tile.getTileFeature().movementCost));
+
+        addLabelToPane(list, 210, -6, null, tile.getPosition().X + "," + tile.getPosition().Y);
+        if (tile.getResource() != null) {
+            addLabelToPane(list, 210, 65, null, "resource: " + tile.getResource().getRESOURCE_TYPE().symbol +
                     " " +
                     tile.getResource().getRESOURCE_TYPE().toString());
-        else
-            addLabelToPane(list, 10, 10, null, "resource: nothing");
+            addLabelToPane(list, 10, 65, "photos/gameIcons/Food.png", String.valueOf(tile.getResource().getRESOURCE_TYPE().food));
+            addLabelToPane(list, 50, 65, "photos/gameIcons/Production.png", String.valueOf(tile.getResource().getRESOURCE_TYPE().production));
+            addLabelToPane(list, 90, 65, "photos/gameIcons/Gold.png", String.valueOf(tile.getResource().getRESOURCE_TYPE().gold));
+        }
+        else {
+            addLabelToPane(list, 210, 65, null, "resource: nothing");
+            addLabelToPane(list, 10, 65, "photos/gameIcons/Food.png", "-");
+            addLabelToPane(list, 50, 65, "photos/gameIcons/Production.png", "-");
+            addLabelToPane(list, 90, 65, "photos/gameIcons/Gold.png", "-");
+        }
         if((isCityPanelOpen || isCUnitPanelOpen || isNCUnitPanelOpen))
             parent.getChildren().add(parent.getChildren().size() - 1, list);
         else
@@ -580,9 +604,8 @@ public class Hex{
         addPhotoToBox(photos, "photos/gameIcons/health.png");
         addLabelToBox(unitCommands.unitState.regex + unit.getUnitState().symbol, box);
         addPhotoToBox(photos, null);
-        addLabelToBox(unitCommands.unitPosition.regex + unit.getTile().getPosition().X + ","
-                + unit.getTile().getPosition().Y, box);
-        addPhotoToBox(photos, "photos/gameIcons/target.png");
+        addLabelToBox("unit XP: " + String.valueOf(unit.getXP()), box);
+        addPhotoToBox(photos, "photos/gameIcons/Science.png");
         list.getChildren().add(box);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(75);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
@@ -601,6 +624,7 @@ public class Hex{
             if (result.equals(unitCommands.fortifyActivated.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
@@ -612,6 +636,7 @@ public class Hex{
             if (result.equals(gameEnum.wokeUp.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 110, 10, "photos/gameIcons/unitActions/Fire.png", "pillage");
@@ -623,6 +648,7 @@ public class Hex{
             if (result.equals(unitCommands.destroyImprovement.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 160, 10, "photos/gameIcons/unitActions/remove.png", "remove");
@@ -634,6 +660,7 @@ public class Hex{
             if (result.endsWith(unitCommands.gold.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 10, 60, "photos/gameIcons/unitActions/Move.png", "move");
@@ -659,6 +686,10 @@ public class Hex{
                         removeAllPanels();
                         list.getChildren().remove(textField);
                         parent.getChildren().remove(list);
+                        game.updateScreen();
+                    }
+                    else if (result.equals(gameEnum.notYourTile.regex)) {
+                        declareWarPanel(matcher);
                     }
                     if (textField.getText().equals("-")) {
                         actions.getChildren().remove(textField);
@@ -678,6 +709,7 @@ public class Hex{
             if (result.equals(gameEnum.slept.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/garrison.png", "garrison");
@@ -689,6 +721,7 @@ public class Hex{
             if (result.equals(unitCommands.garissonSet.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 60, 110, "photos/gameIcons/unitActions/Fight.png", "fight");
@@ -716,6 +749,7 @@ public class Hex{
                                 removeAllPanels();
                                 list.getChildren().remove(textField);
                                 parent.getChildren().remove(list);
+                                game.updateScreen();
                             }
                             if (textField.getText().equals("-")) {
                                 actions.getChildren().remove(textField);
@@ -748,6 +782,7 @@ public class Hex{
                             if (result.equals(unitCommands.setupSuccessful.regex)) {
                                 removeAllPanels();
                                 parent.getChildren().remove(list);
+                                game.updateScreen();
                             }
                             if (textField.getText().equals("-")) {
                                 actions.getChildren().remove(textField);
@@ -767,6 +802,7 @@ public class Hex{
             if (result.equals(unitCommands.alerted.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 160, 60, "photos/gameIcons/unitActions/fortifyTilHeal.png", "fortify til heal");
@@ -778,6 +814,7 @@ public class Hex{
             if (result.equals(unitCommands.fortifyHealActivated.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 160, 110, "photos/gameIcons/unitActions/Close.png", "close");
@@ -789,6 +826,7 @@ public class Hex{
             if (result.equals(unitCommands.cancelCommand.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         list.getChildren().add(exitButtonStyle(list));
@@ -839,6 +877,8 @@ public class Hex{
             if (result.equals(gameEnum.wokeUp.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
+                
             }
         });
         addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/remove.png", "remove");
@@ -850,6 +890,7 @@ public class Hex{
             if (result.endsWith(unitCommands.gold.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 110, 10, "photos/gameIcons/unitActions/Move.png", "move");
@@ -875,6 +916,7 @@ public class Hex{
                         removeAllPanels();
                         list.getChildren().remove(textField);
                         parent.getChildren().remove(list);
+                        game.updateScreen();
                     }
                     if (textField.getText().equals("-")) {
                         actions.getChildren().remove(textField);
@@ -894,6 +936,7 @@ public class Hex{
             if (result.equals(gameEnum.slept.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/Close.png", "close");
@@ -905,6 +948,7 @@ public class Hex{
             if (result.equals(unitCommands.cancelCommand.regex)) {
                 removeAllPanels();
                 parent.getChildren().remove(list);
+                game.updateScreen();
             }
         });
         if(unit.getClass().equals(Settler.class)) {
@@ -915,9 +959,9 @@ public class Hex{
                     list.getChildren().remove(list.getChildren().size() - 1);
                 addLabelToPane(list, 300, 200, null, result);
                 if (result.equals(unitCommands.cityBuilt.regex)) {
-
                     removeAllPanels();
                     parent.getChildren().remove(list);
+                    game.updateScreen();
                 }
             });
         }
@@ -945,6 +989,7 @@ public class Hex{
             parent.getChildren().remove(list);
             for (int i = 0; i < parent.getChildren().size(); i++)
                 parent.getChildren().get(i).setDisable(false);
+            game.updateScreen();
         }
     }
     private void buildPanel() {
@@ -993,6 +1038,7 @@ public class Hex{
     }
     private void cityPanel(City city)
     {
+        gameController.getPlayerTurn().setSelectedCity(city);
         Pane list = new Pane();
         panelsPaneStyle2(list);
         VBox box = new VBox(), photos = new VBox();
@@ -1023,18 +1069,20 @@ public class Hex{
         if(flg > -1) {
             addLabelToBox(infoCommands.currentResearching.regex + gameController.
                     getPlayerTurn().getResearchingTechnology().name(), box);
-            addLabelToBox(infoCommands.remainingTurns.regex + (player.getResearchingTechnology().
-                    cost - player.getResearchingTechCounter()[flg]), box);
+            addLabelToBox(infoCommands.remainingTurns.regex + ((player.getResearchingTechnology().
+                    cost - player.getResearchingTechCounter()[flg]) / 10), box);
         }
         else {
             addLabelToBox(infoCommands.currentResearching.regex + infoCommands.nothing.regex, box);
             addLabelToBox(infoCommands.remainingTurns.regex + "-", box);
         }
         addLabelToBox(gameEnum.employedCitizens.regex + (city.employedCitizens()), box);
-        addLabelToBox(gameEnum.unEmployedCitizens.regex + (gameController.getPlayerTurn().
-                getTotalPopulation() - city.employedCitizens()), box);
+        addLabelToBox(gameEnum.unEmployedCitizens.regex + (city.getPopulation() - city.employedCitizens()), box);
         if(city.getCurrentConstruction() != null) {
-            addLabelToBox(gameEnum.currentConstruction.regex + city.getCurrentConstruction().toString(), box);
+            if (gameController.getPlayerTurn().getSelectedCity().getCurrentConstruction() instanceof Building)
+                addLabelToBox(gameEnum.currentConstruction.regex + ((Building) city.getCurrentConstruction()).getBuildingType().name(), box);
+            else
+                addLabelToBox(gameEnum.currentConstruction.regex + city.getCurrentConstruction().toString(), box);
             addLabelToBox(infoCommands.remainingTurns.regex + city.getCurrentConstruction().getTurnTillBuild(), box);
         }
         else
@@ -1076,6 +1124,18 @@ public class Hex{
             purchaseBuildingPanel(city);
             list.setDisable(true);
         });
+        //build building
+        addLabelToPane(list, 400, 104, null, "build building");
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            buildBuildingPanel(city);
+            list.setDisable(true);
+        });
+        //build unit
+        addLabelToPane(list, 400, 124, null, "build unit");
+        list.getChildren().get(list.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
+            buildUnitPanel(city);
+            list.setDisable(true);
+        });
         list.getChildren().add(exitButtonStyle(list));
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
@@ -1109,7 +1169,7 @@ public class Hex{
                 if(result.equals(gameEnum.unitBought.regex)) {
                     parent.getChildren().remove(list);
                     parent.getChildren().remove(parent.getChildren().size() - 1);
-                    cityPanel(city);
+                    game.updateScreen();
                 }
                 textField.setText(null);
             }
@@ -1118,6 +1178,49 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         parent.getChildren().add(list);
+    }
+    private void declareWarPanel(Matcher matcher) {
+        Pane yesOrNo = new Pane();
+        panelsPaneStyle(yesOrNo, 490, 323, 300, 75);
+        parent.getChildren().add(yesOrNo);
+        addLabelToPane(yesOrNo, 100, -10, null, "declare war?");
+        Button yes = new Button();
+        yesOrNo.getChildren().add(yes);
+        yesOrNo.getChildren().get(yesOrNo.getChildren().size() - 1).setLayoutX(70);
+        yesOrNo.getChildren().get(yesOrNo.getChildren().size() - 1).setLayoutY(30);
+        yes.setText("yes");
+        yes.setStyle("-fx-background-color: green;" +
+                "-fx-font-size: 17;" +
+                "-fx-text-fill: white;" +
+                "-fx-pref-width: 50;" +
+                "-fx-pref-height: 30");
+        yes.setOnMouseClicked(mouseEvent12 -> {
+            parent.getChildren().remove(yesOrNo);
+            parent.getChildren().remove(parent.getChildren().size() - 1);
+            Tile destination = gameController.getTileByXY(Integer.parseInt(matcher.group("x")),
+                    Integer.parseInt(matcher.group("y")));
+            Player enemyPlayer = destination.GetTileRuler();
+            Civilization enemy = enemyPlayer.getCivilization();
+            gameController.getPlayerTurn().getRelationStates().replace(enemy, RelationState.ENEMY);
+            enemyPlayer.getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.ENEMY);
+            gameController.getPlayerTurn().getSelectedUnit().move(destination);
+            game.updateScreen();
+        });
+        Button no = new Button();
+        yesOrNo.getChildren().add(no);
+        yesOrNo.getChildren().get(yesOrNo.getChildren().size() - 1).setLayoutX(170);
+        yesOrNo.getChildren().get(yesOrNo.getChildren().size() - 1).setLayoutY(30);
+        no.setText("no");
+        no.setStyle("-fx-background-color: red;" +
+                "-fx-font-size: 17;" +
+                "-fx-text-fill: white;" +
+                "-fx-pref-width: 50;" +
+                "-fx-pref-height: 30");
+        no.setOnMouseClicked(mouseEvent1 -> {
+            parent.getChildren().remove(yesOrNo);
+            parent.getChildren().remove(parent.getChildren().size() - 1);
+        });
+
     }
     private void purchaseBuildingPanel(City city) {
         Pane list = new Pane();
@@ -1147,7 +1250,7 @@ public class Hex{
                 if(result.equals(mainCommands.buildingBuilt.regex)) {
                     parent.getChildren().remove(list);
                     parent.getChildren().remove(parent.getChildren().size() - 1);
-                    cityPanel(city);
+                    game.updateScreen();
                 }
                 textField.setText(null);
             }
@@ -1185,7 +1288,7 @@ public class Hex{
                 if(result.equals(gameEnum.buyTile.regex)) {
                     parent.getChildren().remove(list);
                     parent.getChildren().remove(parent.getChildren().size() - 1);
-                    cityPanel(city);
+                    game.updateScreen();
                 }
                 textField.setText(null);
             }
@@ -1194,6 +1297,152 @@ public class Hex{
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(15);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(15);
         parent.getChildren().add(list);
+    }
+
+    private boolean hasTechnology(City city, BuildingType buildingType) {
+        return buildingType.requiredTechnology == null ||
+                city.getRulerPlayer().getTechnologies().contains(buildingType.requiredTechnology);
+    }
+    private boolean hasTechnology(MidRangeType midRangeType) {
+        return midRangeType.requiredTech == null ||
+                gameController.getPlayerTurn().getTechnologies().contains(midRangeType.requiredTech);
+    }
+    private boolean hasTechnology(LongRangeType longRangeType) {
+        return longRangeType.requiredTech == null ||
+                gameController.getPlayerTurn().getTechnologies().contains(longRangeType.requiredTech);
+    }
+    private boolean hasResource(ResourceType resourceType) {
+        for (Resource resource : gameController.getPlayerTurn().getResources())
+            if (resource.getRESOURCE_TYPE().equals(resourceType))
+                return true;
+        return false;
+    }
+    private boolean hasResource(MidRangeType midRangeType) {
+        return midRangeType.requiredSource == null || hasResource(midRangeType.requiredSource);
+    }
+    private boolean hasResource(LongRangeType longRangeType) {
+        return longRangeType.requiredSource == null || hasResource(longRangeType.requiredSource);
+    }
+
+    private boolean hasBuilding(City city, BuildingType buildingType) {
+        if (buildingType.requiredBuilding == null)
+            return true;
+        for (Building building : city.getBuildings())
+            if (building.getBuildingType().equals(buildingType))
+                return true;
+        return false;
+    }
+    private void buildBuildingPanel(City city) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 390, 185, 500, 350);
+
+        ArrayList<BuildingType> buildingTypes = new ArrayList<>();
+        for (BuildingType buildingType : BuildingType.values())
+            if (hasTechnology(city, buildingType) && hasBuilding(city, buildingType))
+                buildingTypes.add(buildingType);
+
+        int flag = 0;
+        while (flag < buildingTypes.size()) {
+            VBox names = new VBox();
+            names.setSpacing(7);
+            names.setAlignment(Pos.CENTER);
+
+            for (int i = 0; i < 7; i++)
+                if (i + flag < buildingTypes.size()) {
+                    addLabelToBox(buildingTypes.get(i + flag).name(), names);
+                    int finalI = i;
+                    int finalFlag = flag;
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        String result = gameController.buildBuilding(buildingTypes.get(finalI + finalFlag));
+                        if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                            list.getChildren().remove(list.getChildren().size() - 1);
+                        addLabelToPane(list, 300, 200, null, result);
+                        if (result.equals(gameEnum.successfulBuild.regex)) {
+                            removeAllPanels();
+                            parent.getChildren().remove(list);
+                            game.updateScreen();
+                        }
+                    });
+                }
+
+            list.getChildren().add(names);
+            setCoordinatesBox(list, names,15 + (flag / 7.0) * 100, 50);
+            flag += 7;
+
+        }
+
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(10);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        parent.getChildren().add(list);
+        for (int i = 0; i < parent.getChildren().size() - 1; i++)
+            parent.getChildren().get(i).setDisable(true);
+    }
+
+    private void buildUnitPanel(City city) {
+        Pane list = new Pane();
+        panelsPaneStyle(list, 390, 185, 500, 350);
+
+        ArrayList<MidRangeType> midRangeTypes = new ArrayList<>();
+        ArrayList<LongRangeType> longRangeTypes = new ArrayList<>();
+        for (MidRangeType midRangeType : MidRangeType.values())
+            if (hasTechnology(midRangeType) && hasResource(midRangeType))
+                midRangeTypes.add(midRangeType);
+        for (LongRangeType longRangeType : LongRangeType.values())
+            if (hasTechnology(longRangeType) && hasResource(longRangeType))
+                longRangeTypes.add(longRangeType);
+
+        int flag = 0;
+        while (flag < midRangeTypes.size() + longRangeTypes.size() + 2) {
+            VBox names = new VBox();
+            names.setSpacing(7);
+            names.setAlignment(Pos.CENTER);
+
+            for (int i = 0; i < 7; i++) {
+                if (i + flag < midRangeTypes.size())
+                    addLabelToBox(midRangeTypes.get(i + flag).name(), names);
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size())
+                    addLabelToBox(longRangeTypes.get(i + flag - midRangeTypes.size()).name(), names);
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size() + 1)
+                    addLabelToBox("SETTLER", names);
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size() + 2)
+                    addLabelToBox("WORKER", names);
+                int finalI = i;
+                int finalFlag = flag;
+                names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                    String result = null;
+                    if (finalI + finalFlag < midRangeTypes.size())
+                        result = gameController.buildUnit(midRangeTypes.get(finalI + finalFlag).name());
+                    else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size())
+                        result = gameController.buildUnit(longRangeTypes.get(finalI + finalFlag - midRangeTypes.size()).name());
+                    else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size() + 1)
+                        result = gameController.buildUnit("SETTLER");
+                    else
+                        result = gameController.buildUnit("WORKER");
+
+                    if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                        list.getChildren().remove(list.getChildren().size() - 1);
+                    addLabelToPane(list, 300, 200, null, result);
+                    if (result.equals(gameEnum.successfulBuild.regex)) {
+                        removeAllPanels();
+                        parent.getChildren().remove(list);
+                        game.updateScreen();
+                    }
+                });
+            }
+
+            list.getChildren().add(names);
+            setCoordinatesBox(list, names,15 + (flag / 7.0) * 100, 50);
+            flag += 7;
+
+        }
+
+        list.getChildren().add(exitButtonStyle(list));
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutX(10);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
+        parent.getChildren().add(list);
+        for (int i = 0; i < parent.getChildren().size() - 1; i++)
+            parent.getChildren().get(i).setDisable(true);
     }
     private void employedCitizensPanel(City city) {
         Pane list = new Pane();
@@ -1221,7 +1470,9 @@ public class Hex{
                 }
                 if(result.equals(gameEnum.removeFromWork.regex)) {
                     parent.getChildren().remove(list);
+                    
                     parent.getChildren().remove(parent.getChildren().size() - 1);
+                    
                     cityPanel(city);
                 }
                 textField.setText(null);
@@ -1259,7 +1510,9 @@ public class Hex{
                 }
                 if(result.equals(gameEnum.successfulLock.regex)) {
                     parent.getChildren().remove(list);
+                    
                     parent.getChildren().remove(parent.getChildren().size() - 1);
+                    
                     cityPanel(city);
                 }
                 textField.setText(null);
@@ -1283,7 +1536,6 @@ public class Hex{
             exitButton.setFitWidth(25);
         });
         exitButton.setOnMousePressed(mouseEvent -> {
-
             isCityPanelOpen = false;
             isCUnitPanelOpen = false;
             isNCUnitPanelOpen = false;
@@ -1327,7 +1579,7 @@ public class Hex{
         label.setText(information);
         list.getChildren().add(label);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(x);
-        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(y + 12);
+        list.getChildren().get(list.getChildren().size() - 1).setLayoutY(y + 15);
     }
     private void addPhotoToBox(VBox box, String url) {
         if (url == null)
@@ -1394,6 +1646,11 @@ public class Hex{
     private void setCoordinatesBox(Pane list, VBox box, double x, double y) {
         list.getChildren().get(list.getChildren().indexOf(box)).setLayoutX(x);
         list.getChildren().get(list.getChildren().indexOf(box)).setLayoutY(y);
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+
     }
 }
 
