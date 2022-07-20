@@ -1,0 +1,28 @@
+.Background {
+    -fx-background-image: url("../photos/backgrounds/mainMenu.jpg"); /*by wallpaperBetter.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+
+.icons {
+    -fx-pref-width: 300;
+    -fx-pref-height: 45;
+    -fx-border-color: #000000;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 5;
+    -fx-text-fill: #000000;
+    -fx-font-size: 25;
+    -fx-background-color: #ff6a00;
+}
+.icons:hover {
+    -fx-pref-width: 300;
+    -fx-pref-height: 45;
+    -fx-border-color: #000000;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 5;
+    -fx-text-fill: #000000;
+    -fx-font-size: 25;
+    -fx-background-color: #ff4d00;
+}

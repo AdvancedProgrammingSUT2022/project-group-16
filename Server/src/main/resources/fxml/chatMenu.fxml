@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Button?>
+<Pane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ChatMenu"
+      prefHeight="720.0" prefWidth="1280.0" fx:id="list"
+      stylesheets="@../styles/chatMenu.css" styleClass="Background">
+    <ImageView fitWidth="300" fitHeight="720" styleClass="background"/>
+</Pane>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<Pane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ProfileMenu"
+      prefHeight="720.0" prefWidth="1280.0" fx:id="list"
+      stylesheets="@../styles/profileMenu.css" styleClass="background">
+        <VBox spacing="13" alignment="CENTER" layoutX="690" layoutY="250" styleClass="frontBackground">
+                <Label/>
+                <Button text="change nickname" styleClass="button" onMouseClicked="#changeNicknameMenu"/>
+                <Button text="change password" styleClass="button" onMouseClicked="#changePasswordMenu"/>
+                <Button text="change photo" styleClass="button" onMouseClicked="#changePhotoMenu"/>
+                <Button text="back" styleClass="button" onMouseClicked="#backToMainMenu"/>
+        </VBox>
+        <Label layoutX="788" layoutY="220" text="profile menu" styleClass="mainLabel"/>
+</Pane>

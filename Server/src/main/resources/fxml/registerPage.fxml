@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.Label?>
+<?import java.net.URL?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<Pane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="RegisterPage"
+      prefHeight="720.0" prefWidth="1280.0"
+      stylesheets="@../styles/registerPage.css" styleClass="Background" fx:id="list">
+    <stylesheets>
+        <URL value="@../styles/loginPage.css"/>
+    </stylesheets>
+    <Rectangle x="245" y="95" width="637" height="477" styleClass="Rectangle"/>
+    <ImageView x="250" y="100" fitWidth="627" fitHeight="467" styleClass="FrontBackground"/>
+    <Label layoutX="430" layoutY="50" alignment="CENTER" text="register menu" styleClass="Label"/>
+    <VBox fx:id="VBox" layoutX="435" layoutY="140" alignment="CENTER" spacing="10" maxWidth="700">
+        <Label text="enter your username: " styleClass="SubLabel"/>
+        <TextField fx:id="username" promptText="username" maxWidth="300" styleClass="box"/>
+        <Label text="enter your nickname: " styleClass="SubLabel"/>
+        <TextField fx:id="nickname" promptText="nickname" maxWidth="300" styleClass="box"/>
+        <Label text="enter your password: " styleClass="SubLabel"/>
+        <TextField fx:id="password" promptText="password" maxWidth="300" styleClass="box"/><Label/>
+        <Button text="register" styleClass="button" onMouseClicked="#checkInputs"/>
+    </VBox>
+</Pane>

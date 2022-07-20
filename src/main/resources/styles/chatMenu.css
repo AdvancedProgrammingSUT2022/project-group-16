@@ -1,9 +1,0 @@
-.Background {
-    -fx-background-image: url("../photos/backgrounds/chat.jpg"); /*by www.ingenio.com*/
-    -fx-background-repeat: no-repeat;
-    -fx-background-size: 980 720;
-    -fx-background-position: 300 0;
-}
-.background  {
-    -fx-image: url("../photos/backgrounds/chat2.png"); /*by www.ingenio.com*/
-}
