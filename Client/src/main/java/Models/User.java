@@ -1,5 +1,6 @@
 package Models;
 
+import IO.Response;
 import Models.chat.Message;
 
 import java.io.Serializable;
@@ -79,4 +80,5 @@ public class User {
     public HashMap<String, ArrayList<Message>> getPrivateChats() {
         return privateChats;
     }
+
 }

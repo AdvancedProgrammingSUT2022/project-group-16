@@ -1,6 +1,6 @@
 import Controllers.GameController;
-import Controllers.Utilities.chatController;
 import IO.Client;
+import IO.Response;
 import Models.User;
 import Models.chat.Message;
 import Models.chat.publicMessage;
@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ChatMenu extends Application {
     public Pane list;
@@ -35,10 +36,15 @@ public class ChatMenu extends Application {
     private final VBox usersPhotos = new VBox();
     public static User sender = null;
     public static User receiver = null;
-    private final chatController chatController = new chatController();
     public static final chatServer server = new chatServer();
     public static boolean isGameStarted = false;
 
+    public User getUserByUsername(String username){
+        for (User user : Client.getInstance().getAllUsers()) {
+            if(user.getUsername().equals(username)) return user;
+        }
+        return null;
+    }
     public Pane getList() {
         return list;
     }
@@ -92,18 +98,15 @@ public class ChatMenu extends Application {
                 if ("Enter".equals(keyName)) {
                     String username = search.getText();
                     search.setText(null);
-                    for(User user : Client.getInstance().getAllUsers())
-                        if(user.getUsername().equals(username) &&
-                                !sender.getUsername().equals(user.getUsername()) &&
-                                !sender.getPrivateChats().containsKey(user.getUsername())) {
+                    Response response = Client.getInstance().makeNewChat(username, sender);
+                        if(response.getStatus() == 200) {
+                            User user = (User) response.getParams().get("receiver");
                             while (list.getChildren().size() > 6) {
                                 if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
                                     list.getChildren().remove(list.getChildren().size() - 1);
                                 else
                                     list.getChildren().remove(0);
                             }
-                            sender.getPrivateChats().put(username, new ArrayList<>());
-                            user.getPrivateChats().put(sender.getUsername(), new ArrayList<>());
                             makeChat(sender, user);
                             receiver = user;
                         }
@@ -124,6 +127,7 @@ public class ChatMenu extends Application {
                 return true;
         return false;
     }
+
     private void typeMessageStyle(TextField typeMessage) {
         typeMessage.setPromptText("type here...");
         typeMessage.setStyle("-fx-pref-width: 980;" +
@@ -148,7 +152,7 @@ public class ChatMenu extends Application {
                             else
                                 list.getChildren().remove(0);
                         }
-                        receiver = chatController.getUserByUsername(tmp.getText());
+                        receiver = getUserByUsername(tmp.getText());
                         makeChat(sender, receiver);
                     });
                 }
@@ -157,16 +161,17 @@ public class ChatMenu extends Application {
                         ((Label) list.getChildren().get(2)).getText().equals("public chat")) {
                     String message = sender.getUsername() + ": " + typeMessage.getText() + " - "
                             + now.toString().substring(11,19);
-                    chatController.sendPublicMessage(sender, message, server);
+                    Client.getInstance().sendPublicMessage(sender, message);
+                    server.update();
                     Label label = new Label();
                     messageStyleSender(label, server.getPublicChats().get(server.getPublicChats().size() - 1).getMessage());
                     ((VBox) list.getChildren().get(1)).getChildren().add(label);
                 }
                 else {
-                    chatController.sendMessage(sender, receiver, typeMessage.getText() +
+                    Client.getInstance().sendMessage(sender, receiver, typeMessage.getText() +
                             " - " + now.toString().substring(11,19));
-                    chatController.writeDataOnJson();
-                    ArrayList<Message> messages = sender.getPrivateChats().get(receiver.getUsername());
+                    sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
+                    ArrayList<Message> messages = ((HashMap<String, ArrayList<Message>>)Client.getInstance().getUserPrivateChats(sender.getUsername()).getParams().get("chats")).get(receiver.getUsername());
                     Label label = new Label();
                     messageStyleSender(label, messages.get(messages.size() - 1).getMessage());
                     ((VBox) list.getChildren().get(1)).getChildren().add(label);
@@ -239,6 +244,7 @@ public class ChatMenu extends Application {
         });
         users.getChildren().add(button);//public chat button
 
+        sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
         for(String user : sender.getPrivateChats().keySet()) {
             Button tmp = new Button();
             tmp.setOnMousePressed(mouseEvent -> {
@@ -248,11 +254,11 @@ public class ChatMenu extends Application {
                     else
                         list.getChildren().remove(0);
                 }
-                receiver = chatController.getUserByUsername(user);
+                receiver = getUserByUsername(user);
                 makeChat(sender, receiver);
             });
             buttonStyle(tmp, user);
-            ImageView imageView = makePhoto(chatController.getUserByUsername(user).getPhoto());
+            ImageView imageView = makePhoto(getUserByUsername(user).getPhoto());
             users.getChildren().add(tmp);
             usersPhotos.getChildren().add(imageView);
         }//friend's buttons
@@ -283,32 +289,12 @@ public class ChatMenu extends Application {
         list.getChildren().add(typeMessage);
         list.getChildren().add(back);
     }
-    private void messageStyleSender(Label label, String message) {
-        label.setText(message);
-        label.autosize();
-        label.setStyle("-fx-border-radius: 5;" +
-                "-fx-border-width: 2;" +
-                "-fx-border-color: black;" +
-                "-fx-background-color: #a7ffa7;" +
-                "-fx-text-fill: black;" +
-                "-fx-font-size: 20;" +
-                "-fx-background-radius: 8;");
-    }
-    private void messageStyleReceiver(Label label, String message) {
-        label.setText(message);
-        label.autosize();
-        label.setStyle("-fx-border-radius: 5;" +
-                "-fx-border-width: 2;" +
-                "-fx-border-color: black;" +
-                "-fx-background-color: #fcfcfc;" +
-                "-fx-text-fill: black;" +
-                "-fx-font-size: 20;" +
-                "-fx-background-radius: 8");
-    }
+
     public void makeChat(User sender, User receiver) {
         VBox senderChats = new VBox();
         VBox receiverChats = new VBox();
-        for(Message message : sender.getPrivateChats().get(receiver.getUsername())) {
+        HashMap<String, ArrayList<Message>> sender_chats = (HashMap<String, ArrayList<Message>>) Client.getInstance().getUserPrivateChats(sender.getUsername()).getParams().get("chats");
+        for(Message message : sender_chats.get(receiver.getUsername())) {
             Label label = new Label();
             Label tmp = new Label();
             tmp.setStyle("-fx-border-width: 2;" +
@@ -344,49 +330,17 @@ public class ChatMenu extends Application {
                     ((Label) receiverChats.getChildren().get(i)).getText().endsWith(" - d")) {
                 String message = ((Label) receiverChats.getChildren().get(i)).getText();
                 ((Label) receiverChats.getChildren().get(i)).setText(message.substring(0, message.length() - 4));
-                registerController.writeDataOnJson();
             }
             i--;
         }
-        int j = receiver.getPrivateChats().get(sender.getUsername()).size() - 1;
-        while (j >= 0) {
-            String message = receiver.getPrivateChats().get(sender.getUsername()).get(j).getMessage();
-            if(message.endsWith(" - d")) {
-                receiver.getPrivateChats().get(sender.getUsername()).get(j).
-                        setMessage(message.substring(0, message.length() - 4) + " - s");
-                registerController.writeDataOnJson();
-            }
-            j--;
-        }
+        Client.getInstance().seenMessage(sender, receiver);
         deleteOrEditMessage(senderChats, receiver.getUsername());
         list.getChildren().add(0,nameOfReceiver(receiver.getUsername()));
         list.getChildren().add(photoOfReceiver(receiver.getPhoto().toString()));
         list.getChildren().add(0,senderChats);
         list.getChildren().add(0,receiverChats);
     }
-    private void chooseButtonStyle(Button button) {
-        button.setStyle("-fx-background-color: #000086;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-size: 20;" +
-                "-fx-pref-width: 300;" +
-                "-fx-border-color: white;" +
-                "-fx-border-width: 3;" +
-                "-fx-pref-height: 40");
-        button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #2929ff;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-size: 20;" +
-                "-fx-pref-width: 300;" +
-                "-fx-border-color: white;" +
-                "-fx-border-width: 3;" +
-                "-fx-pref-height: 40"));
-        button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #000086;" +
-                "-fx-text-fill: white;" +
-                "-fx-font-size: 20;" +
-                "-fx-pref-width: 300;" +
-                "-fx-border-color: white;" +
-                "-fx-border-width: 3;" +
-                "-fx-pref-height: 40"));
-    }
+
     private void deleteOrEditMessage(VBox box, String user) {
         VBox choose = new VBox();
         Button edit = new Button();
@@ -444,10 +398,8 @@ public class ChatMenu extends Application {
                                 list.getChildren().remove(list.getChildren().size() - 1);
                                 String finalMessage = result + message.substring(message.length() - 14);
                                 ((Label) box.getChildren().get(flag)).setText(finalMessage);
-                                sender.getPrivateChats().get(user).get(flag).setMessage(finalMessage);
-                                chatController.getUserByUsername(user).getPrivateChats().get(sender.getUsername())
-                                        .get(flag).setMessage(finalMessage);
-                                registerController.writeDataOnJson();
+                                Client.getInstance().editMessage(sender,receiver,finalMessage, flag);
+                                sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
                             }
 
                         });
@@ -457,21 +409,65 @@ public class ChatMenu extends Application {
                         for (int i = 0; i < list.getChildren().size(); i++)
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
-                        sender.getPrivateChats().get(user).get(flag).setMessage("#deleted");
-                        registerController.writeDataOnJson();
+                        Client.getInstance().deleteMessageForSender(sender,receiver, flag);
+                        sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
                     }); //delete message for me
                     choose.getChildren().get(2).setOnMousePressed(mouseEvent1 -> {
                         list.getChildren().remove(choose);
                         for (int i = 0; i < list.getChildren().size(); i++)
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
-                        sender.getPrivateChats().get(user).get(flag).setMessage("#deleted");
-                        chatController.getUserByUsername(user).getPrivateChats().get(sender.getUsername()).get(flag).setMessage("#deleted");
-                        registerController.writeDataOnJson();
+                        Client.getInstance().deleteMessageForAll(sender, receiver, flag);
+                        sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
                     }); //delete message for me and user
                 }
             });
         }
+    }
+    private void messageStyleSender(Label label, String message) {
+        label.setText(message);
+        label.autosize();
+        label.setStyle("-fx-border-radius: 5;" +
+                "-fx-border-width: 2;" +
+                "-fx-border-color: black;" +
+                "-fx-background-color: #a7ffa7;" +
+                "-fx-text-fill: black;" +
+                "-fx-font-size: 20;" +
+                "-fx-background-radius: 8;");
+    }
+    private void messageStyleReceiver(Label label, String message) {
+        label.setText(message);
+        label.autosize();
+        label.setStyle("-fx-border-radius: 5;" +
+                "-fx-border-width: 2;" +
+                "-fx-border-color: black;" +
+                "-fx-background-color: #fcfcfc;" +
+                "-fx-text-fill: black;" +
+                "-fx-font-size: 20;" +
+                "-fx-background-radius: 8");
+    }
+    private void chooseButtonStyle(Button button) {
+        button.setStyle("-fx-background-color: #000086;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20;" +
+                "-fx-pref-width: 300;" +
+                "-fx-border-color: white;" +
+                "-fx-border-width: 3;" +
+                "-fx-pref-height: 40");
+        button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #2929ff;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20;" +
+                "-fx-pref-width: 300;" +
+                "-fx-border-color: white;" +
+                "-fx-border-width: 3;" +
+                "-fx-pref-height: 40"));
+        button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #000086;" +
+                "-fx-text-fill: white;" +
+                "-fx-font-size: 20;" +
+                "-fx-pref-width: 300;" +
+                "-fx-border-color: white;" +
+                "-fx-border-width: 3;" +
+                "-fx-pref-height: 40"));
     }
     private void scrollVbox(VBox vBox1, VBox vBox2) {
         vBox1.setOnScroll((ScrollEvent event) -> {
@@ -501,7 +497,7 @@ public class ChatMenu extends Application {
         Label label = new Label();
         String lastSeen;
         if(!username.equals("public chat")) {
-            lastSeen = chatController.getUserByUsername(username).getLastLogin();
+            lastSeen = getUserByUsername(username).getLastLogin();
             label.setText(username + " - last login: " + lastSeen);
         }
         else

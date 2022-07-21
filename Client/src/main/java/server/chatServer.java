@@ -3,7 +3,6 @@ package server;
 import IO.Client;
 import IO.Request;
 import IO.Response;
-import Models.Menu.Menu;
 import Models.User;
 import Models.chat.Message;
 import Models.chat.publicMessage;
@@ -38,6 +37,7 @@ public class chatServer {
     }//update Json database with arrayList
 
     public ArrayList<publicMessage> getPublicChats() {
+        update();
         return publicChats;
     }
 }

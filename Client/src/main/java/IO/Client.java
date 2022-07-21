@@ -1,6 +1,9 @@
 package IO;
 
 import Models.User;
+import Models.chat.Message;
+import Models.chat.publicMessage;
+import server.chatServer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -83,5 +86,83 @@ public class Client {
         request.addParam("password", password);
         Response response = Client.getInstance().sendRequest(request);
         return response;
+    }
+
+    public Response makeNewChat(String username, User sender) {
+        Request request = new Request();
+        request.setAction("make new chat");
+        request.addParam("username", username);
+        request.addParam("sender", sender);
+        return sendRequest(request);
+    }
+    public Response getUserPrivateChats(String username){
+        Request request = new Request();
+        request.setAction("get user private chats");
+        request.addParam("username", username);
+        return sendRequest(request);
+    }
+
+    public Response seenMessage(User sender, User receiver) {
+        Request request = new Request();
+        request.setAction("seen message");
+        request.addParam("sender", sender);
+        request.addParam("receiver", receiver);
+        return sendRequest(request);
+    }
+
+    public Response editMessage(User sender, User receiver, String finalMessage, int flg) {
+        Request request = new Request();
+        request.setAction("edit message");
+        request.addParam("sender", sender);
+        request.addParam("receiver", receiver);
+        request.addParam("message", finalMessage);
+        request.addParam("index", flg);
+        return sendRequest(request);
+    }
+
+    public Response getUser(String username) {
+        Request request = new Request();
+        request.setAction("get user");
+        request.addParam("username", username);
+        return sendRequest(request);
+    }
+
+    public Response deleteMessageForSender(User sender , User receiver, int flag) {
+        Request request = new Request();
+        request.setAction("delete message for sender");
+        request.addParam("sender", sender);
+        request.addParam("receiver", receiver);
+        request.addParam("index", flag);
+        return sendRequest(request);
+    }
+    public Response deleteMessageForAll(User sender ,User receiver, int flag) {
+        Request request = new Request();
+        request.setAction("delete message for all");
+        request.addParam("sender", sender);
+        request.addParam("receiver", receiver);
+        request.addParam("index", flag);
+        return sendRequest(request);
+    }
+
+    public Response sendPublicMessage(User sender, String message) {
+        publicMessage tmp = new publicMessage(sender.getUsername(), message);
+        Request request = new Request();
+        request.setAction("send public message");
+        request.addParam("sender", sender);
+        request.addParam("message", tmp);
+        return sendRequest(request);
+    }
+
+    public Response sendMessage(User sender, User receiver, String message) {
+        Message tmp1 = new Message(sender.getUsername(), receiver.getUsername(), message + " - d");
+        Message tmp2 = new Message(sender.getUsername(), receiver.getUsername(), message);
+
+        Request request = new Request();
+        request.setAction("send message");
+        request.addParam("sender", sender);
+        request.addParam("receiver", receiver);
+        request.addParam("senderMessage", tmp1);
+        request.addParam("receiverMessage", tmp2);
+        return sendRequest(request);
     }
 }
