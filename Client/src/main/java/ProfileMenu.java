@@ -1,5 +1,5 @@
-import Controllers.ProfileController;
-import Controllers.RegisterController;
+
+import IO.Client;
 import enums.profileEnum;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -12,7 +12,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import Models.Menu.Menu;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -22,15 +21,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import javax.swing.*;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class ProfileMenu extends Application {
     public Pane list;
-    private final RegisterController registerController = new RegisterController();
 
     public void initialize() {
         list.getChildren().get(0).setOnMouseMoved(mouseEvent1 ->
@@ -72,7 +68,7 @@ public class ProfileMenu extends Application {
         vBox.getChildren().get(3).setStyle("-fx-pref-width: 150; -fx-pref-height: 18;");
         ((Button) vBox.getChildren().get(2)).setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                String message = checkNewNickname(((TextField) vBox.getChildren().get(1)).getText());
+                String message = Client.getInstance().changeNickname(((TextField) vBox.getChildren().get(1)).getText()).getMassage();
                 if(message.equals(profileEnum.successfulNicknameChange.regex)) {
                     list.getChildren().remove(list.getChildren().size() - 1);
                     list.getChildren().get(0).setDisable(false);
@@ -123,7 +119,7 @@ public class ProfileMenu extends Application {
         vBox.getChildren().get(5).setStyle("-fx-pref-width: 150; -fx-pref-height: 18;");
         ((Button) vBox.getChildren().get(4)).setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                String message = checkNewPassword(((TextField) vBox.getChildren().get(1)).getText(), ((TextField) vBox.getChildren().get(3)).getText());
+                String message = Client.getInstance().changePassword(((TextField) vBox.getChildren().get(1)).getText(), ((TextField) vBox.getChildren().get(3)).getText()).getMassage();
                 if(message.equals(profileEnum.successfulPassChange.regex)) {
                     list.getChildren().remove(list.getChildren().size() - 1);
                     list.getChildren().get(0).setDisable(false);
@@ -148,21 +144,15 @@ public class ProfileMenu extends Application {
         list.getChildren().get(0).setDisable(true);
     }
 
-    private String checkNewNickname(String nickname) {
-        ProfileController profileController = new ProfileController();
-        return profileController.changeNickname(nickname);
-    }
-    private String checkNewPassword(String currPass, String newPass) {
-        ProfileController profileController = new ProfileController();
-        return profileController.matchNewPassword(currPass, newPass);
-    }
+
+
 
     public void changePhotoMenu(MouseEvent mouseEvent) throws MalformedURLException {
         Rectangle rectangle1 = new Rectangle(110, 110);
         rectangle1.setX(585);
         rectangle1.setY(60);
         list.getChildren().add(1, rectangle1);
-        list.getChildren().add(2, new ImageView(new Image(String.valueOf(Menu.loggedInUser.getPhoto()))));
+        list.getChildren().add(2, new ImageView(new Image(String.valueOf(Client.getInstance().getLoggedInUser().getPhoto()))));
         ((ImageView) list.getChildren().get(2)).setFitWidth(100);
         ((ImageView) list.getChildren().get(2)).setFitHeight(100);
         ((ImageView) list.getChildren().get(2)).setX(590);
@@ -208,10 +198,9 @@ public class ProfileMenu extends Application {
                 try {
                     if(vBox.getChildren().size() == 5)
                         vBox.getChildren().remove(vBox.getChildren().size() - 1);
-                    Menu.loggedInUser.setPhoto(new URL(getClass().getResource("photos/profilePhotos/avatar" +
+                    Client.getInstance().setPhoto(new URL(getClass().getResource("photos/profilePhotos/avatar" +
                             (flag + 1) + ".png").toExternalForm()));
-                    ((ImageView) list.getChildren().get(2)).setImage(new Image(String.valueOf(Menu.loggedInUser.getPhoto())));
-                    registerController.writeDataOnJson();
+                    ((ImageView) list.getChildren().get(2)).setImage(new Image(String.valueOf(Client.getInstance().getLoggedInUser().getPhoto())));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
@@ -245,9 +234,8 @@ public class ProfileMenu extends Application {
                 if(vBox.getChildren().size() == 5)
                     vBox.getChildren().remove(vBox.getChildren().size() - 1);
                 try {
-                    Menu.loggedInUser.setPhoto(path.toURI().toURL());
-                    registerController.writeDataOnJson();
-                    ((ImageView) list.getChildren().get(2)).setImage(new Image(String.valueOf(Menu.loggedInUser.getPhoto())));
+                    Client.getInstance().setPhoto(path.toURI().toURL());
+                    ((ImageView) list.getChildren().get(2)).setImage(new Image(String.valueOf(Client.getInstance().getLoggedInUser().getPhoto())));
                 } catch (MalformedURLException ex) {
                     ex.printStackTrace();
                 }

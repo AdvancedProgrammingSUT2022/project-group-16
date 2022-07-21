@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Client {
@@ -163,6 +164,28 @@ public class Client {
         request.addParam("receiver", receiver);
         request.addParam("senderMessage", tmp1);
         request.addParam("receiverMessage", tmp2);
+        return sendRequest(request);
+    }
+
+    public Response changeNickname(String nickname) {
+        Request request = new Request();
+        request.setAction("change nickname");
+        request.addParam("nickname", nickname);
+        return sendRequest(request);
+    }
+
+    public Response changePassword(String currentPass, String newPass) {
+        Request request = new Request();
+        request.setAction("change password");
+        request.addParam("current", currentPass);
+        request.addParam("new", newPass);
+        return sendRequest(request);
+    }
+
+    public Response setPhoto(URL url) {
+        Request request = new Request();
+        request.setAction("change photo");
+        request.addParam("url", url);
         return sendRequest(request);
     }
 }

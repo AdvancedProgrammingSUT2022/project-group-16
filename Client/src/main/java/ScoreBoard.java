@@ -1,4 +1,5 @@
-import Models.Menu.Menu;
+
+import IO.Client;
 import Models.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +16,7 @@ import javafx.stage.Stage;
 
 import javafx.scene.image.ImageView;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class ScoreBoard extends Application {
@@ -36,19 +38,20 @@ public class ScoreBoard extends Application {
             }
         });
         photos.setSpacing(20);
-        for(User user : Menu.allUsers)
+        ArrayList<User> allUsers = Client.getInstance().getAllUsers();
+        for(User user : allUsers)
             user.setScore(user.getScore() * -1);
-        Menu.allUsers.sort(Comparator.comparing(User::getScore).thenComparing(User::getLastTimeOfWin).thenComparing(User::getUsername));
-        for(User user : Menu.allUsers)
+        allUsers.sort(Comparator.comparing(User::getScore).thenComparing(User::getLastTimeOfWin).thenComparing(User::getUsername));
+        for(User user : allUsers)
             user.setScore(user.getScore() * -1);
-        for (int i = 0; i < Menu.allUsers.size(); i++) {
+        for (int i = 0; i < allUsers.size(); i++) {
             Label label = new Label();
-            User user = Menu.allUsers.get(i);
+            User user = allUsers.get(i);
             label.setText((i + 1) + " - username: " +
                     user.getUsername() + " - Score: " +
                     user.getScore() + " - last time of winning: " +
                     user.getLastTimeOfWin() + " - last login: " + user.getLastLogin());
-            if(Menu.loggedInUser == user)
+            if(Client.getInstance().getLoggedInUser() == user)
                 setLoggedInLabelStyle(label);
             else
                 setLabelStyle(label);

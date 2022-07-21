@@ -1,5 +1,6 @@
 package IO;
 
+import Controllers.ProfileController;
 import Models.Menu.Menu;
 import Models.User;
 import Models.chat.Message;
@@ -62,10 +63,35 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("delete message for all")) return deleteMessageForAll(request);
         else if(request.getAction().equals("send public message")) return sendPublicMessage(request);
         else if(request.getAction().equals("send message")) return sendMessage(request);
-
-
+        else if(request.getAction().equals("change nickname")) return changeNickname((String)request.getParams().get("nickname"));
+        else if(request.getAction().equals("change password")) return changePassword(request);
+        else if(request.getAction().equals("change photo")) return changePhoto((URL)request.getParams().get("url"));
 
         return null;
+    }
+
+    private Response changePhoto(URL url) {
+        Menu.loggedInUser.setPhoto(url);
+        Server.registerController.writeDataOnJson();
+        return new Response();
+    }
+
+    private Response changePassword(Request request) {
+        String current = (String) request.getParams().get("current");
+        String newPass = (String) request.getParams().get("new");
+        ProfileController profileController = new ProfileController();
+        String message = profileController.matchNewPassword(current, newPass);
+        Response response = new Response();
+        response.addMassage(message);
+        return response;
+    }
+
+    private Response changeNickname(String nickname) {
+        ProfileController profileController = new ProfileController();
+        String message = profileController.changeNickname(nickname);
+        Response response = new Response();
+        response.addMassage(message);
+        return response;
     }
 
     private Response sendMessage(Request request) {
