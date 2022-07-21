@@ -13,6 +13,7 @@ import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.*;
 import Models.Terrain.*;
+import Models.TypeAdapters.*;
 import Models.Units.CombatUnits.*;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.CommandHandeling.UnitCommandsHandler;
@@ -20,6 +21,7 @@ import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import Models.User;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
@@ -47,6 +49,7 @@ public class GameController implements Serializable
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 	private int yearCounter = 2000;
+	private Gson gson;
 
 	public int getMAP_SIZE() {
 		return MAP_SIZE;
@@ -60,6 +63,14 @@ public class GameController implements Serializable
 	private GameController()
 	{
 		initGrid();
+
+		GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+		gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
+		gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
+		gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
+		gsonBuilder.registerTypeAdapter(Resource.class, new ResourceTypeAdapter());
+		gsonBuilder.registerTypeAdapter(Unit.class, new UnitTypeAdapter());
+		gson = gsonBuilder.create();
 	}
 	// this method is called to get the GameController singleton instance
 	public static GameController getInstance()
@@ -811,6 +822,71 @@ public class GameController implements Serializable
 			new Settler(player, startingTile);
 			player.updateTileStates();
 		}
+	}
+
+	public String gameControllerToJson(GameController gameController)
+	{
+		gameController.playerTurnIndex = gameController.getPlayers().indexOf(gameController.getPlayerTurn());
+		for (Player player : gameController.getPlayers())
+		{
+			for (Unit unit : player.getUnits())
+				unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
+
+			player.mapKeyset.clear();
+			player.mapValueset.clear();
+			for (Tile tile : player.getMap().keySet())
+			{
+				player.mapKeyset.add(tile);
+				player.mapValueset.add(player.getMap().get(tile));
+			}
+		}
+
+		String gameStr = gson.toJson(gameController);
+
+		return gameStr;
+	}
+	public GameController jsonToGameController(String jsonStr)
+	{
+		GameController loadedGameController = gson.fromJson(jsonStr, GameController.class);
+		for (Player player : loadedGameController.getPlayers())
+		{
+			player.setGameController(loadedGameController);
+			// set player map
+			HashMap<Tile, TileState> playerMap = new HashMap<>();
+			for (int i = 0; i < player.mapKeyset.size(); i++)
+			{
+				if(player.mapValueset.get(i).equals(TileState.REVEALED))
+					playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
+				else
+					playerMap.put(loadedGameController.getTileByXY(player.mapKeyset.get(i).getPosition().X, player.mapKeyset.get(i).getPosition().Y), player.mapValueset.get(i));
+			}
+			player.setMap(playerMap);
+
+			// set transient fields
+			for (City city : player.getCities())
+			{
+				city.setRulerPlayer(player);
+				for (Citizen citizen : city.getCitizens())
+					citizen.setCity(city);
+
+				for (Building building : city.getBuildings())
+					building.setTile(player.getTileByXY(building.getTile().getPosition().X, building.getTile().getPosition().Y));
+			}
+			for (Unit unit : player.getUnits())
+			{
+				unit.setRulerPlayer(player);
+
+				Tile tile = player.getTileByXY(unit.lastPositionForSave.X, unit.lastPositionForSave.Y);
+				unit.setTile(tile);
+				if(unit instanceof CombatUnit)
+					tile.setCombatUnitInTile((CombatUnit) unit);
+				else
+					tile.setNonCombatUnitInTile((NonCombatUnit) unit);
+			}
+		}
+		loadedGameController.setPlayerTurn(loadedGameController.getPlayers().get(loadedGameController.playerTurnIndex));
+
+		return loadedGameController;
 	}
 	public boolean isTileInPlayerTerritory(Position position)
 	{

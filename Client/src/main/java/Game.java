@@ -1,13 +1,10 @@
 import Controllers.GameController;
 import Controllers.RegisterController;
-import Models.City.Citizen;
-import Models.City.City;
-import Models.City.CityState;
+import Models.City.*;
 import Models.Player.Notification;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.*;
-import Models.City.Construction;
 import Models.Player.*;
 import Models.Terrain.Position;
 import Models.Terrain.Tile;
@@ -95,8 +92,6 @@ public class Game extends Application {
     private static boolean movingDown;
     private static boolean movingRight;
 
-	private Gson gson;
-
     @Override
     public void start(Stage stage) throws Exception {
         ChatMenu.isGameStarted = true;
@@ -178,48 +173,8 @@ public class Game extends Application {
     }
     private void loadGame()
     {
-        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
-        gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
-        gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
-        gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
-        gsonBuilder.registerTypeAdapter(Resource.class, new ResourceTypeAdapter());
-        gsonBuilder.registerTypeAdapter(Unit.class, new UnitTypeAdapter());
-        gson = gsonBuilder.create();
-
         // new game or load game?
-        switch (NewGame.newGameMode)
-        {
-            case "newGame":
-                gameController.initGame();
-                break;
-            case "autosave":
-                GameController newGameController = loadGameFromFile("autosave.json");
-                gameController = newGameController;
-                GameController.setInstance(newGameController);
-                break;
-            case "save1":
-                GameController newGameController1 = loadGameFromFile("save1.json");
-                gameController = newGameController1;
-                GameController.setInstance(newGameController1);
-                break;
-            case "save2":
-                GameController newGameController2 = loadGameFromFile("save2.json");
-                gameController = newGameController2;
-                GameController.setInstance(newGameController2);
-                break;
-            case "save3":
-                GameController newGameController3 = loadGameFromFile("save3.json");
-                gameController = newGameController3;
-                GameController.setInstance(newGameController3);
-                break;
-            case "save4":
-                GameController newGameController4 = loadGameFromFile("save4.json");
-                gameController = newGameController4;
-                GameController.setInstance(newGameController4);
-                break;
-            default:
-                throw new RuntimeException("invalid newGameMode");
-        }
+        gameController.initGame();
 
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
@@ -305,8 +260,6 @@ public class Game extends Application {
     public void updateScreen()
     {
         hexagonsPane.getChildren().clear();
-//        hexagonsPane.setLayoutX(100);
-//        hexagonsPane.setLayoutY(45);
 
         // update tiles
         int x = 0;
@@ -376,12 +329,6 @@ public class Game extends Application {
         playerTurnTiles.forEach(Hex::addHex);
     }
     public void changeTurn(MouseEvent mouseEvent) {
-        //        for(int i= 0; i < GameController.getInstance().MAP_SIZE; i++){
-//            for(int j = 0; j < GameController.getInstance().MAP_SIZE; j++){
-//                hexagons[i][j].removeHex();
-//            }
-//        }
-//        playerTurnTiles.clear();
         String changeTurnResult = gameController.checkChangeTurn();
         if (changeTurnResult != null && changeTurnResult.equals("game Ended"))
         {
@@ -402,103 +349,12 @@ public class Game extends Application {
             pane.getChildren().add(diplomacyAlert);
             setCoordinates(pane, 1210, 335);
         }
-        if(isAutoSaveOn)
-            saveGameToFile("autosave.json");
         if (gameController.getPlayerTurn() == gameController.getPlayers().get(0))
         {
             updateTurnNumber();
             updateYear(); //5 turn == 1 year
         }
     }
-
-    private void saveGameToFile(String fileName)
-    {
-        try
-        {
-            URI uri = GameController.class.getClassLoader().getResource("savedGames/" + fileName).toURI();
-            Path path = Paths.get(uri);
-            Files.write(path, gameControllerToJson(gameController).getBytes());
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    private GameController loadGameFromFile(String fileName)
-    {
-        try
-        {
-            URI uri = GameController.class.getClassLoader().getResource("savedGames/" + fileName).toURI();
-            Path path = Paths.get(uri);
-            String json = new String(Files.readAllBytes(path));
-            return jsonToGameController(json);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-	private String gameControllerToJson(GameController gameController)
-	{
-        gameController.playerTurnIndex = gameController.getPlayers().indexOf(gameController.getPlayerTurn());
-		for (Player player : gameController.getPlayers())
-		{
-            for (Unit unit : player.getUnits())
-                unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
-
-			player.mapKeyset.clear();
-			player.mapValueset.clear();
-			for (Tile tile : player.getMap().keySet())
-			{
-				player.mapKeyset.add(tile);
-				player.mapValueset.add(player.getMap().get(tile));
-			}
-		}
-
-		String gameStr = gson.toJson(gameController);
-
-		return gameStr;
-	}
-	private GameController jsonToGameController(String jsonStr)
-	{
-		GameController loadedGameController = gson.fromJson(jsonStr, GameController.class);
-		for (Player player : loadedGameController.getPlayers())
-		{
-			player.setGameController(loadedGameController);
-			// set player map
-			HashMap<Tile, TileState> playerMap = new HashMap<>();
-			for (int i = 0; i < player.mapKeyset.size(); i++)
-            {
-                if(player.mapValueset.get(i).equals(TileState.REVEALED))
-				    playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
-                else
-                    playerMap.put(loadedGameController.getTileByXY(player.mapKeyset.get(i).getPosition().X, player.mapKeyset.get(i).getPosition().Y), player.mapValueset.get(i));
-            }
-			player.setMap(playerMap);
-
-			// set transient fields
-			for (City city : player.getCities())
-			{
-				city.setRulerPlayer(player);
-				for (Citizen citizen : city.getCitizens())
-					citizen.setCity(city);
-			}
-			for (Unit unit : player.getUnits())
-            {
-				unit.setRulerPlayer(player);
-
-                Tile tile = player.getTileByXY(unit.lastPositionForSave.X, unit.lastPositionForSave.Y);
-                unit.setTile(tile);
-                if(unit instanceof CombatUnit)
-                    tile.setCombatUnitInTile((CombatUnit) unit);
-                else
-                    tile.setNonCombatUnitInTile((NonCombatUnit) unit);
-            }
-		}
-        loadedGameController.setPlayerTurn(loadedGameController.getPlayers().get(loadedGameController.playerTurnIndex));
-
-		return loadedGameController;
-	}
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
                 "-fx-background-color: #572e2e;" +
@@ -1524,11 +1380,6 @@ public class Game extends Application {
             box.getChildren().add(button);
         }
 
-        box.getChildren().get(0).setOnMouseClicked(mouseEvent -> save1());
-        box.getChildren().get(1).setOnMouseClicked(mouseEvent -> save2());
-        box.getChildren().get(2).setOnMouseClicked(mouseEvent -> save3());
-        box.getChildren().get(3).setOnMouseClicked(mouseEvent -> save4());
-
         list.getChildren().add(box);
         setCoordinates(list, 100, 45);
         list.getChildren().add(exitButtonStyle());
@@ -2161,16 +2012,5 @@ public class Game extends Application {
     public void showDiplomacy(MouseEvent mouseEvent) {
         showDiplomacy();
     }
-    private void save1() {
-        saveGameToFile("save1.json");
-    }
-    private void save2() {
-        saveGameToFile("save2.json");
-    }
-    private void save3() {
-        saveGameToFile("save3.json");
-    }
-    private void save4() {
-        saveGameToFile("save4.json");
-    }
+
 }

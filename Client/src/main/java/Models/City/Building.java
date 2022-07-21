@@ -5,7 +5,7 @@ import Models.Terrain.Tile;
 public class Building extends Construction
 {
 	private final BuildingType buildingType;
-	private final Tile tile;
+	private Tile tile;
 	private int hitPoints;
 	private City city;
 	
@@ -30,6 +30,10 @@ public class Building extends Construction
 	public Tile getTile()
 	{
 		return tile;
+	}
+	public void setTile(Tile tile)
+	{
+		this.tile = tile;
 	}
 	public int getHitPoints()
 	{
