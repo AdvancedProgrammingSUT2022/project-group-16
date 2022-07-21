@@ -49,6 +49,7 @@ public class City
 		rulerPlayer.addCity(this);
 		if(rulerPlayer.getCities().size() == 1)
 		{
+			rulerPlayer.setHasCity(true);
 			cupYield = 3;
 			rulerPlayer.setCup(3);
 			rulerPlayer.setCurrentCapitalCity(this);

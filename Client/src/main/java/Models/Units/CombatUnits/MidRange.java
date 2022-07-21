@@ -43,24 +43,45 @@ public class MidRange extends CombatUnit{
         this.setMovementPoints(0);
         this.setXP(this.getXP() + 10);
         unit.setXP(unit.getXP() + 10);
+
+        //primary power
         int myPower = this.getPower() + (int) ( (double)(this.getTile().getTileType().combatModifier * this.getPower()) / 100.0) +
                 (int) ( (double)(this.getTile().getTileFeature().combatModifier * this.getPower()) / 100.0);
+        //final power
         myPower = (1 - ((MAX_HEALTH - this.getHealth()) / 10 ))* myPower;
+        //primary enemy power
         int enemyPower = unit.getPower() + (int) ( (double)(unit.getTile().getTileType().combatModifier * unit.getPower()) / 100.0) +
                 (int) ( (double)(unit.getTile().getTileFeature().combatModifier * unit.getPower()) / 100.0);
+        //final enemy power
         enemyPower = (1 - ((unit.MAX_HEALTH - unit.getHealth()) / 10 ))* enemyPower;
-        this.setHealth(this.getHealth() - enemyPower);
-        unit.setHealth(unit.getHealth() - myPower);
-        if(this.getHealth() <= 0){
-            this.destroy();
-        }
-        if(unit.getHealth() <= 0 && this.getHealth() > 0){
+        int enemyHealth = unit.getHealth() - myPower;
+        int myHealth = this.getHealth() - enemyPower;
+
+        if (enemyHealth <= 0) {
             this.setMovementPoints(type.movement);
             Tile destination = unit.getTile();
             calculateXPs(destination);
             unit.destroy();
             this.move(destination);
-            destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+            destination.setCombatUnitInTile(this);
+            if (destination.getNonCombatUnitInTile() != null) {
+                destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+            }
+        }
+        else if (myHealth <= 0)
+        {
+            unit.setMovementPoints(type.movement);
+            Tile destination = this.getTile();
+            calculateXPs(destination);
+            this.destroy();
+            unit.move(destination);
+            destination.setCombatUnitInTile(unit);
+            if (destination.getNonCombatUnitInTile() != null)
+                destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+        }
+        else {
+            this.setHealth(myHealth);
+            unit.setHealth(enemyHealth);
         }
     }
 

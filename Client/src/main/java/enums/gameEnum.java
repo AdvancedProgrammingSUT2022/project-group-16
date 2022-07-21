@@ -26,6 +26,7 @@ public enum gameEnum
     lessThanFour("please pick less than 4 players:)"),
     playerExist("player doesn't exist"),
     successfulStartGame("game started"),
+    MP("no movement points"),
     currentMenu("Game Menu"),
     loggedInPlayerInCandidates("you can not play with yourself!"),
     AMERICAN("1: American," + Civilization.AMERICAN.leaderName),

@@ -130,7 +130,8 @@ public class Worker extends NonCombatUnit{
         }
 
         if(this.getTile().getTileType().equals(TileType.TUNDRA) || (this.getTile().getTileFeature() != null && this.getTile().getTileFeature().equals(TileFeature.ICE)) ||
-            this.getTile().getResource() != null) return "can't build farm on this tile";
+            this.getTile().getResource() != null)
+            return "can't build farm on this tile";
 
         if(this.getTile().getTileFeature() != null && this.getTile().getTileFeature().equals(TileFeature.FOREST) && this.getRulerPlayer().getTechnologies().contains(Technology.MINING)){
             this.improvements.get(0).turnToConstruct = 10;

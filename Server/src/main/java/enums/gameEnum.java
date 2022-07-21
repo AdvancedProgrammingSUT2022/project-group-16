@@ -14,7 +14,7 @@ public enum gameEnum
     next("^\\s*[nN]ext\\s*$"),
     end("^\\s*[eE]nd\\s*$"),
     buildUnit("^\\s*[bB]uild\\s+[uU]nit\\s*$"),
-//    lockCitizenToTile("^\\s*[lL]ock\\s+[cC]itizen\\s+[tT]o\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    //    lockCitizenToTile("^\\s*[lL]ock\\s+[cC]itizen\\s+[tT]o\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     lockCitizenToTile("(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     unLockCitizenToTile("^\\s*[uU]nlock\\s+[cC]itizen\\s+[fF]rom\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
 
@@ -26,6 +26,7 @@ public enum gameEnum
     lessThanFour("please pick less than 4 players:)"),
     playerExist("player doesn't exist"),
     successfulStartGame("game started"),
+    MP("no movement points"),
     currentMenu("Game Menu"),
     loggedInPlayerInCandidates("you can not play with yourself!"),
     AMERICAN("1: American," + Civilization.AMERICAN.leaderName),

@@ -47,6 +47,7 @@ public class GameController implements Serializable
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 	private int yearCounter = 2000;
+	private boolean isGameStarted = true;
 
 	public int getMAP_SIZE() {
 		return MAP_SIZE;
@@ -79,6 +80,7 @@ public class GameController implements Serializable
 		// if there is a unit which has not used its turn, it returns the unit's name with error message //TODO: is this needed?
 		//TODO: check if unit has used its turn
 
+		//if city size == 0
 		if (isGameEnd() != null)
 			return "game Ended";
 		changeTurn();
@@ -96,8 +98,6 @@ public class GameController implements Serializable
 			for(City city : player.getCities())
 				city.updateCityCombatStrength();
 		}
-
-		// reset all units turns. TODO: is this needed?
 
 		playerTurn.setSelectedUnit(null);
 		playerTurn.setSelectedCity(null);
@@ -137,6 +137,18 @@ public class GameController implements Serializable
 				yearCounter++;
 			updateFortifyTilHeal();
 			updateCityConstructions();
+		}
+
+		//end game
+		players.removeIf(player -> player.isHasCity() && player.getCities().size() == 0);
+
+		if (isGameEnd() != null && isGameStarted) {
+			isGameStarted = false;
+			Player winner = isGameEnd();
+			User userWinner = Menu.allUsers.get(Menu.allUsers.indexOf(
+					registerController.getUserByUsername(winner.getUsername())));
+			userWinner.setScore(userWinner.getScore() + winner.getGameScore() / 10);
+			registerController.writeDataOnJson();
 		}
 
 		// change playerTurn
@@ -1005,7 +1017,7 @@ public class GameController implements Serializable
 			if(Technology.values()[i].name().toLowerCase(Locale.ROOT).equals(matcher.group("name").toLowerCase(Locale.ROOT)) &&
 					playerTurn.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies))
 			{
-				playerTurn.setScore(playerTurn.getScore() + 3 * MAP_SIZE);
+				playerTurn.setGameScore(playerTurn.getGameScore() + 3 * MAP_SIZE);
 				playerTurn.addTechnology(Technology.values()[i]);
 				return matcher.group("name") + cheatCode.addSuccessful.regex;
 			}
@@ -1432,13 +1444,6 @@ public class GameController implements Serializable
 				Tile destinationTile = getTileByXY(newX, newY);
 				Unit unitToMove = playerTurn.getSelectedUnit();
 
-				//validation
-				if(destinationTile.getCombatUnitInTile() != null && destinationTile.getCombatUnitInTile().getRulerPlayer() != playerTurn)
-					return mainCommands.invalidCommand.regex;
-				if((unitToMove instanceof CombatUnit && destinationTile.getCombatUnitInTile() != null) ||
-						(unitToMove instanceof NonCombatUnit && destinationTile.getNonCombatUnitInTile() != null))
-					return mainCommands.unitLimit.regex;
-
 				// move unit
 				return unitToMove.move(destinationTile);
 			}
@@ -1782,7 +1787,7 @@ public class GameController implements Serializable
 				return unitCommands.hasCity.regex;
 			else
 			{
-				playerTurn.setScore(playerTurn.getScore() + 5 * MAP_SIZE);
+				playerTurn.setGameScore(playerTurn.getGameScore() + 5 * MAP_SIZE);
 				((Settler) playerTurn.getSelectedUnit()).createCity();
 				if(playerTurn.getCities().size() != 1)
 					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
@@ -1835,13 +1840,11 @@ public class GameController implements Serializable
 	}
 	public ArrayList<CombatUnit> getTileCUnits(Tile tile){
 		ArrayList<CombatUnit> answer = new ArrayList<>();
-		for (Player player : players) {
-			for (Unit unit : player.getUnits()) {
-				if(unit instanceof CombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
+		for (Player player : players)
+			for (Unit unit : player.getUnits())
+				if(unit instanceof CombatUnit && unit.getTile().getPosition().X == tile.getPosition().X &&
+						unit.getTile().getPosition().Y == tile.getPosition().Y)
 					answer.add((CombatUnit) unit);
-				}
-			}
-		}
 		return answer;
 	}
 	public ArrayList<NonCombatUnit> getTileNCUnits(Tile tile){
@@ -2467,10 +2470,10 @@ public class GameController implements Serializable
 		if (yearCounter >= 2050) {
 			int max = 0;
 			for (Player player : players)
-				if (player.getScore() > max)
-					max = player.getScore();
+				if (player.getGameScore() > max)
+					max = player.getGameScore();
 			for (Player player : players)
-				if (player.getScore() == max)
+				if (player.getGameScore() == max)
 					return player;
 		}
 
