@@ -3,8 +3,7 @@ package enums.gameCommands;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum unitCommands
-{
+public enum unitCommands {
     //commands
 //    moveTo("^\\s*[uU]nit\\s+[mM]ove\\s*[tT]o\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     moveTo("^\\s*(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
@@ -14,7 +13,7 @@ public enum unitCommands
     fortifyHeal("^\\s*[uU]nit\\s+[fF]ortify\\s+[hH]eal\\s*$"),
     garrison("^\\s*[uU]nit\\s+[gG]arrison\\s*$"),
     setup("^\\s*(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
-//    attack("^\\s*[uU]nit\\s+[aA]ttack\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    //    attack("^\\s*[uU]nit\\s+[aA]ttack\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     attack("^\\s*(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     pillage("^\\s*[uU]nit\\s+[pP]illage\\s*$"),
     foundCity("^\\s*[uU]nit\\s+[fF]ound\\s+[cC]ity\\s*$"),
@@ -116,15 +115,13 @@ public enum unitCommands
 
     public final String regex;
 
-    unitCommands(String regex)
-    {
+    unitCommands(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, unitCommands regex)
-    {
+    public static Matcher compareRegex(String command, unitCommands regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }

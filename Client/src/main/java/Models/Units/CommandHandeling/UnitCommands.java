@@ -33,7 +33,7 @@ public enum UnitCommands {
     REPAIR_TILE();
 
 
-    private Tile movementDestination ;
+    private Tile movementDestination;
 
     public Tile getDestination() {
         return movementDestination;

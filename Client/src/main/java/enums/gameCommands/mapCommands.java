@@ -3,8 +3,7 @@ package enums.gameCommands;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum mapCommands
-{
+public enum mapCommands {
     //comamnds
     mapShow("^\\s*[mM]ap\\s+[sS]how.*$"),
     shortNewNumber("^ -c\\s+(?<c>-{0,1}[0-9]+).*$"),
@@ -24,15 +23,13 @@ public enum mapCommands
 
     public final String regex;
 
-    mapCommands(String regex)
-    {
+    mapCommands(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, mapCommands regex)
-    {
+    public static Matcher compareRegex(String command, mapCommands regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }

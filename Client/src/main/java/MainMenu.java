@@ -1,4 +1,4 @@
-import Models.Menu.Menu;
+import IO.Client;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -23,12 +23,13 @@ public class MainMenu extends Application {
         launch(args);
     }
 
+
     public void exit() {
         Platform.exit();
     }
 
     public void logout(MouseEvent mouseEvent) throws Exception {
-        Menu.loggedInUser = null;
+        Client.getInstance().logout();
         loginPage loginPage = new loginPage();
         loginPage.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }

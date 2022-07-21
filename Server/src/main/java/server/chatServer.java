@@ -11,20 +11,12 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class chatServer {
-    private ArrayList<User> onlineUsers = new ArrayList<>();
+    private HashMap<User, Socket> onlineUsers = new HashMap<>();
     public static ArrayList<publicMessage> publicChats = new ArrayList<>();
 
-    public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(6665);
-        while (true)
-        {
-            Socket socket = serverSocket.accept();
-            ServerThread myThread = new ServerThread(socket);
-            myThread.start();
-        }
-    }
     public void update()
     {
         try {
@@ -59,5 +51,17 @@ public class chatServer {
 
     public ArrayList<publicMessage> getPublicChats() {
         return publicChats;
+    }
+
+    public HashMap<User, Socket> getOnlineUsers() {
+        return onlineUsers;
+    }
+
+    public void addOnlineUser(User user, Socket socket) {
+        this.onlineUsers.put(user, socket);
+    }
+
+    public void removeOnlineUser(User user) {
+        this.onlineUsers.remove(user);
     }
 }

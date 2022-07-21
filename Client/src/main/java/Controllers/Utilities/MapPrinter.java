@@ -24,7 +24,7 @@ public class MapPrinter
 	private static int mapSize;
 	private static StringBuilder mapString;
 	private final static Attribute FOG_OF_WAR_ATTRIBUTE = Attribute.BACK_COLOR(255, 255, 255); // JColor.Attribute of fog of war
-	
+
 	public static String getMapString(Player player, GameController gc)
 	{
 		MapPrinter.player = player;
@@ -32,7 +32,7 @@ public class MapPrinter
 		GameController gameController = gc;
 		MapPrinter.mapSize = gameController.MAP_SIZE;
 		mapString = new StringBuilder();
-		
+
 		printFirstLine();
 		for(int i = 1; i <= gameController.MAP_SIZE * 8 + 3; i++)
 			switch(i % 8)
@@ -64,7 +64,7 @@ public class MapPrinter
 			}
 		printLastLine();
 		printMapGuide();
-		
+
 		return mapString.toString();
 	}
 	private static void printFog(int number)
@@ -82,7 +82,7 @@ public class MapPrinter
 				neighborTile = player.getTileByXY(tile.getPosition().X - 1, tile.getPosition().Y);
 			else
 				neighborTile = player.getTileByXY(tile.getPosition().X + 1, tile.getPosition().Y);
-			
+
 			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
 				printFog(10);
 			else
@@ -102,7 +102,7 @@ public class MapPrinter
 				neighborTile = player.getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R, tile.getPosition().S - 1);
 			else //if(borderIndex == 5)
 				neighborTile = player.getTileByQRS(tile.getPosition().Q + 1, tile.getPosition().R - 1, tile.getPosition().S);
-			
+
 			if(map.get(tile).equals(TileState.FOG_OF_WAR) || (neighborTile != null && map.get(neighborTile).equals(TileState.FOG_OF_WAR)))
 				printFog(1);
 			else
@@ -117,9 +117,9 @@ public class MapPrinter
 	private static void printMapGuide()
 	{
 		mapString.append("\n");
-		
+
 		mapString.append(Ansi.colorize("Map Guide:\n", Attribute.WHITE_BACK(), Attribute.BLACK_TEXT()));
-		
+
 		mapString.append(String.format("%-15s    ", "Tile types:"));
 		Arrays.asList(TileType.values()).forEach((tileType)->{
 			mapString.append(tileType).append(":");
@@ -170,7 +170,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 				if(tile == null)
 				{
@@ -212,7 +212,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 			{
 				if(tile == null)
@@ -259,7 +259,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 			{
 				if(tile == null)
@@ -306,7 +306,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 			{
 				if(i == 0)
@@ -335,7 +335,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 			{
 				if(i == 0)
@@ -358,7 +358,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 			{
 				if(i == 0)
@@ -384,7 +384,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 			{
 				if(i == 0)
@@ -411,7 +411,7 @@ public class MapPrinter
 		{
 			int row = (i % 2 == 0) ? (line - 1) / 8 : Math.floorDiv((line - 5), 8);
 			Tile tile = player.getTileByXY(row, i);
-			
+
 			if(i % 2 == 0)
 			{
 				if(i == 0)
@@ -453,7 +453,7 @@ public class MapPrinter
 		{
 			mapString.append(Ansi.colorize(String.format(" (%-2d,%2d)", tile.getPosition().X, tile.getPosition().Y),
 					tile.getTileType().attribute, Attribute.BLACK_TEXT()));
-			
+
 			City tileCity = player.getTileCity(tile);
 			if(tileCity == null || !tileCity.getCapitalTile().equals(tile))
 				mapString.append(Ansi.colorize("  ", tile.getTileType().attribute));
@@ -544,7 +544,7 @@ public class MapPrinter
 					unitAttribute = Attribute.YELLOW_BACK();
 				else
 					unitAttribute = tile.getTileType().attribute;
-				
+
 				mapString.append(Ansi.colorize(String.format("%-10s%s❤%-2d", tile.getCombatUnitInTile().toString(),
 						combatUnit.getUnitState().symbol, combatUnit.getHealth()), unitAttribute, Attribute.BLACK_TEXT()));
 			}

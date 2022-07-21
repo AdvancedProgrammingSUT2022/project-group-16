@@ -3,8 +3,7 @@ package enums;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum mainCommands
-{
+public enum mainCommands {
     //commands
     menuExit("^\\s*menu\\s+exit\\s*$"),
     enterMenu("^\\s*menu\\s+enter\\s+(?<menuName>.+)\\s*$"),
@@ -34,15 +33,13 @@ public enum mainCommands
 
     public final String regex;
 
-    mainCommands(String regex)
-    {
+    mainCommands(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, mainCommands regex)
-    {
+    public static Matcher compareRegex(String command, mainCommands regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }

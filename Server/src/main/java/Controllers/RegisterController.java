@@ -1,5 +1,8 @@
 package Controllers;
 
+import IO.RequestHandler;
+import IO.Response;
+import IO.Server;
 import Models.Menu.Menu;
 import Models.User;
 import com.google.gson.*;
@@ -13,12 +16,13 @@ import javafx.scene.layout.Pane;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 public class RegisterController {
 
-	private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.jpg");
+	public final URL guestImage = getClass().getResource("photos/profilePhotos/guest.jpg");
 
 	public void updateDatabase()
 	{
@@ -113,7 +117,7 @@ public class RegisterController {
 		return matcher;
 	}
 
-	public String checkLineForRegister(String command) throws IOException {
+	public String checkLineForRegister(String command){
 		Matcher usernameMatcher = null;
 		Matcher passwordMatcher = null;
 		Matcher nicknameMatcher = null;
@@ -136,7 +140,7 @@ public class RegisterController {
 			return mainCommands.invalidCommand.regex;
 	}
 
-	public String createUser(String username, String password, String nickname, URL photo) throws IOException {
+	public String createUser(String username, String password, String nickname, URL photo) {
 		if (getUserByUsername(username) != null)
 			return (mainCommands.specificUsername.regex + username + mainCommands.alreadyExist.regex);
 		else if (doesNicknameExist(nickname))

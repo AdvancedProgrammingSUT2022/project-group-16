@@ -473,7 +473,7 @@ public class Hex extends Application {
             tileImageView.setEffect(colorAdjust);
         }
     }
-   
+
     private void onMouseExited()
     {
         //remove banner
@@ -522,7 +522,7 @@ public class Hex extends Application {
         }
         else if(isCUnitPanelOpen) {
             parent.getChildren().remove(parent.getChildren().size() - 1);
-            
+
             isCUnitPanelOpen = false;
             if(hasNCUnit() != null) {
                 isNCUnitPanelOpen = true;
@@ -531,7 +531,7 @@ public class Hex extends Application {
         }
         else if(isNCUnitPanelOpen) {
             parent.getChildren().remove(parent.getChildren().size() - 1);
-            
+
             isNCUnitPanelOpen = false;
             gameController.getPlayerTurn().setSelectedUnit(null);
         }
@@ -878,7 +878,7 @@ public class Hex extends Application {
                 removeAllPanels();
                 parent.getChildren().remove(list);
                 game.updateScreen();
-                
+
             }
         });
         addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/remove.png", "remove");
@@ -1516,9 +1516,9 @@ public class Hex extends Application {
                 }
                 if(result.equals(gameEnum.removeFromWork.regex)) {
                     parent.getChildren().remove(list);
-                    
+
                     parent.getChildren().remove(parent.getChildren().size() - 1);
-                    
+
                     cityPanel(city);
                 }
                 textField.setText(null);
@@ -1556,9 +1556,9 @@ public class Hex extends Application {
                 }
                 if(result.equals(gameEnum.successfulLock.regex)) {
                     parent.getChildren().remove(list);
-                    
+
                     parent.getChildren().remove(parent.getChildren().size() - 1);
-                    
+
                     cityPanel(city);
                 }
                 textField.setText(null);

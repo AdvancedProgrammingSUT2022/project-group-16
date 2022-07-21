@@ -1,4 +1,5 @@
 package server;
+
 import Models.chat.Respond;
 
 import java.io.DataInputStream;
@@ -39,6 +40,7 @@ public class ServerThread extends Thread {
             e.printStackTrace();
         }
     }
+
     private void send(DataOutputStream dataOutputStream, String respond) throws IOException {
         dataOutputStream.writeUTF(respond);
         dataOutputStream.flush();
