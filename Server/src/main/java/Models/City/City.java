@@ -144,7 +144,7 @@ public class City
 		for(Unit unit : rulerPlayer.getUnits())
 			if(unit instanceof Settler)
 				consumingFood += 2;
-		
+
 		return gainingFood - consumingFood;
 	}
 	public void setFoodYield(int foodYield) {
@@ -165,17 +165,17 @@ public class City
 				continue;
 			Tile workingTile = citizen.getWorkingTile();
 			gainingGold += workingTile.getTileType().gold + workingTile.getTileFeature().gold + workingTile.getImprovement().goldYield;
-			
+
 			if(workingTile.getResource() == null)
 				continue;
-			
+
 			if(workingTile.getImprovement().equals(workingTile.getResource().getRESOURCE_TYPE().requiredImprovement))
 				gainingGold += workingTile.getResource().getRESOURCE_TYPE().gold;
 		}
 		for(Unit unit : rulerPlayer.getUnits())
 			if(unit instanceof CombatUnit)
 				goldConsumption += 1;
-		
+
 		return gainingGold - goldConsumption;
 	}
 	public int getProductionYield() {
@@ -205,6 +205,7 @@ public class City
 		for(int i = 0; i < amount; i++){
 			citizens.add(new Citizen(this));
 		}
+		rulerPlayer.setScore(rulerPlayer.getScore() + amount);
 		cupYield += amount;
 		rulerPlayer.setCup(rulerPlayer.getCup() + amount);
 	}
@@ -428,9 +429,8 @@ public class City
 			if(!constructionCanBeBuilt(construction).equals("built successfully"))
 				return "cannot build";
 			currentConstruction = construction;
-			System.out.println(construction);
-			System.out.println(currentConstruction);
 			construction.setTurnTillBuild(4);
+			rulerPlayer.setScore(rulerPlayer.getScore() + 2 * gameController.MAP_SIZE);
 			return gameEnum.successfulBuild.regex;
 		}
 		if(construction.getTurnTillBuild() == 0)
@@ -478,16 +478,14 @@ public class City
 	}
 
 
-//	public String changeConstruction(Construction construction){
-//		//TODO save previous construction;
-//		if(currentConstruction == null) return "nothing is being built";
-//		if(constructionCanBeBuilt(construction)){
-//			currentConstruction = construction;
-//			currentConstruction.setTurnTillBuild(3);
-//			return null;
-//		}
-//		return "cannot change construction";
-//	}
+	public String changeConstruction(Construction construction){
+		if(constructionCanBeBuilt(construction).equals("built successfully")){
+			currentConstruction = construction;
+			currentConstruction.setTurnTillBuild(3);
+			return null;
+		}
+		return "cannot change construction";
+	}
 
 	public String buyBuilding(Building building){
 		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - building.getBuildingType().cost);

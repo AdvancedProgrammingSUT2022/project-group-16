@@ -1334,7 +1334,8 @@ public class Hex extends Application {
     }
     private void buildBuildingPanel(City city) {
         Pane list = new Pane();
-        panelsPaneStyle(list, 390, 185, 500, 350);
+        panelsPaneStyle(list, 390, 165, 500, 500);
+        addLabelToPane(list, 200, -5, null, "your gold: " + gameController.getPlayerTurn().getGold());
 
         ArrayList<BuildingType> buildingTypes = new ArrayList<>();
         for (BuildingType buildingType : BuildingType.values())
@@ -1344,30 +1345,42 @@ public class Hex extends Application {
         int flag = 0;
         while (flag < buildingTypes.size()) {
             VBox names = new VBox();
-            names.setSpacing(7);
-            names.setAlignment(Pos.CENTER);
+            names.setSpacing(5);
+            names.setAlignment(Pos.TOP_LEFT);
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 15; i++)
                 if (i + flag < buildingTypes.size()) {
-                    addLabelToBox(buildingTypes.get(i + flag).name(), names);
-                    int finalI = i;
-                    int finalFlag = flag;
-                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
-                        String result = gameController.buildBuilding(buildingTypes.get(finalI + finalFlag));
-                        if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
-                            list.getChildren().remove(list.getChildren().size() - 1);
-                        addLabelToPane(list, 300, 200, null, result);
-                        if (result.equals(gameEnum.successfulBuild.regex)) {
-                            removeAllPanels();
-                            parent.getChildren().remove(list);
-                            game.updateScreen();
-                        }
-                    });
+                    {
+                        if (city.getCurrentConstruction() != null &&
+                                city.getCurrentConstruction() instanceof Building &&
+                                ((Building) city.getCurrentConstruction()).
+                                        getBuildingType().equals(buildingTypes.get(i + flag)))
+                            addLabelToBox(buildingTypes.get(i + flag).name() +
+                                    "    cost: " + buildingTypes.get(i + flag).cost + "    (current construction)", names);
+                        else
+                            addLabelToBox(buildingTypes.get(i + flag).name() +
+                                    "    cost: " + buildingTypes.get(i + flag).cost, names);
+                    }
+                    if (city.getCurrentConstruction() == null) {
+                        int finalI = i;
+                        int finalFlag = flag;
+                        names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                            String result = gameController.buildBuilding(buildingTypes.get(finalI + finalFlag));
+                            if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                                list.getChildren().remove(list.getChildren().size() - 1);
+                            addLabelToPane(list, 300, 200, null, result);
+                            if (result.equals(gameEnum.successfulBuild.regex)) {
+                                removeAllPanels();
+                                parent.getChildren().remove(list);
+                                game.updateScreen();
+                            }
+                        });
+                    }
                 }
 
             list.getChildren().add(names);
-            setCoordinatesBox(list, names,15 + (flag / 7.0) * 100, 50);
-            flag += 7;
+            setCoordinatesBox(list, names,15 + (flag / 15.0) * 100, 50);
+            flag += 15;
 
         }
 
@@ -1381,7 +1394,8 @@ public class Hex extends Application {
 
     private void buildUnitPanel(City city) {
         Pane list = new Pane();
-        panelsPaneStyle(list, 390, 185, 500, 350);
+        panelsPaneStyle(list, 390, 165, 500, 500);
+        addLabelToPane(list, 200, -5, null, "your gold: " + gameController.getPlayerTurn().getGold());
 
         ArrayList<MidRangeType> midRangeTypes = new ArrayList<>();
         ArrayList<LongRangeType> longRangeTypes = new ArrayList<>();
@@ -1395,45 +1409,77 @@ public class Hex extends Application {
         int flag = 0;
         while (flag < midRangeTypes.size() + longRangeTypes.size() + 2) {
             VBox names = new VBox();
-            names.setSpacing(7);
-            names.setAlignment(Pos.CENTER);
+            names.setSpacing(6);
+            names.setAlignment(Pos.TOP_LEFT);
 
-            for (int i = 0; i < 7; i++) {
-                if (i + flag < midRangeTypes.size())
-                    addLabelToBox(midRangeTypes.get(i + flag).name(), names);
-                else if (i + flag < midRangeTypes.size() + longRangeTypes.size())
-                    addLabelToBox(longRangeTypes.get(i + flag - midRangeTypes.size()).name(), names);
-                else if (i + flag < midRangeTypes.size() + longRangeTypes.size() + 1)
-                    addLabelToBox("SETTLER", names);
-                else if (i + flag < midRangeTypes.size() + longRangeTypes.size() + 2)
-                    addLabelToBox("WORKER", names);
-                int finalI = i;
-                int finalFlag = flag;
-                names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
-                    String result = null;
-                    if (finalI + finalFlag < midRangeTypes.size())
-                        result = gameController.buildUnit(midRangeTypes.get(finalI + finalFlag).name());
-                    else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size())
-                        result = gameController.buildUnit(longRangeTypes.get(finalI + finalFlag - midRangeTypes.size()).name());
-                    else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size() + 1)
-                        result = gameController.buildUnit("SETTLER");
+            for (int i = 0; i < 15; i++) {
+                if (i + flag < midRangeTypes.size()) {
+                    if (city.getCurrentConstruction() != null &&
+                            city.getCurrentConstruction() instanceof Unit &&
+                            ((Unit) city.getCurrentConstruction()).getClass().equals(MidRange.class) &&
+                            ((MidRange) city.getCurrentConstruction()).getType().equals(midRangeTypes.get(i + flag)))
+                        addLabelToBox(midRangeTypes.get(i + flag).name() +
+                                "    cost: " + midRangeTypes.get(i + flag).cost + "    (current construction)", names);
                     else
-                        result = gameController.buildUnit("WORKER");
+                        addLabelToBox(midRangeTypes.get(i + flag).name() +
+                                "    cost: " + midRangeTypes.get(i + flag).cost, names);
+                }
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size()) {
+                    if (city.getCurrentConstruction() != null &&
+                            city.getCurrentConstruction() instanceof Unit &&
+                            ((Unit) city.getCurrentConstruction()).getClass().equals(LongRange.class) &&
+                            ((LongRange) city.getCurrentConstruction()).getType().equals(longRangeTypes.get(i + flag - midRangeTypes.size())))
+                        addLabelToBox(longRangeTypes.get(i + flag - midRangeTypes.size()).name() +
+                                "    cost: " + longRangeTypes.get(i + flag - midRangeTypes.size()).cost + "    (current construction)", names);
+                    else
+                        addLabelToBox(longRangeTypes.get(i + flag - midRangeTypes.size()).name() +
+                                "    cost: " + longRangeTypes.get(i + flag - midRangeTypes.size()).cost, names);
+                }
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size() + 1) {
+                    if (city.getCurrentConstruction() != null &&
+                            city.getCurrentConstruction() instanceof Unit &&
+                            ((Unit) city.getCurrentConstruction()).getClass().equals(Settler.class))
+                        addLabelToBox("SETTLER    cost: 10    (current construction)", names);
+                    else
+                        addLabelToBox("SETTLER    cost: 10", names);
+                }
+                else if (i + flag < midRangeTypes.size() + longRangeTypes.size() + 2) {
+                    if (city.getCurrentConstruction() != null &&
+                            city.getCurrentConstruction() instanceof Unit &&
+                            ((Unit) city.getCurrentConstruction()).getClass().equals(Worker.class))
+                        addLabelToBox("WORKER    cost: 10    (current construction)", names);
+                    else
+                        addLabelToBox("WORKER    cost: 10", names);
+                }
+                if (city.getCurrentConstruction() == null) {
+                    int finalI = i;
+                    int finalFlag = flag;
+                    names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
+                        String result;
+                        if (finalI + finalFlag < midRangeTypes.size())
+                            result = gameController.buildUnit(midRangeTypes.get(finalI + finalFlag).name());
+                        else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size())
+                            result = gameController.buildUnit(longRangeTypes.get(finalI + finalFlag - midRangeTypes.size()).name());
+                        else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size() + 1)
+                            result = gameController.buildUnit("SETTLER");
+                        else
+                            result = gameController.buildUnit("WORKER");
 
-                    if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
-                        list.getChildren().remove(list.getChildren().size() - 1);
-                    addLabelToPane(list, 300, 200, null, result);
-                    if (result.equals(gameEnum.successfulBuild.regex)) {
-                        removeAllPanels();
-                        parent.getChildren().remove(list);
-                        game.updateScreen();
-                    }
-                });
+                        if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
+                            list.getChildren().remove(list.getChildren().size() - 1);
+                        addLabelToPane(list, 300, 200, null, result);
+                        if (result.equals(gameEnum.successfulBuild.regex)) {
+                            removeAllPanels();
+                            parent.getChildren().remove(list);
+                            game.updateScreen();
+                        }
+                    });
+                }
             }
 
             list.getChildren().add(names);
-            setCoordinatesBox(list, names,15 + (flag / 7.0) * 100, 50);
-            flag += 7;
+            setCoordinatesBox(list, names,15 + (flag / 15.0) * 300, 50);
+            flag += 15;
 
         }
 

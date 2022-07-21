@@ -33,7 +33,14 @@ public class Worker extends NonCombatUnit{
     }
     //for mocking a unit while constructing in city
     public Worker() {
-
+        this.setProductionCost(10);
+        this.setRequiredTechnology(null);
+        this.setMovementPoints(1);
+        this.setMP(1);
+        this.setSpeed(1);
+        this.setPower(0);
+        this.setRequiredResource(null);
+        addImprovement();
     }
 
     private void addImprovement(){
@@ -89,10 +96,10 @@ public class Worker extends NonCombatUnit{
             this.setTurnsTillBuildRailRoad(this.getTurnsTillBuildRailRoad() - 1);
             return null;
         }
-       if(!canBuildRoad())
-           return "cannot build railRoad in this Tile";
-       this.setTurnsTillBuildRailRoad(2);
-       return null;
+        if(!canBuildRoad())
+            return "cannot build railRoad in this Tile";
+        this.setTurnsTillBuildRailRoad(2);
+        return null;
     }
     public String buildRoad(){
         if(this.getTurnsTillBuildRoad() == 0) {
@@ -123,7 +130,7 @@ public class Worker extends NonCombatUnit{
         }
 
         if(this.getTile().getTileType().equals(TileType.TUNDRA) || (this.getTile().getTileFeature() != null && this.getTile().getTileFeature().equals(TileFeature.ICE)) ||
-            this.getTile().getResource() != null) return "can't build farm on this tile";
+                this.getTile().getResource() != null) return "can't build farm on this tile";
 
         if(this.getTile().getTileFeature() != null && this.getTile().getTileFeature().equals(TileFeature.FOREST) && this.getRulerPlayer().getTechnologies().contains(Technology.MINING)){
             this.improvements.get(0).turnToConstruct = 10;
@@ -174,7 +181,7 @@ public class Worker extends NonCombatUnit{
             this.improvements.get(1).inLineTurn -- ;
         }
         else if(!this.getTile().getTileFeature().equals(TileFeature.JUNGLE) && !this.getTile().getTileFeature().equals(TileFeature.MARSH)
-        && !this.getTile().getTileFeature().equals(TileFeature.FOREST)){
+                && !this.getTile().getTileFeature().equals(TileFeature.FOREST)){
             this.improvements.get(1).turnToConstruct = 6;
             this.improvements.get(1).inLineTurn -- ;
         }
@@ -210,7 +217,7 @@ public class Worker extends NonCombatUnit{
     }
     public String buildCamp(){
         if((this.getTile().getTileFeature().equals(TileFeature.JUNGLE) || this.getTile().getTileType().equals(TileType.PLAINS) ||
-                        this.getTile().getTileType().equals(TileType.TUNDRA)) || this.getTile().getTileType().equals(TileType.HILLS))
+                this.getTile().getTileType().equals(TileType.TUNDRA)) || this.getTile().getTileType().equals(TileType.HILLS))
         {
             this.getTile().setImprovement(Improvement.CAMP);
             return null;
@@ -290,7 +297,7 @@ public class Worker extends NonCombatUnit{
         setTurnsTillRepairment(getTurnsTillRepairment() - 1);
         return null;
     }
-    
+
     @Override
     public String toString()
     {

@@ -79,6 +79,8 @@ public class GameController implements Serializable
 		// if there is a unit which has not used its turn, it returns the unit's name with error message //TODO: is this needed?
 		//TODO: check if unit has used its turn
 
+		if (isGameEnd() != null)
+			return "game Ended";
 		changeTurn();
 		return null; //TODO: return: "turn changed successfully"
 	}
@@ -1003,6 +1005,7 @@ public class GameController implements Serializable
 			if(Technology.values()[i].name().toLowerCase(Locale.ROOT).equals(matcher.group("name").toLowerCase(Locale.ROOT)) &&
 					playerTurn.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies))
 			{
+				playerTurn.setScore(playerTurn.getScore() + 3 * MAP_SIZE);
 				playerTurn.addTechnology(Technology.values()[i]);
 				return matcher.group("name") + cheatCode.addSuccessful.regex;
 			}
@@ -1747,9 +1750,9 @@ public class GameController implements Serializable
 		for(Player player : players)
 			for(City city : player.getCities()) {
 				for(Tile tile1 : city.getTerritory())
-				if (tile1.getPosition().X == x &&
-						tile1.getPosition().Y == y)
-					return true;
+					if (tile1.getPosition().X == x &&
+							tile1.getPosition().Y == y)
+						return true;
 			}
 		return false;
 	}
@@ -1779,6 +1782,7 @@ public class GameController implements Serializable
 				return unitCommands.hasCity.regex;
 			else
 			{
+				playerTurn.setScore(playerTurn.getScore() + 5 * MAP_SIZE);
 				((Settler) playerTurn.getSelectedUnit()).createCity();
 				if(playerTurn.getCities().size() != 1)
 					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
@@ -2385,14 +2389,14 @@ public class GameController implements Serializable
 		return (type.getRequiredTech() == null ||
 				(type.getRequiredTech() != null && playerTurn.getTechnologies().contains(type.getRequiredTech()))) &&
 				(type.getRequiredSource() == null ||
-				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
+						(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
 	}
 	public boolean validLongRange(LongRangeType type)
 	{
 		return (type.getRequiredTech() == null ||
 				(type.getRequiredTech() != null && playerTurn.getTechnologies().contains(type.getRequiredTech()))) &&
 				(type.getRequiredSource() == null ||
-				(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
+						(type.getRequiredSource() != null && playerTurn.getResources().contains(type.getRequiredSource())));
 	}
 
 	public Citizen isUnemployed(City city)
@@ -2456,5 +2460,24 @@ public class GameController implements Serializable
 
 	private boolean playerHasBuilding(Player playerTurn, BuildingType buildingType) {
 		return false;
+	}
+
+	public Player isGameEnd() {
+		//year 2050 and return winner
+		if (yearCounter >= 2050) {
+			int max = 0;
+			for (Player player : players)
+				if (player.getScore() > max)
+					max = player.getScore();
+			for (Player player : players)
+				if (player.getScore() == max)
+					return player;
+		}
+
+		//players size == 1
+		if (players.size() == 1)
+			return players.get(0);
+
+		return null;
 	}
 }

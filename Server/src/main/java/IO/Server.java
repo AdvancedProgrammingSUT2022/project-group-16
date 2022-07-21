@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Server
 {
-	static final int SERVER_PORT = 444;
+	static final int SERVER_PORT = 1111;
 	static ServerSocket serverSocket;
 	public static chatServer chatServer = new chatServer();
 	public static RegisterController registerController = new RegisterController();

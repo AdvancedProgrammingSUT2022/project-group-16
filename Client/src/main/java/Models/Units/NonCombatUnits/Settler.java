@@ -21,7 +21,13 @@ public class Settler extends NonCombatUnit {
 
     //for mocking a unit while constructing in city
     public Settler() {
-
+        this.setProductionCost(10);//TODO what is the max health/cost??
+        this.setRequiredTechnology(null);
+        this.setMovementPoints(1);
+        this.setMP(1);
+        this.setSpeed(1);
+        this.setPower(0);
+        this.setRequiredResource(null);
     }
 
     private boolean theTileIsInAnotherCity() {

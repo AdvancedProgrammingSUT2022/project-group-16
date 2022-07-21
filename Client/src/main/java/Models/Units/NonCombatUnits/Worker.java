@@ -34,7 +34,14 @@ public class Worker extends NonCombatUnit {
 
     //for mocking a unit while constructing in city
     public Worker() {
-
+        this.setProductionCost(10);
+        this.setRequiredTechnology(null);
+        this.setMovementPoints(1);
+        this.setMP(1);
+        this.setSpeed(1);
+        this.setPower(0);
+        this.setRequiredResource(null);
+        addImprovement();
     }
 
     private void addImprovement() {
