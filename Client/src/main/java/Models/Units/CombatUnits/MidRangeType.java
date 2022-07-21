@@ -5,8 +5,8 @@ import Models.Resources.ResourceType;
 
 public enum MidRangeType {
 
-    SCOUT(25, 4,2, null, null, false),
-    SPEARMAN(50 , 7, 2, null, Technology.BRONZE_WORKING, false),
+    SCOUT(25, 4, 2, null, null, false),
+    SPEARMAN(50, 7, 2, null, Technology.BRONZE_WORKING, false),
     WARRIOR(40, 6, 2, null, null, false),
     HORSEMAN(80, 12, 4, ResourceType.HORSES, Technology.HORSEBACK_RIDING, true),
     SWORDSMAN(80, 11, 2, ResourceType.IRON, Technology.IRON_WORKING, false),
@@ -28,14 +28,14 @@ public enum MidRangeType {
     public final ResourceType requiredSource;
     public final Technology requiredTech;
     public final boolean isMounted;
-    
-    MidRangeType(int cost, int combatStrength, int movement, ResourceType requiredSource, Technology requiredTech, boolean isMounted){
+
+    MidRangeType(int cost, int combatStrength, int movement, ResourceType requiredSource, Technology requiredTech, boolean isMounted) {
         this.cost = cost;
         this.combatStrength = combatStrength;
         this.movement = movement;
         this.requiredTech = requiredTech;
         this.requiredSource = requiredSource;
-        this. isMounted = isMounted;
+        this.isMounted = isMounted;
     }
 
     public int getCost() {

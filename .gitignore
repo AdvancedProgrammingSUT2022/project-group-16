@@ -3,3 +3,4 @@ target
 README.md
 *.log
 java/Database/userDatabase.json
+Pom.xml

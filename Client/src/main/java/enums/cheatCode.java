@@ -3,8 +3,7 @@ package enums;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum cheatCode
-{
+public enum cheatCode {
     //commands
     increaseTurns("^\\s*increase\\s+turn\\s+(?<amount>[0-9]+)\\s*$"),
     increaseGold("^\\s*increase\\s+gold\\s+(?<amount>[0-9]+)\\s*$"),
@@ -19,7 +18,7 @@ public enum cheatCode
     gainBonusResource("\\s*gain\\s+bonus\\s+resource\\s*"),
     gainStrategicResource("\\s*gain\\s+strategic\\s+resource\\s*"),
     gainLuxuryResource("\\s*gain\\s+luxury\\s+resource\\s*"),
-    
+
     //messages
     gold("gold"),
     score("score"),
@@ -34,15 +33,13 @@ public enum cheatCode
 
     public final String regex;
 
-    cheatCode(String regex)
-    {
+    cheatCode(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, cheatCode regex)
-    {
+    public static Matcher compareRegex(String command, cheatCode regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }

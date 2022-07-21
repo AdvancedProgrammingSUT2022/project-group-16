@@ -4,8 +4,8 @@ import Models.City.City;
 import Models.Player.Player;
 import Models.Terrain.Tile;
 
-public class Settler extends NonCombatUnit{
-    public Settler(Player rulerPlayer, Tile tile){
+public class Settler extends NonCombatUnit {
+    public Settler(Player rulerPlayer, Tile tile) {
         this.setRulerPlayer(rulerPlayer);
         this.setProductionCost(10);//TODO what is the max health/cost??
         this.setRequiredTechnology(null);
@@ -18,38 +18,37 @@ public class Settler extends NonCombatUnit{
         this.setRequiredResource(null);
         rulerPlayer.addUnit(this);
     }
+
     //for mocking a unit while constructing in city
     public Settler() {
 
     }
 
-    private boolean theTileIsInAnotherCity(){
+    private boolean theTileIsInAnotherCity() {
         for (City city : this.getRulerPlayer().getCities()) {
             for (Tile tile : city.getTerritory()) {
-                if(tile.getPosition().equals(this.getTile().getPosition())) //TODO: not with equals
+                if (tile.getPosition().equals(this.getTile().getPosition())) //TODO: not with equals
                     return true;
             }
         }
         return false;
     }
 
-    public void createCity()
-    {
-        if(!theTileIsInAnotherCity()) {
+    public void createCity() {
+        if (!theTileIsInAnotherCity()) {
             new City(this.getTile(), this.getRulerPlayer());
             this.destroy();
             this.getTile().setNonCombatUnitInTile(null);
         }
     }
 
-    
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "SETTLER";
     }
-    public Settler clone()
-    {
+
+    public Settler clone() {
         Settler settler = new Settler(this.getRulerPlayer(), this.getTile());
         settler.setHealth(this.getHealth());
         return settler;

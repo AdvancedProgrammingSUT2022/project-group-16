@@ -1,3 +1,5 @@
+package IO;
+
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -8,6 +10,10 @@ public class Request {
 
     public String getAction() {
         return action;
+    }
+
+    public void setAction(String action){
+        this.action = action;
     }
 
     public HashMap<String, Object> getParams() {

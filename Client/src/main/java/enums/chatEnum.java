@@ -9,15 +9,13 @@ public enum chatEnum {
 
     public final String regex;
 
-    chatEnum(String regex)
-    {
+    chatEnum(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, chatEnum regex)
-    {
+    public static Matcher compareRegex(String command, chatEnum regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }

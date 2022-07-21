@@ -2,57 +2,54 @@ package Models.City;
 
 import Models.Terrain.Tile;
 
-public class Building extends Construction
-{
-	private final BuildingType buildingType;
-	private final Tile tile;
-	private int hitPoints;
-	private City city;
-	
-	public Building(BuildingType buildingType, Tile tile)
-	{
-		this.buildingType = buildingType;
-		this.tile = tile;
-	}
+public class Building extends Construction {
+    private final BuildingType buildingType;
+    private final Tile tile;
+    private int hitPoints;
+    private City city;
 
-	public City getCity() {
-		return city;
-	}
+    public Building(BuildingType buildingType, Tile tile) {
+        this.buildingType = buildingType;
+        this.tile = tile;
+    }
 
-	public void setCity(City city) {
-		this.city = city;
-	}
+    public City getCity() {
+        return city;
+    }
 
-	public BuildingType getBuildingType()
-	{
-		return buildingType;
-	}
-	public Tile getTile()
-	{
-		return tile;
-	}
-	public int getHitPoints()
-	{
-		return hitPoints;
-	}
-	public void setHitPoints(int hitPoints)
-	{
-		this.hitPoints = hitPoints;
-	}
-	//TODO: do special things for each type of building
+    public void setCity(City city) {
+        this.city = city;
+    }
 
-	public int happinessFromBuilding(BuildingType buildingType)
-	{
-		if(buildingType.equals(BuildingType.BURIAL_TOMB)) return 2;
-		if(buildingType.equals(BuildingType.CIRCUS)) return 3;
-		if(buildingType.equals(BuildingType.COLOSSEUM)) return 4;
-		if(buildingType.equals(BuildingType.SATRAPS_COURT)) return 2;
-		if(buildingType.equals(BuildingType.THEATER)) return 4;
-		return 0;
-	}
-	public String toString(){
-		return "Building";
-	}
+    public BuildingType getBuildingType() {
+        return buildingType;
+    }
+
+    public Tile getTile() {
+        return tile;
+    }
+
+    public int getHitPoints() {
+        return hitPoints;
+    }
+
+    public void setHitPoints(int hitPoints) {
+        this.hitPoints = hitPoints;
+    }
+    //TODO: do special things for each type of building
+
+    public int happinessFromBuilding(BuildingType buildingType) {
+        if (buildingType.equals(BuildingType.BURIAL_TOMB)) return 2;
+        if (buildingType.equals(BuildingType.CIRCUS)) return 3;
+        if (buildingType.equals(BuildingType.COLOSSEUM)) return 4;
+        if (buildingType.equals(BuildingType.SATRAPS_COURT)) return 2;
+        if (buildingType.equals(BuildingType.THEATER)) return 4;
+        return 0;
+    }
+
+    public String toString() {
+        return "Building";
+    }
 }
 
 

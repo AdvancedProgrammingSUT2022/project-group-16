@@ -1,6 +1,7 @@
 package Controllers.Utilities;
 
 import Controllers.RegisterController;
+import IO.Client;
 import Models.Menu.Menu;
 import Models.User;
 import Models.chat.Message;
@@ -62,4 +63,11 @@ public class chatController {
             e.printStackTrace();
         }
     }//update Json database with arrayList
+
+    public User getUserByUsername(String username){
+        for (User user : Client.getInstance().getAllUsers()) {
+            if(user.getUsername().equals(username)) return user;
+        }
+        return null;
+    }
 }

@@ -3,8 +3,7 @@ package enums;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum profileEnum
-{
+public enum profileEnum {
     //commands
     changeNickname("^\\s*[pP]rofile\\s+[cC]hange\\s+--[nN]ickname\\s+(?<newName>\\S+)\\s*$"),
     shortChangeNickname("^\\s*[pP]rofile\\s+[cC]hange\\s+-n\\s+(?<newName>\\S+)\\s*$"),
@@ -21,15 +20,13 @@ public enum profileEnum
 
     public final String regex;
 
-    profileEnum(String regex)
-    {
+    profileEnum(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, profileEnum regex)
-    {
+    public static Matcher compareRegex(String command, profileEnum regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }
