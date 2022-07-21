@@ -35,7 +35,7 @@ public class MidRange extends CombatUnit{
         this.type = midRangeType;
     }
 
-    public void pillage(){
+    public void pillage() {
         this.getTile().setRuined(true);
     }
 
@@ -86,12 +86,12 @@ public class MidRange extends CombatUnit{
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return type.name();
     }
-    public MidRange clone(){
-        MidRange newMidRange = new MidRange(this.getRulerPlayer(),this.getType(),this.getTile());
+
+    public MidRange clone() {
+        MidRange newMidRange = new MidRange(this.getRulerPlayer(), this.getType(), this.getTile());
         newMidRange.setHealth(this.getHealth());
         return newMidRange;
     }

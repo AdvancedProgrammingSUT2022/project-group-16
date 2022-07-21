@@ -1,38 +1,26 @@
-import Controllers.RegisterController;
+import IO.Client;
+import IO.Response;
 import Models.User;
-import Models.chat.Message;
 import enums.registerEnum;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import Models.Menu.Menu;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.image.ImageView;
 
-import javax.swing.*;
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 public class RegisterPage extends Application {
-    private final RegisterController registerController = new RegisterController();
     public TextField username;
     public TextField password;
     public VBox VBox;
     public TextField nickname;
     public Pane list;
-    private final URL guestImage = getClass().getResource("photos/profilePhotos/guest.jpg");
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -46,7 +34,7 @@ public class RegisterPage extends Application {
     }
 
     public void checkInputs(MouseEvent mouseEvent) throws Exception {
-        String message;
+        Response response;
         if(username.getText().equals("")) {
             if(VBox.getChildren().size() == 8) {
                 Text text = new Text();
@@ -80,29 +68,26 @@ public class RegisterPage extends Application {
                 ((Text) VBox.getChildren().get(VBox.getChildren().size() - 1)).
                         setText("please enter password");
         }
-        else if(!(message = registerController.createUser(username.getText(), password.getText(),
-                nickname.getText(), guestImage)).equals(registerEnum.successfulCreate.regex)) {
+        else if(!(response = Client.getInstance().checkRegister(username.getText(), password.getText(),
+                nickname.getText())).getMassage().equals(registerEnum.successfulCreate.regex)) {
             if(VBox.getChildren().size() == 8) {
                 Text text = new Text();
-                text.setText(message);
+                text.setText(response.getMassage());
                 VBox.getChildren().add(text);
                 VBox.getChildren().get(8).setStyle("-fx-fill: red");
             }
             else
                 ((Text) VBox.getChildren().get(VBox.getChildren().size() - 1)).
-                        setText(message);
+                        setText(response.getMassage());
         }
         else {
             if(VBox.getChildren().size() == 9)
                 VBox.getChildren().remove(VBox.getChildren().size() - 1);
-            Menu.loggedInUser = registerController.getUserByUsername(username.getText());
-            LocalDateTime now = LocalDateTime.now();
-            Menu.loggedInUser.setLastLogin(Main.timeAndDate.format(now));
-            registerController.writeDataOnJson();
+            Client.getInstance().setLoggedInUser((User) response.getParams().get("user"));
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             mainMenu.start(stage);
         }
-            
+
     }
 }

@@ -3,8 +3,7 @@ package enums.gameCommands;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum selectCommands
-{
+public enum selectCommands {
     //commands
     selectCombat("^\\s*[sS]elect\\s+[uU]nit\\s+[cC]ombat.*$"),
     selectNonCombat("^\\s*[sS]elect\\s+[uU]nit\\s+[nN]on\\s{0,1}[cC]ombat.*$"),
@@ -28,15 +27,13 @@ public enum selectCommands
 
     public final String regex;
 
-    selectCommands(String regex)
-    {
+    selectCommands(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, selectCommands regex)
-    {
+    public static Matcher compareRegex(String command, selectCommands regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }

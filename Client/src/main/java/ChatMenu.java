@@ -1,7 +1,6 @@
 import Controllers.GameController;
-import Controllers.RegisterController;
 import Controllers.Utilities.chatController;
-import Models.Menu.Menu;
+import IO.Client;
 import Models.User;
 import Models.chat.Message;
 import Models.chat.publicMessage;
@@ -11,18 +10,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Button;
 import server.chatServer;
 
 import java.net.MalformedURLException;
@@ -35,13 +33,11 @@ public class ChatMenu extends Application {
     private final VBox titles = new VBox();
     private final VBox users = new VBox();
     private final VBox usersPhotos = new VBox();
-    private final RegisterController registerController = new RegisterController();
     public static User sender = null;
     public static User receiver = null;
     private final chatController chatController = new chatController();
     public static final chatServer server = new chatServer();
     public static boolean isGameStarted = false;
-    private final GameController gameController = GameController.getInstance();
 
     public Pane getList() {
         return list;
@@ -96,7 +92,7 @@ public class ChatMenu extends Application {
                 if ("Enter".equals(keyName)) {
                     String username = search.getText();
                     search.setText(null);
-                    for(User user : Menu.allUsers)
+                    for(User user : Client.getInstance().getAllUsers())
                         if(user.getUsername().equals(username) &&
                                 !sender.getUsername().equals(user.getUsername()) &&
                                 !sender.getPrivateChats().containsKey(user.getUsername())) {
@@ -152,7 +148,7 @@ public class ChatMenu extends Application {
                             else
                                 list.getChildren().remove(0);
                         }
-                        receiver = registerController.getUserByUsername(tmp.getText());
+                        receiver = chatController.getUserByUsername(tmp.getText());
                         makeChat(sender, receiver);
                     });
                 }
@@ -169,7 +165,7 @@ public class ChatMenu extends Application {
                 else {
                     chatController.sendMessage(sender, receiver, typeMessage.getText() +
                             " - " + now.toString().substring(11,19));
-                    registerController.writeDataOnJson();
+                    chatController.writeDataOnJson();
                     ArrayList<Message> messages = sender.getPrivateChats().get(receiver.getUsername());
                     Label label = new Label();
                     messageStyleSender(label, messages.get(messages.size() - 1).getMessage());
@@ -216,6 +212,9 @@ public class ChatMenu extends Application {
         list.getChildren().add(0,receiverChats);
     }
     public void initialize() throws MalformedURLException {
+        chatServer server = new chatServer();
+        server.update();
+
         users.setAlignment(Pos.CENTER);
         usersPhotos.setSpacing(11);//figure places
 
@@ -249,11 +248,11 @@ public class ChatMenu extends Application {
                     else
                         list.getChildren().remove(0);
                 }
-                receiver = registerController.getUserByUsername(user);
+                receiver = chatController.getUserByUsername(user);
                 makeChat(sender, receiver);
             });
             buttonStyle(tmp, user);
-            ImageView imageView = makePhoto(registerController.getUserByUsername(user).getPhoto());
+            ImageView imageView = makePhoto(chatController.getUserByUsername(user).getPhoto());
             users.getChildren().add(tmp);
             usersPhotos.getChildren().add(imageView);
         }//friend's buttons
@@ -446,7 +445,7 @@ public class ChatMenu extends Application {
                                 String finalMessage = result + message.substring(message.length() - 14);
                                 ((Label) box.getChildren().get(flag)).setText(finalMessage);
                                 sender.getPrivateChats().get(user).get(flag).setMessage(finalMessage);
-                                registerController.getUserByUsername(user).getPrivateChats().get(sender.getUsername())
+                                chatController.getUserByUsername(user).getPrivateChats().get(sender.getUsername())
                                         .get(flag).setMessage(finalMessage);
                                 registerController.writeDataOnJson();
                             }
@@ -467,7 +466,7 @@ public class ChatMenu extends Application {
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
                         sender.getPrivateChats().get(user).get(flag).setMessage("#deleted");
-                        registerController.getUserByUsername(user).getPrivateChats().get(sender.getUsername()).get(flag).setMessage("#deleted");
+                        chatController.getUserByUsername(user).getPrivateChats().get(sender.getUsername()).get(flag).setMessage("#deleted");
                         registerController.writeDataOnJson();
                     }); //delete message for me and user
                 }
@@ -502,7 +501,7 @@ public class ChatMenu extends Application {
         Label label = new Label();
         String lastSeen;
         if(!username.equals("public chat")) {
-            lastSeen = registerController.getUserByUsername(username).getLastLogin();
+            lastSeen = chatController.getUserByUsername(username).getLastLogin();
             label.setText(username + " - last login: " + lastSeen);
         }
         else
@@ -538,7 +537,7 @@ public class ChatMenu extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         if (sender == null)
-            sender = Menu.loggedInUser;
+            sender = Client.getInstance().getLoggedInUser();
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/chatMenu.fxml").toExternalForm()))));
         stage.show();

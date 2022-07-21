@@ -22,62 +22,61 @@ import enums.gameEnum;
 
 import java.util.ArrayList;
 
-public abstract class Unit extends Construction
-{
-	transient private Player rulerPlayer;
-	private int productionCost;
-	private int MP; //copy of movement but does not change;
-	private int movementPoints;
-	transient private Tile tile;
-	public Position lastPositionForSave;
-	public final int MAX_HEALTH = 10;
-	private int health = MAX_HEALTH;
-	private int speed;
-	private int power;
-	private Technology requiredTechnology; //TODO
-	private Resource requiredResource;
-	private ArrayList<Position> moves = new ArrayList<>();
-	private ArrayList<UnitCommands> commands = new ArrayList<>();
-	private boolean hasArrived = false;
-	private UnitState unitState = UnitState.ACTIVE;
-	private Tile destination = null;
-	private int XP = 10;
+public abstract class Unit extends Construction {
+    transient private Player rulerPlayer;
+    private int productionCost;
+    private int MP; //copy of movement but does not change;
+    private int movementPoints;
+    transient private Tile tile;
+    public Position lastPositionForSave;
+    public final int MAX_HEALTH = 10;
+    private int health = MAX_HEALTH;
+    private int speed;
+    private int power;
+    private Technology requiredTechnology; //TODO
+    private Resource requiredResource;
+    private ArrayList<Position> moves = new ArrayList<>();
+    private ArrayList<UnitCommands> commands = new ArrayList<>();
+    private boolean hasArrived = false;
+    private UnitState unitState = UnitState.ACTIVE;
+    private Tile destination = null;
+    private int XP = 10;
 
-	public int getMP() {
-		return MP;
-	}
+    public int getMP() {
+        return MP;
+    }
 
-	protected void setMP(int MP) {
-		this.MP = MP;
-	}
+    protected void setMP(int MP) {
+        this.MP = MP;
+    }
 
-	public String toString(){
-		return "Unit";
-	}
+    public String toString() {
+        return "Unit";
+    }
 
-	public Player getRulerPlayer() {
-		return rulerPlayer;
-	}
+    public Player getRulerPlayer() {
+        return rulerPlayer;
+    }
 
-	public void setRulerPlayer(Player rulerPlayer) {
-		this.rulerPlayer = rulerPlayer;
-	}
+    public void setRulerPlayer(Player rulerPlayer) {
+        this.rulerPlayer = rulerPlayer;
+    }
 
-	public Tile getTile() {
-		return tile;
-	}
+    public Tile getTile() {
+        return tile;
+    }
 
-	public void setTile(Tile tile) {
-		this.tile = tile;
-	}
+    public void setTile(Tile tile) {
+        this.tile = tile;
+    }
 
-	public int getHealth() {
-		return health;
-	}
+    public int getHealth() {
+        return health;
+    }
 
-	public void setHealth(int health) {
-		this.health = health;
-	}
+    public void setHealth(int health) {
+        this.health = health;
+    }
 
 	public int getXP() {
 		return XP;
@@ -293,65 +292,65 @@ public abstract class Unit extends Construction
 		return unitCommands.moveSuccessfull.regex;
 	}
 
-	private void getRuinBonus() {
-		this.getRulerPlayer().increasePopulation(1);
-		this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() + 200);
-		destination.setTileType(TileType.DESERT);
-		destination.setNonCombatUnitInTile(new Worker());
-		if(getRulerPlayer().getResearchingTechnology() != null) {
-			Technology researchingTechnology = getRulerPlayer().getResearchingTechnology();
-			int technologyIndex = -1;
-			for(int i = 0; i < Technology.values().length; i++)
-				if(researchingTechnology.equals(Technology.values()[i]))
-				{
-					technologyIndex = i;
-					break;
-				}
-			if(technologyIndex == -1)
-			{
-				System.err.println("technologyIndex is -1 :(");
-				System.exit(1);
-			}
+    private void getRuinBonus() {
+        this.getRulerPlayer().increasePopulation(1);
+        this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() + 200);
+        destination.setTileType(TileType.DESERT);
+        destination.setNonCombatUnitInTile(new Worker());
+        if (getRulerPlayer().getResearchingTechnology() != null) {
+            Technology researchingTechnology = getRulerPlayer().getResearchingTechnology();
+            int technologyIndex = -1;
+            for (int i = 0; i < Technology.values().length; i++)
+                if (researchingTechnology.equals(Technology.values()[i])) {
+                    technologyIndex = i;
+                    break;
+                }
+            if (technologyIndex == -1) {
+                System.err.println("technologyIndex is -1 :(");
+                System.exit(1);
+            }
 
-			getRulerPlayer().getResearchingTechCounter()[technologyIndex] = researchingTechnology.cost * 10;
-			GameController.getInstance().processResearchingTechnology();
-		}
-	}
+            getRulerPlayer().getResearchingTechCounter()[technologyIndex] = researchingTechnology.cost * 10;
+            GameController.getInstance().processResearchingTechnology();
+        }
+    }
 
-	private boolean canUnitStayInTile(Tile destination){
-		if((destination.getTileType().equals(TileType.OCEAN) && (!destination.hasRoad() || !this.getTile().hasRoad()))){
-			return false;
-		}
-		if(this.moves.size() == 1 && isThereAnotherUnitInTile(destination) && !isTileEnemy(destination))
-			return false;
-		return true;
-	}
-	private boolean isTileEnemy(Tile destination){
-		for (Player player : GameController.getInstance().getPlayers()) {
-			for (City city : player.getCities()) {
-				for (Tile tile : city.getTerritory()) {
-					if(destination.getPosition().equals(tile.getPosition()) && player != this.getRulerPlayer())
-						return true;
-				}
-			}
-		}
-		return false;
-	}
-	public boolean isThereAnotherUnitInTile(Tile tile){
-		if(tile.getCombatUnitInTile() != null && (this instanceof CombatUnit)) return true;
-		if(tile.getNonCombatUnitInTile() != null && (this instanceof NonCombatUnit)) return true;
-		return false;
-	}
+    private boolean canUnitStayInTile(Tile destination) {
+        if ((destination.getTileType().equals(TileType.OCEAN) && (!destination.hasRoad() || !this.getTile().hasRoad()))) {
+            return false;
+        }
+        if (this.moves.size() == 1 && isThereAnotherUnitInTile(destination) && !isTileEnemy(destination))
+            return false;
+        return true;
+    }
 
-	public void destroy(){
-		this.getRulerPlayer().setGold((int) (this.rulerPlayer.getGold() + (0.1 * this.productionCost)));
-		rulerPlayer.getUnits().remove(this);
-		if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile(null);
-		else if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile(null);
+    private boolean isTileEnemy(Tile destination) {
+        for (Player player : GameController.getInstance().getPlayers()) {
+            for (City city : player.getCities()) {
+                for (Tile tile : city.getTerritory()) {
+                    if (destination.getPosition().equals(tile.getPosition()) && player != this.getRulerPlayer())
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
 
-	}
+    public boolean isThereAnotherUnitInTile(Tile tile) {
+        if (tile.getCombatUnitInTile() != null && (this instanceof CombatUnit)) return true;
+        if (tile.getNonCombatUnitInTile() != null && (this instanceof NonCombatUnit)) return true;
+        return false;
+    }
 
-	public abstract Unit clone();
+    public void destroy() {
+        this.getRulerPlayer().setGold((int) (this.rulerPlayer.getGold() + (0.1 * this.productionCost)));
+        rulerPlayer.getUnits().remove(this);
+        if (this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile(null);
+        else if (this instanceof CombatUnit) this.getTile().setCombatUnitInTile(null);
+
+    }
+
+    public abstract Unit clone();
 }
 
 

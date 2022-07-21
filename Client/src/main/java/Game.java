@@ -2,7 +2,6 @@ import Controllers.GameController;
 import Controllers.RegisterController;
 import Models.City.Citizen;
 import Models.City.City;
-import Models.Menu.Menu;
 import Models.City.CityState;
 import Models.Player.Notification;
 import Models.Player.Player;
@@ -197,39 +196,7 @@ public class Game extends Application {
         gson = gsonBuilder.create();
 
         // new game or load game?
-        switch (NewGame.newGameMode)
-        {
-            case "newGame":
-                gameController.initGame();
-                break;
-            case "autosave":
-                GameController newGameController = loadGameFromFile("autosave.json");
-                gameController = newGameController;
-                GameController.setInstance(newGameController);
-                break;
-            case "save1":
-                GameController newGameController1 = loadGameFromFile("save1.json");
-                gameController = newGameController1;
-                GameController.setInstance(newGameController1);
-                break;
-            case "save2":
-                GameController newGameController2 = loadGameFromFile("save2.json");
-                gameController = newGameController2;
-                GameController.setInstance(newGameController2);
-                break;
-            case "save3":
-                GameController newGameController3 = loadGameFromFile("save3.json");
-                gameController = newGameController3;
-                GameController.setInstance(newGameController3);
-                break;
-            case "save4":
-                GameController newGameController4 = loadGameFromFile("save4.json");
-                gameController = newGameController4;
-                GameController.setInstance(newGameController4);
-                break;
-            default:
-                throw new RuntimeException("invalid newGameMode");
-        }
+        gameController.initGame();
 
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
@@ -315,8 +282,6 @@ public class Game extends Application {
     public void updateScreen()
     {
         hexagonsPane.getChildren().clear();
-//        hexagonsPane.setLayoutX(100);
-//        hexagonsPane.setLayoutY(45);
 
         // update tiles
         int x = 0;
@@ -386,12 +351,11 @@ public class Game extends Application {
         playerTurnTiles.forEach(Hex::addHex);
     }
     public void changeTurn(MouseEvent mouseEvent) {
-        //        for(int i= 0; i < GameController.getInstance().MAP_SIZE; i++){
-//            for(int j = 0; j < GameController.getInstance().MAP_SIZE; j++){
-//                hexagons[i][j].removeHex();
-//            }
-//        }
-//        playerTurnTiles.clear();
+        String changeTurnResult = gameController.checkChangeTurn();
+        if (changeTurnResult != null && changeTurnResult.equals("game Ended"))
+        {
+            winPanel(gameController.getPlayers().get(0));
+        }
         String result = gameController.checkChangeTurn();
         if (result != null && result.equals("game Ended"))
             winPanel(gameController.isGameEnd(), gameController.isGameEnd().getGameScore());
@@ -415,8 +379,6 @@ public class Game extends Application {
             notification.play();
             setCoordinates(pane, 1210, 335);
         }
-        if(isAutoSaveOn)
-            saveGameToFile("autosave.json");
         if (gameController.getPlayerTurn() == gameController.getPlayers().get(0))
         {
             updateTurnNumber();

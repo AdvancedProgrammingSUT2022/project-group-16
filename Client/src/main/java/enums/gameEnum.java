@@ -6,15 +6,14 @@ import Models.Player.Civilization;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum gameEnum
-{
+public enum gameEnum {
     startGame("^\\s*[pP]lay\\s+[gG]ame.*$"),
     newPlayer("^ --player(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
     shortNewPlayer("^ -p(?<number>[0-9]+)(\\s+)(?<username>\\S+).*$"),
     next("^\\s*[nN]ext\\s*$"),
     end("^\\s*[eE]nd\\s*$"),
     buildUnit("^\\s*[bB]uild\\s+[uU]nit\\s*$"),
-//    lockCitizenToTile("^\\s*[lL]ock\\s+[cC]itizen\\s+[tT]o\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
+    //    lockCitizenToTile("^\\s*[lL]ock\\s+[cC]itizen\\s+[tT]o\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     lockCitizenToTile("(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
     unLockCitizenToTile("^\\s*[uU]nlock\\s+[cC]itizen\\s+[fF]rom\\s+[tT]ile\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*$"),
 
@@ -95,15 +94,13 @@ public enum gameEnum
 
     public final String regex;
 
-    gameEnum(String regex)
-    {
+    gameEnum(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, gameEnum regex)
-    {
+    public static Matcher compareRegex(String command, gameEnum regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }

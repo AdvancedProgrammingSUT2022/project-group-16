@@ -9,7 +9,7 @@ import Models.Terrain.TileType;
 
 import java.util.ArrayList;
 
-public class Worker extends NonCombatUnit{
+public class Worker extends NonCombatUnit {
 
     private int TurnsTillRepairment = 3;
     private int TurnsTillBuildRoad = 3;
@@ -17,7 +17,7 @@ public class Worker extends NonCombatUnit{
     private ArrayList<Improvement> improvements = new ArrayList<>();
 
 
-    public Worker(Player rulerPlayer, Tile tile){
+    public Worker(Player rulerPlayer, Tile tile) {
         this.setRulerPlayer(rulerPlayer);
         this.setProductionCost(10);//TODO what is the max health/cost??
         this.setRequiredTechnology(null);
@@ -31,6 +31,7 @@ public class Worker extends NonCombatUnit{
         rulerPlayer.addUnit(this);
         addImprovement();
     }
+
     //for mocking a unit while constructing in city
     public Worker() {
         this.setProductionCost(10);
@@ -43,7 +44,7 @@ public class Worker extends NonCombatUnit{
         addImprovement();
     }
 
-    private void addImprovement(){
+    private void addImprovement() {
         improvements.add(Improvement.FARM);
         improvements.add(Improvement.MINE);
         /*if the following had turns till construction , don't comment them
@@ -135,7 +136,7 @@ public class Worker extends NonCombatUnit{
 
         if(this.getTile().getTileFeature() != null && this.getTile().getTileFeature().equals(TileFeature.FOREST) && this.getRulerPlayer().getTechnologies().contains(Technology.MINING)){
             this.improvements.get(0).turnToConstruct = 10;
-            this.improvements.get(0).inLineTurn -- ;
+            this.improvements.get(0).inLineTurn--;
             return null;
         }
         else if(this.getTile().getTileFeature() != null && this.getTile().getTileFeature().equals(TileFeature.JUNGLE) && this.getRulerPlayer().getTechnologies().contains(Technology.BRONZE_WORKING)){

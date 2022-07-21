@@ -5,13 +5,13 @@ import Models.Player.Player;
 import Models.Terrain.Tile;
 import Models.Units.UnitState;
 
-public class LongRange extends CombatUnit{
+public class LongRange extends CombatUnit {
     private LongRangeType type;
     private boolean isSet = false;
     private City targetCity = null;
     private int setCounter = 0;
 
-    public LongRange(Player rulerPlayer, LongRangeType longRangeType, Tile tile){
+    public LongRange(Player rulerPlayer, LongRangeType longRangeType, Tile tile) {
         this.setRulerPlayer(rulerPlayer);
         this.setType(longRangeType);
         this.setMP(type.movement);
@@ -26,7 +26,7 @@ public class LongRange extends CombatUnit{
     }
 
     //for mocking a unit while constructing in city
-    public LongRange(LongRangeType type){
+    public LongRange(LongRangeType type) {
         this.type = type;
     }
 
@@ -86,12 +86,12 @@ public class LongRange extends CombatUnit{
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return type.name();
     }
-    public LongRange clone(){
-        LongRange newLongRange = new LongRange(this.getRulerPlayer(),this.getType(),this.getTile());
+
+    public LongRange clone() {
+        LongRange newLongRange = new LongRange(this.getRulerPlayer(), this.getType(), this.getTile());
         newLongRange.setIsSet(this.isSet);
         newLongRange.setHealth(this.getHealth());
         return newLongRange;

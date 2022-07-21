@@ -3,8 +3,7 @@ package enums.gameCommands;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum infoCommands
-{
+public enum infoCommands {
     //commands
     infoResearch("^\\s*[iI]nfo\\s+[rR]esearch\\s*$"),
     infoTechnologies("^\\s*[iI]nfo\\s+[tT]echnology\\s*$"),
@@ -55,15 +54,13 @@ public enum infoCommands
 
     public final String regex;
 
-    infoCommands(String regex)
-    {
+    infoCommands(String regex) {
         this.regex = regex;
     }
 
-    public static Matcher compareRegex(String command, infoCommands regex)
-    {
+    public static Matcher compareRegex(String command, infoCommands regex) {
         Matcher matcher = Pattern.compile(regex.regex).matcher(command);
-        if(matcher.matches())
+        if (matcher.matches())
             return matcher;
         return null;
     }
