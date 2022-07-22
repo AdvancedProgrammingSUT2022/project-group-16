@@ -51,7 +51,7 @@ public class RequestHandler  extends Thread{
         }
     }
 
-    private Response handleRequest(Request request){
+    private Response handleRequest(Request request) throws MalformedURLException {
         if(!GameController.getInstance().getPlayerTurn().getUsername().equals(user.getUsername())) return notYourTurn();
         else if(request.getAction().equals("update public chats")) return updatePublicChats();
         else if(request.getAction().equals("login")) return login(request);
@@ -75,8 +75,8 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("move NCUnit")) return moveNCUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
-        else if(request.getAction().equals(""))
-        return null;
+        else if(request.getAction().equals("")) return null;
+        return new Response();
     }
 
     private Response notYourTurn()
@@ -231,7 +231,7 @@ public class RequestHandler  extends Thread{
         if(response.getMassage().equals(registerEnum.successfulCreate.regex)){
             this.user = Server.registerController.getUserByUsername(username);
             Menu.loggedInUser =user;
-            response.addParam("user", Server.registerController.getUserByUsername(username));
+            response = sendUser(user);
             addOnlineUser(username);
         }else{
             response.setStatus(400);
@@ -288,6 +288,7 @@ public class RequestHandler  extends Thread{
         int destinationY = (int) request.getParams().get("destinationY");
 
         // TODO: move combat unit in THE tile
+        return new Response();
     }
     private Response moveNCUnit(Request request)
     {
@@ -297,6 +298,7 @@ public class RequestHandler  extends Thread{
         int destinationY = (int) request.getParams().get("destinationY");
 
         // TODO: move non-combat unit in THE tile
+        return new Response();
     }
     private Response cheatCode(Request request)
     {
@@ -330,6 +332,7 @@ public class RequestHandler  extends Thread{
             GameController.getInstance().gainLuxuryResourceCheat();
 
 
+        return new Response();
     }
     private Response nextTurn()
     {
