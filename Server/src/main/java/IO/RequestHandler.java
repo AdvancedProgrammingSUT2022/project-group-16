@@ -1,10 +1,13 @@
 package IO;
 
 import Controllers.GameController;
+import Controllers.MainMenuController;
 import Models.Menu.Menu;
+import Models.Player.Player;
 import Models.User;
 import enums.cheatCode;
 import enums.registerEnum;
+import server.GameRoom;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -25,6 +28,15 @@ public class RequestHandler  extends Thread{
         this.socket = socket;
         this.inputStream = new DataInputStream(socket.getInputStream());
         this.outputStream = new DataOutputStream(socket.getOutputStream());
+    }
+
+    public User getUser()
+    {
+        return this.user;
+    }
+    public Socket getSocket()
+    {
+        return this.socket;
     }
 
     @Override
@@ -52,6 +64,14 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("register")) return register(request);
         else if(request.getAction().equals("logout")) return logout();
         else if(request.getAction().equals("get all users")) return getAllUsers();
+        // handle lobby requests
+        else if (request.getAction().equals("new room")) return createNewRoom(request);
+        else if(request.getAction().equals("get join requests")) return getJoinRequests();
+        else if(request.getAction().equals("accept join request")) return acceptJoinRequest(request);
+        else if(request.getAction().equals("reject join request")) return rejectJoinRequest(request);
+        else if(request.getAction().equals("join room")) return joinRoom(request);
+        else if(request.getAction().equals("start game")) return startGame();
+
         else if(request.getAction().equals("move unit")) return moveUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
@@ -120,6 +140,88 @@ public class RequestHandler  extends Thread{
         Server.registerController.getUserByUsername(username).setLastLogin(Server.timeAndDate.format(now));
         Server.chatServer.addOnlineUser(Server.registerController.getUserByUsername(username), socket);
         Server.registerController.writeDataOnJson();
+    }
+    // lobby requests
+    private Response createNewRoom(Request request)
+    {
+        Response response = new Response();
+
+        String roomID = (String) request.getParams().get("roomID");
+        if(MainMenuController.getRoomByRoomID(roomID) != null)
+        {
+            response.addMassage("this roomID is already taken");
+            return response;
+        }
+
+        MainMenuController.addToGameRooms(new GameRoom(user, roomID));
+        response.addMassage("room created successfully");
+        return response;
+    }
+    private Response getJoinRequests()
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+        StringBuilder joinRequestsSB = new StringBuilder();
+        for (int i = 0; i < gameRoom.getJoinRequests().size(); i++)
+            joinRequestsSB.append(i + ": " + gameRoom.getJoinRequests().get(i).getUser().getUsername()).append("\n");
+
+        Response response = new Response();
+        response.addParam("join requests", joinRequestsSB.toString());
+        return response;
+    }
+    private Response acceptJoinRequest(Request request)
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+        RequestHandler acceptedJoinRequest = gameRoom.getJoinRequests().get((Integer) request.getParams().get("index"));
+        gameRoom.removeFromJoinedRequests(acceptedJoinRequest);
+        gameRoom.addToJoinedClients(acceptedJoinRequest);
+
+        Response response = new Response();
+        response.addMassage("join request accepted");
+        return response;
+    }
+    private Response rejectJoinRequest(Request request)
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+        RequestHandler rejectedJoinRequest = gameRoom.getJoinRequests().get((Integer) request.getParams().get("index"));
+        gameRoom.removeFromJoinedRequests(rejectedJoinRequest);
+
+        Response response = new Response();
+        response.addMassage("join request rejected");
+
+        return response;
+    }
+    private Response joinRoom(Request request)
+    {
+        String roomID = (String) request.getParams().get("roomID");
+        GameRoom gameRoom = MainMenuController.getRoomByRoomID(roomID);
+
+        Response response = new Response();
+
+        if(gameRoom == null)
+        {
+            response.addMassage("there is no room with this roomID");
+            return response;
+        }
+
+        gameRoom.addToJoinRequests(this);
+        response.addMassage("request was sent");
+        return response;
+    }
+    private Response startGame()
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+
+        for (int i = 0; i < gameRoom.getJoinedClients().size(); i++)
+        {
+            RequestHandler joinedClient = gameRoom.getJoinedClients().get(i);
+//            Player player =
+        }
+
+        // TODO: send a request to each client to start the game
+
+        Response response = new Response();
+        response.addMassage("game started");
+        return response;
     }
 
     private Response moveUnit(Request request)
