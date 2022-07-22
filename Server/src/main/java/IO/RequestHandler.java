@@ -5,14 +5,12 @@ import Models.Menu.Menu;
 import Models.User;
 import enums.cheatCode;
 import enums.registerEnum;
-import server.chatServer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,11 +52,13 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("register")) return register(request);
         else if(request.getAction().equals("logout")) return logout();
         else if(request.getAction().equals("get all users")) return getAllUsers();
-        else if(request.getAction().equals("move CUnit")) return moveCUnit(request);
-        else if(request.getAction().equals("move NCUnit")) return moveNCUnit(request);
+        else if(request.getAction().equals("move unit")) return moveUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
-        else if(request.getAction().equals(""))
+        else if(request.getAction().equals("found city")) return foundCity(request);
+        else if(request.getAction().equals("select CUnit")) return selectCUnit(request);
+        else if(request.getAction().equals("select NCUnit")) return selectNCUnit(request);
+
         return null;
     }
 
@@ -122,56 +122,52 @@ public class RequestHandler  extends Thread{
         Server.registerController.writeDataOnJson();
     }
 
-    private Response moveCUnit(Request request)
+    private Response moveUnit(Request request)
     {
-        int originX = (int) request.getParams().get("originX");
-        int originY = (int) request.getParams().get("originY");
         int destinationX = (int) request.getParams().get("destinationX");
         int destinationY = (int) request.getParams().get("destinationY");
 
         // TODO: move combat unit in THE tile
-    }
-    private Response moveNCUnit(Request request)
-    {
-        int originX = (int) request.getParams().get("originX");
-        int originY = (int) request.getParams().get("originY");
-        int destinationX = (int) request.getParams().get("destinationX");
-        int destinationY = (int) request.getParams().get("destinationY");
-
-        // TODO: move non-combat unit in THE tile
+        Matcher matcher = Pattern.compile("move CUnit (?<x>\\d+) (?<y>\\d+)").matcher("move CUnit " + destinationX + " " + destinationY);
+        Response response = new Response();
+        response.addMassage(GameController.getInstance().moveUnit(matcher));
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+        return response;
     }
     private Response cheatCode(Request request)
     {
+        Response response = new Response();
         String cheatCodeDescription = (String) request.getParams().get("description");
         Matcher matcher;
         if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseTurns)) != null)
-            GameController.getInstance().increaseTurns(matcher);
+            response.addMassage(GameController.getInstance().increaseTurns(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseGold)) != null)
-            GameController.getInstance().increaseGold(matcher);
+            response.addMassage(GameController.getInstance().increaseGold(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.killEnemyUnit)) != null)
-            GameController.getInstance().killEnemyUnit(matcher);
+            response.addMassage(GameController.getInstance().killEnemyUnit(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainFood)) != null)
-            GameController.getInstance().increaseFood(matcher);
+            response.addMassage(GameController.getInstance().increaseFood(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainTechnology)) != null)
-            GameController.getInstance().addTechnology(matcher);
+            response.addMassage(GameController.getInstance().addTechnology(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseHappiness)) != null)
-            GameController.getInstance().increaseHappiness(matcher);
+            response.addMassage(GameController.getInstance().increaseHappiness(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseScore)) != null)
-            GameController.getInstance().increaseScore(matcher);
+            response.addMassage(GameController.getInstance().increaseScore(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseHealth)) != null)
-            GameController.getInstance().increaseHealth(matcher);
+            response.addMassage(GameController.getInstance().increaseHealth(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.winGame)) != null)
-            GameController.getInstance().winGame();
+            response.addMassage(GameController.getInstance().winGame());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.moveUnit)) != null)
-            GameController.getInstance().moveUnit(matcher);
+            response.addMassage(GameController.getInstance().moveUnit(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainBonusResource)) != null)
-            GameController.getInstance().gainBonusResourceCheat();
+            response.addMassage(GameController.getInstance().gainBonusResourceCheat());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainStrategicResource)) != null)
-            GameController.getInstance().gainStrategicResourceCheat();
+            response.addMassage(GameController.getInstance().gainStrategicResourceCheat());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainLuxuryResource)) != null)
-            GameController.getInstance().gainLuxuryResourceCheat();
+            response.addMassage(GameController.getInstance().gainLuxuryResourceCheat());
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
 
-
+        return response;
     }
     private Response nextTurn()
     {
@@ -179,7 +175,35 @@ public class RequestHandler  extends Thread{
 
         Response response = new Response();
         response.addMassage("turn changed");
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+        return response;
+    }
+    private Response foundCity(Request request)
+    {
+        Response response = new Response();
+        response.addMassage(GameController.getInstance().found());
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
 
+        return response;
+    }
+    private Response selectCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getCombatUnitInTile());
+
+        Response response = new Response();
+        response.addMassage("CUnit selected");
+        return response;
+    }
+    private Response selectNCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getNonCombatUnitInTile());
+
+        Response response = new Response();
+        response.addMassage("NCUnit selected");
         return response;
     }
 }
