@@ -65,7 +65,11 @@ public class Game extends Application {
     private boolean needUpdateScience = false;
     private boolean needUpdateProduction = true;
     public AudioClip audioClip = new AudioClip(Game.class.getResource("audio/gameAudios/click.mp3").toExternalForm());
+    private final AudioClip tradeAccepted = new AudioClip(Game.class.getResource("audio/gameAudios/tradeAccept.mp3").toExternalForm());
     private final AudioClip gameDemo = new AudioClip(Game.class.getResource("audio/2.mp3").toExternalForm());
+    private final AudioClip tradeOffered = new AudioClip(Game.class.getResource("audio/gameAudios/tradeOffered.mp3").toExternalForm());
+    private final AudioClip notification = new AudioClip(Game.class.getResource("audio/gameAudios/notification.wav").toExternalForm());
+
     private boolean isCPressed = false;
     private boolean isShiftPressed = false;
     private boolean isAutoSaveOn = false;
@@ -106,6 +110,7 @@ public class Game extends Application {
         stage.setScene(scene);
         root.requestFocus();
         stage.show();
+        audioClip.play();
     }
     private void cheatCode() {
         TextField textField = new TextField();
@@ -128,7 +133,12 @@ public class Game extends Application {
                     gameController.increaseGold(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) {
                     gameController.increaseTurns(matcher);
+                    if (gameController.isGameEnd() != null) {
+                        winPanel(gameController.isGameEnd(), gameController.isGameEnd().getGameScore());
+                    }
                     setInformationStyles();
+                    updateYear();
+                    updateTurnNumber();
                     updateScreen();
                 }
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
@@ -146,9 +156,8 @@ public class Game extends Application {
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseScore)) != null)
                     gameController.increaseScore(matcher);
                 else if(cheatCode.compareRegex(command, cheatCode.winGame) != null) {
-                    gameController.removeAllPlayers();
                     gameController.winGame();
-                    Platform.exit();
+                    winPanel(gameController.getPlayerTurn(), 5);
                 }
                 else if(cheatCode.compareRegex(command, cheatCode.gainBonusResource) != null)
                     gameController.gainBonusResourceCheat();
@@ -185,39 +194,7 @@ public class Game extends Application {
         gson = gsonBuilder.create();
 
         // new game or load game?
-        switch (NewGame.newGameMode)
-        {
-            case "newGame":
-                gameController.initGame();
-                break;
-            case "autosave":
-                GameController newGameController = loadGameFromFile("autosave.json");
-                gameController = newGameController;
-                GameController.setInstance(newGameController);
-                break;
-            case "save1":
-                GameController newGameController1 = loadGameFromFile("save1.json");
-                gameController = newGameController1;
-                GameController.setInstance(newGameController1);
-                break;
-            case "save2":
-                GameController newGameController2 = loadGameFromFile("save2.json");
-                gameController = newGameController2;
-                GameController.setInstance(newGameController2);
-                break;
-            case "save3":
-                GameController newGameController3 = loadGameFromFile("save3.json");
-                gameController = newGameController3;
-                GameController.setInstance(newGameController3);
-                break;
-            case "save4":
-                GameController newGameController4 = loadGameFromFile("save4.json");
-                gameController = newGameController4;
-                GameController.setInstance(newGameController4);
-                break;
-            default:
-                throw new RuntimeException("invalid newGameMode");
-        }
+        gameController.initGame();
 
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
@@ -303,8 +280,6 @@ public class Game extends Application {
     public void updateScreen()
     {
         hexagonsPane.getChildren().clear();
-//        hexagonsPane.setLayoutX(100);
-//        hexagonsPane.setLayoutY(45);
 
         // update tiles
         int x = 0;
@@ -374,34 +349,34 @@ public class Game extends Application {
         playerTurnTiles.forEach(Hex::addHex);
     }
     public void changeTurn(MouseEvent mouseEvent) {
-        //        for(int i= 0; i < GameController.getInstance().MAP_SIZE; i++){
-//            for(int j = 0; j < GameController.getInstance().MAP_SIZE; j++){
-//                hexagons[i][j].removeHex();
-//            }
-//        }
-//        playerTurnTiles.clear();
         String changeTurnResult = gameController.checkChangeTurn();
         if (changeTurnResult != null && changeTurnResult.equals("game Ended"))
         {
             winPanel(gameController.getPlayers().get(0));
         }
+        String result = gameController.checkChangeTurn();
+        if (result != null && result.equals("game Ended"))
+            winPanel(gameController.isGameEnd(), gameController.isGameEnd().getGameScore());
+
         //TODO: fix bugs
         updateScreen();
         setInformationStyles();
-        if (gameController.getPlayerTurn().getResearchingTechnology() != null)
+        pane.getChildren().remove(diplomacyAlert);
+        pane.getChildren().remove(techAlert);
+        if (gameController.getPlayerTurn().getResearchingTechnology() != null )
             pane.getChildren().remove(techAlert);
         else if (!pane.getChildren().contains(techAlert)) {
             pane.getChildren().add(techAlert);
+            notification.play();
             setCoordinates(pane, 50, 290);
         }
         if (gameController.getPlayerTurn().getTradeRequests().size() == 0)
             pane.getChildren().remove(diplomacyAlert);
         else if (!pane.getChildren().contains(diplomacyAlert)){
             pane.getChildren().add(diplomacyAlert);
+            notification.play();
             setCoordinates(pane, 1210, 335);
         }
-        if(isAutoSaveOn)
-            saveGameToFile("autosave.json");
         if (gameController.getPlayerTurn() == gameController.getPlayers().get(0))
         {
             updateTurnNumber();
@@ -641,13 +616,16 @@ public class Game extends Application {
         if (gameController.getPlayerTurn().getResearchingTechnology() == null && !isAlertTechOn) {
             isAlertTechOn = true;
             pane.getChildren().add(techAlert);
+            notification.play();
             setCoordinates(pane, 50, 290);
+
         }
         else if (!isAlertTechOn)
             pane.getChildren().remove(techAlert);
         if (gameController.getPlayerTurn().getTradeRequests().size() != 0 && !isAlertDiplomacyOn) {
             isAlertDiplomacyOn = true;
             pane.getChildren().add(diplomacyAlert);
+            notification.play();
             setCoordinates(pane, 1210, 335);
         }
         else if (!isAlertDiplomacyOn)
@@ -941,12 +919,25 @@ public class Game extends Application {
         list.getChildren().add(box);
         pane.getChildren().add(list);
     }
-    private void winPanel(Player player) {
+    private void winPanel(Player player, int score) {
+        AudioClip victory = new AudioClip(Game.class.getResource("audio/victory.mp3").toExternalForm());
+        victory.play();
         Pane list = new Pane();
-        panelsPaneStyle(list, 500, 500, false);
+        panelsPaneStyle(list, 250, 250, false);
+        VBox box = new VBox();
+        box.setAlignment(Pos.CENTER);
+        box.setSpacing(5);
+        list.getChildren().add(box);
         pane.getChildren().add(list);
-        setCoordinates(pane, 390, 85);
-        addLabelToPane(player.getUsername() + " won the game\nscore: " + player.getScore(), list);
+        setCoordinates(list, 15, 20);
+        setCoordinates(pane, 515, 235);
+
+        addLabelToBox(player.getUsername() + " won the game", box);
+        addLabelToBox("civilization: " + player.getCivilization().name(), box);
+        addLabelToBox("civilization leader: " + player.getCivilization().leaderName, box);
+        addLabelToBox("score: " + score, box);
+        addLabelToBox("win year: " + gameController.getYear(), box);
+        addLabelToBox("you will gain " + score / 10 + " score:)", box);
     }
     public void showEconomics()
     {
@@ -1185,6 +1176,7 @@ public class Game extends Application {
     private ImageView checkmarkButtonStyle(String type, Player player, AtomicReference<Double> number) {
         ImageView checkmark = new ImageView();
         checkmark.setOnMousePressed(mouseEvent -> {
+            tradeOffered.play();
             for (int i = 0; i < 4; i++)
                 pane.getChildren().remove(pane.getChildren().size() - 1);
             for(int i = 0; i < pane.getChildren().size(); i++)
@@ -1457,17 +1449,17 @@ public class Game extends Application {
         setCoordinatesBox(list, box, 75, 10);
         addLabelToBox(infoCommands.scoreBoard.regex, box);
         gameController.getPlayers().sort((o1, o2) -> {
-            if (o1.getScore() == o2.getScore())
+            if (o1.getGameScore() == o2.getGameScore())
                 return 0;
-            return o1.getScore() < o2.getScore() ? -1 : 1;
+            return o1.getGameScore() < o2.getGameScore() ? -1 : 1;
         });
         int number = gameController.getPlayers().size();
         for(int i = number - 1; i >= 0; i--)
             addLabelToBox((number - i) + " - " + gameController.getPlayers().get(i).getCivilization().name().toLowerCase(Locale.ROOT)
-                    + ": " +  gameController.getPlayers().get(i).getScore(), box);
+                    + ": " +  gameController.getPlayers().get(i).getGameScore(), box);
         int avg = 0;
         for(Player player1 : gameController.getPlayers())
-            avg += player1.getScore();
+            avg += player1.getGameScore();
         addLabelToBox("----------------------", box);
         addLabelToBox(infoCommands.averageScore.regex + ((double) avg / gameController.getPlayers().size()), box);
 
@@ -1853,7 +1845,7 @@ public class Game extends Application {
         }
         for (Player player : players) {
             addLabelToBox(player.getCivilization().name(), civilizations);
-            addLabelToBox(String.valueOf(player.getScore()), score);
+            addLabelToBox(String.valueOf(player.getGameScore()), score);
             addLabelToBox(player.getCivilization().leaderName, names);
             addLabelToBox(player.getUsername(), rulers);
 
@@ -1928,6 +1920,7 @@ public class Game extends Application {
                         "-fx-pref-width: 50;" +
                         "-fx-pref-height: 30");
                 yes.setOnMouseClicked(mouseEvent12 -> {
+                    tradeAccepted.play();
                     pane.getChildren().remove(yesOrNo);
                     requests.getChildren().remove(label);
                     gameController.getPlayerTurn().getTradeRequests().remove(request);

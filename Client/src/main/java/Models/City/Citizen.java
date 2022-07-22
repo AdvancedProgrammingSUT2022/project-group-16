@@ -15,7 +15,10 @@ public class Citizen {
     public Tile getWorkingTile() {
         return workingTile;
     }
-
+    public void setWorkingTile(Tile workingTile)
+    {
+        this.workingTile = workingTile;
+    }
     public City getCity() {
         return city;
     }

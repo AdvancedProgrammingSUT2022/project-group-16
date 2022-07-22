@@ -12,6 +12,8 @@ import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.LongRange;
+import Models.Units.CombatUnits.MidRange;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Worker;
@@ -91,7 +93,7 @@ public abstract class Unit extends Construction
 	public void setUnitState(UnitState unitState) {
 		this.unitState = unitState;
 	}
-	
+
 	public int getSpeed() {
 		return speed;
 	}
@@ -212,42 +214,70 @@ public abstract class Unit extends Construction
 		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()) &&
 				!this.getRulerPlayer().getRelationStates().get(player.getCivilization()).equals(RelationState.ENEMY))
 			return gameEnum.notYourTile.regex;
-//
-//		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()))
-//			return gameEnum.notYourCivilization.regex;
-		//TODO: is this needed?
 
-		this.destination = destination;
-		FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
-		this.moves = FindWay.getInstance().getMoves();
-		return updateUnitMovements();
+		//attack
+		if (this instanceof MidRange &&
+				destination.getCombatUnitInTile() != null &&
+				destination.getCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer())
+			((MidRange) this).attack(destination.getCombatUnitInTile());
+		else if (this instanceof MidRange &&
+				destination.getNonCombatUnitInTile() != null &&
+				destination.getNonCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer()) {
+			destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+			this.rulerPlayer.getUnits().add(destination.getNonCombatUnitInTile());
+			destination.getNonCombatUnitInTile().getRulerPlayer().getUnits().remove(destination.getNonCombatUnitInTile());
+		}
+		else if (this instanceof LongRange &&
+				destination.getCombatUnitInTile() != null &&
+				destination.getCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer())
+			((LongRange) this).attack(destination.getCombatUnitInTile());
+		else if (this instanceof LongRange &&
+				destination.getNonCombatUnitInTile() != null &&
+				destination.getNonCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer()) {
+			destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+			this.rulerPlayer.getUnits().add(destination.getNonCombatUnitInTile());
+			destination.getNonCombatUnitInTile().getRulerPlayer().getUnits().remove(destination.getNonCombatUnitInTile());
+		}
+		else {
+			this.destination = destination;
+			FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
+			this.moves = FindWay.getInstance().getMoves();
+			return updateUnitMovements();
+		}
+		return null;
 	}
-	public String updateUnitMovements(){
-		if(this.getMovementPoints() == 0){
+	public String updateUnitMovements() {
+		if(this.getMovementPoints() == 0) {
 			this.destination = null;
 			this.moves = null;
-			return "no movementPoints";
+			return gameEnum.MP.regex;
 		}
 		if(this.moves.size() == 0 && !this.getTile().equals(this.destination)){
 			this.destination = null;
 			this.moves = null;
+			if (this instanceof CombatUnit)
+				this.getTile().setCombatUnitInTile((CombatUnit) this);
+			if (this instanceof NonCombatUnit)
+				this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
 			return "cannot move to destination";
 		}
 		if(this.moves.size() == 0 && this.getTile().equals(this.destination)){
 			if(this.destination.getTileType().equals(TileType.RUIN)){
 				getRuinBonus();
 			}
-			if(!isTileEnemy(this.destination)){
-				if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
-				else if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
-			}
+//			if(!isTileEnemy(this.destination)){
+//			}
+			if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
+			else if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
 			this.destination = null;
 			this.moves = null;
-			return null;
+			return "middle of move";
 		}
+
+		//move
 		Tile nextTile;
 		nextTile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
-		if (this.movementPoints < nextTile.getTileType().movementCost && !canUnitStayInTile(nextTile))
+		if (this.movementPoints < nextTile.getTileType().movementCost || !canUnitStayInTile(nextTile))
 			return "cannot stay in destination Tile";
 		if (this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this)
 			this.getTile().setCombatUnitInTile(null);

@@ -24,6 +24,7 @@ import java.util.*;
 public class Player extends User
 {
 	transient GameController gameController;
+	private boolean isYourTurn = false;
 	transient private Unit selectedUnit = null;
 	transient private City selectedCity = null;
 	private final Civilization civilization;
@@ -34,7 +35,7 @@ public class Player extends User
 	private int XP = 0;
 	private int population = 0;
 	private int maxPopulation = 0;
-	private int score = 0;
+	private int gameScore = 0;
 	private final ArrayList<Technology> technologies = new ArrayList<>();
 	private int[] researchingTechCounter = new int[50];
 	private Technology researchingTechnology;
@@ -45,7 +46,7 @@ public class Player extends User
 	public ArrayList<Tile> mapKeyset = new ArrayList<>();
 	public ArrayList<TileState> mapValueset = new ArrayList<>();
 	private ArrayList<TradeRequest> tradeRequests = new ArrayList<>();
-
+	private boolean hasCity = false;
 	private ArrayList<City> cities = new ArrayList<>();
 	private final ArrayList<City> seizedCities = new ArrayList<>();//remember to check if the city is destroyed or not by its state
 	private City initialCapitalCity;    //??TODO
@@ -65,14 +66,22 @@ public class Player extends User
 		this.setScore(score);
 	}
 
-	public int getScore() {
-		return score;
+	public int getGameScore() {
+		return gameScore;
 	}
 
-	public void setScore(int score) {
-		this.score = score;
+	public void setGameScore(int score) {
+		this.gameScore = score;
 	}
 
+	public boolean getIsYourTurn()
+	{
+		return isYourTurn;
+	}
+	public void setIsYourTurn(boolean isYourTurn)
+	{
+		this.isYourTurn = isYourTurn;
+	}
 	public HashMap<Civilization, RelationState> getRelationStates() {
 		return relationStates;
 	}
@@ -88,6 +97,14 @@ public class Player extends User
 	public void declareFriendship(Player player){
 		this.relationStates.replace(player.getCivilization(), RelationState.FRIEND);
 		player.getRelationStates().replace(this.civilization, RelationState.FRIEND);
+	}
+
+	public boolean isHasCity() {
+		return hasCity;
+	}
+
+	public void setHasCity(boolean hasCity) {
+		this.hasCity = hasCity;
 	}
 
 	public City getSelectedCity()

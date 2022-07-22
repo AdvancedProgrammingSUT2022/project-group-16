@@ -1,8 +1,10 @@
 package IO;
 
+import Controllers.GameController;
 import Controllers.ProfileController;
 import Models.Menu.Menu;
 import Models.User;
+import enums.cheatCode;
 import Models.chat.Message;
 import Models.chat.publicMessage;
 import enums.registerEnum;
@@ -16,6 +18,8 @@ import java.net.Socket;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RequestHandler  extends Thread{
     private User user;
@@ -47,8 +51,9 @@ public class RequestHandler  extends Thread{
         }
     }
 
-    private Response handleRequest(Request request) throws MalformedURLException {
-        if(request.getAction().equals("update public chats")) return updatePublicChats();
+    private Response handleRequest(Request request){
+        if(!GameController.getInstance().getPlayerTurn().getUsername().equals(user.getUsername())) return notYourTurn();
+        else if(request.getAction().equals("update public chats")) return updatePublicChats();
         else if(request.getAction().equals("login")) return login(request);
         else if(request.getAction().equals("register")) return register(request);
         else if(request.getAction().equals("logout")) return logout();
@@ -66,9 +71,20 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("change password")) return changePassword(request);
         else if(request.getAction().equals("change photo")) return changePhoto(new URL((String) request.getParams().get("url")));
 
+        else if(request.getAction().equals("move CUnit")) return moveCUnit(request);
+        else if(request.getAction().equals("move NCUnit")) return moveNCUnit(request);
+        else if(request.getAction().equals("cheat code")) return cheatCode(request);
+        else if(request.getAction().equals("next turn")) return nextTurn();
+        else if(request.getAction().equals(""))
         return null;
     }
 
+    private Response notYourTurn()
+    {
+        Response response = new Response();
+        response.addMassage("not your turn");
+        return response;
+    }
     private Response changePhoto(URL url) {
         Menu.loggedInUser.setPhoto(url);
         Server.registerController.writeDataOnJson();
@@ -263,4 +279,74 @@ public class RequestHandler  extends Thread{
         Server.chatServer.addOnlineUser(Server.registerController.getUserByUsername(username), socket);
         Server.registerController.writeDataOnJson();
     }
+
+    private Response moveCUnit(Request request)
+    {
+        int originX = (int) request.getParams().get("originX");
+        int originY = (int) request.getParams().get("originY");
+        int destinationX = (int) request.getParams().get("destinationX");
+        int destinationY = (int) request.getParams().get("destinationY");
+
+        // TODO: move combat unit in THE tile
+    }
+    private Response moveNCUnit(Request request)
+    {
+        int originX = (int) request.getParams().get("originX");
+        int originY = (int) request.getParams().get("originY");
+        int destinationX = (int) request.getParams().get("destinationX");
+        int destinationY = (int) request.getParams().get("destinationY");
+
+        // TODO: move non-combat unit in THE tile
+    }
+    private Response cheatCode(Request request)
+    {
+        String cheatCodeDescription = (String) request.getParams().get("description");
+        Matcher matcher;
+        if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseTurns)) != null)
+            GameController.getInstance().increaseTurns(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseGold)) != null)
+            GameController.getInstance().increaseGold(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.killEnemyUnit)) != null)
+            GameController.getInstance().killEnemyUnit(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainFood)) != null)
+            GameController.getInstance().increaseFood(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainTechnology)) != null)
+            GameController.getInstance().addTechnology(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseHappiness)) != null)
+            GameController.getInstance().increaseHappiness(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseScore)) != null)
+            GameController.getInstance().increaseScore(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseHealth)) != null)
+            GameController.getInstance().increaseHealth(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.winGame)) != null)
+            GameController.getInstance().winGame();
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.moveUnit)) != null)
+            GameController.getInstance().moveUnit(matcher);
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainBonusResource)) != null)
+            GameController.getInstance().gainBonusResourceCheat();
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainStrategicResource)) != null)
+            GameController.getInstance().gainStrategicResourceCheat();
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainLuxuryResource)) != null)
+            GameController.getInstance().gainLuxuryResourceCheat();
+
+
+    }
+    private Response nextTurn()
+    {
+        GameController.getInstance().checkChangeTurn();
+
+        Response response = new Response();
+        response.addMassage("turn changed");
+
+        return response;
+    }
 }
+
+
+
+
+
+
+
+
+

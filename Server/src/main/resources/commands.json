@@ -1,0 +1,34 @@
+{
+  "Requests": [
+    {
+      "action": "move CUnit",
+      "params": {
+        "originX": "Integer",
+        "originY": "Integer",
+        "destinationX": "Integer",
+        "destinationY": "Integer"
+      }
+    },
+    {
+      "action": "move NCUnit",
+      "params": {
+        "originX": "Integer",
+        "originY": "Integer",
+        "destinationX": "Integer",
+        "destinationY": "Integer"
+      }
+    },
+    {
+      "action": "cheat code",
+      "params": {
+        "description": "description of cheat code(e.g. increase gold 100)"
+      }
+    },
+    {
+      "action": "",
+      "params": {
+      }
+    }
+  ]
+}
+

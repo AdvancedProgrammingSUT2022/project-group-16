@@ -1,10 +1,12 @@
 package Models.Resources;
 
+import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.User;
 
 public class TradeRequest {
-    private final Player sender;
+    transient private final Player sender;
+    public Civilization senderCivilization;
     private final String offerToSell;
     private final String wantToBuy;
 

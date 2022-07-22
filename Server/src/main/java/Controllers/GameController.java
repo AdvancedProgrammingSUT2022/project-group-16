@@ -13,6 +13,7 @@ import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Resources.*;
 import Models.Terrain.*;
+import Models.TypeAdapters.*;
 import Models.Units.CombatUnits.*;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.CommandHandeling.UnitCommandsHandler;
@@ -20,6 +21,7 @@ import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.Units.UnitState;
 import Models.User;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import enums.cheatCode;
 import enums.gameCommands.infoCommands;
@@ -47,6 +49,7 @@ public class GameController implements Serializable
 	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 	private int yearCounter = 2000;
+	private boolean isGameStarted = true;
 
 	public int getMAP_SIZE() {
 		return MAP_SIZE;
@@ -56,10 +59,21 @@ public class GameController implements Serializable
 		return grid;
 	}
 
+	private Gson gson;
+
+
 	// private constructor to prevent instantiation
 	private GameController()
 	{
 		initGrid();
+
+		GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+		gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
+		gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
+		gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
+		gsonBuilder.registerTypeAdapter(Resource.class, new ResourceTypeAdapter());
+		gsonBuilder.registerTypeAdapter(Unit.class, new UnitTypeAdapter());
+		gson = gsonBuilder.create();
 	}
 	// this method is called to get the GameController singleton instance
 	public static GameController getInstance()
@@ -79,6 +93,7 @@ public class GameController implements Serializable
 		// if there is a unit which has not used its turn, it returns the unit's name with error message //TODO: is this needed?
 		//TODO: check if unit has used its turn
 
+		//if city size == 0
 		if (isGameEnd() != null)
 			return "game Ended";
 		changeTurn();
@@ -96,8 +111,6 @@ public class GameController implements Serializable
 			for(City city : player.getCities())
 				city.updateCityCombatStrength();
 		}
-
-		// reset all units turns. TODO: is this needed?
 
 		playerTurn.setSelectedUnit(null);
 		playerTurn.setSelectedCity(null);
@@ -137,6 +150,18 @@ public class GameController implements Serializable
 				yearCounter++;
 			updateFortifyTilHeal();
 			updateCityConstructions();
+		}
+
+		//end game
+		players.removeIf(player -> player.isHasCity() && player.getCities().size() == 0);
+
+		if (isGameEnd() != null && isGameStarted) {
+			isGameStarted = false;
+			Player winner = isGameEnd();
+			User userWinner = Menu.allUsers.get(Menu.allUsers.indexOf(
+					registerController.getUserByUsername(winner.getUsername())));
+			userWinner.setScore(userWinner.getScore() + winner.getGameScore() / 10);
+			registerController.writeDataOnJson();
 		}
 
 		// change playerTurn
@@ -255,6 +280,152 @@ public class GameController implements Serializable
 			player.initMap();
 		initPlayers();
 		setPlayersRelations();
+	}
+	public String gameControllerToJson(GameController gameController)
+	{
+		gameController.playerTurnIndex = gameController.getPlayers().indexOf(gameController.getPlayerTurn());
+		for (Player player : gameController.getPlayers())
+		{
+			for (Unit unit : player.getUnits())
+				unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
+
+			player.mapKeyset.clear();
+			player.mapValueset.clear();
+			for (Tile tile : player.getMap().keySet())
+			{
+				player.mapKeyset.add(tile);
+				player.mapValueset.add(player.getMap().get(tile));
+			}
+		}
+
+		String gameStr = gson.toJson(gameController);
+
+		return gameStr;
+	}
+	public GameController jsonToGameController(String jsonStr)
+	{
+		GameController loadedGameController = gson.fromJson(jsonStr, GameController.class);
+		for (Player player : loadedGameController.getPlayers())
+		{
+			player.setGameController(loadedGameController);
+			// set player map
+			HashMap<Tile, TileState> playerMap = new HashMap<>();
+			for (int i = 0; i < player.mapKeyset.size(); i++)
+			{
+				if(player.mapValueset.get(i).equals(TileState.REVEALED))
+					playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
+				else
+					playerMap.put(loadedGameController.getTileByXY(player.mapKeyset.get(i).getPosition().X, player.mapKeyset.get(i).getPosition().Y), player.mapValueset.get(i));
+			}
+			player.setMap(playerMap);
+
+			// set transient fields
+			for (City city : player.getCities())
+			{
+				city.setRulerPlayer(player);
+				for (Citizen citizen : city.getCitizens())
+					citizen.setCity(city);
+
+				for (Building building : city.getBuildings())
+					building.setTile(player.getTileByXY(building.getTile().getPosition().X, building.getTile().getPosition().Y));
+			}
+			for (Unit unit : player.getUnits())
+			{
+				unit.setRulerPlayer(player);
+
+				Tile tile = player.getTileByXY(unit.lastPositionForSave.X, unit.lastPositionForSave.Y);
+				unit.setTile(tile);
+				if(unit instanceof CombatUnit)
+					tile.setCombatUnitInTile((CombatUnit) unit);
+				else
+					tile.setNonCombatUnitInTile((NonCombatUnit) unit);
+			}
+		}
+		loadedGameController.setPlayerTurn(loadedGameController.getPlayers().get(loadedGameController.playerTurnIndex));
+
+		return loadedGameController;
+	}
+	public String playerToJson(Player player)
+	{
+		// set map
+		player.mapKeyset.clear();
+		player.mapValueset.clear();
+		for (Tile tile : player.getMap().keySet())
+		{
+			player.mapKeyset.add(tile);
+			player.mapValueset.add(player.getMap().get(tile));
+		}
+		// set units last position
+		for (Unit unit : player.getUnits())
+			unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
+		// set trade requests
+		for (TradeRequest tradeRequest : player.getTradeRequests())
+			tradeRequest.senderCivilization = tradeRequest.getSender().getCivilization();
+
+
+		return gson.toJson(player);
+	}
+
+	// TODO: must be on client's side
+	public Player jsonToPlayer(String playerJson)
+	{
+		Player player = gson.fromJson(playerJson, Player.class);
+
+		// set units
+		for (Unit unit : player.getUnits())
+		{
+			unit.setRulerPlayer(player);
+			unit.setTile(player.getTileByXY(unit.lastPositionForSave.X, unit.lastPositionForSave.Y));
+			if(unit instanceof CombatUnit)
+				unit.getTile().setCombatUnitInTile((CombatUnit) unit);
+			else
+				unit.getTile().setNonCombatUnitInTile((NonCombatUnit) unit);
+			unit.setDestination(player.getTileByXY(unit.getDestination().getPosition().X, unit.getDestination().getPosition().Y));
+		}
+		// set city tiles
+		for (City city : player.getCities())
+		{
+			for (int i = 0; i < city.getTerritory().size(); i++)
+				city.getTerritory().set(i, player.getTileByXY(city.getTerritory().get(i).getPosition().X, city.getTerritory().get(i).getPosition().Y));
+			city.setCapitalTile(player.getTileByXY(city.getCapitalTile().getPosition().X, city.getCapitalTile().getPosition().Y));
+			// set buildings
+			for (Building building : city.getBuildings())
+			{
+				building.setTile(player.getTileByXY(building.getTile().getPosition().X, building.getTile().getPosition().Y));
+				building.setCity(city);
+			}
+			// set citizens
+			for (int i = 0; i < city.getCitizens().size(); i++)
+			{
+				city.getCitizens().get(i).setCity(city);
+				city.getCitizens().get(i).setWorkingTile(player.getTileByXY(city.getCitizens().get(i).getWorkingTile().getPosition().X, city.getCitizens().get(i).getWorkingTile().getPosition().Y));
+			}
+
+			if(city.getCurrentConstruction() instanceof CombatUnit)
+				city.setCurrentConstruction((player.getTileByXY(((CombatUnit) city.getCurrentConstruction()).getTile().getPosition().X, ((CombatUnit) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
+			else if(city.getCurrentConstruction() instanceof NonCombatUnit)
+				city.setCurrentConstruction((player.getTileByXY(((NonCombatUnit) city.getCurrentConstruction()).getTile().getPosition().X, ((NonCombatUnit) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
+			else if(city.getCurrentConstruction() instanceof Building)
+				city.setCurrentConstruction((player.getTileByXY(((Building) city.getCurrentConstruction()).getTile().getPosition().X, ((Building) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
+
+			city.setGarrison(player.getTileByXY(city.getGarrison().getTile().getPosition().X, city.getGarrison().getTile().getPosition().Y).getCombatUnitInTile());
+			city.setNonCombatUnit(player.getTileByXY(city.getNonCombatUnit().getTile().getPosition().X, city.getNonCombatUnit().getTile().getPosition().Y).getNonCombatUnitInTile());
+
+			city.setRulerPlayer(player);
+
+			if(city.getCapitalTile().getPosition().equals(player.getInitialCapitalCity().getCapitalTile().getPosition()))
+				player.setInitialCapitalCity(city);
+			if(city.getCapitalTile().getPosition().equals(player.getCurrentCapitalCity().getCapitalTile().getPosition()))
+				player.setCurrentCapitalCity(city);
+
+		}
+		// set trade requests
+		for (TradeRequest tradeRequest : player.getTradeRequests())
+		{
+			// TODO:
+		}
+
+		return player;
 	}
 
 	private void setPlayersRelations() {
@@ -1005,7 +1176,7 @@ public class GameController implements Serializable
 			if(Technology.values()[i].name().toLowerCase(Locale.ROOT).equals(matcher.group("name").toLowerCase(Locale.ROOT)) &&
 					playerTurn.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies))
 			{
-				playerTurn.setScore(playerTurn.getScore() + 3 * MAP_SIZE);
+				playerTurn.setGameScore(playerTurn.getGameScore() + 3 * MAP_SIZE);
 				playerTurn.addTechnology(Technology.values()[i]);
 				return matcher.group("name") + cheatCode.addSuccessful.regex;
 			}
@@ -1432,13 +1603,6 @@ public class GameController implements Serializable
 				Tile destinationTile = getTileByXY(newX, newY);
 				Unit unitToMove = playerTurn.getSelectedUnit();
 
-				//validation
-				if(destinationTile.getCombatUnitInTile() != null && destinationTile.getCombatUnitInTile().getRulerPlayer() != playerTurn)
-					return mainCommands.invalidCommand.regex;
-				if((unitToMove instanceof CombatUnit && destinationTile.getCombatUnitInTile() != null) ||
-						(unitToMove instanceof NonCombatUnit && destinationTile.getNonCombatUnitInTile() != null))
-					return mainCommands.unitLimit.regex;
-
 				// move unit
 				return unitToMove.move(destinationTile);
 			}
@@ -1782,7 +1946,7 @@ public class GameController implements Serializable
 				return unitCommands.hasCity.regex;
 			else
 			{
-				playerTurn.setScore(playerTurn.getScore() + 5 * MAP_SIZE);
+				playerTurn.setGameScore(playerTurn.getGameScore() + 5 * MAP_SIZE);
 				((Settler) playerTurn.getSelectedUnit()).createCity();
 				if(playerTurn.getCities().size() != 1)
 					playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
@@ -1835,13 +1999,11 @@ public class GameController implements Serializable
 	}
 	public ArrayList<CombatUnit> getTileCUnits(Tile tile){
 		ArrayList<CombatUnit> answer = new ArrayList<>();
-		for (Player player : players) {
-			for (Unit unit : player.getUnits()) {
-				if(unit instanceof CombatUnit && unit.getTile().getPosition().equals(tile.getPosition())){
+		for (Player player : players)
+			for (Unit unit : player.getUnits())
+				if(unit instanceof CombatUnit && unit.getTile().getPosition().X == tile.getPosition().X &&
+						unit.getTile().getPosition().Y == tile.getPosition().Y)
 					answer.add((CombatUnit) unit);
-				}
-			}
-		}
 		return answer;
 	}
 	public ArrayList<NonCombatUnit> getTileNCUnits(Tile tile){
@@ -2467,10 +2629,10 @@ public class GameController implements Serializable
 		if (yearCounter >= 2050) {
 			int max = 0;
 			for (Player player : players)
-				if (player.getScore() > max)
-					max = player.getScore();
+				if (player.getGameScore() > max)
+					max = player.getGameScore();
 			for (Player player : players)
-				if (player.getScore() == max)
+				if (player.getGameScore() == max)
 					return player;
 		}
 

@@ -12,6 +12,8 @@ import Models.Terrain.BorderType;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.CombatUnit;
+import Models.Units.CombatUnits.LongRange;
+import Models.Units.CombatUnits.MidRange;
 import Models.Units.CommandHandeling.UnitCommands;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.NonCombatUnits.Worker;
@@ -76,196 +78,219 @@ public abstract class Unit extends Construction {
         this.health = health;
     }
 
-    public int getXP() {
-        return XP;
-    }
+	public int getXP() {
+		return XP;
+	}
 
-    public void setXP(int XP) {
-        this.XP = XP;
-    }
+	public void setXP(int XP) {
+		this.XP = XP;
+	}
 
-    public UnitState getUnitState() {
-        return unitState;
-    }
+	public UnitState getUnitState() {
+		return unitState;
+	}
+	public void setUnitState(UnitState unitState) {
+		this.unitState = unitState;
+	}
+	
+	public int getSpeed() {
+		return speed;
+	}
 
-    public void setUnitState(UnitState unitState) {
-        this.unitState = unitState;
-    }
+	public void setSpeed(int speed) {
+		this.speed = speed;
+	}
 
-    public int getSpeed() {
-        return speed;
-    }
+	public int getProductionCost() {
+		return productionCost;
+	}
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
+	public void setProductionCost(int productionCost) {
+		this.productionCost = productionCost;
+	}
 
-    public int getProductionCost() {
-        return productionCost;
-    }
+	public int getMovementPoints() {
+		return movementPoints;
+	}
 
-    public void setProductionCost(int productionCost) {
-        this.productionCost = productionCost;
-    }
+	public void setMovementPoints(int movementPoints) {
+		this.movementPoints = movementPoints;
+	}
 
-    public int getMovementPoints() {
-        return movementPoints;
-    }
+	public int getPower() {
+		return power;
+	}
 
-    public void setMovementPoints(int movementPoints) {
-        this.movementPoints = movementPoints;
-    }
+	public void setPower(int power) {
+		this.power = power;
+	}
 
-    public int getPower() {
-        return power;
-    }
+	public Technology getRequiredTechnology() {
+		return requiredTechnology;
+	}
 
-    public void setPower(int power) {
-        this.power = power;
-    }
+	public void setRequiredTechnology(Technology requiredTechnology) {
+		this.requiredTechnology = requiredTechnology;
+	}
 
-    public Technology getRequiredTechnology() {
-        return requiredTechnology;
-    }
+	public Resource getRequiredResource() {
+		return requiredResource;
+	}
 
-    public void setRequiredTechnology(Technology requiredTechnology) {
-        this.requiredTechnology = requiredTechnology;
-    }
+	public void setRequiredResource(Resource requiredResource) {
+		this.requiredResource = requiredResource;
+	}
 
-    public Resource getRequiredResource() {
-        return requiredResource;
-    }
+	public ArrayList<Position> getMoves() {
+		return moves;
+	}
 
-    public void setRequiredResource(Resource requiredResource) {
-        this.requiredResource = requiredResource;
-    }
+	public void setMoves(ArrayList<Position> moves) {
+		this.moves = moves;
+	}
+	public boolean HasArrived() {
+		return hasArrived;
+	}
 
-    public ArrayList<Position> getMoves() {
-        return moves;
-    }
+	public void setHasArrived(boolean hasArrived) {
+		this.hasArrived = hasArrived;
+	}
 
-    public void setMoves(ArrayList<Position> moves) {
-        this.moves = moves;
-    }
+	public ArrayList<UnitCommands> getCommands() {
+		return commands;
+	}
 
-    public boolean HasArrived() {
-        return hasArrived;
-    }
+	public void addCommand(UnitCommands command) {
+		commands.add(command);
+	}
+	public Tile getDestination() {
+		return destination;
+	}
 
-    public void setHasArrived(boolean hasArrived) {
-        this.hasArrived = hasArrived;
-    }
+	public void setDestination(Tile destination) {
+		this.destination = destination;
+	}
 
-    public ArrayList<UnitCommands> getCommands() {
-        return commands;
-    }
+	public void getReady(){
 
-    public void addCommand(UnitCommands command) {
-        commands.add(command);
-    }
+	}
 
-    public Tile getDestination() {
-        return destination;
-    }
+	public void setAsleep(){
+		this.unitState = UnitState.SLEEPING;
+	}
+	public String awaken(){
+		if(!this.unitState.equals(UnitState.SLEEPING)) return "unit is not asleep";
+		this.unitState = UnitState.ACTIVE;
+		return null;
+	}
 
-    public void setDestination(Tile destination) {
-        this.destination = destination;
-    }
+	public void setAlert(){
+		if(isThereEnemyUnitNear()){
+			unitState = UnitState.ACTIVE;
+			return;
+		}
+		unitState = UnitState.ALERT;
+	}
 
-    public void getReady() {
+	private boolean isThereEnemyUnitNear() {
+		for (Tile tile1 : GameController.getInstance().getMap()) {
+			if(this.getTile().distanceTo(tile1) == 1){
+				if(tile1.getCombatUnitInTile() != null && tile1.getCombatUnitInTile().getRulerPlayer() != this.rulerPlayer)
+					return true;
+			}
+		}
+		return false;
+	}
 
-    }
-
-    public void setAsleep() {
-        this.unitState = UnitState.SLEEPING;
-    }
-
-    public String awaken() {
-        if (!this.unitState.equals(UnitState.SLEEPING)) return "unit is not asleep";
-        this.unitState = UnitState.ACTIVE;
-        return null;
-    }
-
-    public void setAlert() {
-        if (isThereEnemyUnitNear()) {
-            unitState = UnitState.ACTIVE;
-            return;
-        }
-        unitState = UnitState.ALERT;
-    }
-
-    private boolean isThereEnemyUnitNear() {
-        for (Tile tile1 : GameController.getInstance().getMap()) {
-            if (this.getTile().distanceTo(tile1) == 1) {
-                if (tile1.getCombatUnitInTile() != null && tile1.getCombatUnitInTile().getRulerPlayer() != this.rulerPlayer)
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    public void cancelCommand(int i) {
-        commands.remove(i);
-    }
+	public void cancelCommand(int i){
+		commands.remove(i);
+	}
 
 
-    public String move(Tile destination) {
-        Player player = destination.GetTileRuler();
-        //declare war:
-        if (player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()) &&
-                !this.getRulerPlayer().getRelationStates().get(player.getCivilization()).equals(RelationState.ENEMY))
-            return gameEnum.notYourTile.regex;
-//
-//		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()))
-//			return gameEnum.notYourCivilization.regex;
-        //TODO: is this needed?
+	public String move(Tile destination){
+		Player player = destination.GetTileRuler();
+		//declare war:
+		if(player != null && !player.getCivilization().equals(this.getRulerPlayer().getCivilization()) &&
+				!this.getRulerPlayer().getRelationStates().get(player.getCivilization()).equals(RelationState.ENEMY))
+			return gameEnum.notYourTile.regex;
 
-        this.destination = destination;
-        FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
-        this.moves = FindWay.getInstance().getMoves();
-        return updateUnitMovements();
-    }
+		//attack
+		if (this instanceof MidRange &&
+				destination.getCombatUnitInTile() != null &&
+				destination.getCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer())
+			((MidRange) this).attack(destination.getCombatUnitInTile());
+		else if (this instanceof MidRange &&
+				destination.getNonCombatUnitInTile() != null &&
+				destination.getNonCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer()) {
+			destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+			this.rulerPlayer.getUnits().add(destination.getNonCombatUnitInTile());
+			destination.getNonCombatUnitInTile().getRulerPlayer().getUnits().remove(destination.getNonCombatUnitInTile());
+		}
+		else if (this instanceof LongRange &&
+				destination.getCombatUnitInTile() != null &&
+				destination.getCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer())
+			((LongRange) this).attack(destination.getCombatUnitInTile());
+		else if (this instanceof LongRange &&
+				destination.getNonCombatUnitInTile() != null &&
+				destination.getNonCombatUnitInTile().getRulerPlayer() != this.getRulerPlayer()) {
+			destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+			this.rulerPlayer.getUnits().add(destination.getNonCombatUnitInTile());
+			destination.getNonCombatUnitInTile().getRulerPlayer().getUnits().remove(destination.getNonCombatUnitInTile());
+		}
+		else {
+			this.destination = destination;
+			FindWay.getInstance().calculateShortestWay(this.tile.getPosition(), destination.getPosition());
+			this.moves = FindWay.getInstance().getMoves();
+			return updateUnitMovements();
+		}
+		return null;
+	}
+	public String updateUnitMovements() {
+		if(this.getMovementPoints() == 0) {
+			this.destination = null;
+			this.moves = null;
+			return gameEnum.MP.regex;
+		}
+		if(this.moves.size() == 0 && !this.getTile().equals(this.destination)){
+			this.destination = null;
+			this.moves = null;
+			if (this instanceof CombatUnit)
+				this.getTile().setCombatUnitInTile((CombatUnit) this);
+			if (this instanceof NonCombatUnit)
+				this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
+			return "cannot move to destination";
+		}
+		if(this.moves.size() == 0 && this.getTile().equals(this.destination)){
+			if(this.destination.getTileType().equals(TileType.RUIN)){
+				getRuinBonus();
+			}
+//			if(!isTileEnemy(this.destination)){
+//			}
+			if(this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
+			else if(this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
+			this.destination = null;
+			this.moves = null;
+			return "middle of move";
+		}
 
-    public String updateUnitMovements() {
-        if (this.getMovementPoints() == 0) {
-            this.destination = null;
-            this.moves = null;
-            return "no movementPoints";
-        }
-        if (this.moves.size() == 0 && !this.getTile().equals(this.destination)) {
-            this.destination = null;
-            this.moves = null;
-            return "cannot move to destination";
-        }
-        if (this.moves.size() == 0 && this.getTile().equals(this.destination)) {
-            if (this.destination.getTileType().equals(TileType.RUIN)) {
-                getRuinBonus();
-            }
-            if (!isTileEnemy(this.destination)) {
-                if (this instanceof CombatUnit) this.getTile().setCombatUnitInTile((CombatUnit) this);
-                else if (this instanceof NonCombatUnit) this.getTile().setNonCombatUnitInTile((NonCombatUnit) this);
-            }
-            this.destination = null;
-            this.moves = null;
-            return null;
-        }
-        Tile nextTile;
-        nextTile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
-        if (this.movementPoints < nextTile.getTileType().movementCost && !canUnitStayInTile(nextTile))
-            return "cannot stay in destination Tile";
-        if (this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this)
-            this.getTile().setCombatUnitInTile(null);
-        else if (this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
-            this.getTile().setNonCombatUnitInTile(null);
-        this.movementPoints -= destination.getTileType().movementCost;
-        if (nextTile.getBoarderType(this.getTile()) != null && nextTile.getBoarderType(this.getTile()).equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad()))
-            this.movementPoints = 0;
-        if (this.movementPoints < 0) this.movementPoints = 0;
-        //TODO check for railroad penalty
-        this.setTile(nextTile);
-        this.getMoves().remove(0);
-        return unitCommands.moveSuccessfull.regex;
-    }
+		//move
+		Tile nextTile;
+		nextTile = this.getRulerPlayer().getTileByXY(this.moves.get(0).X, this.moves.get(0).Y);
+		if (this.movementPoints < nextTile.getTileType().movementCost || !canUnitStayInTile(nextTile))
+			return "cannot stay in destination Tile";
+		if (this instanceof CombatUnit && this.getTile().getCombatUnitInTile() == this)
+			this.getTile().setCombatUnitInTile(null);
+		else if (this instanceof NonCombatUnit && this.getTile().getNonCombatUnitInTile() == this)
+			this.getTile().setNonCombatUnitInTile(null);
+		this.movementPoints -= destination.getTileType().movementCost;
+		if(nextTile.getBoarderType(this.getTile()) != null && nextTile.getBoarderType(this.getTile()).equals(BorderType.RIVER) && (!nextTile.hasRoad() || !this.getTile().hasRoad()))
+			this.movementPoints = 0;
+		if (this.movementPoints < 0) this.movementPoints = 0;
+		//TODO check for railroad penalty
+		this.setTile(nextTile);
+		this.getMoves().remove(0);
+		return unitCommands.moveSuccessfull.regex;
+	}
 
     private void getRuinBonus() {
         this.getRulerPlayer().increasePopulation(1);

@@ -30,6 +30,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.util.ArrayList;
@@ -51,6 +52,10 @@ public class Hex extends Application {
     private Unit selectedUnit = null;
     private BuildingType selectedBuildingType = null;
     private Game game;
+    private final AudioClip attackAudio = new AudioClip(Hex.class.getResource("audio/gameAudios/cannon.mp3").toExternalForm());
+    private final AudioClip declareWarAudio = new AudioClip(Hex.class.getResource("audio/gameAudios/declareWar.mp3").toExternalForm());
+    private final AudioClip addEnemy = new AudioClip(Hex.class.getResource("audio/gameAudios/addEnemy.mp3").toExternalForm());
+    private final AudioClip constructionAudio = new AudioClip(Hex.class.getResource("audio/gameAudios/construction.mp3").toExternalForm());
 
     public Hex(Position position, GameController gameController, Game game){
         this.gameController = gameController;
@@ -169,10 +174,10 @@ public class Hex extends Application {
 
         ArrayList<CombatUnit> combatUnitsInTile = GameController.getInstance().getTileCUnits(tile);
         int i = 0;
-        for(CombatUnit combatUnitInTile : combatUnitsInTile) {
+        for(CombatUnit combatUnit : combatUnitsInTile) {
             String url = "/photos/units/";
-            if (combatUnitInTile instanceof LongRange) {
-                switch (((LongRange) combatUnitInTile).getType()) {
+            if (combatUnit instanceof LongRange) {
+                switch (((LongRange) combatUnit).getType()) {
                     case ARCHER -> url += "archer.png";
                     case CHARIOT_A -> url += "chariotarcher.png";
                     case CATAPULT -> url += "catapult.png";
@@ -182,8 +187,8 @@ public class Hex extends Application {
                     case ARTILLERY -> url += "artillery.png";
                 }
             }
-            else if (combatUnitInTile instanceof MidRange) {
-                switch (((MidRange) combatUnitInTile).getType()) {
+            else if (combatUnit instanceof MidRange) {
+                switch (((MidRange) combatUnit).getType()) {
                     case SCOUT -> url += "scout.png";
                     case SPEARMAN -> url += "spearman.png";
                     case WARRIOR -> url += "warrior.png";
@@ -683,12 +688,21 @@ public class Hex extends Application {
                         list.getChildren().remove(list.getChildren().size() - 1);
                     addLabelToPane(list, 300, 200, null, result);
                     if (result.equals(unitCommands.moveSuccessfull.regex)) {
+                        attackAudio.play();
+                        removeAllPanels();
+                        list.getChildren().remove(textField);
+                        parent.getChildren().remove(list);
+                        game.updateScreen();
+                    }
+                    else if (result.equals(gameEnum.MP.regex)) {
+                        attackAudio.play();
                         removeAllPanels();
                         list.getChildren().remove(textField);
                         parent.getChildren().remove(list);
                         game.updateScreen();
                     }
                     else if (result.equals(gameEnum.notYourTile.regex)) {
+                        declareWarAudio.play();
                         declareWarPanel(matcher);
                     }
                     if (textField.getText().equals("-")) {
@@ -954,6 +968,7 @@ public class Hex extends Application {
         if(unit.getClass().equals(Settler.class)) {
             addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/city.png", "found city");
             actions.getChildren().get(5).setOnMousePressed(mouseEvent -> {
+                constructionAudio.play();
                 String result = gameController.found();
                 if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                     list.getChildren().remove(list.getChildren().size() - 1);
@@ -996,6 +1011,7 @@ public class Hex extends Application {
         Pane list = new Pane(), actions = new Pane();
         panelsPaneStyle(list, 320, 50, 170, 300);
 
+        constructionAudio.play();
         addPhotoToPane(list, 20, 50, "photos/gameIcons/workers/Road.png", "road");
         list.getChildren().get(0).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.road(), unitCommands.roadBuilt.regex));
         addPhotoToPane(list, 20, 100, "photos/gameIcons/workers/Railroad.png", "railroad");
@@ -1195,6 +1211,7 @@ public class Hex extends Application {
                 "-fx-pref-width: 50;" +
                 "-fx-pref-height: 30");
         yes.setOnMouseClicked(mouseEvent12 -> {
+            addEnemy.play();
             parent.getChildren().remove(yesOrNo);
             parent.getChildren().remove(parent.getChildren().size() - 1);
             Tile destination = gameController.getTileByXY(Integer.parseInt(matcher.group("x")),

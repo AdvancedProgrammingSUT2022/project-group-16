@@ -30,22 +30,26 @@ public class LongRange extends CombatUnit {
         this.type = type;
     }
 
-    public String attack(CombatUnit unit) {
-        if (this.getTile().distanceTo(unit.getTile()) > type.range) return "not in the range";
+    public String attack(CombatUnit unit){
+        if(this.getTile().distanceTo(unit.getTile()) > type.range) return "not in the range";
+
         this.setMovementPoints(0);
         this.setXP(this.getXP() + 10);
         unit.setXP(unit.getXP() + 10);
-        int myPower = this.type.rangedCombatStrength + (int) ((double) (this.getTile().getTileType().combatModifier * this.type.rangedCombatStrength) / 100.0) +
-                (int) ((double) (this.getTile().getTileFeature().combatModifier * this.type.rangedCombatStrength) / 100.0);
-        unit.setHealth(unit.getHealth() - myPower);
 
-        if (unit.getHealth() <= 0 && this.getHealth() > 0) {
+        int myPower = this.type.rangedCombatStrength + (int) ( (double)(this.getTile().getTileType().combatModifier * this.type.rangedCombatStrength) / 100.0) +
+                (int) ( (double)(this.getTile().getTileFeature().combatModifier * this.type.rangedCombatStrength) / 100.0);
+        int unitHealth = unit.getHealth() - myPower;
+        if(unitHealth <= 0 && this.getHealth() > 0) {
             this.setMovementPoints(type.movement);
             Tile destination = unit.getTile();
             calculateXPs(destination);
             unit.destroy();
-            destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
+            if (destination.getNonCombatUnitInTile() != null)
+                destination.getNonCombatUnitInTile().setUnitState(UnitState.HOSTAGE);
         }
+        else
+            unit.setHealth(unitHealth);
         return null;
     }
 
