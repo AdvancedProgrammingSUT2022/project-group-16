@@ -2,12 +2,15 @@ package IO;
 
 import Controllers.GameController;
 import Controllers.ProfileController;
+import Controllers.MainMenuController;
 import Models.Menu.Menu;
+import Models.Player.Player;
 import Models.User;
 import enums.cheatCode;
 import Models.chat.Message;
 import Models.chat.publicMessage;
 import enums.registerEnum;
+import server.GameRoom;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,6 +34,15 @@ public class RequestHandler  extends Thread{
         this.socket = socket;
         this.inputStream = new DataInputStream(socket.getInputStream());
         this.outputStream = new DataOutputStream(socket.getOutputStream());
+    }
+
+    public User getUser()
+    {
+        return this.user;
+    }
+    public Socket getSocket()
+    {
+        return this.socket;
     }
 
     @Override
@@ -58,6 +70,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("register")) return register(request);
         else if(request.getAction().equals("logout")) return logout();
         else if(request.getAction().equals("get all users")) return getAllUsers();
+
         else if(request.getAction().equals("make new chat")) return makeNewChat(request);
         else if(request.getAction().equals("get user private chats")) return getUserPrivateChats((String) request.getParams().get("username"));
         else if(request.getAction().equals("seen message")) return seenMessage(request);
@@ -71,12 +84,22 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("change password")) return changePassword(request);
         else if(request.getAction().equals("change photo")) return changePhoto(new URL((String) request.getParams().get("url")));
 
-        else if(request.getAction().equals("move CUnit")) return moveCUnit(request);
-        else if(request.getAction().equals("move NCUnit")) return moveNCUnit(request);
+            // handle lobby requests
+        else if (request.getAction().equals("new room")) return createNewRoom(request);
+        else if(request.getAction().equals("get join requests")) return getJoinRequests();
+        else if(request.getAction().equals("accept join request")) return acceptJoinRequest(request);
+        else if(request.getAction().equals("reject join request")) return rejectJoinRequest(request);
+        else if(request.getAction().equals("join room")) return joinRoom(request);
+        else if(request.getAction().equals("start game")) return startGame();
+
+        else if(request.getAction().equals("move unit")) return moveUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
-        else if(request.getAction().equals("")) return null;
-        return new Response();
+        else if(request.getAction().equals("found city")) return foundCity(request);
+        else if(request.getAction().equals("select CUnit")) return selectCUnit(request);
+        else if(request.getAction().equals("select NCUnit")) return selectNCUnit(request);
+
+        return null;
     }
 
     private Response notYourTurn()
@@ -254,7 +277,6 @@ public class RequestHandler  extends Thread{
         return response;
     }
 
-
     private Response updatePublicChats() {
         Response response = new Response();
         response.setPublicChats( Server.chatServer.getPublicChats());
@@ -266,60 +288,135 @@ public class RequestHandler  extends Thread{
         Server.chatServer.addOnlineUser(Server.registerController.getUserByUsername(username), socket);
         Server.registerController.writeDataOnJson();
     }
-
-    private Response moveCUnit(Request request)
+    // lobby requests
+    private Response createNewRoom(Request request)
     {
-        int originX = (int) request.getParams().get("originX");
-        int originY = (int) request.getParams().get("originY");
+        Response response = new Response();
+
+        String roomID = (String) request.getParams().get("roomID");
+        if(MainMenuController.getRoomByRoomID(roomID) != null)
+        {
+            response.addMassage("this roomID is already taken");
+            return response;
+        }
+
+        MainMenuController.addToGameRooms(new GameRoom(user, roomID));
+        response.addMassage("room created successfully");
+        return response;
+    }
+    private Response getJoinRequests()
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+        StringBuilder joinRequestsSB = new StringBuilder();
+        for (int i = 0; i < gameRoom.getJoinRequests().size(); i++)
+            joinRequestsSB.append(i + ": " + gameRoom.getJoinRequests().get(i).getUser().getUsername()).append("\n");
+
+        Response response = new Response();
+        response.addParam("join requests", joinRequestsSB.toString());
+        return response;
+    }
+    private Response acceptJoinRequest(Request request)
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+        RequestHandler acceptedJoinRequest = gameRoom.getJoinRequests().get((Integer) request.getParams().get("index"));
+        gameRoom.removeFromJoinedRequests(acceptedJoinRequest);
+        gameRoom.addToJoinedClients(acceptedJoinRequest);
+
+        Response response = new Response();
+        response.addMassage("join request accepted");
+        return response;
+    }
+    private Response rejectJoinRequest(Request request)
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+        RequestHandler rejectedJoinRequest = gameRoom.getJoinRequests().get((Integer) request.getParams().get("index"));
+        gameRoom.removeFromJoinedRequests(rejectedJoinRequest);
+
+        Response response = new Response();
+        response.addMassage("join request rejected");
+
+        return response;
+    }
+    private Response joinRoom(Request request)
+    {
+        String roomID = (String) request.getParams().get("roomID");
+        GameRoom gameRoom = MainMenuController.getRoomByRoomID(roomID);
+
+        Response response = new Response();
+
+        if(gameRoom == null)
+        {
+            response.addMassage("there is no room with this roomID");
+            return response;
+        }
+
+        gameRoom.addToJoinRequests(this);
+        response.addMassage("request was sent");
+        return response;
+    }
+    private Response startGame()
+    {
+        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+
+        for (int i = 0; i < gameRoom.getJoinedClients().size(); i++)
+        {
+            RequestHandler joinedClient = gameRoom.getJoinedClients().get(i);
+//            Player player =
+        }
+
+        // TODO: send a request to each client to start the game
+
+        Response response = new Response();
+        response.addMassage("game started");
+        return response;
+    }
+
+    private Response moveUnit(Request request)
+    {
         int destinationX = (int) request.getParams().get("destinationX");
         int destinationY = (int) request.getParams().get("destinationY");
 
         // TODO: move combat unit in THE tile
-        return new Response();
-    }
-    private Response moveNCUnit(Request request)
-    {
-        int originX = (int) request.getParams().get("originX");
-        int originY = (int) request.getParams().get("originY");
-        int destinationX = (int) request.getParams().get("destinationX");
-        int destinationY = (int) request.getParams().get("destinationY");
-
-        // TODO: move non-combat unit in THE tile
-        return new Response();
+        Matcher matcher = Pattern.compile("move CUnit (?<x>\\d+) (?<y>\\d+)").matcher("move CUnit " + destinationX + " " + destinationY);
+        Response response = new Response();
+        response.addMassage(GameController.getInstance().moveUnit(matcher));
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+        return response;
     }
     private Response cheatCode(Request request)
     {
+        Response response = new Response();
         String cheatCodeDescription = (String) request.getParams().get("description");
         Matcher matcher;
         if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseTurns)) != null)
-            GameController.getInstance().increaseTurns(matcher);
+            response.addMassage(GameController.getInstance().increaseTurns(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseGold)) != null)
-            GameController.getInstance().increaseGold(matcher);
+            response.addMassage(GameController.getInstance().increaseGold(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.killEnemyUnit)) != null)
-            GameController.getInstance().killEnemyUnit(matcher);
+            response.addMassage(GameController.getInstance().killEnemyUnit(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainFood)) != null)
-            GameController.getInstance().increaseFood(matcher);
+            response.addMassage(GameController.getInstance().increaseFood(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainTechnology)) != null)
-            GameController.getInstance().addTechnology(matcher);
+            response.addMassage(GameController.getInstance().addTechnology(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseHappiness)) != null)
-            GameController.getInstance().increaseHappiness(matcher);
+            response.addMassage(GameController.getInstance().increaseHappiness(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseScore)) != null)
-            GameController.getInstance().increaseScore(matcher);
+            response.addMassage(GameController.getInstance().increaseScore(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseHealth)) != null)
-            GameController.getInstance().increaseHealth(matcher);
+            response.addMassage(GameController.getInstance().increaseHealth(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.winGame)) != null)
-            GameController.getInstance().winGame();
+            response.addMassage(GameController.getInstance().winGame());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.moveUnit)) != null)
-            GameController.getInstance().moveUnit(matcher);
+            response.addMassage(GameController.getInstance().moveUnit(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainBonusResource)) != null)
-            GameController.getInstance().gainBonusResourceCheat();
+            response.addMassage(GameController.getInstance().gainBonusResourceCheat());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainStrategicResource)) != null)
-            GameController.getInstance().gainStrategicResourceCheat();
+            response.addMassage(GameController.getInstance().gainStrategicResourceCheat());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainLuxuryResource)) != null)
-            GameController.getInstance().gainLuxuryResourceCheat();
+            response.addMassage(GameController.getInstance().gainLuxuryResourceCheat());
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
 
-
-        return new Response();
+        return response;
     }
     private Response nextTurn()
     {
@@ -327,7 +424,35 @@ public class RequestHandler  extends Thread{
 
         Response response = new Response();
         response.addMassage("turn changed");
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+        return response;
+    }
+    private Response foundCity(Request request)
+    {
+        Response response = new Response();
+        response.addMassage(GameController.getInstance().found());
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
 
+        return response;
+    }
+    private Response selectCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getCombatUnitInTile());
+
+        Response response = new Response();
+        response.addMassage("CUnit selected");
+        return response;
+    }
+    private Response selectNCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getNonCombatUnitInTile());
+
+        Response response = new Response();
+        response.addMassage("NCUnit selected");
         return response;
     }
 }
