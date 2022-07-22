@@ -1,4 +1,5 @@
 import Controllers.GameController;
+import IO.Client;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.User;
@@ -12,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import Models.Menu.Menu;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -31,7 +31,7 @@ public class NewGame extends Application {
     private final ArrayList<Button> buttons = new ArrayList<>();
     private final GameController gameController = GameController.getInstance();
     public Pane list;
-    private User user = Menu.loggedInUser;
+    private User user = Client.getInstance().getLoggedInUser();
     public static ArrayList<Player> players = new ArrayList<>();
 
     // newGame, autosave, save1, save2, save3, save4
@@ -139,7 +139,7 @@ public class NewGame extends Application {
         vBox.getChildren().addAll(buttons);
         list.getChildren().add(0, rectangle);
         list.getChildren().add(1, imageView);
-        ((Text) list.getChildren().get(5)).setText(Menu.loggedInUser.getUsername());
+        ((Text) list.getChildren().get(5)).setText(Client.getInstance().getLoggedInUser().getUsername());
         list.getChildren().add(vBox);
         VBox newPlayers = newPlayerChoose();
         for(Button button : buttons)
@@ -197,7 +197,7 @@ public class NewGame extends Application {
                     list.getChildren().get(list.getChildren().size() - 3).setDisable(true);
                     list.getChildren().remove(choosePlayer);
                     list.getChildren().add(newPlayers);
-                    for(int i = 1; i < Menu.allUsers.size() + 1; i++) {
+                    for(int i = 1; i < Client.getInstance().getAllUsers().size() + 1; i++) {
                         Button tmp = (Button) ((VBox) list.getChildren().get(list.getChildren().size() - 1)).
                                 getChildren().get(i);
                         int flag = i;
@@ -210,7 +210,7 @@ public class NewGame extends Application {
                                 setButtonStyle(tmp);
                         });
                         tmp.setOnMousePressed(mouseEvent13 -> {
-                            user = Menu.allUsers.get(flag - 1);
+                            user = Client.getInstance().getAllUsers().get(flag - 1);
                             tmp.setDisable(true);
                             list.getChildren().remove(list.getChildren().size() - 1);
                             list.getChildren().get(list.getChildren().size() - 1).setDisable(false);
@@ -239,20 +239,20 @@ public class NewGame extends Application {
         ObservableList<Node> nodes = vBox.getChildren();
         nodes.add(new Label());
         ((Label) nodes.get(0)).setText("please pick next player");
-        for(User user : Menu.allUsers)
+        for(User user : Client.getInstance().getAllUsers())
         {
             nodes.add(new Button());
             ((Button) nodes.get(nodes.size() - 1)).setText(user.getUsername());
             setButtonStyle(((Button) nodes.get(nodes.size() - 1)));
-            if(user == Menu.loggedInUser)
+            if(user == Client.getInstance().getLoggedInUser())
                 nodes.get(nodes.size() - 1).setDisable(true);
         }
         return vBox;
     }
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setScene(new Scene(FXMLLoader.load(new URL(Objects.requireNonNull(getClass().
-                getResource("fxml/newGame.fxml")).toExternalForm()))));
+        stage.setScene(new Scene(FXMLLoader.load(new
+                URL(getClass().getResource("fxml/newGame.fxml").toExternalForm()))));
         stage.show();
     }
     public static void main(String[] args) {

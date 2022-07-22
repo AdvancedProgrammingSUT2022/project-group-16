@@ -170,8 +170,13 @@ public class ChatMenu extends Application {
                 else {
                     Client.getInstance().sendMessage(sender, receiver, typeMessage.getText() +
                             " - " + now.toString().substring(11,19));
-                    sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
-                    ArrayList<Message> messages = ((HashMap<String, ArrayList<Message>>)Client.getInstance().getUserPrivateChats(sender.getUsername()).getParams().get("chats")).get(receiver.getUsername());
+                    try {
+                        sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+
+                    ArrayList<Message> messages = (Client.getInstance().getUserPrivateChats(sender.getUsername()).get(receiver.getUsername()));
                     Label label = new Label();
                     messageStyleSender(label, messages.get(messages.size() - 1).getMessage());
                     ((VBox) list.getChildren().get(1)).getChildren().add(label);
@@ -244,7 +249,11 @@ public class ChatMenu extends Application {
         });
         users.getChildren().add(button);//public chat button
 
-        sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
+        try {
+            sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         for(String user : sender.getPrivateChats().keySet()) {
             Button tmp = new Button();
             tmp.setOnMousePressed(mouseEvent -> {
@@ -293,7 +302,7 @@ public class ChatMenu extends Application {
     public void makeChat(User sender, User receiver) {
         VBox senderChats = new VBox();
         VBox receiverChats = new VBox();
-        HashMap<String, ArrayList<Message>> sender_chats = (HashMap<String, ArrayList<Message>>) Client.getInstance().getUserPrivateChats(sender.getUsername()).getParams().get("chats");
+        HashMap<String, ArrayList<Message>> sender_chats = Client.getInstance().getUserPrivateChats(sender.getUsername());
         for(Message message : sender_chats.get(receiver.getUsername())) {
             Label label = new Label();
             Label tmp = new Label();
@@ -399,8 +408,11 @@ public class ChatMenu extends Application {
                                 String finalMessage = result + message.substring(message.length() - 14);
                                 ((Label) box.getChildren().get(flag)).setText(finalMessage);
                                 Client.getInstance().editMessage(sender,receiver,finalMessage, flag);
-                                sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
-                            }
+                                try {
+                                    sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
+                                } catch (MalformedURLException e) {
+                                    e.printStackTrace();
+                                }                            }
 
                         });
                     }); //edit message
@@ -410,16 +422,22 @@ public class ChatMenu extends Application {
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
                         Client.getInstance().deleteMessageForSender(sender,receiver, flag);
-                        sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
-                    }); //delete message for me
+                        try {
+                            sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }                    }); //delete message for me
                     choose.getChildren().get(2).setOnMousePressed(mouseEvent1 -> {
                         list.getChildren().remove(choose);
                         for (int i = 0; i < list.getChildren().size(); i++)
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
                         Client.getInstance().deleteMessageForAll(sender, receiver, flag);
-                        sender = (User) Client.getInstance().getUser(sender.getUsername()).getParams().get("user");
-                    }); //delete message for me and user
+                        try {
+                            sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        }                    }); //delete message for me and user
                 }
             });
         }

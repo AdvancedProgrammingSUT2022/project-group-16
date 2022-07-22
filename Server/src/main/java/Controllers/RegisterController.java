@@ -1,23 +1,13 @@
 package Controllers;
 
-import IO.RequestHandler;
-import IO.Response;
-import IO.Server;
 import Models.Menu.Menu;
 import Models.User;
-import com.google.gson.*;
-import com.sun.jna.platform.win32.WinGDI;
+import com.google.gson.Gson;
 import enums.mainCommands;
 import enums.registerEnum;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 public class RegisterController {

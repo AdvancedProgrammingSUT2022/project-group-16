@@ -1,6 +1,7 @@
 import IO.Client;
 import IO.Response;
 import Models.User;
+import Models.chat.Message;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -12,6 +13,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class loginPage extends Application {
     public TextField username;
@@ -81,10 +84,11 @@ public class loginPage extends Application {
                 ((Text) borderPane.getChildren().get(borderPane.getChildren().size() - 1)).
                         setText("password is incorrect");
         }
-        else {
-            if(borderPane.getChildren().size() == 8)
+        else if(response.getStatus() == 200) {
+            if (borderPane.getChildren().size() == 8)
                 borderPane.getChildren().remove(borderPane.getChildren().size() - 1);
-            Client.getInstance().setLoggedInUser((User) response.getParams().get("user"));
+            User user = Client.getInstance().parseUser(response);
+            Client.getInstance().setLoggedInUser(user);
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             mainMenu.start(stage);

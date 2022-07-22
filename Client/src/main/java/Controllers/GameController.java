@@ -1,13 +1,13 @@
 package Controllers;
 
 import Controllers.Utilities.MapPrinter;
+import IO.Client;
 import Models.City.Building;
 import Models.City.BuildingType;
 import Models.City.Citizen;
 import Models.City.City;
 import Models.City.*;
 import Models.Player.*;
-import Models.Menu.Menu;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Player.Technology;
@@ -44,7 +44,6 @@ public class GameController implements Serializable
 	transient private Player playerTurn;
 	public int playerTurnIndex;
 	private final Position[] startingPositions = new Position[]{new Position(5, 5), new Position(1, 8), new Position(8, 1), new Position(8, 8)};
-	private final RegisterController registerController = new RegisterController();
 	private int turnCounter = 0;
 	private int yearCounter = 2000;
 
@@ -851,9 +850,9 @@ public class GameController implements Serializable
 	}
 	private static boolean doesUsernameExist(String username)
 	{
-		for(int i = 0; i < Menu.allUsers.size(); i++)
+		for(int i = 0; i < Client.allUsers.size(); i++)
 		{
-			if(Menu.allUsers.get(i).getUsername().equals(username))
+			if(Client.allUsers.get(i).getUsername().equals(username))
 				return true;
 		}
 		return false;
@@ -900,19 +899,19 @@ public class GameController implements Serializable
 			Matcher matcher1 = gameEnum.compareRegex(command.substring(i), gameEnum.newPlayer);
 			Matcher matcher2 = gameEnum.compareRegex(command.substring(i), gameEnum.shortNewPlayer);
 
-			if(matcher1 != null && !matcher1.group("username").equals(Menu.loggedInUser.getUsername()))
+			if(matcher1 != null && !matcher1.group("username").equals(Client.getInstance().getLoggedInUser().getUsername()))
 			{
 				players.put(matcher1.group("number"), matcher1.group("username"));
 				flag = 1;
 			}
-			else if(matcher2 != null && !matcher2.group("username").equals(Menu.loggedInUser.getUsername()))
+			else if(matcher2 != null && !matcher2.group("username").equals(Client.getInstance().getLoggedInUser().getUsername()))
 			{
 				players.put(matcher2.group("number"), matcher2.group("username"));
 				flag = 1;
 			}
-			else if(matcher1 != null && matcher1.group("username").equals(Menu.loggedInUser.getUsername()))
+			else if(matcher1 != null && matcher1.group("username").equals(Client.getInstance().getLoggedInUser().getUsername()))
 				return gameEnum.loggedInPlayerInCandidates.regex;
-			else if(matcher2 != null && matcher2.group("username").equals(Menu.loggedInUser.getUsername()))
+			else if(matcher2 != null && matcher2.group("username").equals(Client.getInstance().getLoggedInUser().getUsername()))
 				return gameEnum.loggedInPlayerInCandidates.regex;
 		}
 		if(flag == 0)
@@ -984,19 +983,19 @@ public class GameController implements Serializable
 	}
 	public String increaseScore(Matcher matcher)
 	{
-		int amount = Integer.parseInt(matcher.group("amount"));
-		int index = Menu.allUsers.indexOf(registerController.getUserByUsername(playerTurn.getUsername()));
-		playerTurn.setScore(playerTurn.getScore() + amount);
-		Menu.allUsers.get(index).setScore(Menu.allUsers.get(index).getScore() + amount);
-		registerController.writeDataOnJson();
+//		int amount = Integer.parseInt(matcher.group("amount"));
+//		int index = Client.getInstance().getLoggedInUser().indexOf(registerController.getUserByUsername(playerTurn.getUsername()));
+//		playerTurn.setScore(playerTurn.getScore() + amount);
+//		Menu.allUsers.get(index).setScore(Menu.allUsers.get(index).getScore() + amount);
+//		registerController.writeDataOnJson();
 		return cheatCode.score.regex + cheatCode.increaseSuccessful.regex;
 	}
 	public String winGame()
 	{
-		int index = Menu.allUsers.indexOf(registerController.getUserByUsername(playerTurn.getUsername()));
-		playerTurn.setScore(playerTurn.getScore() + 5);
-		Menu.allUsers.get(index).setScore(Menu.allUsers.get(index).getScore() + 5);
-		registerController.writeDataOnJson();
+//		int index = Menu.allUsers.indexOf(registerController.getUserByUsername(playerTurn.getUsername()));
+//		playerTurn.setScore(playerTurn.getScore() + 5);
+//		Menu.allUsers.get(index).setScore(Menu.allUsers.get(index).getScore() + 5);
+//		registerController.writeDataOnJson();
 		return cheatCode.youWin.regex;
 	}
 	public String addTechnology(Matcher matcher)
@@ -1077,9 +1076,9 @@ public class GameController implements Serializable
 	public ArrayList<User> convertMapToArr(HashMap<String, String> players)
 	{
 		ArrayList<User> newArr = new ArrayList<>();
-		newArr.add(Menu.loggedInUser);
-		for(int i = 1; i < players.size() + 1; i++)
-			newArr.add(registerController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2)));
+//		newArr.add(Client.getInstance().getLoggedInUser());
+//		for(int i = 1; i < players.size() + 1; i++)
+//			newArr.add(registerController.getUserByUsername(players.entrySet().toArray()[i - 1].toString().substring(2)));
 		return newArr;
 	}
 	public Civilization findCivilByNumber(int number)

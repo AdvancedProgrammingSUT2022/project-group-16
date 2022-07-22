@@ -1,6 +1,5 @@
 package Models;
 
-import IO.Response;
 import Models.chat.Message;
 
 import java.io.Serializable;
@@ -8,7 +7,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class User {
+public class User
+{
     private final String username;
     private String nickname;
     private String password;
@@ -16,7 +16,7 @@ public class User {
     private long lastTimeOfWin;
     private String lastLogin;
     private int score = 0;
-    private final HashMap<String, ArrayList<Message>> privateChats = new HashMap<>();
+    private HashMap<String, ArrayList<Message>> privateChats = new HashMap<>();
 
     public User(String username, String nickname, String password, URL photo) {
         this.username = username;
@@ -25,60 +25,57 @@ public class User {
         this.photo = photo;
     }
 
-    public String getUsername() {
+    public String getUsername()
+    {
         return username;
     }
-
-    public String getNickname() {
+    public String getNickname()
+    {
         return nickname;
     }
-
-    public void setNickname(String nickname) {
+    public void setNickname(String nickname)
+    {
         this.nickname = nickname;
     }
-
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
-
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
     }
-
     public URL getPhoto() {
         return photo;
     }
-
     public void setPhoto(URL photo) {
         this.photo = photo;
     }
-
     public long getLastTimeOfWin() {
         return lastTimeOfWin;
     }
-
     public void setLastTimeOfWin(long lastTimeOfWin) {
         this.lastTimeOfWin = lastTimeOfWin;
     }
-
     public String getLastLogin() {
         return lastLogin;
     }
-
     public void setLastLogin(String lastLogin) {
         this.lastLogin = lastLogin;
     }
-
-    public int getScore() {
+    public int getScore()
+    {
         return score;
     }
-
-    public void setScore(int score) {
+    public void setScore(int score)
+    {
         this.score = score;
     }
-
     public HashMap<String, ArrayList<Message>> getPrivateChats() {
         return privateChats;
     }
 
+    public void setPrivateChats(HashMap<String, ArrayList<Message>> chats) {
+        this.privateChats = chats;
+    }
 }

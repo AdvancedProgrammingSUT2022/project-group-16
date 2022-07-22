@@ -8,14 +8,16 @@ import server.chatServer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Client {
     private User loggedInUser;
     public static ArrayList<User> allUsers;
-    static final int SERVER_PORT = 444;
+    static final int SERVER_PORT = 1111;
     static DataInputStream dataInputStream;
     static DataOutputStream dataOutputStream;
     static Socket socket;
@@ -43,12 +45,10 @@ public class Client {
     }
 
     public ArrayList<User> getAllUsers(){
-        if(allUsers == null){
-            Request request = new Request();
-            request.setAction("get all users");
-            Response response = sendRequest(request);
-            allUsers = (ArrayList<User>) response.getParams().get("allUsers");
-        }
+        Request request = new Request();
+        request.setAction("get all users");
+        Response response = sendRequest(request);
+        allUsers = (ArrayList<User>) response.getParams().get("allUsers");
         return allUsers;
     }
 
@@ -76,7 +76,7 @@ public class Client {
         request.setAction("login");
         request.addParam("username", username);
         request.addParam("password", password);
-        Response response = Client.getInstance().sendRequest(request);
+        Response response = sendRequest(request);
         return response;
     }
     public Response checkRegister(String username, String password, String nickname){
@@ -96,11 +96,18 @@ public class Client {
         request.addParam("sender", sender);
         return sendRequest(request);
     }
-    public Response getUserPrivateChats(String username){
+    public HashMap<String, ArrayList<Message>> getUserPrivateChats(String username){
         Request request = new Request();
         request.setAction("get user private chats");
         request.addParam("username", username);
-        return sendRequest(request);
+        Response response = sendRequest(request);
+        HashMap<String, ArrayList<Message>> chats = new HashMap<>();
+        ArrayList<String> keys = (ArrayList<String>) response.getParams().get("keys");
+        ArrayList<ArrayList<Message>> values = (ArrayList<ArrayList<Message>>) response.getParams().get("values");
+        for(int i = 0 ; i < keys.size(); i++){
+            chats.put(keys.get(i), values.get(i));
+        }
+        return chats;
     }
 
     public Response seenMessage(User sender, User receiver) {
@@ -187,5 +194,27 @@ public class Client {
         request.setAction("change photo");
         request.addParam("url", url);
         return sendRequest(request);
+    }
+
+    public User parseUser(Response response) throws MalformedURLException {
+        String username = (String) response.getParams().get("username");
+        String password = (String) response.getParams().get("password");
+        String nickname = (String) response.getParams().get("nickname");
+        URL photo = new URL((String) response.getParams().get("photo"));
+        long lastTimeOfWin = (long) Math.floor((double)response.getParams().get("lastTimeOfWin"));
+        String lastLogin = (String) response.getParams().get("lastLogin");
+        int score = (int) Math.floor((Double) response.getParams().get("score"));
+        User user = new User(username, nickname, password, photo);
+        user.setLastTimeOfWin( lastTimeOfWin);
+        user.setLastLogin(lastLogin);
+        user.setScore(score);
+        HashMap<String, ArrayList<Message>> chats = new HashMap<>();
+        ArrayList<String> keys = (ArrayList<String>) response.getParams().get("keys");
+        ArrayList<ArrayList<Message>> values = (ArrayList<ArrayList<Message>>) response.getParams().get("values");
+        for(int i = 0 ; i < keys.size(); i++){
+            chats.put(keys.get(i), values.get(i));
+        }
+        user.setPrivateChats(chats);
+        return user;
     }
 }

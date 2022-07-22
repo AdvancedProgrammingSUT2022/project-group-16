@@ -1,5 +1,4 @@
 import Controllers.GameController;
-import Controllers.RegisterController;
 import Models.City.Citizen;
 import Models.City.City;
 import Models.City.CityState;
@@ -62,7 +61,6 @@ public class Game extends Application {
     public Label turn;
     private Hex[][] hexagons;
     private GameController gameController = GameController.getInstance();
-    private final RegisterController registerController = new RegisterController();
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
     private boolean needUpdateProduction = true;
@@ -1877,7 +1875,7 @@ public class Game extends Application {
             chat.getChildren().add(makeButton("chat"));
             chat.getChildren().get(chat.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
                 ChatMenu chatMenu = new ChatMenu();
-                ChatMenu.sender = registerController.getUserByUsername(gameController.getPlayerTurn().getUsername());
+                //ChatMenu.sender = registerController.getUserByUsername(gameController.getPlayerTurn().getUsername());
                 ChatMenu.receiver = player;
                 try {
                     chatMenu.start(new Stage());

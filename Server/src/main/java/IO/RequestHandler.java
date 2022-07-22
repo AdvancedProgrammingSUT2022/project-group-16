@@ -6,13 +6,12 @@ import Models.User;
 import Models.chat.Message;
 import Models.chat.publicMessage;
 import enums.registerEnum;
-import javafx.scene.image.ImageView;
-import server.chatServer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -48,7 +47,7 @@ public class RequestHandler  extends Thread{
         }
     }
 
-    private Response handleRequest(Request request){
+    private Response handleRequest(Request request) throws MalformedURLException {
         if(request.getAction().equals("update public chats")) return updatePublicChats();
         else if(request.getAction().equals("login")) return login(request);
         else if(request.getAction().equals("register")) return register(request);
@@ -65,7 +64,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("send message")) return sendMessage(request);
         else if(request.getAction().equals("change nickname")) return changeNickname((String)request.getParams().get("nickname"));
         else if(request.getAction().equals("change password")) return changePassword(request);
-        else if(request.getAction().equals("change photo")) return changePhoto((URL)request.getParams().get("url"));
+        else if(request.getAction().equals("change photo")) return changePhoto(new URL((String) request.getParams().get("url")));
 
         return null;
     }
@@ -133,8 +132,7 @@ public class RequestHandler  extends Thread{
     }
 
     private Response getUser(String username) {
-        Response response = new Response();
-        response.addParam("user", Server.registerController.getUserByUsername(username));
+        Response response = sendUser(Server.registerController.getUserByUsername(username));
         return response;
     }
 
@@ -167,7 +165,9 @@ public class RequestHandler  extends Thread{
 
     private Response getUserPrivateChats(String username){
         Response response = new Response();
-        response.addParam("chats",Server.registerController.getUserByUsername(username).getPrivateChats());
+        response.addParam("keys",Server.registerController.getUserByUsername(username).getPrivateChats().keySet());
+        response.addParam("values",Server.registerController.getUserByUsername(username).getPrivateChats().values());
+
         return response;
     }
 
@@ -214,6 +214,7 @@ public class RequestHandler  extends Thread{
         response.addMassage(message);
         if(response.getMassage().equals(registerEnum.successfulCreate.regex)){
             this.user = Server.registerController.getUserByUsername(username);
+            Menu.loggedInUser =user;
             response.addParam("user", Server.registerController.getUserByUsername(username));
             addOnlineUser(username);
         }else{
@@ -230,9 +231,24 @@ public class RequestHandler  extends Thread{
         else if(Server.registerController.isPasswordCorrect(username, password)) response.setStatus(402);
         else{
             this.user = Server.registerController.getUserByUsername(username);
-            response.addParam("user", Server.registerController.getUserByUsername(username));
+            Menu.loggedInUser =user;
+            response = sendUser(user);
             addOnlineUser(username);
         }
+        return response;
+    }
+
+    private Response sendUser(User user){
+        Response response = new Response();
+        response.addParam("username", user.getUsername());
+        response.addParam("nickname", user.getNickname());
+        response.addParam("password", user.getPassword());
+        response.addParam("photo", user.getPhoto());
+        response.addParam("lastTimeOfWin", user.getLastTimeOfWin());
+        response.addParam("lastLogin", user.getLastLogin());
+        response.addParam("score", user.getScore());
+        response.addParam("keys", user.getPrivateChats().keySet());
+        response.addParam("values", user.getPrivateChats().values());
         return response;
     }
 
