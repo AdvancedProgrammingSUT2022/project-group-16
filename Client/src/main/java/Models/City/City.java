@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class City
 {
 	private final ArrayList<Tile> territory = new ArrayList<>();
-	private final Tile capitalTile;
+	private Tile capitalTile;
 	private int foodYield = 0;
 	private int productionYield = 0;
 	private int goldYield = 0;
@@ -118,6 +118,10 @@ public class City
 	}
 	public Construction getCurrentConstruction() {
 		return currentConstruction;
+	}
+	public void setCurrentConstruction(Construction currentConstruction)
+	{
+		this.currentConstruction = currentConstruction;
 	}
 	public int getHitPoints() {
 		return hitPoints;
@@ -234,7 +238,10 @@ public class City
 	public Tile getCapitalTile() {
 		return capitalTile;
 	}
-
+	public void setCapitalTile(Tile capitalTile)
+	{
+		this.capitalTile = capitalTile;
+	}
 	public String purchaseTile(Tile tile){
 		for (Player player : gameController.getPlayers())
 			for (City city : player.getCities())
