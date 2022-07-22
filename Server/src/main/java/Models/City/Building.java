@@ -7,7 +7,7 @@ public class Building extends Construction
 	private final BuildingType buildingType;
 	private Tile tile;
 	private int hitPoints;
-	private City city;
+	transient private City city;
 
 	public Building(BuildingType buildingType, Tile tile)
 	{

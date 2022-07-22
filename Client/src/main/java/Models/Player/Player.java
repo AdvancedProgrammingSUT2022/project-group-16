@@ -24,6 +24,7 @@ import java.util.*;
 public class Player extends User
 {
 	transient GameController gameController;
+	private boolean isYourTurn = false;
 	transient private Unit selectedUnit = null;
 	transient private City selectedCity = null;
 	private final Civilization civilization;
@@ -73,6 +74,14 @@ public class Player extends User
 		this.score = score;
 	}
 
+	public boolean getIsYourTurn()
+	{
+		return isYourTurn;
+	}
+	public void setIsYourTurn(boolean isYourTurn)
+	{
+		this.isYourTurn = isYourTurn;
+	}
 	public HashMap<Civilization, RelationState> getRelationStates() {
 		return relationStates;
 	}
