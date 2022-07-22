@@ -116,7 +116,7 @@ public class RequestHandler  extends Thread{
         Message tmp2 =  request.getPrivateMessages().get(1);
         sender.getPrivateChats().get(receiver.getUsername()).add(tmp1);
         receiver.getPrivateChats().get(sender.getUsername()).add(tmp2);
-        Server.registerController.updateDatabase();
+        Server.registerController.writeDataOnJson();
         return new Response();
     }
 
