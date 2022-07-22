@@ -1,5 +1,7 @@
 package Models.chat;
 
+import Models.User;
+
 public class publicMessage {
     private final String sender;
     private String message;
@@ -16,4 +18,5 @@ public class publicMessage {
     public String getSender() {
         return sender;
     }
+
 }

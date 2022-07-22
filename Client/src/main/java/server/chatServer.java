@@ -23,7 +23,7 @@ public class chatServer {
         Request request = new Request();
         request.setAction("update public chats");
         Response response = Client.getInstance().sendRequest(request);
-        publicChats = (ArrayList<publicMessage>) response.getParams().get("chats");
+        publicChats = response.getPublicChats();
     }//update arrayList with Json database
 
     public void writeData() {

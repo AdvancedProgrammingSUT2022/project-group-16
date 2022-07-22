@@ -352,7 +352,7 @@ public class Game extends Application {
         String changeTurnResult = gameController.checkChangeTurn();
         if (changeTurnResult != null && changeTurnResult.equals("game Ended"))
         {
-            winPanel(gameController.getPlayers().get(0));
+            winPanel(gameController.getPlayers().get(0), gameController.getPlayers().get(0).getScore());
         }
         String result = gameController.checkChangeTurn();
         if (result != null && result.equals("game Ended"))

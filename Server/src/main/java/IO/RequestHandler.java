@@ -52,8 +52,8 @@ public class RequestHandler  extends Thread{
     }
 
     private Response handleRequest(Request request) throws MalformedURLException {
-        if(!GameController.getInstance().getPlayerTurn().getUsername().equals(user.getUsername())) return notYourTurn();
-        else if(request.getAction().equals("update public chats")) return updatePublicChats();
+        if(GameController.getInstance().getPlayerTurn() != null && !GameController.getInstance().getPlayerTurn().getUsername().equals(user.getUsername())) return notYourTurn();
+        if(request.getAction().equals("update public chats")) return updatePublicChats();
         else if(request.getAction().equals("login")) return login(request);
         else if(request.getAction().equals("register")) return register(request);
         else if(request.getAction().equals("logout")) return logout();
@@ -110,10 +110,10 @@ public class RequestHandler  extends Thread{
     }
 
     private Response sendMessage(Request request) {
-        User receiver = (User) request.getParams().get("receiver");
-        User sender = (User) request.getParams().get("sender");
-        Message tmp1 = (Message) request.getParams().get("senderMessage");
-        Message tmp2 = (Message) request.getParams().get("receiverMessage");
+        User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
+        User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
+        Message tmp1 =  request.getPrivateMessages().get(0);
+        Message tmp2 =  request.getPrivateMessages().get(1);
         sender.getPrivateChats().get(receiver.getUsername()).add(tmp1);
         receiver.getPrivateChats().get(sender.getUsername()).add(tmp2);
         Server.registerController.updateDatabase();
@@ -121,16 +121,16 @@ public class RequestHandler  extends Thread{
     }
 
     private Response sendPublicMessage(Request request) {
-        publicMessage publicMessage = (publicMessage) request.getParams().get("message");
-        User sender = (User) request.getParams().get("sender");
+        publicMessage publicMessage = request.getPublicMessages().get(0);
+        User sender =  Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         Server.chatServer.getPublicChats().add(publicMessage);
         Server.chatServer.writeData();
         return new Response();
     }
 
     private Response deleteMessageForAll(Request request) {
-        User receiver = (User) request.getParams().get("receiver");
-        User sender = (User) request.getParams().get("sender");
+        User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
+        User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         int index = (int) request.getParams().get("index");
         sender.getPrivateChats().get(receiver.getUsername()).get(index).setMessage("#deleted");
         receiver.getPrivateChats().get(sender.getUsername()).get(index).setMessage("#deleted");
@@ -139,8 +139,8 @@ public class RequestHandler  extends Thread{
     }
 
     private Response deleteMessageForSender(Request request) {
-        User receiver = (User) request.getParams().get("receiver");
-        User sender = (User) request.getParams().get("sender");
+        User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
+        User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         int index = (int) request.getParams().get("index");
         sender.getPrivateChats().get(receiver.getUsername()).get(index).setMessage("#deleted");
         Server.registerController.writeDataOnJson();
@@ -148,13 +148,14 @@ public class RequestHandler  extends Thread{
     }
 
     private Response getUser(String username) {
-        Response response = sendUser(Server.registerController.getUserByUsername(username));
+        Response response = new Response();
+        response.addUser(Server.registerController.getUserByUsername(username));
         return response;
     }
 
     private Response editMessage(Request request) {
-        User receiver = (User) request.getParams().get("receiver");
-        User sender = (User) request.getParams().get("sender");
+        User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
+        User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         String finalMessage = (String) request.getParams().get("message");
         int index = (int) request.getParams().get("index");
         sender.getPrivateChats().get(receiver).get(index).setMessage(finalMessage);
@@ -164,8 +165,8 @@ public class RequestHandler  extends Thread{
     }
 
     private Response seenMessage(Request request){
-        User receiver = (User) request.getParams().get("receiver");
-        User sender = (User) request.getParams().get("sender");
+        User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
+        User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         int j = receiver.getPrivateChats().get(sender.getUsername()).size() - 1;
         while (j >= 0) {
             String message = receiver.getPrivateChats().get(sender.getUsername()).get(j).getMessage();
@@ -181,8 +182,7 @@ public class RequestHandler  extends Thread{
 
     private Response getUserPrivateChats(String username){
         Response response = new Response();
-        response.addParam("keys",Server.registerController.getUserByUsername(username).getPrivateChats().keySet());
-        response.addParam("values",Server.registerController.getUserByUsername(username).getPrivateChats().values());
+        response.addUser(Server.registerController.getUserByUsername(username));
 
         return response;
     }
@@ -212,7 +212,7 @@ public class RequestHandler  extends Thread{
 
     private Response getAllUsers() {
         Response response = new Response();
-        response.addParam("allUsers",Menu.allUsers);
+        response.setUsers(Menu.allUsers);
         return response;
     }
 
@@ -231,7 +231,7 @@ public class RequestHandler  extends Thread{
         if(response.getMassage().equals(registerEnum.successfulCreate.regex)){
             this.user = Server.registerController.getUserByUsername(username);
             Menu.loggedInUser =user;
-            response = sendUser(user);
+            response.addUser(user);
             addOnlineUser(username);
         }else{
             response.setStatus(400);
@@ -248,29 +248,16 @@ public class RequestHandler  extends Thread{
         else{
             this.user = Server.registerController.getUserByUsername(username);
             Menu.loggedInUser =user;
-            response = sendUser(user);
+            response.addUser(user);
             addOnlineUser(username);
         }
         return response;
     }
 
-    private Response sendUser(User user){
-        Response response = new Response();
-        response.addParam("username", user.getUsername());
-        response.addParam("nickname", user.getNickname());
-        response.addParam("password", user.getPassword());
-        response.addParam("photo", user.getPhoto());
-        response.addParam("lastTimeOfWin", user.getLastTimeOfWin());
-        response.addParam("lastLogin", user.getLastLogin());
-        response.addParam("score", user.getScore());
-        response.addParam("keys", user.getPrivateChats().keySet());
-        response.addParam("values", user.getPrivateChats().values());
-        return response;
-    }
 
     private Response updatePublicChats() {
         Response response = new Response();
-        response.addParam("chats", Server.chatServer.getPublicChats());
+        response.setPublicChats( Server.chatServer.getPublicChats());
         return response;
     }
     public void addOnlineUser(String username){

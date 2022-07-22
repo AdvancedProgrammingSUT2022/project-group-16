@@ -156,10 +156,10 @@ public class GameController implements Serializable
 		if (isGameEnd() != null && isGameStarted) {
 			isGameStarted = false;
 			Player winner = isGameEnd();
-			User userWinner = Menu.allUsers.get(Menu.allUsers.indexOf(
-					registerController.getUserByUsername(winner.getUsername())));
+			User userWinner = Client.getInstance().allUsers.get(Client.getInstance().allUsers.indexOf(
+					Client.getUserByUsername(winner.getUsername())));
 			userWinner.setScore(userWinner.getScore() + winner.getGameScore() / 10);
-			registerController.writeDataOnJson();
+			//registerController.writeDataOnJson();
 		}
 
 		// change playerTurn

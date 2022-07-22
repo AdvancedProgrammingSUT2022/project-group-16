@@ -16,8 +16,8 @@ import java.util.HashMap;
 
 public class Client {
     private User loggedInUser;
-    public static ArrayList<User> allUsers;
-    static final int SERVER_PORT = 1111;
+    public static ArrayList<User> allUsers = new ArrayList<>();
+    static final int SERVER_PORT = 444;
     static DataInputStream dataInputStream;
     static DataOutputStream dataOutputStream;
     static Socket socket;
@@ -36,6 +36,12 @@ public class Client {
         return client;
     }
 
+    public  static User getUserByUsername(String username){
+        for (User user : Client.getInstance().getAllUsers()) {
+            if(user.getUsername().equals(username)) return user;
+        }
+        return null;
+    }
     public  User getLoggedInUser() {
         return loggedInUser;
     }
@@ -45,10 +51,11 @@ public class Client {
     }
 
     public ArrayList<User> getAllUsers(){
+        allUsers.clear();
         Request request = new Request();
         request.setAction("get all users");
         Response response = sendRequest(request);
-        allUsers = (ArrayList<User>) response.getParams().get("allUsers");
+        allUsers = response.getUsers();
         return allUsers;
     }
 
@@ -101,28 +108,22 @@ public class Client {
         request.setAction("get user private chats");
         request.addParam("username", username);
         Response response = sendRequest(request);
-        HashMap<String, ArrayList<Message>> chats = new HashMap<>();
-        ArrayList<String> keys = (ArrayList<String>) response.getParams().get("keys");
-        ArrayList<ArrayList<Message>> values = (ArrayList<ArrayList<Message>>) response.getParams().get("values");
-        for(int i = 0 ; i < keys.size(); i++){
-            chats.put(keys.get(i), values.get(i));
-        }
-        return chats;
+        return response.getUsers().get(0).getPrivateChats();
     }
 
     public Response seenMessage(User sender, User receiver) {
         Request request = new Request();
         request.setAction("seen message");
-        request.addParam("sender", sender);
-        request.addParam("receiver", receiver);
+        request.addParam("sender", sender.getUsername());
+        request.addParam("receiver", receiver.getUsername());
         return sendRequest(request);
     }
 
     public Response editMessage(User sender, User receiver, String finalMessage, int flg) {
         Request request = new Request();
         request.setAction("edit message");
-        request.addParam("sender", sender);
-        request.addParam("receiver", receiver);
+        request.addParam("sender", sender.getUsername());
+        request.addParam("receiver", receiver.getUsername());
         request.addParam("message", finalMessage);
         request.addParam("index", flg);
         return sendRequest(request);
@@ -138,16 +139,16 @@ public class Client {
     public Response deleteMessageForSender(User sender , User receiver, int flag) {
         Request request = new Request();
         request.setAction("delete message for sender");
-        request.addParam("sender", sender);
-        request.addParam("receiver", receiver);
+        request.addParam("sender", sender.getUsername());
+        request.addParam("receiver", receiver.getUsername());
         request.addParam("index", flag);
         return sendRequest(request);
     }
     public Response deleteMessageForAll(User sender ,User receiver, int flag) {
         Request request = new Request();
         request.setAction("delete message for all");
-        request.addParam("sender", sender);
-        request.addParam("receiver", receiver);
+        request.addParam("sender", sender.getUsername());
+        request.addParam("receiver", receiver.getUsername());
         request.addParam("index", flag);
         return sendRequest(request);
     }
@@ -156,21 +157,21 @@ public class Client {
         publicMessage tmp = new publicMessage(sender.getUsername(), message);
         Request request = new Request();
         request.setAction("send public message");
-        request.addParam("sender", sender);
-        request.addParam("message", tmp);
+        request.addParam("sender", sender.getUsername());
+        request.addPublicMessages(tmp);
         return sendRequest(request);
     }
 
     public Response sendMessage(User sender, User receiver, String message) {
-        Message tmp1 = new Message(sender.getUsername(), receiver.getUsername(), message + " - d");
-        Message tmp2 = new Message(sender.getUsername(), receiver.getUsername(), message);
+        Message senderMessage = new Message(sender.getUsername(), receiver.getUsername(), message + " - d");
+        Message receiverMessage = new Message(sender.getUsername(), receiver.getUsername(), message);
 
         Request request = new Request();
         request.setAction("send message");
-        request.addParam("sender", sender);
-        request.addParam("receiver", receiver);
-        request.addParam("senderMessage", tmp1);
-        request.addParam("receiverMessage", tmp2);
+        request.addParam("sender", sender.getUsername());
+        request.addParam("receiver", receiver.getUsername());
+        request.addPrivateMessages(senderMessage);
+        request.addPrivateMessages(receiverMessage);
         return sendRequest(request);
     }
 
@@ -196,25 +197,4 @@ public class Client {
         return sendRequest(request);
     }
 
-    public User parseUser(Response response) throws MalformedURLException {
-        String username = (String) response.getParams().get("username");
-        String password = (String) response.getParams().get("password");
-        String nickname = (String) response.getParams().get("nickname");
-        URL photo = new URL((String) response.getParams().get("photo"));
-        long lastTimeOfWin = (long) Math.floor((double)response.getParams().get("lastTimeOfWin"));
-        String lastLogin = (String) response.getParams().get("lastLogin");
-        int score = (int) Math.floor((Double) response.getParams().get("score"));
-        User user = new User(username, nickname, password, photo);
-        user.setLastTimeOfWin( lastTimeOfWin);
-        user.setLastLogin(lastLogin);
-        user.setScore(score);
-        HashMap<String, ArrayList<Message>> chats = new HashMap<>();
-        ArrayList<String> keys = (ArrayList<String>) response.getParams().get("keys");
-        ArrayList<ArrayList<Message>> values = (ArrayList<ArrayList<Message>>) response.getParams().get("values");
-        for(int i = 0 ; i < keys.size(); i++){
-            chats.put(keys.get(i), values.get(i));
-        }
-        user.setPrivateChats(chats);
-        return user;
-    }
 }

@@ -39,12 +39,7 @@ public class ChatMenu extends Application {
     public static final chatServer server = new chatServer();
     public static boolean isGameStarted = false;
 
-    public User getUserByUsername(String username){
-        for (User user : Client.getInstance().getAllUsers()) {
-            if(user.getUsername().equals(username)) return user;
-        }
-        return null;
-    }
+
     public Pane getList() {
         return list;
     }
@@ -152,7 +147,7 @@ public class ChatMenu extends Application {
                             else
                                 list.getChildren().remove(0);
                         }
-                        receiver = getUserByUsername(tmp.getText());
+                        receiver = Client.getUserByUsername(tmp.getText());
                         makeChat(sender, receiver);
                     });
                 }
@@ -170,11 +165,7 @@ public class ChatMenu extends Application {
                 else {
                     Client.getInstance().sendMessage(sender, receiver, typeMessage.getText() +
                             " - " + now.toString().substring(11,19));
-                    try {
-                        sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
+                    sender = Client.getInstance().getUser(sender.getUsername()).getUsers().get(0);
 
                     ArrayList<Message> messages = (Client.getInstance().getUserPrivateChats(sender.getUsername()).get(receiver.getUsername()));
                     Label label = new Label();
@@ -249,11 +240,7 @@ public class ChatMenu extends Application {
         });
         users.getChildren().add(button);//public chat button
 
-        try {
-            sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        sender = Client.getInstance().getUser(sender.getUsername()).getUsers().get(0);
         for(String user : sender.getPrivateChats().keySet()) {
             Button tmp = new Button();
             tmp.setOnMousePressed(mouseEvent -> {
@@ -263,11 +250,11 @@ public class ChatMenu extends Application {
                     else
                         list.getChildren().remove(0);
                 }
-                receiver = getUserByUsername(user);
+                receiver = Client.getUserByUsername(user);
                 makeChat(sender, receiver);
             });
             buttonStyle(tmp, user);
-            ImageView imageView = makePhoto(getUserByUsername(user).getPhoto());
+            ImageView imageView = makePhoto(Client.getUserByUsername(user).getPhoto());
             users.getChildren().add(tmp);
             usersPhotos.getChildren().add(imageView);
         }//friend's buttons
@@ -408,11 +395,7 @@ public class ChatMenu extends Application {
                                 String finalMessage = result + message.substring(message.length() - 14);
                                 ((Label) box.getChildren().get(flag)).setText(finalMessage);
                                 Client.getInstance().editMessage(sender,receiver,finalMessage, flag);
-                                try {
-                                    sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
-                                } catch (MalformedURLException e) {
-                                    e.printStackTrace();
-                                }                            }
+                                sender = Client.getInstance().getUser(sender.getUsername()).getUsers().get(0);                            }
 
                         });
                     }); //edit message
@@ -422,22 +405,14 @@ public class ChatMenu extends Application {
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
                         Client.getInstance().deleteMessageForSender(sender,receiver, flag);
-                        try {
-                            sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        }                    }); //delete message for me
+                        sender = Client.getInstance().getUser(sender.getUsername()).getUsers().get(0);                    }); //delete message for me
                     choose.getChildren().get(2).setOnMousePressed(mouseEvent1 -> {
                         list.getChildren().remove(choose);
                         for (int i = 0; i < list.getChildren().size(); i++)
                             list.getChildren().get(i).setDisable(false);
                         ((Label) box.getChildren().get(flag)).setText("#deleted");
                         Client.getInstance().deleteMessageForAll(sender, receiver, flag);
-                        try {
-                            sender =  Client.getInstance().parseUser(Client.getInstance().getUser(sender.getUsername()));
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        }                    }); //delete message for me and user
+                        sender = Client.getInstance().getUser(sender.getUsername()).getUsers().get(0);                    }); //delete message for me and user
                 }
             });
         }
@@ -515,7 +490,7 @@ public class ChatMenu extends Application {
         Label label = new Label();
         String lastSeen;
         if(!username.equals("public chat")) {
-            lastSeen = getUserByUsername(username).getLastLogin();
+            lastSeen = Client.getUserByUsername(username).getLastLogin();
             label.setText(username + " - last login: " + lastSeen);
         }
         else

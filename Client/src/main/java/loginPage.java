@@ -87,7 +87,7 @@ public class loginPage extends Application {
         else if(response.getStatus() == 200) {
             if (borderPane.getChildren().size() == 8)
                 borderPane.getChildren().remove(borderPane.getChildren().size() - 1);
-            User user = Client.getInstance().parseUser(response);
+            User user = response.getUsers().get(0);
             Client.getInstance().setLoggedInUser(user);
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
