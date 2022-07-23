@@ -12,6 +12,7 @@ import Models.chat.Message;
 import Models.chat.publicMessage;
 import enums.registerEnum;
 import server.GameRoom;
+import server.chatServer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -79,6 +80,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("logout")) return logout();
         else if(request.getAction().equals("get all users")) return getAllUsers();
 
+        else if(request.getAction().equals("user online")) return isOnline(request);
         else if(request.getAction().equals("make new chat")) return makeNewChat(request);
         else if(request.getAction().equals("get user private chats")) return getUserPrivateChats((String) request.getParams().get("username"));
         else if(request.getAction().equals("seen message")) return seenMessage(request);
@@ -220,6 +222,14 @@ public class RequestHandler  extends Thread{
         return response;
     }
 
+    private Response isOnline(Request request) {
+        Response response = new Response();
+
+        for (User user : Server.chatServer.getOnlineUsers().keySet())
+            response.getParams().put(user.getUsername(), user);
+        return response;
+    }
+
     private Response makeNewChat(Request request) {
         Response response = new Response();
         response.setStatus(400);
@@ -280,7 +290,7 @@ public class RequestHandler  extends Thread{
         else if(Server.registerController.isPasswordCorrect(username, password)) response.setStatus(402);
         else{
             this.user = Server.registerController.getUserByUsername(username);
-            Menu.loggedInUser =user;
+            Menu.loggedInUser = user;
             response.addUser(user);
             addOnlineUser(username);
             Server.registerController.writeDataOnJson();
