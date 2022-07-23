@@ -262,7 +262,7 @@ public class MultiplayerMenu extends Application
 				}
 
 				Label acceptedClients = new Label();
-				acceptedClients.setText(joinedClientsNicknames.size() + " / " + capacity);
+				acceptedClients.setText((joinedClientsNicknames.size() + 1)+ " / " + capacity);
 				namesStyle(acceptedClients);
 				acceptedClients.setLayoutX(300);
 				acceptedClients.setLayoutY(110);
@@ -283,6 +283,10 @@ public class MultiplayerMenu extends Application
 				startGameButton.getStyleClass().add("icons");
 				startGameButton.setOnMouseClicked((click) -> {startGame();});
 				insideRoomGroup.getChildren().add(startGameButton);
+
+				if (joinedClientsNicknames.size() == capacity - 1)
+					for (int i = 0; i < insideRoomGroup.getChildren().size() - 1; i++)
+						insideRoomGroup.getChildren().get(i).setDisable(true);
 			}
 		};
 

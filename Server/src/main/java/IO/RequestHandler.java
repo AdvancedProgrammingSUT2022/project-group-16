@@ -382,7 +382,7 @@ public class RequestHandler  extends Thread{
             response.addMassage("there is no room with this roomID");
             return response;
         }
-        if (gameRoom.getJoinedClients().size() == gameRoom.getCapacity())
+        if (gameRoom.getJoinedClients().size() == gameRoom.getCapacity() - 1)
         {
             response.addMassage("room is full");
             return response;
@@ -399,7 +399,7 @@ public class RequestHandler  extends Thread{
         boolean isSent = false;
 
         for (GameRoom gameRoom : MainMenuController.gameRooms)
-            if (gameRoom.getJoinedClients().size() < gameRoom.getCapacity() && !gameRoom.isPrivate()) {
+            if (gameRoom.getJoinedClients().size() < gameRoom.getCapacity() - 1 && !gameRoom.isPrivate()) {
                 gameRoom.addToJoinRequests(this);
                 gameRoom.getRoomAdmin().notifyNewJoinRequestToAdmin(this);
                 isSent = true;
