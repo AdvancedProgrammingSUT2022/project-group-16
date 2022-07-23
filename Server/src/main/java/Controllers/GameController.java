@@ -1005,6 +1005,7 @@ public class GameController implements Serializable
 	{
 		players.add(player);
 	}
+
 	public void deletePlayer(Player player)
 	{
 		players.remove(player);

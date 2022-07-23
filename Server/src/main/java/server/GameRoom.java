@@ -7,19 +7,19 @@ import java.util.ArrayList;
 
 public class GameRoom
 {
-	private User roomAdmin;
+	private RequestHandler roomAdmin;
 	private ArrayList<RequestHandler> joinedClients;
 	private final String roomID;
 	private ArrayList<RequestHandler> joinRequests = new ArrayList<>();
 
-	public GameRoom(User roomAdmin, String roomID)
+	public GameRoom(RequestHandler roomAdmin, String roomID)
 	{
 		this.roomAdmin = roomAdmin;
 		this.roomID = roomID;
 		joinedClients = new ArrayList<>();
 	}
 
-	public User getRoomAdmin()
+	public RequestHandler getRoomAdmin()
 	{
 		return roomAdmin;
 	}

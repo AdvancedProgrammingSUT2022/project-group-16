@@ -20,11 +20,13 @@ public class Client {
     static final int SERVER_PORT = 444;
     static DataInputStream dataInputStream;
     static DataOutputStream dataOutputStream;
-    static Socket socket;
+    public static Socket socket;
+    public static Socket listenerSocket;
     static Client client;
     private Client(){
         try {
             socket = new Socket("localhost",SERVER_PORT);
+            listenerSocket = new Socket("localhost", SERVER_PORT);
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
             dataInputStream = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {

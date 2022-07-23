@@ -26,6 +26,8 @@ public class MainMenu extends Application {
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/mainMenu.fxml").toExternalForm()))));
         stage.show();
+
+        MultiplayerMenuView multiplayerMenuView = new MultiplayerMenuView();
     }
     public static void main(String[] args) {
         launch(args);
@@ -56,6 +58,11 @@ public class MainMenu extends Application {
         newGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
+    public void multiplayer(MouseEvent mouseEvent) throws Exception
+    {
+        MultiplayerMenu multiplayerMenu = new MultiplayerMenu();
+        multiplayerMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+    }
     public void scoreBoard(MouseEvent mouseEvent) throws Exception {
         ScoreBoard scoreBoard = new ScoreBoard();
         scoreBoard.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());

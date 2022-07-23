@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<Pane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="MultiplayerMenu"
+      prefHeight="720" prefWidth="1280"
+      stylesheets="@../styles/mainMenu.css" styleClass="Background"
+      fx:id="pane">
+
+    <Group fx:id="mainGroup">
+        <Button layoutX="300" layoutY="200" text="create room" styleClass="icons" onMouseClicked="#createRoomClicked"/>
+        <Button layoutX="300" layoutY="270" text="Join room" styleClass="icons" onMouseClicked="#joinRoomClicked"/>
+        <Button layoutX="300" layoutY="340" text="Back" styleClass="icons" onMouseClicked="#backToMainMenuClicked"/>
+    </Group>
+    <Group fx:id="createRoomGroup" visible="false" disable="true">
+        <Label fx:id="createRoomLabel" layoutX="300" layoutY="200" text="enter roomID"/>
+        <TextField fx:id="roomIDTextField" layoutX="300" layoutY="240"/>
+        <Button layoutX="300" layoutY="270" text="create room" styleClass="icons" onMouseClicked="#createRoomToServer"/>
+    </Group>
+    <Group fx:id="joinRoomGroup" visible="false" disable="true">
+        <Label fx:id="findRoomLabel" layoutX="300" layoutY="200" text="enter roomID"/>
+        <TextField fx:id="findRoomRoomIDTextField" layoutX="300" layoutY="240"/>
+        <Button layoutX="300" layoutY="270" text="join room" styleClass="icons" onMouseClicked="#joinRoomToServer"/>
+    </Group>
+    <Group fx:id="insideRoomGroup" visible="false" disable="true">
+
+    </Group>
+</Pane>

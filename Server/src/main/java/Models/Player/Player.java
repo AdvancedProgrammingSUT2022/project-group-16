@@ -57,7 +57,7 @@ public class Player extends User
 	private boolean isUnHappy = false;
 	private HashMap<Civilization, RelationState> relationStates = new HashMap<>();
 
-	public Player(Civilization civilization, String username, String nickname, String password, int score) throws IOException {
+	public Player(Civilization civilization, String username, String nickname, String password, int score) {
 		super(username, nickname, password, null);
 		this.civilization = civilization;
 		this.happiness = 100;
