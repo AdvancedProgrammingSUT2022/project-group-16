@@ -1,0 +1,64 @@
+.label {
+    -fx-background-color: #ff7300;
+    -fx-text-fill: #690404;
+    -fx-font-size: 30;
+    -fx-border-width: 5;
+    -fx-border-color: black;
+    -fx-pref-width: 300;
+    -fx-alignment: center;
+    -fx-pref-height: 70;
+    -fx-border-radius: 5;
+    -fx-background-radius: 8;
+}
+
+.frontBackground {
+    -fx-background-color: rgba(255, 115, 0, 0.62);
+    -fx-border-color: black;
+    -fx-border-width: 5;
+    -fx-max-height: 400;
+    -fx-border-radius: 200;
+    -fx-background-radius: 200;
+}
+.box {
+    -fx-background-color: rgba(255, 77, 0, 0.62);
+    -fx-border-color: #ffffff;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+    -fx-pref-height: 40;
+    -fx-border-width: 3;
+    -fx-max-width: 250;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.56);
+    -fx-text-fill: white;
+}
+.subLabel {
+    -fx-font-size: 20;
+    -fx-text-fill: #ffffff;
+}
+.Background {
+    -fx-background-image: url("../photos/backgrounds/mainMenu.jpg"); /*by wallpaperBetter.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+
+.icons {
+    -fx-pref-width: 300;
+    -fx-pref-height: 45;
+    -fx-border-color: #000000;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 5;
+    -fx-text-fill: #000000;
+    -fx-font-size: 25;
+    -fx-background-color: #ff6a00;
+}
+.icons:hover {
+    -fx-pref-width: 300;
+    -fx-pref-height: 45;
+    -fx-border-color: #000000;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 5;
+    -fx-text-fill: #000000;
+    -fx-font-size: 25;
+    -fx-background-color: #ff4d00;
+}

@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -16,6 +17,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -144,22 +146,7 @@ public class MultiplayerMenu extends Application
 			dataOutputStream.flush();
 
 			Response response = Response.fromJson(dataInputStream.readUTF());
-			if(response.getMassage().equals("this roomID is already taken"))
-			{
-				Alert alert = new Alert(Alert.AlertType.ERROR, response.getMassage());
-				alert.showAndWait();
-			}
-			else
-			{
-				Alert alert = new Alert(Alert.AlertType.INFORMATION, response.getMassage());
-				alert.showAndWait();
-
-				pane.getChildren().get(1).setDisable(true);
-				pane.getChildren().get(1).setVisible(false);
-				pane.getChildren().get(3).setDisable(false);
-				pane.getChildren().get(3).setVisible(true);
-				updateInsideRoom();
-			}
+			createRoomResultPanel(response.getMassage(), !response.getMassage().equals("this roomID is already taken"));
 		}
 		catch (IOException e)
 		{
@@ -180,16 +167,7 @@ public class MultiplayerMenu extends Application
 			dataOutputStream.flush();
 
 			Response response = Response.fromJson(dataInputStream.readUTF());
-			if(response.getMassage().equals("there is no room with this roomID"))
-			{
-				Alert alert = new Alert(Alert.AlertType.ERROR, response.getMassage());
-				alert.showAndWait();
-			}
-			else if(response.getMassage().equals("request was sent"))
-			{
-				Alert alert = new Alert(Alert.AlertType.INFORMATION, response.getMassage());
-				alert.showAndWait();
-			}
+			createRoomResultPanel(response.getMassage(), false);
 		}
 		catch (IOException e)
 		{
@@ -384,6 +362,58 @@ public class MultiplayerMenu extends Application
 			}
 		};
 		Platform.runLater(runnable);
+	}
+
+
+	private void createRoomResultPanel(String text, boolean isSuccessful) {
+		//define box
+		VBox box = new VBox();
+		addLabelToBox(text, box);
+		boxStyle(box);
+		pane.getChildren().add(box);
+		setCoordinates(pane, 730, 330);
+
+		//disable other Nodes
+		for (int i = 0; i < pane.getChildren().size() - 1; i++)
+			pane.getChildren().get(i).setDisable(true);
+
+		//click on error box and make other Nodes available
+		box.setOnMouseClicked(mouseEvent -> {
+			pane.getChildren().remove(pane.getChildren().size() - 1);
+			for (int i = 0; i < pane.getChildren().size(); i++)
+				pane.getChildren().get(i).setDisable(false);
+			if (isSuccessful) {
+				pane.getChildren().get(1).setDisable(true);
+				pane.getChildren().get(1).setVisible(false);
+				pane.getChildren().get(3).setDisable(false);
+				pane.getChildren().get(3).setVisible(true);
+				updateInsideRoom();
+			}
+		});
+	}
+
+	//this method adds a line to Vbox
+	private void addLabelToBox(String line, VBox box) {
+		Label label = new Label();
+		label.setText(line);
+		labelStyle(label);
+		box.getChildren().add(label);
+	}
+
+	//style methods
+	private void boxStyle(VBox box) {
+		box.setSpacing(5);
+		box.setAlignment(Pos.CENTER);
+	}
+	private void labelStyle(Label label) {
+		label.setStyle("-fx-text-fill: white;" +
+				"-fx-font-size: 18;");
+	}
+
+	//this method set the last node of pane to (x,y)
+	private void setCoordinates(Pane box, double x, double y) {
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutX(x);
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutY(y);
 	}
 }
 
