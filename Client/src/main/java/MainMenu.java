@@ -26,8 +26,6 @@ public class MainMenu extends Application {
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/mainMenu.fxml").toExternalForm()))));
         stage.show();
-
-        MultiplayerMenuView multiplayerMenuView = new MultiplayerMenuView();
     }
     public static void main(String[] args) {
         launch(args);
