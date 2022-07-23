@@ -27,7 +27,7 @@
             <TextField fx:id="roomIDTextField" styleClass="box"/>
             <Button text="create room" styleClass="icons" onMouseClicked="#createRoomToServer"/>
         </VBox>
-        <Label fx:id="createRoomLabel" layoutX="275" layoutY="175" styleClass="label" text="create"/>
+        <Label fx:id="createRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="create"/>
     </Group>
 
     <Group fx:id="joinRoomGroup" visible="false" disable="true">
@@ -36,7 +36,7 @@
             <TextField fx:id="findRoomRoomIDTextField" styleClass="box"/>
             <Button text="join room" styleClass="icons" onMouseClicked="#joinRoomToServer"/>
         </VBox>
-        <Label fx:id="findRoomLabel" layoutX="275" layoutY="175" styleClass="label" text="join"/>
+        <Label fx:id="findRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="join"/>
     </Group>
 
     <Group fx:id="insideRoomGroup" visible="false" disable="true">

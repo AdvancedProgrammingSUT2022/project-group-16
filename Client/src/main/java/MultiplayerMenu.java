@@ -195,22 +195,10 @@ public class MultiplayerMenu extends Application
 					System.out.println(response.getParams().get("joinedClients"));
 					ArrayList<String> joinedClients = (ArrayList<String>) response.getParams().get("joinedClients");
 
-					Label titleLabel = new Label();
-					titleLabel.setLayoutX(150);
-					titleLabel.setLayoutY(150);
-					titleLabel.setText("players in this room");
-					insideRoomGroup.getChildren().add(titleLabel);
-					for (int i = 0; i < joinedClients.size(); i++)
-					{
-						String joinedClient = joinedClients.get(i);
+					playersInRoomBox(joinedClients);
+					insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(150);
+					insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(150);
 
-						Label label = new Label();
-						label.setText(joinedClient);
-						label.setLayoutX(150);
-						label.setLayoutY(200 + i * 50);
-
-						insideRoomGroup.getChildren().add(label);
-					}
 				}
 				catch (IOException e)
 				{
@@ -226,35 +214,7 @@ public class MultiplayerMenu extends Application
 					Response response = Response.fromJson(dataInputStream.readUTF());
 					ArrayList<String> joinRequests = (ArrayList<String>) response.getParams().get("joinRequests");
 
-					Label titleLabel = new Label();
-					titleLabel.setLayoutX(500);
-					titleLabel.setLayoutY(150);
-					titleLabel.setText("join requests:");
-					insideRoomGroup.getChildren().add(titleLabel);
-					for (int i = 0; i < joinRequests.size(); i++)
-					{
-						String joinedClient = joinRequests.get(i);
-						final int index = i;
-						Button acceptButton = new Button();
-						Button rejectButton = new Button();
-						acceptButton.setOnMouseClicked((click) -> {acceptJoinRequest(index);});
-						acceptButton.setLayoutX(500);
-						acceptButton.setLayoutY(200 + i * 50);
-						acceptButton.setText("accept");
-						rejectButton.setOnMouseClicked((click) -> {rejectJoinRequest(index);});
-						rejectButton.setLayoutX(570);
-						rejectButton.setLayoutY(200 + i * 50);
-						rejectButton.setText("reject");
-
-						Label label = new Label();
-						label.setText(joinedClient);
-						label.setLayoutX(630);
-						label.setLayoutY(200 + i * 50);
-
-						insideRoomGroup.getChildren().add(acceptButton);
-						insideRoomGroup.getChildren().add(rejectButton);
-						insideRoomGroup.getChildren().add(label);
-					}
+					requestsInRoomBox(joinRequests);
 				}
 				catch (IOException e)
 				{
@@ -365,10 +325,14 @@ public class MultiplayerMenu extends Application
 	}
 
 
+	//panels
 	private void createRoomResultPanel(String text, boolean isSuccessful) {
 		//define box
 		VBox box = new VBox();
-		addLabelToBox(text, box);
+		Label label = new Label();
+		titleStyle(label);
+		label.setText(text);
+		box.getChildren().add(label);
 		boxStyle(box);
 		pane.getChildren().add(box);
 		setCoordinates(pane, 730, 330);
@@ -391,6 +355,71 @@ public class MultiplayerMenu extends Application
 			}
 		});
 	}
+	private void playersInRoomBox(ArrayList<String> joinedClients) {
+		VBox box = new VBox();
+		boxStyle(box);
+
+		Label label = new Label();
+		titleStyle(label);
+		label.setText("players in this room:");
+		box.getChildren().add(label);
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutX(150);
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutY(150);
+
+		for (String joinedClient : joinedClients) {
+			Label name = new Label();
+			acceptedNamesStyle(name);
+			name.setText(joinedClient);
+			box.getChildren().add(name);
+		}
+
+		insideRoomGroup.getChildren().add(box);
+	}
+	private void requestsInRoomBox(ArrayList<String> joinRequests) {
+		VBox names = new VBox(), acceptButtons = new VBox(), rejectButtons = new VBox();
+		boxStyle(names);
+		boxStyle(acceptButtons);
+		boxStyle(rejectButtons);
+
+		Label label = new Label();
+		titleStyle(label);
+		label.setText("join requests:");
+		insideRoomGroup.getChildren().add(label);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(500);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(150);
+
+		for (int i = 0; i < joinRequests.size(); i++)
+		{
+			String joinedClient = joinRequests.get(i);
+			final int index = i;
+			Button acceptButton = new Button();
+			Button rejectButton = new Button();
+
+			acceptButton.setOnMouseClicked((click) -> acceptJoinRequest(index));
+			acceptButton.setText("accept");
+			buttonStyle(acceptButton);
+			acceptButtons.getChildren().add(acceptButton);
+
+			rejectButton.setOnMouseClicked((click) -> rejectJoinRequest(index));
+			rejectButton.setText("reject");
+			buttonStyle(rejectButton);
+			rejectButtons.getChildren().add(rejectButton);
+
+			Label name = new Label();
+			namesStyle(name);
+			name.setText(joinedClient);
+			names.getChildren().add(name);
+
+		}
+		insideRoomGroup.getChildren().addAll(names, acceptButtons, rejectButtons);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 3).setLayoutX(510);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 3).setLayoutY(230);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 2).setLayoutX(605);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 2).setLayoutY(230);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(700);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(230);
+
+	}
 
 	//this method adds a line to Vbox
 	private void addLabelToBox(String line, VBox box) {
@@ -408,6 +437,68 @@ public class MultiplayerMenu extends Application
 	private void labelStyle(Label label) {
 		label.setStyle("-fx-text-fill: white;" +
 				"-fx-font-size: 18;");
+	}
+	private void buttonStyle(Button button) {
+		button.setStyle("-fx-background-color: #ff7300;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85");
+		button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #8c3f00;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85"));
+		button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #ff7300;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85"));
+	}
+	private void namesStyle(Label label) {
+		label.setStyle("-fx-background-color: #ff7300;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85;" +
+				"-fx-alignment: center;" +
+				"-fx-pref-height: 35");
+	}
+	private void acceptedNamesStyle(Label label) {
+		label.setStyle("-fx-background-color: #ff7300;" +
+				"    -fx-text-fill: #690404;" +
+				"    -fx-font-size: 30;" +
+				"    -fx-border-width: 5;" +
+				"    -fx-border-color: black;" +
+				"    -fx-pref-width: 300;" +
+				"    -fx-alignment: center;" +
+				"    -fx-pref-height: 70;" +
+				"    -fx-border-radius: 5;" +
+				"    -fx-background-radius: 8;");
+	}
+	private void titleStyle(Label label) {
+		label.setStyle("-fx-background-color: #ff7300;" +
+				"    -fx-text-fill: #690404;" +
+				"    -fx-font-size: 20;" +
+				"    -fx-border-width: 5;" +
+				"    -fx-border-color: black;" +
+				"    -fx-pref-width: 300;" +
+				"    -fx-alignment: center;" +
+				"    -fx-pref-height: 70;" +
+				"    -fx-border-radius: 5;" +
+				"    -fx-background-radius: 8;");
 	}
 
 	//this method set the last node of pane to (x,y)
