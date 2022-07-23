@@ -51,7 +51,7 @@ public class ScoreBoard extends Application {
                     user.getUsername() + " - Score: " +
                     user.getScore() + " - last time of winning: " +
                     user.getLastTimeOfWin() + " - last login: " + user.getLastLogin());
-            if(Client.getInstance().getLoggedInUser() == user)
+            if(Client.getInstance().getLoggedInUser().getUsername().equals(user.getUsername()))
                 setLoggedInLabelStyle(label);
             else
                 setLabelStyle(label);

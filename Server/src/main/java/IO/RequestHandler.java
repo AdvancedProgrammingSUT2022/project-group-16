@@ -131,7 +131,7 @@ public class RequestHandler  extends Thread{
     private Response deleteMessageForAll(Request request) {
         User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
         User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
-        int index = (int) request.getParams().get("index");
+        int index = (int) Math.floor((Double) request.getParams().get("index"));
         sender.getPrivateChats().get(receiver.getUsername()).get(index).setMessage("#deleted");
         receiver.getPrivateChats().get(sender.getUsername()).get(index).setMessage("#deleted");
         Server.registerController.writeDataOnJson();
@@ -141,7 +141,7 @@ public class RequestHandler  extends Thread{
     private Response deleteMessageForSender(Request request) {
         User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
         User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
-        int index = (int) request.getParams().get("index");
+        int index = (int) Math.floor((Double) request.getParams().get("index"));
         sender.getPrivateChats().get(receiver.getUsername()).get(index).setMessage("#deleted");
         Server.registerController.writeDataOnJson();
         return new Response();
@@ -157,8 +157,8 @@ public class RequestHandler  extends Thread{
         User receiver =  Server.registerController.getUserByUsername((String) request.getParams().get("receiver"));
         User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         String finalMessage = (String) request.getParams().get("message");
-        int index = (int) request.getParams().get("index");
-        sender.getPrivateChats().get(receiver).get(index).setMessage(finalMessage);
+        int index = (int) Math.floor((Double) request.getParams().get("index"));
+        sender.getPrivateChats().get(receiver.getUsername()).get(index).setMessage(finalMessage);
         receiver.getPrivateChats().get(sender.getUsername()).get(index).setMessage(finalMessage);
         Server.registerController.writeDataOnJson();
         return new Response();
@@ -250,6 +250,7 @@ public class RequestHandler  extends Thread{
             Menu.loggedInUser =user;
             response.addUser(user);
             addOnlineUser(username);
+            Server.registerController.writeDataOnJson();
         }
         return response;
     }

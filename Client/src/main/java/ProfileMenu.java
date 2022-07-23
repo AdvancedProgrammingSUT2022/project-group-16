@@ -70,6 +70,7 @@ public class ProfileMenu extends Application {
             @Override public void handle(ActionEvent e) {
                 String message = Client.getInstance().changeNickname(((TextField) vBox.getChildren().get(1)).getText()).getMassage();
                 if(message.equals(profileEnum.successfulNicknameChange.regex)) {
+                    Client.getInstance().updateLoggedInUser();
                     list.getChildren().remove(list.getChildren().size() - 1);
                     list.getChildren().get(0).setDisable(false);
                 }
@@ -121,6 +122,7 @@ public class ProfileMenu extends Application {
             @Override public void handle(ActionEvent e) {
                 String message = Client.getInstance().changePassword(((TextField) vBox.getChildren().get(1)).getText(), ((TextField) vBox.getChildren().get(3)).getText()).getMassage();
                 if(message.equals(profileEnum.successfulPassChange.regex)) {
+                    Client.getInstance().updateLoggedInUser();
                     list.getChildren().remove(list.getChildren().size() - 1);
                     list.getChildren().get(0).setDisable(false);
                 }
@@ -200,6 +202,7 @@ public class ProfileMenu extends Application {
                         vBox.getChildren().remove(vBox.getChildren().size() - 1);
                     Client.getInstance().setPhoto(new URL(getClass().getResource("photos/profilePhotos/avatar" +
                             (flag + 1) + ".png").toExternalForm()));
+                    Client.getInstance().updateLoggedInUser();
                     ((ImageView) list.getChildren().get(2)).setImage(new Image(String.valueOf(Client.getInstance().getLoggedInUser().getPhoto())));
                 } catch (MalformedURLException e) {
                     e.printStackTrace();

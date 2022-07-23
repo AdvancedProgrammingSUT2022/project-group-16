@@ -8,7 +8,6 @@ import server.chatServer;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 public class Client {
     private User loggedInUser;
     public static ArrayList<User> allUsers = new ArrayList<>();
-    static final int SERVER_PORT = 444;
+    static final int SERVER_PORT = 4444;
     static DataInputStream dataInputStream;
     static DataOutputStream dataOutputStream;
     static Socket socket;
@@ -46,8 +45,13 @@ public class Client {
         return loggedInUser;
     }
 
+
     public void setLoggedInUser(User loggedInUser) {
         this.loggedInUser = loggedInUser;
+    }
+
+    public void updateLoggedInUser(){
+        this.loggedInUser = getUser(loggedInUser.getUsername()).getUsers().get(0);
     }
 
     public ArrayList<User> getAllUsers(){
