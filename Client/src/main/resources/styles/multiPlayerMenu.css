@@ -10,7 +10,16 @@
     -fx-border-radius: 5;
     -fx-background-radius: 8;
 }
-
+.privateButton {
+    -fx-background-color: #ff0000;
+    -fx-border-color: white;
+    -fx-border-radius: 4;
+    -fx-background-radius: 7;
+    -fx-border-width: 3;
+    -fx-text-fill: white;
+    -fx-font-size: 15;
+    -fx-pref-width: 85;
+}
 .frontBackground {
     -fx-background-color: rgba(255, 115, 0, 0.62);
     -fx-border-color: black;

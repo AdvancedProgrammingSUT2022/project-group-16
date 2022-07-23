@@ -99,6 +99,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("accept join request")) return acceptJoinRequest(request);
         else if(request.getAction().equals("reject join request")) return rejectJoinRequest(request);
         else if(request.getAction().equals("join room")) return joinRoom(request);
+        else if(request.getAction().equals("find room")) return findRoom(request);
         else if(request.getAction().equals("start game")) return startGame();
 
         else if(request.getAction().equals("move unit")) return moveUnit(request);
@@ -304,13 +305,17 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
 
         String roomID = (String) request.getParams().get("roomID");
+        boolean isPrivate = (boolean) request.getParams().get("private");
+        int capacity = Integer.parseInt((String) request.getParams().get("capacity"));
+
         if(MainMenuController.getRoomByRoomID(roomID) != null)
         {
             response.addMassage("this roomID is already taken");
             return response;
         }
 
-        this.gameRoom = new GameRoom(this, roomID);
+        this.gameRoom = new GameRoom(this, roomID, isPrivate, capacity);
+
         MainMenuController.addToGameRooms(this.gameRoom);
         response.addMassage("room created successfully");
         return response;
@@ -333,11 +338,16 @@ public class RequestHandler  extends Thread{
 
         System.out.println(joinedClients);
 
-        ArrayList<String> joineClientsUsernames = new ArrayList<>();
-        for (RequestHandler joinedClient : joinedClients)
-            joineClientsUsernames.add(joinedClient.getUser().getUsername());
+        ArrayList<String> joinedClientsUsernames = new ArrayList<>();
+        ArrayList<String> joinedClientsNicknames = new ArrayList<>();
 
-        response.addParam("joinedClients", joineClientsUsernames);
+        for (RequestHandler joinedClient : joinedClients) {
+            joinedClientsUsernames.add(joinedClient.getUser().getUsername());
+            joinedClientsNicknames.add(joinedClient.getUser().getNickname());
+        }
+
+        response.addParam("joinedClientsUsernames", joinedClientsUsernames);
+        response.addParam("joinedClientsNicknames", joinedClientsNicknames);
         return response;
     }
     private Response acceptJoinRequest(Request request)
@@ -372,10 +382,32 @@ public class RequestHandler  extends Thread{
             response.addMassage("there is no room with this roomID");
             return response;
         }
+        if (gameRoom.getJoinedClients().size() == gameRoom.getCapacity())
+        {
+            response.addMassage("room is full");
+            return response;
+        }
 
         gameRoom.addToJoinRequests(this);
         gameRoom.getRoomAdmin().notifyNewJoinRequestToAdmin(this);
         response.addMassage("request was sent");
+        return response;
+    }
+    private Response findRoom(Request request)
+    {
+        Response response = new Response();
+        boolean isSent = false;
+
+        for (GameRoom gameRoom : MainMenuController.gameRooms)
+            if (gameRoom.getJoinedClients().size() < gameRoom.getCapacity() && !gameRoom.isPrivate()) {
+                gameRoom.addToJoinRequests(this);
+                gameRoom.getRoomAdmin().notifyNewJoinRequestToAdmin(this);
+                isSent = true;
+                response.addMassage("request was sent");
+            }
+        if (!isSent)
+            response.addMassage("there is no public room");
+
         return response;
     }
     private void notifyNewJoinRequestToAdmin(RequestHandler joinRequestSender)

@@ -25,6 +25,9 @@
         <VBox layoutX="150" layoutY="200" styleClass="frontBackground" spacing="10" alignment="CENTER" prefWidth="550" prefHeight="350">
             <Label text="enter roomID" styleClass="subLabel"/>
             <TextField fx:id="roomIDTextField" styleClass="box"/>
+            <Label text="enter capacity" styleClass="subLabel"/>
+            <TextField fx:id="capacityTextField" styleClass="box"/>
+            <Button fx:id="roomPrivateButton" styleClass="privateButton" text="private" onMouseClicked="#privateRoom"/>
             <Button text="create room" styleClass="icons" onMouseClicked="#createRoomToServer"/>
         </VBox>
         <Label fx:id="createRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="create"/>
@@ -35,6 +38,7 @@
             <Label text="enter roomID" styleClass="subLabel"/>
             <TextField fx:id="findRoomRoomIDTextField" styleClass="box"/>
             <Button text="join room" styleClass="icons" onMouseClicked="#joinRoomToServer"/>
+            <Button text="find room" styleClass="icons" onMouseClicked="#findRoomToServer"/>
         </VBox>
         <Label fx:id="findRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="join"/>
     </Group>

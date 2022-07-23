@@ -30,6 +30,13 @@ import java.util.ArrayList;
 
 public class MultiplayerMenu extends Application
 {
+	private boolean isMakingRoomPrivate = false;
+	private int capacity;
+
+	@FXML
+	public TextField capacityTextField;
+	@FXML
+	public Button roomPrivateButton;
 	@FXML
 	private Pane pane;
 	@FXML
@@ -106,9 +113,14 @@ public class MultiplayerMenu extends Application
 		Thread listenereThread = new Thread(runnable);
 		listenereThread.setDaemon(true);
 		listenereThread.start();
+		
 	}
 
-
+	@FXML
+	public void privateRoom(MouseEvent mouseEvent) {
+		changePrivateButtonStyle();
+		isMakingRoomPrivate = !isMakingRoomPrivate;
+	}
 	@FXML
 	private void createRoomClicked(MouseEvent mouseEvent)
 	{
@@ -135,10 +147,16 @@ public class MultiplayerMenu extends Application
 	@FXML
 	private void createRoomToServer()
 	{
+		this.capacity = Integer.parseInt(capacityTextField.getText());
+
 		String roomID = roomIDTextField.getText();
+		String capacity = capacityTextField.getText();
+
 		Request request = new Request();
 		request.setAction("new room");
 		request.addParam("roomID", roomID);
+		request.addParam("private", isMakingRoomPrivate);
+		request.addParam("capacity", capacity);
 
 		try
 		{
@@ -174,6 +192,22 @@ public class MultiplayerMenu extends Application
 			throw new RuntimeException(e);
 		}
 	}
+	public void findRoomToServer(MouseEvent mouseEvent) {
+		Request request = new Request();
+		request.setAction("find room");
+
+		try {
+			dataOutputStream.writeUTF(request.toJson());
+			dataOutputStream.flush();
+
+			Response response = Response.fromJson(dataInputStream.readUTF());
+			createRoomResultPanel(response.getMassage(), false);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 
 	@FXML
 	private void updateInsideRoom()
@@ -187,15 +221,21 @@ public class MultiplayerMenu extends Application
 				insideRoomGroup.getChildren().clear();
 				Request request = new Request();
 				request.setAction("get joined clients");
+
+				ArrayList<String> joinedClientsUsernames;
+				ArrayList<String> joinedClientsNicknames;
 				try
 				{
 					dataOutputStream.writeUTF(request.toJson());
 					dataOutputStream.flush();
 					Response response = Response.fromJson(dataInputStream.readUTF());
-					System.out.println(response.getParams().get("joinedClients"));
-					ArrayList<String> joinedClients = (ArrayList<String>) response.getParams().get("joinedClients");
 
-					playersInRoomBox(joinedClients);
+					System.out.println(response.getParams().get("joinedClients"));
+
+					joinedClientsUsernames = (ArrayList<String>) response.getParams().get("joinedClientsUsernames");
+					joinedClientsNicknames = (ArrayList<String>) response.getParams().get("joinedClientsNicknames");
+
+					playersInRoomBox(joinedClientsUsernames, joinedClientsNicknames);
 					insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(150);
 					insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(150);
 
@@ -220,6 +260,21 @@ public class MultiplayerMenu extends Application
 				{
 					throw new RuntimeException(e);
 				}
+
+				Label acceptedClients = new Label();
+				acceptedClients.setText(joinedClientsNicknames.size() + " / " + capacity);
+				namesStyle(acceptedClients);
+				acceptedClients.setLayoutX(300);
+				acceptedClients.setLayoutY(110);
+				insideRoomGroup.getChildren().add(acceptedClients);
+
+				Label groupType = new Label();
+				if (isMakingRoomPrivate) groupType.setText("type: private");
+				else groupType.setText("type: public");
+				namesStyle(groupType);
+				groupType.setLayoutX(520);
+				groupType.setLayoutY(110);
+				insideRoomGroup.getChildren().add(groupType);
 
 				Button startGameButton = new Button();
 				startGameButton.setLayoutX(150);
@@ -355,7 +410,7 @@ public class MultiplayerMenu extends Application
 			}
 		});
 	}
-	private void playersInRoomBox(ArrayList<String> joinedClients) {
+	private void playersInRoomBox(ArrayList<String> joinedClientsUsernames, ArrayList<String> joinedClientsNicknames) {
 		VBox box = new VBox();
 		boxStyle(box);
 
@@ -366,10 +421,10 @@ public class MultiplayerMenu extends Application
 		box.getChildren().get(box.getChildren().size() - 1).setLayoutX(150);
 		box.getChildren().get(box.getChildren().size() - 1).setLayoutY(150);
 
-		for (String joinedClient : joinedClients) {
+		for (int i = 0; i < joinedClientsUsernames.size(); i++) {
 			Label name = new Label();
 			acceptedNamesStyle(name);
-			name.setText(joinedClient);
+			name.setText("U: " + joinedClientsUsernames.get(i) + " - N: " + joinedClientsNicknames.get(i));
 			box.getChildren().add(name);
 		}
 
@@ -464,6 +519,26 @@ public class MultiplayerMenu extends Application
 				"-fx-font-size: 15;" +
 				"-fx-pref-width: 85"));
 	}
+	private void changePrivateButtonStyle() {
+		if (isMakingRoomPrivate)
+			roomPrivateButton.setStyle("-fx-background-color: #ff0000;" +
+					"-fx-border-color: white;" +
+					"-fx-border-radius: 4;" +
+					"-fx-background-radius: 7;" +
+					"-fx-border-width: 3;" +
+					"-fx-text-fill: white;" +
+					"-fx-font-size: 15;" +
+					"-fx-pref-width: 85");
+		else
+			roomPrivateButton.setStyle("-fx-background-color: #09ff00;" +
+					"-fx-border-color: white;" +
+					"-fx-border-radius: 4;" +
+					"-fx-background-radius: 7;" +
+					"-fx-border-width: 3;" +
+					"-fx-text-fill: #000000;" +
+					"-fx-font-size: 15;" +
+					"-fx-pref-width: 85");
+	}
 	private void namesStyle(Label label) {
 		label.setStyle("-fx-background-color: #ff7300;" +
 				"-fx-border-color: white;" +
@@ -500,6 +575,7 @@ public class MultiplayerMenu extends Application
 				"    -fx-border-radius: 5;" +
 				"    -fx-background-radius: 8;");
 	}
+
 
 	//this method set the last node of pane to (x,y)
 	private void setCoordinates(Pane box, double x, double y) {
