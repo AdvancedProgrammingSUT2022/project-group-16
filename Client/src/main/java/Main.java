@@ -13,17 +13,12 @@ import java.time.format.DateTimeFormatter;
 
 public class Main extends Application
 {
-	static final int SERVER_PORT = 1111;
-	static DataInputStream dataInputStream;
-	static DataOutputStream dataOutputStream;
+	static final int SERVER_PORT = 444;
 	public static DateTimeFormatter timeAndDate = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 	public static AudioClip audioClip = new AudioClip(Main.class.getResource("audio/1.mp3").toExternalForm());
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		Socket socket = new Socket("localhost",SERVER_PORT);
-		dataOutputStream = new DataOutputStream(socket.getOutputStream());
-		dataInputStream = new DataInputStream(socket.getInputStream());
 
 		chatServer server = new chatServer();
 		server.update();

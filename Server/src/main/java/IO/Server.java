@@ -31,7 +31,8 @@ public class Server
 		while(true){
 			try {
 				Socket socket = serverSocket.accept();
-				RequestHandler handler = new RequestHandler(socket);
+				Socket listenerSocket = serverSocket.accept();
+				RequestHandler handler = new RequestHandler(socket, listenerSocket);
 				requestHandlers.add(handler);
 				handler.start();
 			} catch (IOException e) {

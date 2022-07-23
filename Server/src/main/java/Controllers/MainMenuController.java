@@ -50,7 +50,7 @@ public class MainMenuController
 	public static GameRoom getRoomByAdminUsername(String roomAdminUsername)
 	{
 		for (GameRoom gameRoom : gameRooms)
-			if(gameRoom.getRoomAdmin().getUsername().equals(roomAdminUsername))
+			if(gameRoom.getRoomAdmin().getUser().getUsername().equals(roomAdminUsername))
 				return gameRoom;
 		return null;
 	}

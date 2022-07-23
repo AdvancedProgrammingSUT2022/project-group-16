@@ -4,6 +4,7 @@ import Controllers.GameController;
 import Controllers.ProfileController;
 import Controllers.MainMenuController;
 import Models.Menu.Menu;
+import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.User;
 import enums.cheatCode;
@@ -27,13 +28,20 @@ import java.util.regex.Pattern;
 public class RequestHandler  extends Thread{
     private User user;
     private Socket socket;
+    private Socket listenerSocket;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
+    private DataInputStream listenerSocketDIS;
+    private DataOutputStream listenerSocketDOS;
+    private GameRoom gameRoom;
 
-    public RequestHandler(Socket socket) throws IOException {
+    public RequestHandler(Socket socket, Socket listenerSocket) throws IOException {
         this.socket = socket;
+        this.listenerSocket = listenerSocket;
         this.inputStream = new DataInputStream(socket.getInputStream());
         this.outputStream = new DataOutputStream(socket.getOutputStream());
+        this.listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
+        this.listenerSocketDOS = new DataOutputStream(listenerSocket.getOutputStream());
     }
 
     public User getUser()
@@ -87,6 +95,7 @@ public class RequestHandler  extends Thread{
             // handle lobby requests
         else if (request.getAction().equals("new room")) return createNewRoom(request);
         else if(request.getAction().equals("get join requests")) return getJoinRequests();
+        else if(request.getAction().equals("get joined clients")) return getJoinedClients();
         else if(request.getAction().equals("accept join request")) return acceptJoinRequest(request);
         else if(request.getAction().equals("reject join request")) return rejectJoinRequest(request);
         else if(request.getAction().equals("join room")) return joinRoom(request);
@@ -301,25 +310,39 @@ public class RequestHandler  extends Thread{
             return response;
         }
 
-        MainMenuController.addToGameRooms(new GameRoom(user, roomID));
+        this.gameRoom = new GameRoom(this, roomID);
+        MainMenuController.addToGameRooms(this.gameRoom);
         response.addMassage("room created successfully");
         return response;
     }
     private Response getJoinRequests()
     {
-        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
-        StringBuilder joinRequestsSB = new StringBuilder();
-        for (int i = 0; i < gameRoom.getJoinRequests().size(); i++)
-            joinRequestsSB.append(i + ": " + gameRoom.getJoinRequests().get(i).getUser().getUsername()).append("\n");
+        ArrayList<String> joinRequests = new ArrayList<>();
+        for (RequestHandler joinRequest : gameRoom.getJoinRequests())
+            joinRequests.add(joinRequest.getUser().getUsername());
+
 
         Response response = new Response();
-        response.addParam("join requests", joinRequestsSB.toString());
+        response.addParam("joinRequests", joinRequests);
+        return response;
+    }
+    private Response getJoinedClients()
+    {
+        Response response = new Response();
+        ArrayList<RequestHandler> joinedClients = gameRoom.getJoinedClients();
+
+        System.out.println(joinedClients);
+
+        ArrayList<String> joineClientsUsernames = new ArrayList<>();
+        for (RequestHandler joinedClient : joinedClients)
+            joineClientsUsernames.add(joinedClient.getUser().getUsername());
+
+        response.addParam("joinedClients", joineClientsUsernames);
         return response;
     }
     private Response acceptJoinRequest(Request request)
     {
-        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
-        RequestHandler acceptedJoinRequest = gameRoom.getJoinRequests().get((Integer) request.getParams().get("index"));
+        RequestHandler acceptedJoinRequest = gameRoom.getJoinRequests().get(Integer.parseInt((String) request.getParams().get("index")));
         gameRoom.removeFromJoinedRequests(acceptedJoinRequest);
         gameRoom.addToJoinedClients(acceptedJoinRequest);
 
@@ -329,8 +352,7 @@ public class RequestHandler  extends Thread{
     }
     private Response rejectJoinRequest(Request request)
     {
-        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
-        RequestHandler rejectedJoinRequest = gameRoom.getJoinRequests().get((Integer) request.getParams().get("index"));
+        RequestHandler rejectedJoinRequest = gameRoom.getJoinRequests().get(Integer.parseInt((String) request.getParams().get("index")));
         gameRoom.removeFromJoinedRequests(rejectedJoinRequest);
 
         Response response = new Response();
@@ -352,24 +374,60 @@ public class RequestHandler  extends Thread{
         }
 
         gameRoom.addToJoinRequests(this);
+        gameRoom.getRoomAdmin().notifyNewJoinRequestToAdmin(this);
         response.addMassage("request was sent");
         return response;
     }
+    private void notifyNewJoinRequestToAdmin(RequestHandler joinRequestSender)
+    {
+        try
+        {
+            listenerSocketDOS.writeUTF("you have a new join request from " + joinRequestSender.getUser().getUsername());
+            listenerSocketDOS.flush();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
     private Response startGame()
     {
-        GameRoom gameRoom = MainMenuController.getRoomByAdminUsername(user.getUsername());
+        GameController.getInstance().addPlayer(new Player(Civilization.values()[0], user.getUsername(), user.getNickname(), user.getPassword(),user.getScore()));
 
         for (int i = 0; i < gameRoom.getJoinedClients().size(); i++)
         {
             RequestHandler joinedClient = gameRoom.getJoinedClients().get(i);
-//            Player player =
+            GameController.getInstance().addPlayer(new Player(Civilization.values()[i + 1], joinedClient.getUser().getUsername(), joinedClient.getUser().getNickname(), joinedClient.getUser().getPassword(), joinedClient.getUser().getScore()));
         }
 
-        // TODO: send a request to each client to start the game
+        GameController.getInstance().initGame();
+
+        try
+        {
+            listenerSocketDOS.writeUTF("game started");
+            for (RequestHandler joinedClient : gameRoom.getJoinedClients())
+                joinedClient.listenerSocketDOS.writeUTF("game started");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         Response response = new Response();
         response.addMassage("game started");
         return response;
+    }
+    private void notifyGameStarted()
+    {
+        try
+        {
+            listenerSocketDOS.writeUTF("game started");
+            listenerSocketDOS.flush();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private Response moveUnit(Request request)
