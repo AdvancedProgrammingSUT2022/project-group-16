@@ -1,19 +1,8 @@
 {
   "Requests": [
     {
-      "action": "move CUnit",
+      "action": "move unit",
       "params": {
-        "originX": "Integer",
-        "originY": "Integer",
-        "destinationX": "Integer",
-        "destinationY": "Integer"
-      }
-    },
-    {
-      "action": "move NCUnit",
-      "params": {
-        "originX": "Integer",
-        "originY": "Integer",
         "destinationX": "Integer",
         "destinationY": "Integer"
       }
@@ -25,10 +14,13 @@
       }
     },
     {
-      "action": "",
+      "action": "found city",
       "params": {
+        "positionX": "Integer",
+        "positionY": "Integer"
       }
     }
+
   ]
 }
 
