@@ -10,6 +10,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
@@ -33,6 +35,10 @@ public class ScoreBoard extends Application {
     Request request = new Request();
     Response response;
 
+    //update stuff
+    private boolean isRPressed = false;
+    private boolean isShiftPressed = false;
+
     //define main pane
     public Pane list;
     private final VBox vBox = new VBox();
@@ -40,6 +46,24 @@ public class ScoreBoard extends Application {
 
     public void initialize() {
         loadScoreBoard();
+
+        //cheat code
+        list.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
+            if(key.getCode() == KeyCode.R)
+                isRPressed = true;
+            if(key.getCode() == KeyCode.SHIFT)
+                isShiftPressed = true;
+            if(isShiftPressed && isRPressed) {
+                updateUsersLabel();
+            }
+        });
+        list.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
+            if(key.getCode() == KeyCode.R)
+                isRPressed = false;
+            if(key.getCode() == KeyCode.SHIFT)
+                isShiftPressed = false;
+        });
+
     }
 
     private void loadScoreBoard() {
@@ -54,11 +78,6 @@ public class ScoreBoard extends Application {
             e.printStackTrace();
         }
 
-        //avatars
-        photos.setAlignment(Pos.CENTER);
-        photos.setSpacing(20);
-        vBox.setSpacing(90);
-
         //scroll
         vBox.setOnScroll((ScrollEvent event) -> {
             double yScale = 30;
@@ -70,6 +89,22 @@ public class ScoreBoard extends Application {
                 photos.setLayoutY(photos.getLayoutY() + yScale);
             }
         });
+
+        updateUsersLabel();
+    }
+
+    private void updateUsersLabel()
+    {
+        vBox.getChildren().clear();
+        photos.getChildren().clear();
+        list.getChildren().remove(photos);
+        list.getChildren().remove(vBox);
+
+
+        //avatars
+        photos.setAlignment(Pos.CENTER);
+        photos.setSpacing(20);
+        vBox.setSpacing(90);
 
         //sort users on 1-score 2-lastTimeOfWin 3-username
         ArrayList<User> allUsers = Client.getInstance().getAllUsers();
@@ -130,6 +165,7 @@ public class ScoreBoard extends Application {
         list.getChildren().get(list.getChildren().size() - 2).setLayoutX(1100);
         list.getChildren().get(list.getChildren().size() - 2).setLayoutY(8);
     }
+
 
     //styles
     private void setLabelStyle(Label label) {
