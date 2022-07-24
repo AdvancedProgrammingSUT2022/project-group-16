@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.ImageView?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="FriendShipMenu"
+            prefHeight="720" prefWidth="1280"
+            stylesheets="@../styles/friends.css" styleClass="Background"
+            fx:id="pane">
+    <Group fx:id="searchPlayer">
+        <Rectangle layoutX="150" layoutY="275" width="360" height="360" styleClass="Rectangle"/>
+        <ImageView layoutX="155" layoutY="280" fitWidth="350" fitHeight="350" styleClass="ImageView"/>
+        <VBox fx:id="searchNameFounded" layoutX="190" layoutY="360"/>
+        <Label layoutX="230" layoutY="295" text="search panel" styleClass="text"/>
+        <TextField layoutX="190" layoutY="495" prefWidth="280" onKeyPressed="#updateFriendSearchBox" fx:id="searchTextField" promptText="username..."/>
+    </Group>
+    <Group fx:id="friendRequests">
+        <Rectangle layoutX="750" layoutY="275" width="360" height="360" styleClass="Rectangle"/>
+        <ImageView layoutX="755" layoutY="280" fitWidth="350" fitHeight="350" styleClass="ImageView"/>
+        <Label layoutX="830" layoutY="295" text="friend requests" styleClass="text"/>
+        <VBox fx:id="friendRequestBox" layoutX="790" layoutY="360"/>
+    </Group>
+
+</AnchorPane>

@@ -8,11 +8,12 @@
       fx:controller="MainMenu"
       prefHeight="720.0" prefWidth="1280.0" fx:id="list"
       stylesheets="@../styles/mainMenu.css" styleClass="Background">
-    <Button layoutX="300" layoutY="200" text="new game" styleClass="icons" onMouseClicked="#newGame"/>
-    <Button layoutX="300" layoutY="270" text="multiplayer" styleClass="icons" onMouseClicked="#multiplayer"/>
-    <Button layoutX="300" layoutY="340" text="profile menu" styleClass="icons" onMouseClicked="#profileMenu"/>
-    <Button layoutX="300" layoutY="410" text="score board" styleClass="icons" onMouseClicked="#scoreBoard"/>
-    <Button layoutX="300" layoutY="480" text="chat menu" styleClass="icons" onMouseClicked="#chatMenu"/>
-    <Button layoutX="300" layoutY="550" text="logout" styleClass="icons" onMouseClicked="#logout"/>
-    <Button layoutX="300" layoutY="620" text="exit" styleClass="icons" onMouseClicked="#exit"/>
+    <Button layoutX="300" layoutY="150" text="new game" styleClass="icons" onMouseClicked="#newGame"/>
+    <Button layoutX="300" layoutY="220" text="multiplayer" styleClass="icons" onMouseClicked="#multiplayer"/>
+    <Button layoutX="300" layoutY="290" text="profile menu" styleClass="icons" onMouseClicked="#profileMenu"/>
+    <Button layoutX="300" layoutY="360" text="score board" styleClass="icons" onMouseClicked="#scoreBoard"/>
+    <Button layoutX="300" layoutY="430" text="chat menu" styleClass="icons" onMouseClicked="#chatMenu"/>
+    <Button layoutX="300" layoutY="500" text="friendShip" styleClass="icons" onMouseClicked="#friendsMenu"/>
+    <Button layoutX="300" layoutY="570" text="logout" styleClass="icons" onMouseClicked="#logout"/>
+    <Button layoutX="300" layoutY="640" text="exit" styleClass="icons" onMouseClicked="#exit"/>
 </Pane>

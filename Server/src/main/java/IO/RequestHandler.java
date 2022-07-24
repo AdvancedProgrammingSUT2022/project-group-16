@@ -110,6 +110,13 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("select CUnit")) return selectCUnit(request);
         else if(request.getAction().equals("select NCUnit")) return selectNCUnit(request);
 
+        //friendShip
+        else if (request.getAction().equals("search username")) return searchFriends(request);
+        else if (request.getAction().equals("send friendShip")) return sendFriendInv(request);
+        else if (request.getAction().equals("friend requests")) return friendRequests(request);
+        else if ((request.getAction().equals("accept friend"))) return acceptFriend(request);
+        else if ((request.getAction().equals("reject friend"))) return rejectFriend(request);
+
         return null;
     }
 
@@ -257,7 +264,6 @@ public class RequestHandler  extends Thread{
         response.setUsers(Menu.allUsers);
         return response;
     }
-
     private Response logout() {
         Server.chatServer.removeOnlineUser(this.user);
         return new Response();
@@ -584,6 +590,65 @@ public class RequestHandler  extends Thread{
 
         Response response = new Response();
         response.addMassage("NCUnit selected");
+        return response;
+    }
+
+    private Response searchFriends(Request request)
+    {
+        Response response = new Response();
+        String searchedText = (String) request.getParams().get("username");
+        int length = searchedText.length();
+
+        ArrayList<String> acceptedUsernames = new ArrayList<>();
+
+        for (User user : Menu.allUsers)
+            if ((user.getUsername().length() > length && searchedText.equals(user.getUsername().substring(0, length))))
+                acceptedUsernames.add(user.getUsername());
+
+        response.getParams().put("usersFound", acceptedUsernames);
+        return response;
+    }
+
+    private Response sendFriendInv(Request request)
+    {
+        Response response = new Response();
+        String receiverUsername = (String) request.getParams().get("username");
+
+        User receiver = Server.registerController.getUserByUsername(receiverUsername);
+        if (!receiver.getFriendRequests().contains(Menu.loggedInUser.getUsername()) &&
+                !receiver.getUsername().equals(Menu.loggedInUser.getUsername())) {
+            receiver.getFriendRequests().add(Menu.loggedInUser.getUsername());
+            Server.registerController.writeDataOnJson();
+            response.addMassage("invitation sent");
+        }
+        else response.addMassage("failed:(");
+
+        return response;
+    }
+
+    private Response friendRequests(Request request) {
+        Response response = new Response();
+        ArrayList<String> friendRequests = new ArrayList<>(Menu.loggedInUser.getFriendRequests());
+
+        response.getParams().put("usernames", friendRequests);
+
+        return response;
+    }
+
+    private Response acceptFriend(Request request) {
+        Response response = new Response();
+        String username = (String) request.getParams().get("username");
+        Menu.loggedInUser.getFriends().add(username);
+        Menu.loggedInUser.getFriendRequests().remove(username);
+        Server.registerController.writeDataOnJson();
+        return response;
+    }
+
+    private Response rejectFriend(Request request) {
+        Response response = new Response();
+        String username = (String) request.getParams().get("username");
+        Menu.loggedInUser.getFriendRequests().remove(username);
+        Server.registerController.writeDataOnJson();
         return response;
     }
 }
