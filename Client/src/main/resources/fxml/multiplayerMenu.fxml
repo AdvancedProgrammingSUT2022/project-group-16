@@ -42,8 +42,10 @@
         </VBox>
         <Label fx:id="findRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="join"/>
     </Group>
-
-    <Group fx:id="insideRoomGroup" visible="false" disable="true">
-
+    <Group fx:id="insideRoomGroup" visible="false" disable="true"/>
+    <Group fx:id="publicRooms" visible="false" disable="true">
+        <VBox fx:id="publicRoomsBox" layoutX="800" layoutY="200" styleClass="frontBackground"
+              spacing="10" alignment="CENTER" prefWidth="400" prefHeight="475"/>
+        <Label layoutX="850" layoutY="175" styleClass="title" text="rooms"/>
     </Group>
 </Pane>

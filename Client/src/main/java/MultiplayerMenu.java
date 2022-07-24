@@ -34,6 +34,10 @@ public class MultiplayerMenu extends Application
 	private int capacity;
 
 	@FXML
+	public VBox publicRoomsBox;
+	@FXML
+	public Group publicRooms;
+	@FXML
 	public TextField capacityTextField;
 	@FXML
 	public Button roomPrivateButton;
@@ -136,6 +140,9 @@ public class MultiplayerMenu extends Application
 		pane.getChildren().get(0).setVisible(false);
 		pane.getChildren().get(2).setDisable(false);
 		pane.getChildren().get(2).setVisible(true);
+		publicRoomsNames();
+		pane.getChildren().get(4).setDisable(false);
+		pane.getChildren().get(4).setVisible(true);
 	}
 	@FXML
 	private void backToMainMenuClicked(MouseEvent mouseEvent) throws Exception
@@ -478,6 +485,28 @@ public class MultiplayerMenu extends Application
 		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(700);
 		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(230);
 
+	}
+	private void publicRoomsNames()
+	{
+		Request request = new Request();
+		request.setAction("public rooms");
+		try
+		{
+			dataOutputStream.writeUTF(request.toJson());
+			dataOutputStream.flush();
+
+			Response response = Response.fromJson(dataInputStream.readUTF());
+			ArrayList<String> id = (ArrayList<String>) response.getParams().get("id");
+			ArrayList<Integer> capacity = (ArrayList<Integer>) response.getParams().get("capacity");
+			ArrayList<Integer> joinedClients = (ArrayList<Integer>) response.getParams().get("joinedClients");
+
+			for (int i = 0; i < id.size(); i++)
+				addLabelToBox("room id: " + id.get(i) + "   -   " + (1 + Integer.parseInt(String.valueOf(joinedClients.get(i)))) + " / " + (Integer.parseInt(String.valueOf(capacity.get(i)))), publicRoomsBox);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	//this method adds a line to Vbox

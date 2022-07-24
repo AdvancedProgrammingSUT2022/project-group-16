@@ -7,6 +7,7 @@ import Models.Menu.Menu;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.User;
+import com.google.gson.Gson;
 import enums.cheatCode;
 import Models.chat.Message;
 import Models.chat.publicMessage;
@@ -14,10 +15,7 @@ import enums.registerEnum;
 import server.GameRoom;
 import server.chatServer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -100,6 +98,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("get joined clients")) return getJoinedClients();
         else if(request.getAction().equals("accept join request")) return acceptJoinRequest(request);
         else if(request.getAction().equals("reject join request")) return rejectJoinRequest(request);
+        else if(request.getAction().equals("public rooms")) return publicRooms(request);
         else if(request.getAction().equals("join room")) return joinRoom(request);
         else if(request.getAction().equals("find room")) return findRoom(request);
         else if(request.getAction().equals("start game")) return startGame();
@@ -273,7 +272,7 @@ public class RequestHandler  extends Thread{
         response.addMassage(message);
         if(response.getMassage().equals(registerEnum.successfulCreate.regex)){
             this.user = Server.registerController.getUserByUsername(username);
-            Menu.loggedInUser =user;
+            Menu.loggedInUser = user;
             response.addUser(user);
             addOnlineUser(username);
         }else{
@@ -377,6 +376,28 @@ public class RequestHandler  extends Thread{
 
         Response response = new Response();
         response.addMassage("join request rejected");
+
+        return response;
+    }
+    private Response publicRooms(Request request)
+    {
+        Response response = new Response();
+
+        ArrayList<String> id = new ArrayList<>();
+        ArrayList<String> capacity = new ArrayList<>();
+        ArrayList<String> currPlayers = new ArrayList<>();
+
+        for (GameRoom gameRoom : MainMenuController.gameRooms)
+            if (!gameRoom.isPrivate()) {
+                id.add(gameRoom.getRoomID());
+                capacity.add(String.valueOf((gameRoom.getCapacity())));
+                currPlayers.add(String.valueOf(gameRoom.getJoinedClients().size()));
+            }
+
+        response.addMassage("successful");
+        response.getParams().put("id", id);
+        response.getParams().put("capacity", capacity);
+        response.getParams().put("joinedClients", currPlayers);
 
         return response;
     }
