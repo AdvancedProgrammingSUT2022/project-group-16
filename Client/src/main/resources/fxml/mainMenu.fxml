@@ -13,7 +13,6 @@
     <Button layoutX="300" layoutY="290" text="profile menu" styleClass="icons" onMouseClicked="#profileMenu"/>
     <Button layoutX="300" layoutY="360" text="score board" styleClass="icons" onMouseClicked="#scoreBoard"/>
     <Button layoutX="300" layoutY="430" text="chat menu" styleClass="icons" onMouseClicked="#chatMenu"/>
-    <Button layoutX="300" layoutY="500" text="friendShip" styleClass="icons" onMouseClicked="#friendsMenu"/>
-    <Button layoutX="300" layoutY="570" text="logout" styleClass="icons" onMouseClicked="#logout"/>
-    <Button layoutX="300" layoutY="640" text="exit" styleClass="icons" onMouseClicked="#exit"/>
+    <Button layoutX="300" layoutY="500" text="logout" styleClass="icons" onMouseClicked="#logout"/>
+    <Button layoutX="300" layoutY="570" text="exit" styleClass="icons" onMouseClicked="#exit"/>
 </Pane>

@@ -14,6 +14,7 @@
                 <Button text="change nickname" styleClass="button" onMouseClicked="#changeNicknameMenu"/>
                 <Button text="change password" styleClass="button" onMouseClicked="#changePasswordMenu"/>
                 <Button text="change photo" styleClass="button" onMouseClicked="#changePhotoMenu"/>
+                <Button text="friends" styleClass="button" onMouseClicked="#friendsMenu"/>
                 <Button text="back" styleClass="button" onMouseClicked="#backToMainMenu"/>
         </VBox>
         <Label layoutX="788" layoutY="220" text="profile menu" styleClass="mainLabel"/>

@@ -47,7 +47,7 @@
     -fx-border-color: #03039f;
     -fx-border-width: 20;
     -fx-pref-width: 500;
-    -fx-pref-height: 300;
+    -fx-pref-height: 400;
 }
 .changeNicknamePanel {
     -fx-background-color: red;

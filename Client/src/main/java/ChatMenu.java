@@ -104,9 +104,8 @@ public class ChatMenu extends Application {
                             }
                             makeChat(sender, user);
                             receiver = user;
-                        }else {
-                            //TODO show response message here which is an error
                         }
+                    search.setText(null);
                 }
             }
         });

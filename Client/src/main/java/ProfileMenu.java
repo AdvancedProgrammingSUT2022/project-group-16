@@ -269,4 +269,9 @@ public class ProfileMenu extends Application {
     private void setHoverImageStyle(ImageView imageView, Pane pane) {
         pane.getChildren().get(pane.getChildren().indexOf(imageView) - 1).setStyle("-fx-fill: transparent");
     }
+
+    public void friendsMenu(MouseEvent mouseEvent) throws Exception {
+        FriendShipMenu friendShipMenu = new FriendShipMenu();
+        friendShipMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+    }
 }
