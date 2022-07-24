@@ -70,4 +70,9 @@ public class MainMenu extends Application {
         LoadGame loadGame = new LoadGame();
         loadGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
+
+    public void friendsMenu(MouseEvent mouseEvent) throws Exception {
+        FriendShipMenu friendShipMenu = new FriendShipMenu();
+        friendShipMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+    }
 }

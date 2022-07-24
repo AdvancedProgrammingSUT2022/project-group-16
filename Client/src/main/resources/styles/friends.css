@@ -1,0 +1,93 @@
+.Background {
+    -fx-background-image: url("../photos/backgrounds/panels.jpg"); /*by www.reddit.com*/
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 1280 720;
+}
+.Button {
+    -fx-background-color: #0800ff;
+    -fx-text-fill: white;
+    -fx-pref-width: 150;
+    -fx-pref-height: 35;
+    -fx-font-size: 13;
+    -fx-border-width: 3;
+    -fx-border-color: black;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+}
+.Button:hover {
+    -fx-background-color: #060085;
+    -fx-text-fill: white;
+    -fx-font-size: 13;
+    -fx-pref-width: 150;
+    -fx-pref-height: 35;
+    -fx-border-width: 3;
+    -fx-border-color: black;
+    -fx-border-radius: 4;
+    -fx-background-radius: 6;
+}
+.Rectangle {
+    -fx-fill: blue;
+}
+.ImageView {
+    -fx-image: url("../photos/backgrounds/scoreBoard.jpg");
+}
+.text {
+    -fx-font-size: 25;
+    -fx-text-fill: black;
+    -fx-background-color: white;
+    -fx-border-width: 4;
+    -fx-border-color: black;
+    -fx-border-radius: 5;
+    -fx-background-radius: 8;
+    -fx-pref-width: 200;
+    -fx-pref-height: 35;
+    -fx-alignment: center;
+}
+.yesButton {
+    -fx-background-color: #00ff00;
+    -fx-pref-width: 85;
+    -fx-pref-height: 15;
+    -fx-font-size: 10;
+    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-radius: 4;
+    -fx-background-radius: 7;
+    -fx-alignment: center;
+    -fx-text-fill: black
+}
+.yesButton:hover{
+    -fx-background-color: #007300;
+    -fx-pref-width: 85;
+    -fx-pref-height: 15;
+    -fx-font-size: 10;
+    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-radius: 4;
+    -fx-background-radius: 7;
+    -fx-alignment: center;
+    -fx-text-fill: black
+}
+.noButton {
+    -fx-background-color: #ff0000;
+    -fx-pref-width: 85;
+    -fx-pref-height: 15;
+    -fx-font-size: 10;
+    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-radius: 4;
+    -fx-background-radius: 7;
+    -fx-alignment: center;
+    -fx-text-fill: #ffffff
+}
+.noButton:hover {
+    -fx-background-color: #8c0000;
+    -fx-pref-width: 85;
+    -fx-pref-height: 15;
+    -fx-font-size: 10;
+    -fx-border-color: black;
+    -fx-border-width: 3;
+    -fx-border-radius: 4;
+    -fx-background-radius: 7;
+    -fx-alignment: center;
+    -fx-text-fill: #ffffff
+}
