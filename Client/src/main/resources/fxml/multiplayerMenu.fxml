@@ -8,6 +8,7 @@
 
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.ImageView?>
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="MultiplayerMenu"
@@ -31,6 +32,7 @@
             <Button text="create room" styleClass="icons" onMouseClicked="#createRoomToServer"/>
         </VBox>
         <Label fx:id="createRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="create"/>
+        <Button layoutY="660" text="exit" styleClass="icons" onMouseClicked="#exit"/>
     </Group>
 
     <Group fx:id="joinRoomGroup" visible="false" disable="true">
@@ -41,8 +43,13 @@
             <Button text="find room" styleClass="icons" onMouseClicked="#findRoomToServer"/>
         </VBox>
         <Label fx:id="findRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="join"/>
+        <Button layoutY="660" text="exit" styleClass="icons" onMouseClicked="#exit"/>
+        <ImageView fx:id="refreshImage" layoutX="15" layoutY="15" fitWidth="20" fitHeight="20"
+                   styleClass="refreshButton" onMouseClicked="#publicRoomsNames"/>
     </Group>
-    <Group fx:id="insideRoomGroup" visible="false" disable="true"/>
+    <Group fx:id="insideRoomGroup" visible="false" disable="true">
+        <Label fx:id="counter" text="room close in: " styleClass="icons" layoutY="30" layoutX="800"/>
+    </Group>
     <Group fx:id="publicRooms" visible="false" disable="true">
         <VBox fx:id="publicRoomsBox" layoutX="800" layoutY="200" styleClass="frontBackground"
               spacing="10" alignment="CENTER" prefWidth="400" prefHeight="475"/>

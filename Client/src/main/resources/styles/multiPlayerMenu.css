@@ -71,3 +71,7 @@
     -fx-font-size: 25;
     -fx-background-color: #ff4d00;
 }
+
+.refreshButton {
+    -fx-image: url("../photos/gameIcons/Acquire.png");
+}
