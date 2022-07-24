@@ -5,7 +5,7 @@ import Models.Player.Player;
 import Models.User;
 
 public class TradeRequest {
-    transient private final Player sender;
+    transient private Player sender;
     public Civilization senderCivilization;
     private final String offerToSell;
     private final String wantToBuy;
@@ -18,6 +18,10 @@ public class TradeRequest {
 
     public Player getSender() {
         return sender;
+    }
+    public void setSender(Player sender)
+    {
+        this.sender = sender;
     }
 
     public String getOfferToSell() {

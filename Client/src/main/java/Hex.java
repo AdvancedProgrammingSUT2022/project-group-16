@@ -1,7 +1,9 @@
+import Controllers.CommandHandler;
 import Models.City.Building;
 import Models.City.BuildingType;
 import Models.City.City;
 import Models.Player.*;
+import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
@@ -26,6 +28,7 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
@@ -41,7 +44,8 @@ public class Hex extends Application {
     private TileState tileState;
     private ArrayList<ImageView> hexElements = new ArrayList<>();
     private ImageView tileImageView;
-    private GameController gameController;
+    private CommandHandler commandHandler = CommandHandler.getInstance();
+    private Player player;
     private boolean isBannerOpen = false;
     private boolean isCityPanelOpen = false;
     private boolean isCUnitPanelOpen = false;
@@ -54,8 +58,8 @@ public class Hex extends Application {
     private final AudioClip addEnemy = new AudioClip(Hex.class.getResource("audio/gameAudios/addEnemy.mp3").toExternalForm());
     private final AudioClip constructionAudio = new AudioClip(Hex.class.getResource("audio/gameAudios/construction.mp3").toExternalForm());
 
-    public Hex(Position position, GameController gameController, Game game){
-        this.gameController = gameController;
+    public Hex(Position position, Player player, Game game){
+        this.player = player;
         this.position = position;
         this.pane = new Pane();
         pane.setOnMousePressed(mouseEvent -> onMousePressed());
@@ -116,14 +120,14 @@ public class Hex extends Application {
         if(tileState.equals(TileState.FOG_OF_WAR))
             return;
 
-        Player playerTurn = GameController.getInstance().getPlayerTurn();
+        Player playerTurn = player;
 
 
-        for (Player player : GameController.getInstance().getPlayers())
+        for (Player player : commandHandler.getPlayers())
             for (Integer cityBorderIndex : player.getCityBorderIndexes(tile))
             {
                 String url;
-                if(player == playerTurn)
+                if(player.getCivilization().equals(playerTurn.getCivilization()))
                     url = "/photos/Tiles/cityBorder_us_" + cityBorderIndex + ".png";
                 else
                     url = "/photos/Tiles/cityBorder_them_" + cityBorderIndex + ".png";
@@ -169,44 +173,40 @@ public class Hex extends Application {
         if(tile.getCombatUnitInTile() == null || tileState.equals(TileState.FOG_OF_WAR))
             return;
 
-        ArrayList<CombatUnit> combatUnitsInTile = GameController.getInstance().getTileCUnits(tile);
-        int i = 0;
-        for(CombatUnit combatUnit : combatUnitsInTile) {
-            String url = "/photos/units/";
-            if (combatUnit instanceof LongRange) {
-                switch (((LongRange) combatUnit).getType()) {
-                    case ARCHER -> url += "archer.png";
-                    case CHARIOT_A -> url += "chariotarcher.png";
-                    case CATAPULT -> url += "catapult.png";
-                    case CROSSMAN -> url += "crossbowman.png";
-                    case TREBUCHET -> url += "trebuchet.png";
-                    case CANON -> url += "cannon.png";
-                    case ARTILLERY -> url += "artillery.png";
-                }
+        String url = "/photos/units/";
+        if(tile.getCombatUnitInTile() instanceof LongRange)
+            switch (((LongRange) tile.getCombatUnitInTile()).getType())
+            {
+                case ARCHER -> url += "archer";
+                case CHARIOT_A -> url += "chariotarcher";
+                case CATAPULT -> url += "catapult";
+                case CROSSMAN -> url += "crossbowman";
+                case TREBUCHET -> url += "trebuchet";
+                case CANON -> url += "cannon";
+                case ARTILLERY -> url += "artillery";
             }
-            else if (combatUnit instanceof MidRange) {
-                switch (((MidRange) combatUnit).getType()) {
-                    case SCOUT -> url += "scout.png";
-                    case SPEARMAN -> url += "spearman.png";
-                    case WARRIOR -> url += "warrior.png";
-                    case HORSEMAN -> url += "horseman.png";
-                    case SWORDSMAN -> url += "swordsman.png";
-                    case KNIGHT -> url += "knight.png";
-                    case LSWORDSMAN -> url += "longswordsman.png";
-                    case PIKE_MAN -> url += "pikeman.png";
-                    case CAVALRY -> url += "cavalry.png";
-                    case LANCER -> url += "lancer.png";
-                    case MUSKET_MAN -> url += "musketman.png";
-                    case RIFLEMAN -> url += "rifleman.png";
-                    case ANTI_TANK -> url += "antitankgun";
-                    case INFANTRY -> url += "infantry";
-                    case PANZER -> url += "panzer.png";
-                    case TANK -> url += "tank.png";
-                }
+        else if(tile.getCombatUnitInTile() instanceof  MidRange)
+            switch (((MidRange) tile.getCombatUnitInTile()).getType())
+            {
+                case SCOUT -> url += "scout";
+                case SPEARMAN -> url += "spearman";
+                case WARRIOR -> url += "warrior";
+                case HORSEMAN -> url += "horseman";
+                case SWORDSMAN -> url += "swordsman";
+                case KNIGHT -> url += "knight";
+                case LSWORDSMAN -> url += "longswordsman";
+                case PIKE_MAN -> url += "pikeman";
+                case CAVALRY -> url += "cavalry";
+                case LANCER -> url += "lancer";
+                case MUSKET_MAN -> url += "musketman";
+                case RIFLEMAN -> url += "rifleman";
+                case ANTI_TANK -> url += "antitankgun";
+                case INFANTRY -> url += "infantry";
+                case PANZER -> url += "panzer";
+                case TANK -> url += "tank";
             }
-            setImage(url, 40, 0, 60, 60);
-            i += 5;
-        }
+        url += ".png";
+        setImage(url, 40, 0, 60, 60);
     }
 
     private void setNCUnits()
@@ -214,28 +214,23 @@ public class Hex extends Application {
         if(tile.getNonCombatUnitInTile() == null || tileState.equals(TileState.FOG_OF_WAR))
             return;
 
-        ArrayList<NonCombatUnit> nonCombatUnits = GameController.getInstance().getTileNCUnits(tile);
-        int i = 0;
-        for(NonCombatUnit nonCombatUnit : nonCombatUnits) {
-            String url = "/photos/units/";
-            if (nonCombatUnit instanceof Worker)
-                url += "worker.png";
-            else if (nonCombatUnit instanceof Settler)
-                url += "settler.png";
+        String url = "/photos/units/";
+        if (tile.getNonCombatUnitInTile() instanceof Worker)
+            url += "worker.png";
+        else if (tile.getNonCombatUnitInTile() instanceof Settler)
+            url += "settler.png";
 
-            setImage(url, 60 , 60, 30, 30);
-            i += 5;
-        }
+        setImage(url, 60 , 60, 30, 30);
     }
     private void setEnemyUnitsBorder()
     {
         if(tileState.equals(TileState.FOG_OF_WAR))
             return;
 
-        ArrayList<Tile> adjacentTiles = gameController.getPlayerTurn().getAdjacentTiles(tile, 1);
+        ArrayList<Tile> adjacentTiles = player.getAdjacentTiles(tile, 1);
         for (Tile adjacentTile : adjacentTiles)
         {
-            if(adjacentTile.getCombatUnitInTile() == null || gameController.getPlayerTurn().getUnits().contains(adjacentTile.getCombatUnitInTile()))
+            if(adjacentTile.getCombatUnitInTile() == null || player.getUnits().contains(adjacentTile.getCombatUnitInTile()))
                 continue;
             if(adjacentTile.getPosition().Q == tile.getPosition().Q && adjacentTile.getPosition().R == tile.getPosition().R - 1)
             {
@@ -293,7 +288,7 @@ public class Hex extends Application {
         if(tileState.equals(TileState.FOG_OF_WAR))
             return;
 
-        for (City city : gameController.getPlayerTurn().getCities())
+        for (City city : player.getCities())
             for (Building building : city.getBuildings())
                 if(building.getTile().getPosition().equals(tile.getPosition()))
                 {
@@ -407,7 +402,7 @@ public class Hex extends Application {
         }
         tileImageView = setImage(url, 0, 0, 90,90);
 
-        if(GameController.getInstance().getPlayerTurn().getMap().get(this.tile).equals(TileState.REVEALED)){
+        if(player.getMap().get(this.tile).equals(TileState.REVEALED)){
             ColorAdjust colorAdjust = new ColorAdjust();
             colorAdjust.setBrightness(-.6);
             tileImageView.setEffect(colorAdjust);
@@ -441,7 +436,7 @@ public class Hex extends Application {
             isBannerOpen = true;
             cityBanner(hasCity());
         }
-        else if(!isBannerOpen && !gameController.getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR)){
+        else if(!isBannerOpen && !player.getMap().get(tile).equals(TileState.FOG_OF_WAR)){
             isBannerOpen = true;
             emptyTilePanel();
         }
@@ -489,19 +484,19 @@ public class Hex extends Application {
         }
     }
     private City hasCity() {
-        for (City city : gameController.getPlayerTurn().getCities())
+        for (City city : player.getCities())
             if(city.getCapitalTile().getPosition() == tile.getPosition())
                 return city;
         return null;
     }
     private Unit hasCUnit() {
-        for (Unit unit : gameController.getPlayerTurn().getUnits())
+        for (Unit unit : player.getUnits())
             if(unit.getTile().getPosition() == tile.getPosition() && unit.getPower() != 0)
                 return unit;
         return null;
     }
     private Unit hasNCUnit() {
-        for (Unit unit : gameController.getPlayerTurn().getUnits())
+        for (Unit unit : player.getUnits())
             if(unit.getTile().getPosition().X == tile.getPosition().X &&
                     unit.getTile().getPosition().Y == tile.getPosition().Y &&
                     unit.getPower() == 0)
@@ -535,7 +530,7 @@ public class Hex extends Application {
             parent.getChildren().remove(parent.getChildren().size() - 1);
 
             isNCUnitPanelOpen = false;
-            gameController.getPlayerTurn().setSelectedUnit(null);
+            player.setSelectedUnit(null);
         }
         else {
             if(hasCity() != null) {
@@ -588,6 +583,7 @@ public class Hex extends Application {
         isCityPanelOpen = false;
     }
     private void combatUnitPanel(Unit unit) {
+        // here
         Pane list = new Pane(), actions = new Pane();
         panelsPaneStyle2(list);
         actions.setPrefHeight(150);
@@ -616,10 +612,11 @@ public class Hex extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
 
         //actions
-        gameController.getPlayerTurn().setSelectedUnit(unit);
+        player.setSelectedUnit(unit);
         addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/Shield.png", "fortify");
         actions.getChildren().get(0).setOnMousePressed(mouseEvent -> {
-            String result = gameController.fortify();
+            // here
+            String result = commandHandler.fortify();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -631,7 +628,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
         actions.getChildren().get(1).setOnMousePressed(mouseEvent -> {
-            String result = gameController.wake();
+            String result = commandHandler.wake();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -643,7 +640,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 110, 10, "photos/gameIcons/unitActions/Fire.png", "pillage");
         actions.getChildren().get(2).setOnMousePressed(mouseEvent -> {
-            String result = gameController.pillage();
+            String result = commandHandler.pillage();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -655,7 +652,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 160, 10, "photos/gameIcons/unitActions/remove.png", "remove");
         actions.getChildren().get(3).setOnMousePressed(mouseEvent -> {
-            String result = gameController.delete();
+            String result = commandHandler.delete();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -680,7 +677,7 @@ public class Hex extends Application {
                         matcher = null;
                     else
                         matcher = unitCommands.compareRegex(textField.getText(), unitCommands.moveTo);
-                    String result = gameController.moveUnit(matcher);
+                    String result = commandHandler.moveUnit(matcher);
                     if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                         list.getChildren().remove(list.getChildren().size() - 1);
                     addLabelToPane(list, 300, 200, null, result);
@@ -713,7 +710,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 10, 110, "photos/gameIcons/unitActions/Sleep.png", "sleep");
         actions.getChildren().get(5).setOnMousePressed(mouseEvent -> {
-            String result = gameController.sleep();
+            String result = commandHandler.sleep();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -725,7 +722,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/garrison.png", "garrison");
         actions.getChildren().get(6).setOnMousePressed(mouseEvent -> {
-            String result = gameController.garrison();
+            String result = commandHandler.garrison();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -750,7 +747,7 @@ public class Hex extends Application {
                                 matcher = null;
                             else
                                 matcher = unitCommands.compareRegex(textField.getText(), unitCommands.attack);
-                            String result = gameController.attackCity(matcher);
+                            String result = commandHandler.attackCity(matcher);
                             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                                 list.getChildren().remove(list.getChildren().size() - 1);
                             if (result != null)
@@ -786,7 +783,7 @@ public class Hex extends Application {
                                 matcher = null;
                             else
                                 matcher = unitCommands.compareRegex(textField.getText(), unitCommands.setup);
-                            String result = gameController.setup(matcher);
+                            String result = commandHandler.setup(matcher);
                             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                                 list.getChildren().remove(list.getChildren().size() - 1);
                             addLabelToPane(list, 300, 200, null, result);
@@ -806,7 +803,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 110, 110, "photos/gameIcons/unitActions/alert.png", "alert");
         actions.getChildren().get(9).setOnMousePressed(mouseEvent -> {
-            String result = gameController.alert();
+            String result = commandHandler.alert();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -818,7 +815,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 160, 60, "photos/gameIcons/unitActions/fortifyTilHeal.png", "fortify til heal");
         actions.getChildren().get(10).setOnMousePressed(mouseEvent -> {
-            String result = gameController.fortifyTilHeal();
+            String result = commandHandler.fortifyTilHeal();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -830,7 +827,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 160, 110, "photos/gameIcons/unitActions/Close.png", "close");
         actions.getChildren().get(11).setOnMousePressed(mouseEvent -> {
-            String result = gameController.cancel();
+            String result = commandHandler.cancel();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -849,6 +846,7 @@ public class Hex extends Application {
         parent.getChildren().add(list);
     }
     private void nonCombatUnitPanel(Unit unit) {
+        // here
         Pane list = new Pane(), actions = new Pane();
         panelsPaneStyle2(list);
         actions.setPrefHeight(150);
@@ -878,10 +876,10 @@ public class Hex extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
 
         //actions
-        gameController.getPlayerTurn().setSelectedUnit(unit);
+        player.setSelectedUnit(unit);
         addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
         actions.getChildren().get(0).setOnMousePressed(mouseEvent -> {
-            String result = gameController.wake();
+            String result = commandHandler.wake();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -894,7 +892,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 60, 10, "photos/gameIcons/unitActions/remove.png", "remove");
         actions.getChildren().get(1).setOnMousePressed(mouseEvent -> {
-            String result = gameController.delete();
+            String result = commandHandler.delete();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -919,7 +917,7 @@ public class Hex extends Application {
                         matcher = null;
                     else
                         matcher = unitCommands.compareRegex(textField.getText(), unitCommands.moveTo);
-                    String result = gameController.moveUnit(matcher);
+                    String result = commandHandler.moveUnit(matcher);
                     if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                         list.getChildren().remove(list.getChildren().size() - 1);
                     addLabelToPane(list, 300, 200, null, result);
@@ -940,7 +938,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 10, 60, "photos/gameIcons/unitActions/Sleep.png", "sleep");
         actions.getChildren().get(3).setOnMousePressed(mouseEvent -> {
-            String result = gameController.sleep();
+            String result = commandHandler.sleep();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -952,7 +950,7 @@ public class Hex extends Application {
         });
         addPhotoToPane(actions, 60, 60, "photos/gameIcons/unitActions/Close.png", "close");
         actions.getChildren().get(4).setOnMousePressed(mouseEvent -> {
-            String result = gameController.cancel();
+            String result = commandHandler.cancel();
             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                 list.getChildren().remove(list.getChildren().size() - 1);
             addLabelToPane(list, 300, 200, null, result);
@@ -966,7 +964,7 @@ public class Hex extends Application {
             addPhotoToPane(actions, 110, 60, "photos/gameIcons/unitActions/city.png", "found city");
             actions.getChildren().get(5).setOnMousePressed(mouseEvent -> {
                 constructionAudio.play();
-                String result = gameController.found();
+                String result = commandHandler.found();
                 if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                     list.getChildren().remove(list.getChildren().size() - 1);
                 addLabelToPane(list, 300, 200, null, result);
@@ -1005,38 +1003,39 @@ public class Hex extends Application {
         }
     }
     private void buildPanel() {
+        // here
         Pane list = new Pane(), actions = new Pane();
         panelsPaneStyle(list, 320, 50, 170, 300);
 
         constructionAudio.play();
         addPhotoToPane(list, 20, 50, "photos/gameIcons/workers/Road.png", "road");
-        list.getChildren().get(0).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.road(), unitCommands.roadBuilt.regex));
+        list.getChildren().get(0).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.road(), unitCommands.roadBuilt.regex));
         addPhotoToPane(list, 20, 100, "photos/gameIcons/workers/Railroad.png", "railroad");
-        list.getChildren().get(1).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.railRoad(), unitCommands.railRoadBuilt.regex));
+        list.getChildren().get(1).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.railRoad(), unitCommands.railRoadBuilt.regex));
         addPhotoToPane(list, 20, 150, "photos/gameIcons/workers/Farm.png", "farm");
-        list.getChildren().get(2).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.farm(), unitCommands.farmBuild.regex));
+        list.getChildren().get(2).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.farm(), unitCommands.farmBuild.regex));
         addPhotoToPane(list, 20, 200, "photos/gameIcons/workers/Mine.png", "mine");
-        list.getChildren().get(3).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.mine(), unitCommands.mineBuild.regex));
+        list.getChildren().get(3).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.mine(), unitCommands.mineBuild.regex));
         addPhotoToPane(list, 20, 250, "photos/gameIcons/workers/TradingPost.png", "trading post");
-        list.getChildren().get(4).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.tradingPost(), unitCommands.tradingPostBuild.regex));
+        list.getChildren().get(4).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.tradingPost(), unitCommands.tradingPostBuild.regex));
         addPhotoToPane(list, 70, 50, "photos/gameIcons/workers/LumberMill.png", "lumber mill");
-        list.getChildren().get(5).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.lumberMill(), unitCommands.lumberMillBuild.regex));
+        list.getChildren().get(5).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.lumberMill(), unitCommands.lumberMillBuild.regex));
         addPhotoToPane(list, 70, 100, "photos/gameIcons/workers/factory.png", "factory");
-        list.getChildren().get(6).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.factory(), unitCommands.factoryBuild.regex));
+        list.getChildren().get(6).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.factory(), unitCommands.factoryBuild.regex));
         addPhotoToPane(list, 70, 150, "photos/gameIcons/workers/Camp.png", "camp");
-        list.getChildren().get(7).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.camp(), unitCommands.campBuild.regex));
+        list.getChildren().get(7).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.camp(), unitCommands.campBuild.regex));
         addPhotoToPane(list, 70, 200, "photos/gameIcons/workers/Pasture.png", "Pasture");
-        list.getChildren().get(8).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.pasture(), unitCommands.pastureBuild.regex));
+        list.getChildren().get(8).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.pasture(), unitCommands.pastureBuild.regex));
         addPhotoToPane(list, 70, 250, "photos/gameIcons/workers/Plantation.png", "Plantation");
-        list.getChildren().get(9).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.plantation(), unitCommands.plantationBuild.regex));
+        list.getChildren().get(9).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.plantation(), unitCommands.plantationBuild.regex));
         addPhotoToPane(list, 120, 50, "photos/gameIcons/workers/Quarry.png", "quarry");
-        list.getChildren().get(10).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.quarry(), unitCommands.quarryBuild.regex));
+        list.getChildren().get(10).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.quarry(), unitCommands.quarryBuild.regex));
         addPhotoToPane(list, 120, 100, "photos/gameIcons/workers/routeRemove.png", "route remove");
-        list.getChildren().get(11).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.removeRoute(), unitCommands.roadRemoved.regex));
+        list.getChildren().get(11).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.removeRoute(), unitCommands.roadRemoved.regex));
         addPhotoToPane(list, 120, 150, "photos/gameIcons/workers/forestRemove.png", "Feature remove");
-        list.getChildren().get(12).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.removeFeature(), unitCommands.jungleRemoved.regex));
+        list.getChildren().get(12).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.removeFeature(), unitCommands.jungleRemoved.regex));
         addPhotoToPane(list, 120, 200, "photos/gameIcons/workers/repair.png", "repair");
-        list.getChildren().get(13).setOnMousePressed(mouseEvent -> onBuildClicked(list, gameController.repair(), unitCommands.repairedSuccessful.regex));
+        list.getChildren().get(13).setOnMousePressed(mouseEvent -> onBuildClicked(list, commandHandler.repair(), unitCommands.repairedSuccessful.regex));
 
 
         list.getChildren().add(exitButtonStyle(list));
@@ -1051,7 +1050,7 @@ public class Hex extends Application {
     }
     private void cityPanel(City city)
     {
-        gameController.getPlayerTurn().setSelectedCity(city);
+        player.setSelectedCity(city);
         Pane list = new Pane();
         panelsPaneStyle2(list);
         VBox box = new VBox(), photos = new VBox();
@@ -1059,7 +1058,6 @@ public class Hex extends Application {
         photos.setAlignment(Pos.CENTER);
         photos.setSpacing(14);
         box.setSpacing(6);
-        Player player = gameController.getPlayerTurn();
         int flg = -1;
         for(int i = 0; i < Technology.values().length; i++)
             if(Technology.values()[i] == player.getResearchingTechnology()) flg = i;
@@ -1080,8 +1078,8 @@ public class Hex extends Application {
         addLabelToBox(gameEnum.power.regex + city.getCombatStrength(), box);
         addPhotoToBox(photos, "photos/gameIcons/Resistance.png");
         if(flg > -1) {
-            addLabelToBox(infoCommands.currentResearching.regex + gameController.
-                    getPlayerTurn().getResearchingTechnology().name(), box);
+            addLabelToBox(infoCommands.currentResearching.regex + player
+                    .getResearchingTechnology().name(), box);
             addLabelToBox(infoCommands.remainingTurns.regex + ((player.getResearchingTechnology().
                     cost - player.getResearchingTechCounter()[flg]) / 10), box);
         }
@@ -1092,7 +1090,7 @@ public class Hex extends Application {
         addLabelToBox(gameEnum.employedCitizens.regex + (city.employedCitizens()), box);
         addLabelToBox(gameEnum.unEmployedCitizens.regex + (city.getPopulation() - city.employedCitizens()), box);
         if(city.getCurrentConstruction() != null) {
-            if (gameController.getPlayerTurn().getSelectedCity().getCurrentConstruction() instanceof Building)
+            if (player.getSelectedCity().getCurrentConstruction() instanceof Building)
                 addLabelToBox(gameEnum.currentConstruction.regex + ((Building) city.getCurrentConstruction()).getBuildingType().name(), box);
             else
                 addLabelToBox(gameEnum.currentConstruction.regex + city.getCurrentConstruction().toString(), box);
@@ -1171,8 +1169,9 @@ public class Hex extends Application {
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
-                gameController.getPlayerTurn().setSelectedCity(city);
-                String result = gameController.buyUnit(textField.getText());
+                player.setSelectedCity(city);
+                // here
+                String result = commandHandler.buyUnit(textField.getText());
                 if(box.getChildren().size() == 5)
                     addLabelToBox(result, box);
                 else {
@@ -1193,6 +1192,8 @@ public class Hex extends Application {
         parent.getChildren().add(list);
     }
     private void declareWarPanel(Matcher matcher) {
+        // here
+
         Pane yesOrNo = new Pane();
         panelsPaneStyle(yesOrNo, 490, 323, 300, 75);
         parent.getChildren().add(yesOrNo);
@@ -1211,13 +1212,14 @@ public class Hex extends Application {
             addEnemy.play();
             parent.getChildren().remove(yesOrNo);
             parent.getChildren().remove(parent.getChildren().size() - 1);
-            Tile destination = gameController.getTileByXY(Integer.parseInt(matcher.group("x")),
+            // here
+            Tile destination = player.getTileByXY(Integer.parseInt(matcher.group("x")),
                     Integer.parseInt(matcher.group("y")));
             Player enemyPlayer = destination.GetTileRuler();
             Civilization enemy = enemyPlayer.getCivilization();
-            gameController.getPlayerTurn().getRelationStates().replace(enemy, RelationState.ENEMY);
-            enemyPlayer.getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.ENEMY);
-            gameController.getPlayerTurn().getSelectedUnit().move(destination);
+            player.getRelationStates().replace(enemy, RelationState.ENEMY);
+            enemyPlayer.getRelationStates().replace(player.getCivilization(), RelationState.ENEMY);
+            player.getSelectedUnit().move(destination);
             game.updateScreen();
         });
         Button no = new Button();
@@ -1234,7 +1236,6 @@ public class Hex extends Application {
             parent.getChildren().remove(yesOrNo);
             parent.getChildren().remove(parent.getChildren().size() - 1);
         });
-
     }
     private void purchaseBuildingPanel(City city) {
         Pane list = new Pane();
@@ -1253,8 +1254,9 @@ public class Hex extends Application {
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
-                gameController.getPlayerTurn().setSelectedCity(city);
-                String result = gameController.buyBuilding(textField.getText());
+                player.setSelectedCity(city);
+                // here
+                String result = commandHandler.buyBuilding(textField.getText());
                 if(box.getChildren().size() == 5)
                     addLabelToBox(result, box);
                 else {
@@ -1291,8 +1293,9 @@ public class Hex extends Application {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
                 Matcher matcher = selectCommands.compareRegex(textField.getText(), selectCommands.buyTile);
-                gameController.getPlayerTurn().setSelectedCity(city);
-                String result = gameController.buyTile(matcher);
+                player.setSelectedCity(city);
+                // here
+                String result = commandHandler.buyTile(matcher);
                 if(box.getChildren().size() == 4)
                     addLabelToBox(result, box);
                 else {
@@ -1319,14 +1322,14 @@ public class Hex extends Application {
     }
     private boolean hasTechnology(MidRangeType midRangeType) {
         return midRangeType.requiredTech == null ||
-                gameController.getPlayerTurn().getTechnologies().contains(midRangeType.requiredTech);
+                player.getTechnologies().contains(midRangeType.requiredTech);
     }
     private boolean hasTechnology(LongRangeType longRangeType) {
         return longRangeType.requiredTech == null ||
-                gameController.getPlayerTurn().getTechnologies().contains(longRangeType.requiredTech);
+                player.getTechnologies().contains(longRangeType.requiredTech);
     }
     private boolean hasResource(ResourceType resourceType) {
-        for (Resource resource : gameController.getPlayerTurn().getResources())
+        for (Resource resource : player.getResources())
             if (resource.getRESOURCE_TYPE().equals(resourceType))
                 return true;
         return false;
@@ -1347,9 +1350,10 @@ public class Hex extends Application {
         return false;
     }
     private void buildBuildingPanel(City city) {
+        // here
         Pane list = new Pane();
         panelsPaneStyle(list, 390, 165, 500, 500);
-        addLabelToPane(list, 200, -5, null, "your gold: " + gameController.getPlayerTurn().getGold());
+        addLabelToPane(list, 200, -5, null, "your gold: " + player.getGold());
 
         ArrayList<BuildingType> buildingTypes = new ArrayList<>();
         for (BuildingType buildingType : BuildingType.values())
@@ -1379,7 +1383,8 @@ public class Hex extends Application {
                         int finalI = i;
                         int finalFlag = flag;
                         names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
-                            String result = gameController.buildBuilding(buildingTypes.get(finalI + finalFlag));
+                            // here
+                            String result = commandHandler.buildBuilding(buildingTypes.get(finalI + finalFlag));
                             if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                                 list.getChildren().remove(list.getChildren().size() - 1);
                             addLabelToPane(list, 300, 200, null, result);
@@ -1407,9 +1412,10 @@ public class Hex extends Application {
     }
 
     private void buildUnitPanel(City city) {
+        // here
         Pane list = new Pane();
         panelsPaneStyle(list, 390, 165, 500, 500);
-        addLabelToPane(list, 200, -5, null, "your gold: " + gameController.getPlayerTurn().getGold());
+        addLabelToPane(list, 200, -5, null, "your gold: " + player.getGold());
 
         ArrayList<MidRangeType> midRangeTypes = new ArrayList<>();
         ArrayList<LongRangeType> longRangeTypes = new ArrayList<>();
@@ -1470,14 +1476,15 @@ public class Hex extends Application {
                     int finalFlag = flag;
                     names.getChildren().get(names.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
                         String result;
+                        // here
                         if (finalI + finalFlag < midRangeTypes.size())
-                            result = gameController.buildUnit(midRangeTypes.get(finalI + finalFlag).name());
+                            result = commandHandler.buildUnit(midRangeTypes.get(finalI + finalFlag).name());
                         else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size())
-                            result = gameController.buildUnit(longRangeTypes.get(finalI + finalFlag - midRangeTypes.size()).name());
+                            result = commandHandler.buildUnit(longRangeTypes.get(finalI + finalFlag - midRangeTypes.size()).name());
                         else if (finalI + finalFlag < midRangeTypes.size() + longRangeTypes.size() + 1)
-                            result = gameController.buildUnit("SETTLER");
+                            result = commandHandler.buildUnit("SETTLER");
                         else
-                            result = gameController.buildUnit("WORKER");
+                            result = commandHandler.buildUnit("WORKER");
 
                         if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                             list.getChildren().remove(list.getChildren().size() - 1);
@@ -1520,8 +1527,9 @@ public class Hex extends Application {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
                 Matcher matcher = gameEnum.compareRegex(textField.getText(), gameEnum.lockCitizenToTile);
-                gameController.getPlayerTurn().setSelectedCity(city);
-                String result = gameController.unLockCitizenToTile(matcher);
+                player.setSelectedCity(city);
+                // here
+                String result = commandHandler.unLockCitizenToTile(matcher);
                 if(box.getChildren().size() == 3)
                     addLabelToBox(result, box);
                 else {
@@ -1544,6 +1552,7 @@ public class Hex extends Application {
         parent.getChildren().add(list);
     }
     private void unEmployedCitizensPanel(City city) {
+        // here
         Pane list = new Pane();
         panelsPaneStyle(list, 500, 300, 600, 300);
         VBox box = new VBox();
@@ -1560,8 +1569,9 @@ public class Hex extends Application {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
                 Matcher matcher = gameEnum.compareRegex(textField.getText(), gameEnum.lockCitizenToTile);
-                gameController.getPlayerTurn().setSelectedCity(city);
-                String result = gameController.lockCitizenToTile(matcher);
+                player.setSelectedCity(city);
+                // here
+                String result = commandHandler.lockCitizenToTile(matcher);
                 if(box.getChildren().size() == 3)
                     addLabelToBox(result, box);
                 else {
@@ -1599,7 +1609,7 @@ public class Hex extends Application {
             isCityPanelOpen = false;
             isCUnitPanelOpen = false;
             isNCUnitPanelOpen = false;
-            gameController.getPlayerTurn().setSelectedUnit(null);
+            player.setSelectedUnit(null);
             for (int i = 0; i < parent.getChildren().size() - 1; i++)
                 parent.getChildren().get(i).setDisable(false);
             parent.getChildren().remove(list);
