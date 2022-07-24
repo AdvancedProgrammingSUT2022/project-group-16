@@ -7,16 +7,15 @@ import Models.Menu.Menu;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.User;
+import com.google.gson.Gson;
 import enums.cheatCode;
 import Models.chat.Message;
 import Models.chat.publicMessage;
 import enums.registerEnum;
 import server.GameRoom;
+import server.chatServer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -79,6 +78,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("logout")) return logout();
         else if(request.getAction().equals("get all users")) return getAllUsers();
 
+        else if(request.getAction().equals("user online")) return isOnline(request);
         else if(request.getAction().equals("make new chat")) return makeNewChat(request);
         else if(request.getAction().equals("get user private chats")) return getUserPrivateChats((String) request.getParams().get("username"));
         else if(request.getAction().equals("seen message")) return seenMessage(request);
@@ -98,7 +98,9 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("get joined clients")) return getJoinedClients();
         else if(request.getAction().equals("accept join request")) return acceptJoinRequest(request);
         else if(request.getAction().equals("reject join request")) return rejectJoinRequest(request);
+        else if(request.getAction().equals("public rooms")) return publicRooms(request);
         else if(request.getAction().equals("join room")) return joinRoom(request);
+        else if(request.getAction().equals("find room")) return findRoom(request);
         else if(request.getAction().equals("start game")) return startGame();
 
         else if(request.getAction().equals("move unit")) return moveUnit(request);
@@ -219,6 +221,14 @@ public class RequestHandler  extends Thread{
         return response;
     }
 
+    private Response isOnline(Request request) {
+        Response response = new Response();
+
+        for (User user : Server.chatServer.getOnlineUsers().keySet())
+            response.getParams().put(user.getUsername(), user);
+        return response;
+    }
+
     private Response makeNewChat(Request request) {
         Response response = new Response();
         response.setStatus(400);
@@ -262,7 +272,7 @@ public class RequestHandler  extends Thread{
         response.addMassage(message);
         if(response.getMassage().equals(registerEnum.successfulCreate.regex)){
             this.user = Server.registerController.getUserByUsername(username);
-            Menu.loggedInUser =user;
+            Menu.loggedInUser = user;
             response.addUser(user);
             addOnlineUser(username);
         }else{
@@ -279,7 +289,7 @@ public class RequestHandler  extends Thread{
         else if(Server.registerController.isPasswordCorrect(username, password)) response.setStatus(402);
         else{
             this.user = Server.registerController.getUserByUsername(username);
-            Menu.loggedInUser =user;
+            Menu.loggedInUser = user;
             response.addUser(user);
             addOnlineUser(username);
             Server.registerController.writeDataOnJson();
@@ -304,13 +314,17 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
 
         String roomID = (String) request.getParams().get("roomID");
+        boolean isPrivate = (boolean) request.getParams().get("private");
+        int capacity = Integer.parseInt((String) request.getParams().get("capacity"));
+
         if(MainMenuController.getRoomByRoomID(roomID) != null)
         {
             response.addMassage("this roomID is already taken");
             return response;
         }
 
-        this.gameRoom = new GameRoom(this, roomID);
+        this.gameRoom = new GameRoom(this, roomID, isPrivate, capacity);
+
         MainMenuController.addToGameRooms(this.gameRoom);
         response.addMassage("room created successfully");
         return response;
@@ -333,11 +347,16 @@ public class RequestHandler  extends Thread{
 
         System.out.println(joinedClients);
 
-        ArrayList<String> joineClientsUsernames = new ArrayList<>();
-        for (RequestHandler joinedClient : joinedClients)
-            joineClientsUsernames.add(joinedClient.getUser().getUsername());
+        ArrayList<String> joinedClientsUsernames = new ArrayList<>();
+        ArrayList<String> joinedClientsNicknames = new ArrayList<>();
 
-        response.addParam("joinedClients", joineClientsUsernames);
+        for (RequestHandler joinedClient : joinedClients) {
+            joinedClientsUsernames.add(joinedClient.getUser().getUsername());
+            joinedClientsNicknames.add(joinedClient.getUser().getNickname());
+        }
+
+        response.addParam("joinedClientsUsernames", joinedClientsUsernames);
+        response.addParam("joinedClientsNicknames", joinedClientsNicknames);
         return response;
     }
     private Response acceptJoinRequest(Request request)
@@ -360,6 +379,34 @@ public class RequestHandler  extends Thread{
 
         return response;
     }
+    private Response publicRooms(Request request)
+    {
+        Response response = new Response();
+
+        ArrayList<String> id = new ArrayList<>();
+        ArrayList<String> capacity = new ArrayList<>();
+        ArrayList<String> currPlayers = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+
+        for (GameRoom gameRoom : MainMenuController.gameRooms) {
+            names = new ArrayList<>();
+            if (!gameRoom.isPrivate()) {
+                id.add(gameRoom.getRoomID());
+                capacity.add(String.valueOf((gameRoom.getCapacity())));
+                currPlayers.add(String.valueOf(gameRoom.getJoinedClients().size()));
+                for (RequestHandler requestHandler : gameRoom.getJoinedClients())
+                    names.add(requestHandler.user.getUsername());
+            }
+        }
+
+        response.addMassage("successful");
+        response.getParams().put("id", id);
+        response.getParams().put("capacity", capacity);
+        response.getParams().put("joinedClients", currPlayers);
+        response.getParams().put("names", names);
+
+        return response;
+    }
     private Response joinRoom(Request request)
     {
         String roomID = (String) request.getParams().get("roomID");
@@ -372,10 +419,32 @@ public class RequestHandler  extends Thread{
             response.addMassage("there is no room with this roomID");
             return response;
         }
+        if (gameRoom.getJoinedClients().size() == gameRoom.getCapacity() - 1)
+        {
+            response.addMassage("room is full");
+            return response;
+        }
 
         gameRoom.addToJoinRequests(this);
         gameRoom.getRoomAdmin().notifyNewJoinRequestToAdmin(this);
         response.addMassage("request was sent");
+        return response;
+    }
+    private Response findRoom(Request request)
+    {
+        Response response = new Response();
+        boolean isSent = false;
+
+        for (GameRoom gameRoom : MainMenuController.gameRooms)
+            if (gameRoom.getJoinedClients().size() < gameRoom.getCapacity() - 1 && !gameRoom.isPrivate()) {
+                gameRoom.addToJoinRequests(this);
+                gameRoom.getRoomAdmin().notifyNewJoinRequestToAdmin(this);
+                isSent = true;
+                response.addMassage("request was sent");
+            }
+        if (!isSent)
+            response.addMassage("there is no public room");
+
         return response;
     }
     private void notifyNewJoinRequestToAdmin(RequestHandler joinRequestSender)

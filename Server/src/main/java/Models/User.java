@@ -1,5 +1,6 @@
 package Models;
 
+import IO.RequestHandler;
 import Models.chat.Message;
 
 import java.io.Serializable;

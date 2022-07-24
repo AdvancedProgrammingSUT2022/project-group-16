@@ -4,9 +4,11 @@ import IO.Response;
 import Models.Player.Player;
 import javafx.application.Application;
 import javafx.application.Platform;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -14,8 +16,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
@@ -25,9 +29,24 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class MultiplayerMenu extends Application
 {
+	private boolean isMakingRoomPrivate = false;
+	private int capacity;
+
+	@FXML
+	public ImageView refreshImage;
+	@FXML
+	public VBox publicRoomsBox;
+	@FXML
+	public Group publicRooms;
+	@FXML
+	public TextField capacityTextField;
+	@FXML
+	public Button roomPrivateButton;
 	@FXML
 	private Pane pane;
 	@FXML
@@ -47,12 +66,15 @@ public class MultiplayerMenu extends Application
 	@FXML
 	private Label findRoomLabel;
 	@FXML
+	private Label counter;
+	@FXML
 	private TextField findRoomRoomIDTextField;
 
 
 	Socket socket;
 	DataInputStream dataInputStream;
 	DataOutputStream dataOutputStream;
+
 
 
 	@Override
@@ -104,9 +126,14 @@ public class MultiplayerMenu extends Application
 		Thread listenereThread = new Thread(runnable);
 		listenereThread.setDaemon(true);
 		listenereThread.start();
+		
 	}
 
-
+	@FXML
+	public void privateRoom(MouseEvent mouseEvent) {
+		changePrivateButtonStyle();
+		isMakingRoomPrivate = !isMakingRoomPrivate;
+	}
 	@FXML
 	private void createRoomClicked(MouseEvent mouseEvent)
 	{
@@ -122,6 +149,9 @@ public class MultiplayerMenu extends Application
 		pane.getChildren().get(0).setVisible(false);
 		pane.getChildren().get(2).setDisable(false);
 		pane.getChildren().get(2).setVisible(true);
+		publicRoomsNames();
+		pane.getChildren().get(4).setDisable(false);
+		pane.getChildren().get(4).setVisible(true);
 	}
 	@FXML
 	private void backToMainMenuClicked(MouseEvent mouseEvent) throws Exception
@@ -133,10 +163,16 @@ public class MultiplayerMenu extends Application
 	@FXML
 	private void createRoomToServer()
 	{
+		this.capacity = Integer.parseInt(capacityTextField.getText());
+
 		String roomID = roomIDTextField.getText();
+		String capacity = capacityTextField.getText();
+
 		Request request = new Request();
 		request.setAction("new room");
 		request.addParam("roomID", roomID);
+		request.addParam("private", isMakingRoomPrivate);
+		request.addParam("capacity", capacity);
 
 		try
 		{
@@ -144,22 +180,7 @@ public class MultiplayerMenu extends Application
 			dataOutputStream.flush();
 
 			Response response = Response.fromJson(dataInputStream.readUTF());
-			if(response.getMassage().equals("this roomID is already taken"))
-			{
-				Alert alert = new Alert(Alert.AlertType.ERROR, response.getMassage());
-				alert.showAndWait();
-			}
-			else
-			{
-				Alert alert = new Alert(Alert.AlertType.INFORMATION, response.getMassage());
-				alert.showAndWait();
-
-				pane.getChildren().get(1).setDisable(true);
-				pane.getChildren().get(1).setVisible(false);
-				pane.getChildren().get(3).setDisable(false);
-				pane.getChildren().get(3).setVisible(true);
-				updateInsideRoom();
-			}
+			createRoomResultPanel(response.getMassage(), !response.getMassage().equals("this roomID is already taken"));
 		}
 		catch (IOException e)
 		{
@@ -180,16 +201,23 @@ public class MultiplayerMenu extends Application
 			dataOutputStream.flush();
 
 			Response response = Response.fromJson(dataInputStream.readUTF());
-			if(response.getMassage().equals("there is no room with this roomID"))
-			{
-				Alert alert = new Alert(Alert.AlertType.ERROR, response.getMassage());
-				alert.showAndWait();
-			}
-			else if(response.getMassage().equals("request was sent"))
-			{
-				Alert alert = new Alert(Alert.AlertType.INFORMATION, response.getMassage());
-				alert.showAndWait();
-			}
+			createRoomResultPanel(response.getMassage(), false);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	public void findRoomToServer(MouseEvent mouseEvent) {
+		Request request = new Request();
+		request.setAction("find room");
+
+		try {
+			dataOutputStream.writeUTF(request.toJson());
+			dataOutputStream.flush();
+
+			Response response = Response.fromJson(dataInputStream.readUTF());
+			createRoomResultPanel(response.getMassage(), false);
 		}
 		catch (IOException e)
 		{
@@ -198,8 +226,9 @@ public class MultiplayerMenu extends Application
 	}
 
 	@FXML
-	private void updateInsideRoom()
+	public void updateInsideRoom()
 	{
+		counter();
 		Runnable runnable = new Runnable()
 		{
 			@Override
@@ -209,30 +238,24 @@ public class MultiplayerMenu extends Application
 				insideRoomGroup.getChildren().clear();
 				Request request = new Request();
 				request.setAction("get joined clients");
+
+				ArrayList<String> joinedClientsUsernames;
+				ArrayList<String> joinedClientsNicknames;
 				try
 				{
 					dataOutputStream.writeUTF(request.toJson());
 					dataOutputStream.flush();
 					Response response = Response.fromJson(dataInputStream.readUTF());
+
 					System.out.println(response.getParams().get("joinedClients"));
-					ArrayList<String> joinedClients = (ArrayList<String>) response.getParams().get("joinedClients");
 
-					Label titleLabel = new Label();
-					titleLabel.setLayoutX(150);
-					titleLabel.setLayoutY(150);
-					titleLabel.setText("players in this room");
-					insideRoomGroup.getChildren().add(titleLabel);
-					for (int i = 0; i < joinedClients.size(); i++)
-					{
-						String joinedClient = joinedClients.get(i);
+					joinedClientsUsernames = (ArrayList<String>) response.getParams().get("joinedClientsUsernames");
+					joinedClientsNicknames = (ArrayList<String>) response.getParams().get("joinedClientsNicknames");
 
-						Label label = new Label();
-						label.setText(joinedClient);
-						label.setLayoutX(150);
-						label.setLayoutY(200 + i * 50);
+					playersInRoomBox(joinedClientsUsernames, joinedClientsNicknames);
+					insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(150);
+					insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(150);
 
-						insideRoomGroup.getChildren().add(label);
-					}
 				}
 				catch (IOException e)
 				{
@@ -248,48 +271,51 @@ public class MultiplayerMenu extends Application
 					Response response = Response.fromJson(dataInputStream.readUTF());
 					ArrayList<String> joinRequests = (ArrayList<String>) response.getParams().get("joinRequests");
 
-					Label titleLabel = new Label();
-					titleLabel.setLayoutX(500);
-					titleLabel.setLayoutY(150);
-					titleLabel.setText("join requests:");
-					insideRoomGroup.getChildren().add(titleLabel);
-					for (int i = 0; i < joinRequests.size(); i++)
-					{
-						String joinedClient = joinRequests.get(i);
-						final int index = i;
-						Button acceptButton = new Button();
-						Button rejectButton = new Button();
-						acceptButton.setOnMouseClicked((click) -> {acceptJoinRequest(index);});
-						acceptButton.setLayoutX(500);
-						acceptButton.setLayoutY(200 + i * 50);
-						acceptButton.setText("accept");
-						rejectButton.setOnMouseClicked((click) -> {rejectJoinRequest(index);});
-						rejectButton.setLayoutX(570);
-						rejectButton.setLayoutY(200 + i * 50);
-						rejectButton.setText("reject");
-
-						Label label = new Label();
-						label.setText(joinedClient);
-						label.setLayoutX(630);
-						label.setLayoutY(200 + i * 50);
-
-						insideRoomGroup.getChildren().add(acceptButton);
-						insideRoomGroup.getChildren().add(rejectButton);
-						insideRoomGroup.getChildren().add(label);
-					}
+					requestsInRoomBox(joinRequests);
 				}
 				catch (IOException e)
 				{
 					throw new RuntimeException(e);
 				}
 
+				Label acceptedClients = new Label();
+				acceptedClients.setText((joinedClientsNicknames.size() + 1)+ " / " + capacity);
+				namesStyle(acceptedClients);
+				acceptedClients.setLayoutX(300);
+				acceptedClients.setLayoutY(110);
+				insideRoomGroup.getChildren().add(acceptedClients);
+
+				Label groupType = new Label();
+				if (isMakingRoomPrivate) groupType.setText("type: private");
+				else groupType.setText("type: public");
+				namesStyle(groupType);
+				groupType.setLayoutX(520);
+				groupType.setLayoutY(110);
+				insideRoomGroup.getChildren().add(groupType);
+
 				Button startGameButton = new Button();
 				startGameButton.setLayoutX(150);
 				startGameButton.setLayoutY(600);
 				startGameButton.setText("Start");
 				startGameButton.getStyleClass().add("icons");
-				startGameButton.setOnMouseClicked((click) -> {startGame();});
+				startGameButton.setOnMouseClicked((click) -> {
+					if (joinedClientsUsernames.size() == 0)
+					{
+						Label label = new Label();
+						label.setText("room is empty, can't start game!");
+						titleStyle(label);
+						insideRoomGroup.getChildren().add(label);
+						insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(800);
+						insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(600);
+					}
+					else
+						startGame();
+				});
 				insideRoomGroup.getChildren().add(startGameButton);
+
+				if (joinedClientsNicknames.size() == capacity - 1)
+					for (int i = 0; i < insideRoomGroup.getChildren().size() - 1; i++)
+						insideRoomGroup.getChildren().get(i).setDisable(true);
 			}
 		};
 
@@ -385,20 +411,263 @@ public class MultiplayerMenu extends Application
 		};
 		Platform.runLater(runnable);
 	}
+
+
+	//panels
+	private void createRoomResultPanel(String text, boolean isSuccessful) {
+		//define box
+		VBox box = new VBox();
+		Label label = new Label();
+		titleStyle(label);
+		label.setText(text);
+		box.getChildren().add(label);
+		boxStyle(box);
+		pane.getChildren().add(box);
+		setCoordinates(pane, 730, 330);
+
+		//disable other Nodes
+		for (int i = 0; i < pane.getChildren().size() - 1; i++)
+			pane.getChildren().get(i).setDisable(true);
+
+		//click on error box and make other Nodes available
+		box.setOnMouseClicked(mouseEvent -> {
+			pane.getChildren().remove(pane.getChildren().size() - 1);
+			for (int i = 0; i < pane.getChildren().size(); i++)
+				pane.getChildren().get(i).setDisable(false);
+			if (isSuccessful) {
+				pane.getChildren().get(1).setDisable(true);
+				pane.getChildren().get(1).setVisible(false);
+				pane.getChildren().get(3).setDisable(false);
+				pane.getChildren().get(3).setVisible(true);
+				updateInsideRoom();
+			}
+		});
+	}
+	private void playersInRoomBox(ArrayList<String> joinedClientsUsernames, ArrayList<String> joinedClientsNicknames) {
+		VBox box = new VBox();
+		boxStyle(box);
+
+		Label label = new Label();
+		titleStyle(label);
+		label.setText("players in this room:");
+		box.getChildren().add(label);
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutX(150);
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutY(150);
+
+		for (int i = 0; i < joinedClientsUsernames.size(); i++) {
+			Label name = new Label();
+			acceptedNamesStyle(name);
+			name.setText("U: " + joinedClientsUsernames.get(i) + " - N: " + joinedClientsNicknames.get(i));
+			box.getChildren().add(name);
+		}
+
+		insideRoomGroup.getChildren().add(box);
+	}
+	private void requestsInRoomBox(ArrayList<String> joinRequests) {
+		VBox names = new VBox(), acceptButtons = new VBox(), rejectButtons = new VBox();
+		boxStyle(names);
+		boxStyle(acceptButtons);
+		boxStyle(rejectButtons);
+
+		Label label = new Label();
+		titleStyle(label);
+		label.setText("join requests:");
+		insideRoomGroup.getChildren().add(label);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(500);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(150);
+
+		for (int i = 0; i < joinRequests.size(); i++)
+		{
+			String joinedClient = joinRequests.get(i);
+			final int index = i;
+			Button acceptButton = new Button();
+			Button rejectButton = new Button();
+
+			acceptButton.setOnMouseClicked((click) -> acceptJoinRequest(index));
+			acceptButton.setText("accept");
+			buttonStyle(acceptButton);
+			acceptButtons.getChildren().add(acceptButton);
+
+			rejectButton.setOnMouseClicked((click) -> rejectJoinRequest(index));
+			rejectButton.setText("reject");
+			buttonStyle(rejectButton);
+			rejectButtons.getChildren().add(rejectButton);
+
+			Label name = new Label();
+			namesStyle(name);
+			name.setText(joinedClient);
+			names.getChildren().add(name);
+
+		}
+		insideRoomGroup.getChildren().addAll(names, acceptButtons, rejectButtons);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 3).setLayoutX(510);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 3).setLayoutY(230);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 2).setLayoutX(605);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 2).setLayoutY(230);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(700);
+		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(230);
+
+	}
+	public void publicRoomsNames()
+	{
+		Request request = new Request();
+		request.setAction("public rooms");
+		try
+		{
+			dataOutputStream.writeUTF(request.toJson());
+			dataOutputStream.flush();
+
+			Response response = Response.fromJson(dataInputStream.readUTF());
+			ArrayList<String> id = (ArrayList<String>) response.getParams().get("id");
+			ArrayList<Integer> capacity = (ArrayList<Integer>) response.getParams().get("capacity");
+			ArrayList<Integer> joinedClients = (ArrayList<Integer>) response.getParams().get("joinedClients");
+			ArrayList<ArrayList<String>> names = (ArrayList<ArrayList<String>>) response.getParams().get("names");
+
+			publicRoomsBox.getChildren().clear();
+			for (int i = 0; i < id.size(); i++)
+				addLabelToBox("room id: " + id.get(i) + "   -   " +
+						(1 + Integer.parseInt(String.valueOf(joinedClients.get(i)))) +
+						" / " + (Integer.parseInt(String.valueOf(capacity.get(i)))) + "\ncurrent users: " +
+						names.toString().substring(1, names.toString().length() - 1), publicRoomsBox);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	//this method adds a line to Vbox
+	private void addLabelToBox(String line, VBox box) {
+		Label label = new Label();
+		label.setText(line);
+		labelStyle(label);
+		box.getChildren().add(label);
+	}
+
+	//style methods
+	private void boxStyle(VBox box) {
+		box.setSpacing(5);
+		box.setAlignment(Pos.CENTER);
+	}
+	private void labelStyle(Label label) {
+		label.setStyle("-fx-text-fill: white;" +
+				"-fx-font-size: 18;");
+	}
+	private void buttonStyle(Button button) {
+		button.setStyle("-fx-background-color: #ff7300;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85");
+		button.setOnMouseMoved(mouseEvent -> button.setStyle("-fx-background-color: #8c3f00;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85"));
+		button.setOnMouseExited(mouseEvent -> button.setStyle("-fx-background-color: #ff7300;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85"));
+	}
+	private void changePrivateButtonStyle() {
+		if (isMakingRoomPrivate)
+			roomPrivateButton.setStyle("-fx-background-color: #ff0000;" +
+					"-fx-border-color: white;" +
+					"-fx-border-radius: 4;" +
+					"-fx-background-radius: 7;" +
+					"-fx-border-width: 3;" +
+					"-fx-text-fill: white;" +
+					"-fx-font-size: 15;" +
+					"-fx-pref-width: 85");
+		else
+			roomPrivateButton.setStyle("-fx-background-color: #09ff00;" +
+					"-fx-border-color: white;" +
+					"-fx-border-radius: 4;" +
+					"-fx-background-radius: 7;" +
+					"-fx-border-width: 3;" +
+					"-fx-text-fill: #000000;" +
+					"-fx-font-size: 15;" +
+					"-fx-pref-width: 85");
+	}
+	private void namesStyle(Label label) {
+		label.setStyle("-fx-background-color: #ff7300;" +
+				"-fx-border-color: white;" +
+				"-fx-border-radius: 4;" +
+				"-fx-background-radius: 7;" +
+				"-fx-border-width: 3;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-size: 15;" +
+				"-fx-pref-width: 85;" +
+				"-fx-alignment: center;" +
+				"-fx-pref-height: 35");
+	}
+	private void acceptedNamesStyle(Label label) {
+		label.setStyle("-fx-background-color: #ff7300;" +
+				"    -fx-text-fill: #690404;" +
+				"    -fx-font-size: 30;" +
+				"    -fx-border-width: 5;" +
+				"    -fx-border-color: black;" +
+				"    -fx-pref-width: 300;" +
+				"    -fx-alignment: center;" +
+				"    -fx-pref-height: 70;" +
+				"    -fx-border-radius: 5;" +
+				"    -fx-background-radius: 8;");
+	}
+	private void titleStyle(Label label) {
+		label.setStyle("-fx-background-color: #ff7300;" +
+				"    -fx-text-fill: #690404;" +
+				"    -fx-font-size: 20;" +
+				"    -fx-border-width: 5;" +
+				"    -fx-border-color: black;" +
+				"    -fx-pref-width: 300;" +
+				"    -fx-alignment: center;" +
+				"    -fx-pref-height: 70;" +
+				"    -fx-border-radius: 5;" +
+				"    -fx-background-radius: 8;");
+	}
+
+
+	//this method set the last node of pane to (x,y)
+	private void setCoordinates(Pane box, double x, double y) {
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutX(x);
+		box.getChildren().get(box.getChildren().size() - 1).setLayoutY(y);
+	}
+
+	public void exit(MouseEvent mouseEvent) throws Exception {
+		MultiplayerMenu multiplayerMenu = new MultiplayerMenu();
+		multiplayerMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+	}
+
+	private void counter() {
+
+		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		final Runnable runnable = new Runnable() {
+			int countdownStarter = 240; //room will close after 4 minutes without adding player
+			public void run()
+			{
+
+				countdownStarter--;
+
+				if (countdownStarter < 0)
+				{
+					pane.getChildren().get(3).setDisable(true);
+					pane.getChildren().get(3).setVisible(false);
+					pane.getChildren().get(0).setDisable(false);
+					pane.getChildren().get(0).setVisible(true);
+					scheduler.shutdown();
+				}
+			}
+		};
+		scheduler.scheduleAtFixedRate(runnable, 0, 1, SECONDS);
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

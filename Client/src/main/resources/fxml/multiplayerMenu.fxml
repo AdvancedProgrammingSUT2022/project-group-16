@@ -7,11 +7,13 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.ImageView?>
 <Pane xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="MultiplayerMenu"
       prefHeight="720" prefWidth="1280"
-      stylesheets="@../styles/mainMenu.css" styleClass="Background"
+      stylesheets="@../styles/multiPlayerMenu.css" styleClass="Background"
       fx:id="pane">
 
     <Group fx:id="mainGroup">
@@ -19,17 +21,38 @@
         <Button layoutX="300" layoutY="270" text="Join room" styleClass="icons" onMouseClicked="#joinRoomClicked"/>
         <Button layoutX="300" layoutY="340" text="Back" styleClass="icons" onMouseClicked="#backToMainMenuClicked"/>
     </Group>
+
     <Group fx:id="createRoomGroup" visible="false" disable="true">
-        <Label fx:id="createRoomLabel" layoutX="300" layoutY="200" text="enter roomID"/>
-        <TextField fx:id="roomIDTextField" layoutX="300" layoutY="240"/>
-        <Button layoutX="300" layoutY="270" text="create room" styleClass="icons" onMouseClicked="#createRoomToServer"/>
+        <VBox layoutX="150" layoutY="200" styleClass="frontBackground" spacing="10" alignment="CENTER" prefWidth="550" prefHeight="350">
+            <Label text="enter roomID" styleClass="subLabel"/>
+            <TextField fx:id="roomIDTextField" styleClass="box"/>
+            <Label text="enter capacity" styleClass="subLabel"/>
+            <TextField fx:id="capacityTextField" styleClass="box"/>
+            <Button fx:id="roomPrivateButton" styleClass="privateButton" text="private" onMouseClicked="#privateRoom"/>
+            <Button text="create room" styleClass="icons" onMouseClicked="#createRoomToServer"/>
+        </VBox>
+        <Label fx:id="createRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="create"/>
+        <Button layoutY="660" text="exit" styleClass="icons" onMouseClicked="#exit"/>
     </Group>
+
     <Group fx:id="joinRoomGroup" visible="false" disable="true">
-        <Label fx:id="findRoomLabel" layoutX="300" layoutY="200" text="enter roomID"/>
-        <TextField fx:id="findRoomRoomIDTextField" layoutX="300" layoutY="240"/>
-        <Button layoutX="300" layoutY="270" text="join room" styleClass="icons" onMouseClicked="#joinRoomToServer"/>
+        <VBox layoutX="150" layoutY="200" styleClass="frontBackground" spacing="10" alignment="CENTER" prefWidth="550" prefHeight="350">
+            <Label text="enter roomID" styleClass="subLabel"/>
+            <TextField fx:id="findRoomRoomIDTextField" styleClass="box"/>
+            <Button text="join room" styleClass="icons" onMouseClicked="#joinRoomToServer"/>
+            <Button text="find room" styleClass="icons" onMouseClicked="#findRoomToServer"/>
+        </VBox>
+        <Label fx:id="findRoomLabel" layoutX="275" layoutY="175" styleClass="title" text="join"/>
+        <Button layoutY="660" text="exit" styleClass="icons" onMouseClicked="#exit"/>
+        <ImageView fx:id="refreshImage" layoutX="15" layoutY="15" fitWidth="20" fitHeight="20"
+                   styleClass="refreshButton" onMouseClicked="#publicRoomsNames"/>
     </Group>
     <Group fx:id="insideRoomGroup" visible="false" disable="true">
-
+        <Label fx:id="counter" text="room close in: " styleClass="icons" layoutY="30" layoutX="800"/>
+    </Group>
+    <Group fx:id="publicRooms" visible="false" disable="true">
+        <VBox fx:id="publicRoomsBox" layoutX="800" layoutY="200" styleClass="frontBackground"
+              spacing="10" alignment="CENTER" prefWidth="400" prefHeight="475"/>
+        <Label layoutX="850" layoutY="175" styleClass="title" text="rooms"/>
     </Group>
 </Pane>

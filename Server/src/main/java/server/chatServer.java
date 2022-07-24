@@ -1,4 +1,5 @@
 package server;
+import Controllers.GameController;
 import Models.Menu.Menu;
 import Models.User;
 import Models.chat.Message;
@@ -64,4 +65,5 @@ public class chatServer {
     public void removeOnlineUser(User user) {
         this.onlineUsers.remove(user);
     }
+
 }
