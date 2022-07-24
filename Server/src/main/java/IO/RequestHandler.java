@@ -3,8 +3,6 @@ package IO;
 import Controllers.GameController;
 import Controllers.ProfileController;
 import Controllers.MainMenuController;
-import Models.City.BuildingType;
-import Models.City.City;
 import Models.Menu.Menu;
 import Models.Player.Civilization;
 import Models.Player.Player;
@@ -13,9 +11,6 @@ import com.google.gson.Gson;
 import enums.cheatCode;
 import Models.chat.Message;
 import Models.chat.publicMessage;
-import enums.gameCommands.selectCommands;
-import enums.gameCommands.unitCommands;
-import enums.gameEnum;
 import enums.registerEnum;
 import server.GameRoom;
 import server.chatServer;
@@ -82,6 +77,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("register")) return register(request);
         else if(request.getAction().equals("logout")) return logout();
         else if(request.getAction().equals("get all users")) return getAllUsers();
+
         else if(request.getAction().equals("user online")) return isOnline(request);
         else if(request.getAction().equals("make new chat")) return makeNewChat(request);
         else if(request.getAction().equals("get user private chats")) return getUserPrivateChats((String) request.getParams().get("username"));
@@ -106,406 +102,17 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("join room")) return joinRoom(request);
         else if(request.getAction().equals("find room")) return findRoom(request);
         else if(request.getAction().equals("start game")) return startGame();
-        // game requests
+
         else if(request.getAction().equals("move unit")) return moveUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
         else if(request.getAction().equals("found city")) return foundCity(request);
         else if(request.getAction().equals("select CUnit")) return selectCUnit(request);
         else if(request.getAction().equals("select NCUnit")) return selectNCUnit(request);
-        else if(request.getAction().equals("checkChangeTurn")) return checkChangeTurn();
-        else if(request.getAction().equals("getMap")) return getMap(request);
-        else if(request.getAction().equals("getGameMap")) return getGameMap();
-        else if(request.getAction().equals("getYear")) return getYear();
-        else if(request.getAction().equals("showResearch")) return showResearch();
-        else if(request.getAction().equals("sleep")) return sleep();
-        else if(request.getAction().equals("stayAlert")) return stayAlert();
-        else if(request.getAction().equals("alert")) return alert();
-        else if(request.getAction().equals("fortify")) return fortify();
-        else if(request.getAction().equals("fortifyTillHeal")) return fortifyTillHeal();
-        else if(request.getAction().equals("garrison")) return garrison();
-        else if(request.getAction().equals("setUp")) return setUp(request);
-        else if(request.getAction().equals("pillage")) return pillage();
-        else if(request.getAction().equals("destroyCity")) return destroyCity(request);
-        else if(request.getAction().equals("attachCity")) return attachCity(request);
-        else if(request.getAction().equals("attackCity")) return attackCity(request);
-        else if(request.getAction().equals("found")) return found();
-        else if(request.getAction().equals("cancel")) return cancel();
-        else if(request.getAction().equals("wake")) return wake();
-        else if(request.getAction().equals("delete")) return delete();
-        else if(request.getAction().equals("road")) return road();
-        else if(request.getAction().equals("railRoad")) return railRoad();
-        else if(request.getAction().equals("farm")) return farm();
-        else if(request.getAction().equals("mine")) return mine();
-        else if(request.getAction().equals("tradingPost")) return tradingPost();
-        else if(request.getAction().equals("lumberMill")) return lumberMill();
-        else if(request.getAction().equals("pasture")) return pasture();
-        else if(request.getAction().equals("plantation")) return plantation();
-        else if(request.getAction().equals("camp")) return camp();
-        else if(request.getAction().equals("quarry")) return quarry();
-        else if(request.getAction().equals("factory")) return factory();
-        else if(request.getAction().equals("removeFeature")) return removeFeature();
-        else if(request.getAction().equals("removeRoute")) return removeRoute();
-        else if(request.getAction().equals("repair")) return repair();
-        else if(request.getAction().equals("buildUnit")) return buildUnit(request);
-        else if(request.getAction().equals("buildBuilding")) return buildBuilding(request);
-        else if(request.getAction().equals("buyUnit")) return buyUnit(request);
-        else if(request.getAction().equals("buyTile")) return buyTile(request);
-        else if(request.getAction().equals("lockCitizenToTile")) return lockCitizenToTile(request);
-        else if(request.getAction().equals("unlockCitizenToTile")) return unlockCitizenToTile(request);
-        else if(request.getAction().equals("isGameEnd")) return isGameEnd();
-
-
 
         return null;
     }
-    private Response checkChangeTurn()
-    {
-        Response response = new Response();
-        String message = GameController.getInstance().checkChangeTurn();
-        if(message == null){
-            response.addMassage("turn changed successfully");
-        }else{
-            response.addMassage(message);
-            response.setStatus(400);
-        }
 
-        return response;
-    }
-
-    private Response getMap(Request request){
-        Response response = new Response();
-        String username = (String) request.getParams().get("username");
-        for (Player player : GameController.getInstance().getPlayers()) {
-            if(player.getUsername().equals(username)){
-                response.setMap(player.getMap());
-                return response;
-            }
-        }
-        return null;
-    }
-
-    private Response getGameMap(){
-        Response response = new Response();
-        response.setGameMap(GameController.getInstance().getMap());
-        return response;
-    }
-
-    private Response getYear(){
-        Response response = new Response();
-        response.addParam("year", GameController.getInstance().getYear());
-        return response;
-    }
-
-    private Response showResearch(){
-        Response response = new Response();
-        response.addParam("research", GameController.getInstance().showResearch());
-        return response;
-    }
-
-
-    private Response sleep(){
-        String message = GameController.getInstance().sleep();
-        Response response = new Response();
-        if(!message.equals(gameEnum.slept.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response stayAlert(){
-        String message = GameController.getInstance().stayAlert();
-        Response response = new Response();
-        if(!message.equals(unitCommands.activeUnit.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response alert(){
-        String message = GameController.getInstance().alert();
-        Response response = new Response();
-        if(!message.equals(unitCommands.alerted.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response fortify(){
-        String message = GameController.getInstance().fortify();
-        Response response = new Response();
-        if(!message.equals(unitCommands.fortifyActivated)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response fortifyTillHeal(){
-        String message = GameController.getInstance().fortifyTilHeal();
-        Response response = new Response();
-        if(!message.equals(unitCommands.fortifyHealActivated.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response garrison(){
-        String message = GameController.getInstance().garrison();
-        Response response = new Response();
-        if(!message.equals(unitCommands.garissonSet.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response setUp(Request request){
-        int x = (int) Math.floor((Double) request.getParams().get("x"));
-        int y = (int) Math.floor((Double) request.getParams().get("y"));
-        String message = GameController.getInstance().setup(x,y);
-        Response response = new Response();
-        if(!message.equals(unitCommands.setupSuccessful.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response pillage(){
-        String message = GameController.getInstance().pillage();
-        Response response = new Response();
-        if(!message.equals(unitCommands.destroyImprovement.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response destroyCity(Request request){
-        String name = (String) request.getParams().get("city name");
-        String message = GameController.getInstance().destroyCity(GameController.getInstance().getCityByName(name)); ;
-        Response response = new Response();
-        if(!message.equals(unitCommands.destroyCity.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response attachCity(Request request){
-        int x = (int) Math.floor((Double) request.getParams().get("x"));
-        int y = (int) Math.floor((Double) request.getParams().get("y"));
-        String message = GameController.getInstance().attackCity(x, y);
-        Response response = new Response();
-        if(!message.equals(unitCommands.destroyCity.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response attackCity(Request request){
-        String name = (String) request.getParams().get("city name");
-        String message = GameController.getInstance().attachCity(GameController.getInstance().getCityByName(name)); ;
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response found(){
-        String message = GameController.getInstance().found();
-        Response response = new Response();
-        if(!message.equals(unitCommands.cityBuilt.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response cancel(){
-        String message = GameController.getInstance().cancel();
-        Response response = new Response();
-        if(!message.equals(unitCommands.cancelCommand.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response wake(){
-        String message = GameController.getInstance().wake();
-        Response response = new Response();
-        if(!message.equals(gameEnum.wokeUp.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response delete(){
-        String message = GameController.getInstance().delete();
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-    private Response road(){
-        String message = GameController.getInstance().road();
-        Response response = new Response();
-        if(!message.equals(unitCommands.roadBuilt.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response railRoad(){
-        String message = GameController.getInstance().railRoad();
-        Response response = new Response();
-        if(!message.equals(unitCommands.railRoadBuilt.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response farm(){
-        String message = GameController.getInstance().railRoad();
-        Response response = new Response();
-        if(!message.equals(unitCommands.farmBuild.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response mine(){
-        String message = GameController.getInstance().mine();
-        Response response = new Response();
-        if(!message.equals(unitCommands.mineBuild.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response tradingPost(){
-        String message = GameController.getInstance().tradingPost();
-        Response response = new Response();
-        if(!message.equals(unitCommands.tradingPostBuild.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response lumberMill(){
-        String message = GameController.getInstance().lumberMill();
-        Response response = new Response();
-        if(!message.equals(unitCommands.lumberMillBuild.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response pasture(){
-        String message = GameController.getInstance().pasture();
-        Response response = new Response();
-        if(!message.equals(unitCommands.pastureBuild.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response camp(){
-        String message = GameController.getInstance().camp();
-        Response response = new Response();
-        if(!message.equals(unitCommands.campBuild.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response plantation(){
-        String message = GameController.getInstance().plantation();
-        Response response = new Response();
-        if(!message.equals(unitCommands.plantationBuild.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response quarry(){
-        String message = GameController.getInstance().quarry();
-        Response response = new Response();
-        if(!message.equals("quarry built successfully")) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response factory(){
-        String message = GameController.getInstance().factory();
-        Response response = new Response();
-        if(!message.equals("factory built successfully")) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response removeFeature(){
-        String message = GameController.getInstance().removeFeature();
-        Response response = new Response();
-        if(!message.equals("feature removed successfully")) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response removeRoute(){
-        String message = GameController.getInstance().removeRoute();
-        Response response = new Response();
-        if(!message.equals(unitCommands.roadRemoved.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response repair(){
-        String message = GameController.getInstance().repair();
-        Response response = new Response();
-        if(!message.equals(unitCommands.repairedSuccessful.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-    private Response buildUnit(Request request){
-        String type = (String) request.getParams().get("type");
-        String message = GameController.getInstance().buildUnit(type);
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-    private Response buildBuilding(Request request){
-        String type = (String) request.getParams().get("type");
-        String message = GameController.getInstance().buildBuilding(BuildingType.valueOf(type));
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-    private Response buyTile(Request request){
-        String command = (String) request.getParams().get("coordinates");
-        String message = GameController.getInstance().buyTile(command);
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-    private Response buyUnit(Request request){
-        String type = (String) request.getParams().get("type");
-        String message = GameController.getInstance().buyUnit(type);
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-    private Response lockCitizenToTile(Request request){
-        String coordinates = (String) request.getParams().get("coordinates");
-        String message = GameController.getInstance().lockCitizenToTile(coordinates);
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-    private Response unlockCitizenToTile(Request request){
-        String coordinates = (String) request.getParams().get("coordinates");
-        String message = GameController.getInstance().lockCitizenToTile(coordinates);
-        Response response = new Response();
-        response.addMassage(message);
-        return response;
-    }
-    private Response isGameEnd(){
-        Response response = new Response();
-        response.addUser(GameController.getInstance().isGameEnd());
-        return response;
-    }
-
-    private Response selectCUnit(Request request){
-        String message = GameController.getInstance().selectCUnit((String) request.getParams().get("command"));
-        Response response = new Response();
-        if(!message.equals(selectCommands.selected.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response selectNCUnit(Request request)
-    {
-        String message = GameController.getInstance().selectNUnit((String) request.getParams().get("command"));
-        Response response = new Response();
-        if(!message.equals(selectCommands.selected.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response moveUnit(Request request){
-        int destinationX = (int) request.getParams().get("destinationX");
-        int destinationY = (int) request.getParams().get("destinationY");
-
-        // TODO: move combat unit in THE tile
-        Matcher matcher = Pattern.compile("move CUnit (?<x>\\d+) (?<y>\\d+)").matcher("move CUnit " + destinationX + " " + destinationY);
-        Response response = new Response();
-        response.addMassage(GameController.getInstance().moveUnit(matcher));
-        if(response.getMassage() == null){
-            response.addMassage("successful");
-        }else{
-            response.setStatus(400);
-        }
-        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
-        return response;
-    }
     private Response notYourTurn()
     {
         Response response = new Response();
@@ -779,18 +386,24 @@ public class RequestHandler  extends Thread{
         ArrayList<String> id = new ArrayList<>();
         ArrayList<String> capacity = new ArrayList<>();
         ArrayList<String> currPlayers = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
 
-        for (GameRoom gameRoom : MainMenuController.gameRooms)
+        for (GameRoom gameRoom : MainMenuController.gameRooms) {
+            names = new ArrayList<>();
             if (!gameRoom.isPrivate()) {
                 id.add(gameRoom.getRoomID());
                 capacity.add(String.valueOf((gameRoom.getCapacity())));
                 currPlayers.add(String.valueOf(gameRoom.getJoinedClients().size()));
+                for (RequestHandler requestHandler : gameRoom.getJoinedClients())
+                    names.add(requestHandler.user.getUsername());
             }
+        }
 
         response.addMassage("successful");
         response.getParams().put("id", id);
         response.getParams().put("capacity", capacity);
         response.getParams().put("joinedClients", currPlayers);
+        response.getParams().put("names", names);
 
         return response;
     }
@@ -886,6 +499,18 @@ public class RequestHandler  extends Thread{
         }
     }
 
+    private Response moveUnit(Request request)
+    {
+        int destinationX = (int) request.getParams().get("destinationX");
+        int destinationY = (int) request.getParams().get("destinationY");
+
+        // TODO: move combat unit in THE tile
+        Matcher matcher = Pattern.compile("move CUnit (?<x>\\d+) (?<y>\\d+)").matcher("move CUnit " + destinationX + " " + destinationY);
+        Response response = new Response();
+        response.addMassage(GameController.getInstance().moveUnit(matcher));
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+        return response;
+    }
     private Response cheatCode(Request request)
     {
         Response response = new Response();
@@ -938,8 +563,26 @@ public class RequestHandler  extends Thread{
 
         return response;
     }
+    private Response selectCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getCombatUnitInTile());
 
+        Response response = new Response();
+        response.addMassage("CUnit selected");
+        return response;
+    }
+    private Response selectNCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getNonCombatUnitInTile());
 
+        Response response = new Response();
+        response.addMassage("NCUnit selected");
+        return response;
+    }
 }
 
 
