@@ -616,7 +616,7 @@ public class RequestHandler  extends Thread{
     private Response makeNewChat(Request request) {
         Response response = new Response();
         response.setStatus(400);
-        User sender = (User) request.getParams().get("sender");
+        User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         User receiver = null;
         String username = (String) request.getParams().get("username");
         for(User user : Menu.allUsers) {
@@ -626,10 +626,14 @@ public class RequestHandler  extends Thread{
                 sender.getPrivateChats().put(username, new ArrayList<>());
                 user.getPrivateChats().put(sender.getUsername(), new ArrayList<>());
                 response.setStatus(200);
-                response.addParam("receiver", user);
+                response.addUser( user);
                 receiver = user;
                 break;
             }
+        }
+        if(receiver == null){
+            response.addMassage("there is no user with this username");
+            return response;
         }
         sender.getPrivateChats().put(receiver.getUsername(), new ArrayList<>());
         receiver.getPrivateChats().put(sender.getUsername(), new ArrayList<>());
