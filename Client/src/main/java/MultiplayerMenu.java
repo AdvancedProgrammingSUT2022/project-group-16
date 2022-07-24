@@ -4,6 +4,7 @@ import IO.Response;
 import Models.Player.Player;
 import javafx.application.Application;
 import javafx.application.Platform;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +16,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -27,12 +29,20 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class MultiplayerMenu extends Application
 {
 	private boolean isMakingRoomPrivate = false;
 	private int capacity;
 
+	@FXML
+	public ImageView refreshImage;
+	@FXML
+	public VBox publicRoomsBox;
+	@FXML
+	public Group publicRooms;
 	@FXML
 	public TextField capacityTextField;
 	@FXML
@@ -56,12 +66,15 @@ public class MultiplayerMenu extends Application
 	@FXML
 	private Label findRoomLabel;
 	@FXML
+	private Label counter;
+	@FXML
 	private TextField findRoomRoomIDTextField;
 
 
 	Socket socket;
 	DataInputStream dataInputStream;
 	DataOutputStream dataOutputStream;
+
 
 
 	@Override
@@ -136,6 +149,9 @@ public class MultiplayerMenu extends Application
 		pane.getChildren().get(0).setVisible(false);
 		pane.getChildren().get(2).setDisable(false);
 		pane.getChildren().get(2).setVisible(true);
+		publicRoomsNames();
+		pane.getChildren().get(4).setDisable(false);
+		pane.getChildren().get(4).setVisible(true);
 	}
 	@FXML
 	private void backToMainMenuClicked(MouseEvent mouseEvent) throws Exception
@@ -210,8 +226,9 @@ public class MultiplayerMenu extends Application
 	}
 
 	@FXML
-	private void updateInsideRoom()
+	public void updateInsideRoom()
 	{
+		counter();
 		Runnable runnable = new Runnable()
 		{
 			@Override
@@ -281,7 +298,19 @@ public class MultiplayerMenu extends Application
 				startGameButton.setLayoutY(600);
 				startGameButton.setText("Start");
 				startGameButton.getStyleClass().add("icons");
-				startGameButton.setOnMouseClicked((click) -> {startGame();});
+				startGameButton.setOnMouseClicked((click) -> {
+					if (joinedClientsUsernames.size() == 0)
+					{
+						Label label = new Label();
+						label.setText("room is empty, can't start game!");
+						titleStyle(label);
+						insideRoomGroup.getChildren().add(label);
+						insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutX(800);
+						insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(600);
+					}
+					else
+						startGame();
+				});
 				insideRoomGroup.getChildren().add(startGameButton);
 
 				if (joinedClientsNicknames.size() == capacity - 1)
@@ -479,6 +508,33 @@ public class MultiplayerMenu extends Application
 		insideRoomGroup.getChildren().get(insideRoomGroup.getChildren().size() - 1).setLayoutY(230);
 
 	}
+	public void publicRoomsNames()
+	{
+		Request request = new Request();
+		request.setAction("public rooms");
+		try
+		{
+			dataOutputStream.writeUTF(request.toJson());
+			dataOutputStream.flush();
+
+			Response response = Response.fromJson(dataInputStream.readUTF());
+			ArrayList<String> id = (ArrayList<String>) response.getParams().get("id");
+			ArrayList<Integer> capacity = (ArrayList<Integer>) response.getParams().get("capacity");
+			ArrayList<Integer> joinedClients = (ArrayList<Integer>) response.getParams().get("joinedClients");
+			ArrayList<ArrayList<String>> names = (ArrayList<ArrayList<String>>) response.getParams().get("names");
+
+			publicRoomsBox.getChildren().clear();
+			for (int i = 0; i < id.size(); i++)
+				addLabelToBox("room id: " + id.get(i) + "   -   " +
+						(1 + Integer.parseInt(String.valueOf(joinedClients.get(i)))) +
+						" / " + (Integer.parseInt(String.valueOf(capacity.get(i)))) + "\ncurrent users: " +
+						names.toString().substring(1, names.toString().length() - 1), publicRoomsBox);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 	//this method adds a line to Vbox
 	private void addLabelToBox(String line, VBox box) {
@@ -586,20 +642,32 @@ public class MultiplayerMenu extends Application
 		box.getChildren().get(box.getChildren().size() - 1).setLayoutX(x);
 		box.getChildren().get(box.getChildren().size() - 1).setLayoutY(y);
 	}
+
+	public void exit(MouseEvent mouseEvent) throws Exception {
+		MultiplayerMenu multiplayerMenu = new MultiplayerMenu();
+		multiplayerMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+	}
+
+	private void counter() {
+
+		final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		final Runnable runnable = new Runnable() {
+			int countdownStarter = 240; //room will close after 4 minutes without adding player
+			public void run()
+			{
+
+				countdownStarter--;
+
+				if (countdownStarter < 0)
+				{
+					pane.getChildren().get(3).setDisable(true);
+					pane.getChildren().get(3).setVisible(false);
+					pane.getChildren().get(0).setDisable(false);
+					pane.getChildren().get(0).setVisible(true);
+					scheduler.shutdown();
+				}
+			}
+		};
+		scheduler.scheduleAtFixedRate(runnable, 0, 1, SECONDS);
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

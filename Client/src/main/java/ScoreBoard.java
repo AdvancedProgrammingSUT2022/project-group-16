@@ -2,6 +2,7 @@
 import IO.Client;
 import IO.Request;
 import IO.Response;
+import Models.Terrain.Tile;
 import Models.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -63,7 +64,6 @@ public class ScoreBoard extends Application {
             if(key.getCode() == KeyCode.SHIFT)
                 isShiftPressed = false;
         });
-
     }
 
     private void loadScoreBoard() {

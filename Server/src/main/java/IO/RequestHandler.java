@@ -3,26 +3,19 @@ package IO;
 import Controllers.GameController;
 import Controllers.ProfileController;
 import Controllers.MainMenuController;
-import Models.City.BuildingType;
-import Models.City.City;
 import Models.Menu.Menu;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.User;
+import com.google.gson.Gson;
 import enums.cheatCode;
 import Models.chat.Message;
 import Models.chat.publicMessage;
-import enums.gameCommands.selectCommands;
-import enums.gameCommands.unitCommands;
-import enums.gameEnum;
 import enums.registerEnum;
 import server.GameRoom;
 import server.chatServer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -84,6 +77,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("register")) return register(request);
         else if(request.getAction().equals("logout")) return logout();
         else if(request.getAction().equals("get all users")) return getAllUsers();
+
         else if(request.getAction().equals("user online")) return isOnline(request);
         else if(request.getAction().equals("make new chat")) return makeNewChat(request);
         else if(request.getAction().equals("get user private chats")) return getUserPrivateChats((String) request.getParams().get("username"));
@@ -104,10 +98,11 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("get joined clients")) return getJoinedClients();
         else if(request.getAction().equals("accept join request")) return acceptJoinRequest(request);
         else if(request.getAction().equals("reject join request")) return rejectJoinRequest(request);
+        else if(request.getAction().equals("public rooms")) return publicRooms(request);
         else if(request.getAction().equals("join room")) return joinRoom(request);
         else if(request.getAction().equals("find room")) return findRoom(request);
         else if(request.getAction().equals("start game")) return startGame();
-        // game requests
+
         else if(request.getAction().equals("move unit")) return moveUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
@@ -666,7 +661,7 @@ public class RequestHandler  extends Thread{
         response.addMassage(message);
         if(response.getMassage().equals(registerEnum.successfulCreate.regex)){
             this.user = Server.registerController.getUserByUsername(username);
-            Menu.loggedInUser =user;
+            Menu.loggedInUser = user;
             response.addUser(user);
             addOnlineUser(username);
         }else{
@@ -773,6 +768,34 @@ public class RequestHandler  extends Thread{
 
         return response;
     }
+    private Response publicRooms(Request request)
+    {
+        Response response = new Response();
+
+        ArrayList<String> id = new ArrayList<>();
+        ArrayList<String> capacity = new ArrayList<>();
+        ArrayList<String> currPlayers = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+
+        for (GameRoom gameRoom : MainMenuController.gameRooms) {
+            names = new ArrayList<>();
+            if (!gameRoom.isPrivate()) {
+                id.add(gameRoom.getRoomID());
+                capacity.add(String.valueOf((gameRoom.getCapacity())));
+                currPlayers.add(String.valueOf(gameRoom.getJoinedClients().size()));
+                for (RequestHandler requestHandler : gameRoom.getJoinedClients())
+                    names.add(requestHandler.user.getUsername());
+            }
+        }
+
+        response.addMassage("successful");
+        response.getParams().put("id", id);
+        response.getParams().put("capacity", capacity);
+        response.getParams().put("joinedClients", currPlayers);
+        response.getParams().put("names", names);
+
+        return response;
+    }
     private Response joinRoom(Request request)
     {
         String roomID = (String) request.getParams().get("roomID");
@@ -865,6 +888,18 @@ public class RequestHandler  extends Thread{
         }
     }
 
+    private Response moveUnit(Request request)
+    {
+        int destinationX = (int) request.getParams().get("destinationX");
+        int destinationY = (int) request.getParams().get("destinationY");
+
+        // TODO: move combat unit in THE tile
+        Matcher matcher = Pattern.compile("move CUnit (?<x>\\d+) (?<y>\\d+)").matcher("move CUnit " + destinationX + " " + destinationY);
+        Response response = new Response();
+        response.addMassage(GameController.getInstance().moveUnit(matcher));
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+        return response;
+    }
     private Response cheatCode(Request request)
     {
         Response response = new Response();
@@ -917,8 +952,26 @@ public class RequestHandler  extends Thread{
 
         return response;
     }
+    private Response selectCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getCombatUnitInTile());
 
+        Response response = new Response();
+        response.addMassage("CUnit selected");
+        return response;
+    }
+    private Response selectNCUnit(Request request)
+    {
+        int positionX = (int) request.getParams().get("positionX");
+        int positionY = (int) request.getParams().get("positionY");
+        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getNonCombatUnitInTile());
 
+        Response response = new Response();
+        response.addMassage("NCUnit selected");
+        return response;
+    }
 }
 
 
