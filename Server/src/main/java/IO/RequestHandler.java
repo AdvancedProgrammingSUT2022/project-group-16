@@ -116,6 +116,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("checkChangeTurn")) return checkChangeTurn();
         else if(request.getAction().equals("getMap")) return getMap(request);
         else if(request.getAction().equals("getGameMap")) return getGameMap();
+        else if(request.getAction().equals("getTurnCounter")) return getTurnCounter();
         else if(request.getAction().equals("getYear")) return getYear();
         else if(request.getAction().equals("showResearch")) return showResearch();
         else if(request.getAction().equals("sleep")) return sleep();
@@ -198,6 +199,12 @@ public class RequestHandler  extends Thread{
         return response;
     }
 
+    private Response getTurnCounter()
+    {
+        Response response = new Response();
+        response.addParam("turnCounter", GameController.getInstance().getTurnCounter());
+        return response;
+    }
     private Response getYear(){
         Response response = new Response();
         response.addParam("year", GameController.getInstance().getYear());
@@ -922,10 +929,8 @@ public class RequestHandler  extends Thread{
     }
     private Response nextTurn()
     {
-        GameController.getInstance().checkChangeTurn();
-
         Response response = new Response();
-        response.addMassage("turn changed");
+        response.addMassage(GameController.getInstance().checkChangeTurn());
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
         return response;
     }

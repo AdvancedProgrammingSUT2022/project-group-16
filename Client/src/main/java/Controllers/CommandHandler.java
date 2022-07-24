@@ -17,6 +17,7 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import javafx.application.Platform;
 import javafx.css.Match;
 
 import java.io.DataInputStream;
@@ -149,72 +150,143 @@ public class CommandHandler
 		Player updatedPlayer = gson.fromJson(playerJson, Player.class);
 	}
 
+	private Response sendRequestAndGetResponse(Request request)
+	{
+		try
+		{
+			socketDOS.writeUTF(request.toJson());
+			socketDOS.flush();
+
+			Response response = Response.fromJson(socketDIS.readUTF());
+
+			updatePlayer(response);
+
+			return response;
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
 	// cheat codes
-	public void increaseGold(Matcher matcher)
+	public void increaseGold(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void increaseTurns(Matcher matcher)
+	public void increaseTurns(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void increaseFood(Matcher matcher)
+	public void increaseFood(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void addTechnology(Matcher matcher)
+	public void addTechnology(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void increaseHappiness(Matcher matcher)
+	public void increaseHappiness(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void killEnemyUnit(Matcher matcher)
+	public void killEnemyUnit(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public String moveUnit(Matcher matcher)
+	public void increaseHealth(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void increaseHealth(Matcher matcher)
+	public void increaseScore(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void increaseScore(Matcher matcher)
+	public void gainBonusResourceCheat(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void gainBonusResourceCheat()
+	public void gainStrategicResourceCheat(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
+		sendRequestAndGetResponse(request);
 	}
-	public void gainStrategicResourceCheat()
+	public void gainLuxuryResourceCheat(String command)
 	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
 
-	}
-	public void gainLuxuryResourceCheat()
-	{
-
+		sendRequestAndGetResponse(request);
 	}
 
 
 	public String checkChangeTurn()
 	{
+		Request request = new Request();
+		request.setAction("next turn");
 
+		return sendRequestAndGetResponse(request).getMassage();
 	}
 	public String getYear()
 	{
+		Request request = new Request();
+		request.setAction("getYear");
 
+		return (String) sendRequestAndGetResponse(request).getParams().get("year");
 	}
 	public String getTurnCounter()
 	{
+		Request request = new Request();
+		request.setAction("getTurnCounter");
 
+		return (String) sendRequestAndGetResponse(request).getParams().get("turnCounter");
 	}
 	public String showResearch()
 	{
+		Request request = new Request();
+		request.setAction("showResearch");
 
+		return (String) sendRequestAndGetResponse(request).getParams().get("research");
 	}
 	public BuildingType requiredTechForBuilding(Technology technology)
 	{
@@ -234,6 +306,10 @@ public class CommandHandler
 
 	}
 	public void winGame()
+	{
+
+	}
+	public String moveUnit(Matcher matcher)
 	{
 
 	}

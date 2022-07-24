@@ -97,7 +97,7 @@ public class GameController implements Serializable
 		if (isGameEnd() != null)
 			return "game Ended";
 		changeTurn();
-		return null; //TODO: return: "turn changed successfully"
+		return "turn changed"; //TODO: return: "turn changed successfully"
 	}
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
