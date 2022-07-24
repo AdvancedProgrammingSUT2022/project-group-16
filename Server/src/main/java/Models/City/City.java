@@ -445,17 +445,28 @@ public class City
 		if(construction.getTurnTillBuild() == 0)
 		{
 			Tile destination;
-			if(gameController.containTypeMid(currentConstruction.toString()) != null) {
+			try {
+				MidRangeType midRangeType = MidRangeType.valueOf(currentConstruction.toString());
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
-				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
+				new MidRange(rulerPlayer, midRangeType, destination);
+				construction.setTurnTillBuild(4);
+				currentConstruction = null;
+				return null;
+			}catch (IllegalArgumentException e){
 			}
-			else if(gameController.containTypeLong(currentConstruction.toString()) != null) {
+			try {
+				LongRangeType longRangeType = LongRangeType.valueOf(currentConstruction.toString());
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
-				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
+				new LongRange(rulerPlayer, longRangeType, destination);
+				construction.setTurnTillBuild(4);
+				currentConstruction = null;
+				return null;
+			}catch (IllegalArgumentException e){
+
 			}
-			else if(currentConstruction.toString().equals("SETTLER")) {
+			if(currentConstruction.toString().equals("SETTLER")) {
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
 				new Settler(rulerPlayer, destination);

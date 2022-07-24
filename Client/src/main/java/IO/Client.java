@@ -44,6 +44,7 @@ public class Client {
         return null;
     }
     public  User getLoggedInUser() {
+        updateLoggedInUser();
         return loggedInUser;
     }
 
