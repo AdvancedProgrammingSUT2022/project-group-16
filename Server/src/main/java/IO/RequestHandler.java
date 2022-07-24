@@ -389,7 +389,10 @@ public class RequestHandler  extends Thread{
         ArrayList<String> names = new ArrayList<>();
 
         for (GameRoom gameRoom : MainMenuController.gameRooms) {
+            String adminUsername = gameRoom.getRoomAdmin().user.getUsername();
             names = new ArrayList<>();
+            names.add("admin: " + adminUsername);
+
             if (!gameRoom.isPrivate()) {
                 id.add(gameRoom.getRoomID());
                 capacity.add(String.valueOf((gameRoom.getCapacity())));

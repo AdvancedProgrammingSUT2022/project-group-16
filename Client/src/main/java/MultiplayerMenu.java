@@ -655,9 +655,7 @@ public class MultiplayerMenu extends Application
 			int countdownStarter = 240; //room will close after 4 minutes without adding player
 			public void run()
 			{
-
 				countdownStarter--;
-
 				if (countdownStarter < 0)
 				{
 					pane.getChildren().get(3).setDisable(true);
