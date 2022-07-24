@@ -76,7 +76,6 @@ public class MultiplayerMenu extends Application
 	DataOutputStream dataOutputStream;
 
 
-
 	@Override
 	public void start(Stage stage) throws Exception
 	{
@@ -114,7 +113,10 @@ public class MultiplayerMenu extends Application
 						if(requestFromServer.equals("update inside room") || requestFromServer.startsWith("you have a new join request"))
 							updateInsideRoom();
 						else if(requestFromServer.equals("game started"))
+						{
 							loadGame();
+							break;
+						}
 					}
 					catch (IOException e)
 					{
@@ -126,7 +128,6 @@ public class MultiplayerMenu extends Application
 		Thread listenereThread = new Thread(runnable);
 		listenereThread.setDaemon(true);
 		listenereThread.start();
-		
 	}
 
 	@FXML
@@ -397,7 +398,7 @@ public class MultiplayerMenu extends Application
 					throw new RuntimeException(e);
 				}
 
-				Game game = new Game();
+				Game game = new Game(player, Client.socket, Client.listenerSocket);
 				Main.audioClip.stop();
 				try
 				{

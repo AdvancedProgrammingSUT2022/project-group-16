@@ -1,6 +1,6 @@
 package Models.Terrain;
 
-import Controllers.GameController;
+import Controllers.CommandHandler;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Resources.Resource;
@@ -169,7 +169,7 @@ public class Tile {
     }
 
     public Player GetTileRuler() {
-        for (Player player : GameController.getInstance().getPlayers()) {
+        for (Player player : CommandHandler.getInstance().getPlayers()) {
             for (City city : player.getCities()) {
                 for (Tile tile : city.getTerritory()) {
                     if (tile.getPosition().equals(this.position)) return player;

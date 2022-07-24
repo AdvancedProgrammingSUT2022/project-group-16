@@ -1,6 +1,6 @@
 package Models.City;
 
-import Controllers.GameController;
+import Controllers.CommandHandler;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Player.TileState;
@@ -36,7 +36,6 @@ public class City
 	transient private Player rulerPlayer;
 	private final String name;
 	private CityState state = CityState.NONE;
-	private final GameController gameController = GameController.getInstance();
 
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
@@ -243,21 +242,22 @@ public class City
 		this.capitalTile = capitalTile;
 	}
 	public String purchaseTile(Tile tile){
-		for (Player player : gameController.getPlayers())
-			for (City city : player.getCities())
-				if (city.getTerritory().contains(tile))
-					return gameEnum.belongToCivilization.regex;
-		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
-			return gameEnum.notEnoughGold.regex;
-		else if (gameController.getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR))
-			return gameEnum.fogOfWar.regex;
-		else if(isTileNeighbor(tile)) {
-			this.territory.add(tile);
-			this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getRulerPlayer().getTilePurchaseCost());
-			this.getRulerPlayer().setTilePurchaseCost((int) (1.2 * getRulerPlayer().getTilePurchaseCost()));
-			return gameEnum.buyTile.regex;
-		}
-		return gameEnum.cantBuyTile.regex;
+//		for (Player player : gameController.getPlayers())
+//			for (City city : player.getCities())
+//				if (city.getTerritory().contains(tile))
+//					return gameEnum.belongToCivilization.regex;
+//		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
+//			return gameEnum.notEnoughGold.regex;
+//		else if (gameController.getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR))
+//			return gameEnum.fogOfWar.regex;
+//		else if(isTileNeighbor(tile)) {
+//			this.territory.add(tile);
+//			this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() - getRulerPlayer().getTilePurchaseCost());
+//			this.getRulerPlayer().setTilePurchaseCost((int) (1.2 * getRulerPlayer().getTilePurchaseCost()));
+//			return gameEnum.buyTile.regex;
+//		}
+//		return gameEnum.cantBuyTile.regex;
+		return null;
 	}
 	private boolean isTileNeighbor(Tile newTile) {
 		if(territory.contains(newTile))
@@ -306,8 +306,8 @@ public class City
 //				return "cannot destroy the capital of a civilization";
 //			}
 //		}
-		rulerPlayer.getSeizedCities().remove(this);
-		this.state = CityState.DESTROYED;
+//		rulerPlayer.getSeizedCities().remove(this);
+//		this.state = CityState.DESTROYED;
 		return null;
 	}
 
@@ -431,51 +431,52 @@ public class City
 		return null;
 	}
 
-	public String construct(Construction construction, GameController gameController)
+	public String construct(Construction construction)
 	{
-		if(currentConstruction == null) {
-			if(!constructionCanBeBuilt(construction).equals("built successfully"))
-				return "cannot build";
-			currentConstruction = construction;
-			construction.setTurnTillBuild(4);
-			rulerPlayer.setScore(rulerPlayer.getScore() + 2 * gameController.MAP_SIZE);
-			return gameEnum.successfulBuild.regex;
-		}
-		if(construction.getTurnTillBuild() == 0)
-		{
-			Tile destination;
-			if(gameController.containTypeMid(currentConstruction.toString()) != null) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
-			}
-			else if(gameController.containTypeLong(currentConstruction.toString()) != null) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
-			}
-			else if(currentConstruction.toString().equals("SETTLER")) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new Settler(rulerPlayer, destination);
-			}
-			else if(currentConstruction.toString().equals("WORKER")) {
-				if((destination = findTileWithNoCUnit()) == null)
-					return "no tile empty";
-				new Worker(rulerPlayer, destination);
-			}
-			else if(currentConstruction.toString().equals("Building")){
-				createBuilding((Building) currentConstruction);
-			}
-			construction.setTurnTillBuild(4);
-			currentConstruction = null;
-			return null;
-		}
-		if(construction.getTurnTillBuild() <= 4 && currentConstruction != null) {
-			construction.setTurnTillBuild(construction.getTurnTillBuild() - 1);
-			return null;
-		}
-		return "something else is being constructed or there is nothing to construct";
+//		if(currentConstruction == null) {
+//			if(!constructionCanBeBuilt(construction).equals("built successfully"))
+//				return "cannot build";
+//			currentConstruction = construction;
+//			construction.setTurnTillBuild(4);
+//			rulerPlayer.setScore(rulerPlayer.getScore() + 2 * rulerPlayer.MAP_SIZE);
+//			return gameEnum.successfulBuild.regex;
+//		}
+//		if(construction.getTurnTillBuild() == 0)
+//		{
+//			Tile destination;
+//			if(gameController.containTypeMid(currentConstruction.toString()) != null) {
+//				if((destination = findTileWithNoCUnit()) == null)
+//					return "no tile empty";
+//				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
+//			}
+//			else if(gameController.containTypeLong(currentConstruction.toString()) != null) {
+//				if((destination = findTileWithNoCUnit()) == null)
+//					return "no tile empty";
+//				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
+//			}
+//			else if(currentConstruction.toString().equals("SETTLER")) {
+//				if((destination = findTileWithNoCUnit()) == null)
+//					return "no tile empty";
+//				new Settler(rulerPlayer, destination);
+//			}
+//			else if(currentConstruction.toString().equals("WORKER")) {
+//				if((destination = findTileWithNoCUnit()) == null)
+//					return "no tile empty";
+//				new Worker(rulerPlayer, destination);
+//			}
+//			else if(currentConstruction.toString().equals("Building")){
+//				createBuilding((Building) currentConstruction);
+//			}
+//			construction.setTurnTillBuild(4);
+//			currentConstruction = null;
+//			return null;
+//		}
+//		if(construction.getTurnTillBuild() <= 4 && currentConstruction != null) {
+//			construction.setTurnTillBuild(construction.getTurnTillBuild() - 1);
+//			return null;
+//		}
+//		return "something else is being constructed or there is nothing to construct";
+		return null;
 	}
 
 	private void createBuilding(Building building)

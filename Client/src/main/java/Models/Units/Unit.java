@@ -1,6 +1,5 @@
 package Models.Units;
 
-import Controllers.GameController;
 import Models.City.City;
 import Models.City.Construction;
 import Models.Player.RelationState;
@@ -193,12 +192,12 @@ public abstract class Unit extends Construction {
 	}
 
 	private boolean isThereEnemyUnitNear() {
-		for (Tile tile1 : GameController.getInstance().getMap()) {
-			if(this.getTile().distanceTo(tile1) == 1){
-				if(tile1.getCombatUnitInTile() != null && tile1.getCombatUnitInTile().getRulerPlayer() != this.rulerPlayer)
-					return true;
-			}
-		}
+//		for (Tile tile1 : GameController.getInstance().getMap()) {
+//			if(this.getTile().distanceTo(tile1) == 1){
+//				if(tile1.getCombatUnitInTile() != null && tile1.getCombatUnitInTile().getRulerPlayer() != this.rulerPlayer)
+//					return true;
+//			}
+//		}
 		return false;
 	}
 
@@ -293,26 +292,26 @@ public abstract class Unit extends Construction {
 	}
 
     private void getRuinBonus() {
-        this.getRulerPlayer().increasePopulation(1);
-        this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() + 200);
-        destination.setTileType(TileType.DESERT);
-        destination.setNonCombatUnitInTile(new Worker());
-        if (getRulerPlayer().getResearchingTechnology() != null) {
-            Technology researchingTechnology = getRulerPlayer().getResearchingTechnology();
-            int technologyIndex = -1;
-            for (int i = 0; i < Technology.values().length; i++)
-                if (researchingTechnology.equals(Technology.values()[i])) {
-                    technologyIndex = i;
-                    break;
-                }
-            if (technologyIndex == -1) {
-                System.err.println("technologyIndex is -1 :(");
-                System.exit(1);
-            }
-
-            getRulerPlayer().getResearchingTechCounter()[technologyIndex] = researchingTechnology.cost * 10;
-            GameController.getInstance().processResearchingTechnology();
-        }
+//        this.getRulerPlayer().increasePopulation(1);
+//        this.getRulerPlayer().setGold(this.getRulerPlayer().getGold() + 200);
+//        destination.setTileType(TileType.DESERT);
+//        destination.setNonCombatUnitInTile(new Worker());
+//        if (getRulerPlayer().getResearchingTechnology() != null) {
+//            Technology researchingTechnology = getRulerPlayer().getResearchingTechnology();
+//            int technologyIndex = -1;
+//            for (int i = 0; i < Technology.values().length; i++)
+//                if (researchingTechnology.equals(Technology.values()[i])) {
+//                    technologyIndex = i;
+//                    break;
+//                }
+//            if (technologyIndex == -1) {
+//                System.err.println("technologyIndex is -1 :(");
+//                System.exit(1);
+//            }
+//
+//            getRulerPlayer().getResearchingTechCounter()[technologyIndex] = researchingTechnology.cost * 10;
+//            GameController.getInstance().processResearchingTechnology();
+//        }
     }
 
     private boolean canUnitStayInTile(Tile destination) {
@@ -325,14 +324,14 @@ public abstract class Unit extends Construction {
     }
 
     private boolean isTileEnemy(Tile destination) {
-        for (Player player : GameController.getInstance().getPlayers()) {
-            for (City city : player.getCities()) {
-                for (Tile tile : city.getTerritory()) {
-                    if (destination.getPosition().equals(tile.getPosition()) && player != this.getRulerPlayer())
-                        return true;
-                }
-            }
-        }
+//        for (Player player : GameController.getInstance().getPlayers()) {
+//            for (City city : player.getCities()) {
+//                for (Tile tile : city.getTerritory()) {
+//                    if (destination.getPosition().equals(tile.getPosition()) && player != this.getRulerPlayer())
+//                        return true;
+//                }
+//            }
+//        }
         return false;
     }
 

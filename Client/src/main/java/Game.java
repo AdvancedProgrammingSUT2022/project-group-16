@@ -1,4 +1,5 @@
-import Controllers.GameController;
+import Controllers.CommandHandler;
+import IO.Response;
 import Models.City.Citizen;
 import Models.City.City;
 import Models.City.CityState;
@@ -44,7 +45,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -60,7 +65,7 @@ public class Game extends Application {
     public Label year;
     public Label turn;
     private Hex[][] hexagons;
-    private GameController gameController = GameController.getInstance();
+    private CommandHandler commandHandler = CommandHandler.getInstance();
     ArrayList<Hex> playerTurnTiles = new ArrayList<>();
     private boolean needUpdateScience = false;
     private boolean needUpdateProduction = true;
@@ -98,6 +103,63 @@ public class Game extends Application {
     private static boolean movingRight;
 
 	private Gson gson;
+    private Socket socket;
+    private Socket listenerSocket;
+    private DataInputStream socketDIS;
+    private DataOutputStream socketDOS;
+    private DataInputStream listenerSocketDIS;
+
+
+    public Game(Player player, Socket socket, Socket listenerSocket)
+    {
+        this.socket = socket;
+        this.listenerSocket = listenerSocket;
+        try
+        {
+            socketDIS = new DataInputStream(socket.getInputStream());
+            socketDOS = new DataOutputStream(socket.getOutputStream());
+            listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        commandHandler.setSocket(socket);
+        commandHandler.setPlayer(player);
+
+        // run listener
+        Runnable listenerRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Response messageFromServer;
+
+                while (true)
+                {
+                    try
+                    {
+                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+
+                    if(messageFromServer.getMassage().equals("update"))
+                    {
+                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
+                        commandHandler.setPlayer(updatedPlayer);
+                        updateScreen();
+                    }
+                }
+            }
+        };
+        Thread listenerThread = new Thread(listenerRunnable);
+        listenerThread.setDaemon(true);
+        listenerThread.start();
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -106,7 +168,6 @@ public class Game extends Application {
         Scene scene = new Scene(root);
         scene.setOnKeyPressed(this::onKeyPressed);
         scene.setOnKeyReleased(this::onKeyReleased);
-        scene.setOnKeyTyped(this::onKeyTyped);
         stage.setScene(scene);
         root.requestFocus();
         stage.show();
@@ -127,14 +188,15 @@ public class Game extends Application {
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
+                // here
                 Matcher matcher;
                 String command = textField.getText();
                 if((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
-                    gameController.increaseGold(matcher);
+                    commandHandler.increaseGold(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) {
-                    gameController.increaseTurns(matcher);
-                    if (gameController.isGameEnd() != null) {
-                        winPanel(gameController.isGameEnd(), gameController.isGameEnd().getGameScore());
+                    commandHandler.increaseTurns(matcher);
+                    if (commandHandler.isGameEnd() != null) {
+                        winPanel(commandHandler.isGameEnd(), commandHandler.isGameEnd().getGameScore());
                     }
                     setInformationStyles();
                     updateYear();
@@ -142,32 +204,32 @@ public class Game extends Application {
                     updateScreen();
                 }
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
-                    gameController.increaseFood(matcher);
+                    commandHandler.increaseFood(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
-                    gameController.addTechnology(matcher);
+                    commandHandler.addTechnology(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHappiness)) != null)
-                    gameController.increaseHappiness(matcher);
+                    commandHandler.increaseHappiness(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.killEnemyUnit)) != null)
-                    gameController.killEnemyUnit(matcher);
+                    commandHandler.killEnemyUnit(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
-                    gameController.moveUnit(matcher);
+                    commandHandler.moveUnit(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHealth)) != null)
-                    gameController.increaseHealth(matcher);
+                    commandHandler.increaseHealth(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseScore)) != null)
-                    gameController.increaseScore(matcher);
+                    commandHandler.increaseScore(matcher);
                 else if(cheatCode.compareRegex(command, cheatCode.winGame) != null) {
-                    gameController.winGame();
-                    winPanel(gameController.getPlayerTurn(), 5);
+                    commandHandler.winGame();
+                    winPanel(commandHandler.getPlayer(), 5);
                 }
                 else if(cheatCode.compareRegex(command, cheatCode.gainBonusResource) != null)
-                    gameController.gainBonusResourceCheat();
+                    commandHandler.gainBonusResourceCheat();
                 else if(cheatCode.compareRegex(command, cheatCode.gainStrategicResource) != null)
-                    gameController.gainStrategicResourceCheat();
+                    commandHandler.gainStrategicResourceCheat();
                 else if(cheatCode.compareRegex(command, cheatCode.gainLuxuryResource) != null)
-                    gameController.gainLuxuryResourceCheat();
+                    commandHandler.gainLuxuryResourceCheat();
                 else if(command.equals("a")) {
-                    ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
-                    gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
+                    ((Settler) commandHandler.getPlayer().getUnits().get(1)).createCity();
+                    commandHandler.getPlayer().getCities().get(0).addPopulation(4);
                 }
                 else if(command.equals("b")) {
                     System.out.println(selectedCoins);
@@ -178,31 +240,19 @@ public class Game extends Application {
             }
         });
     }
-    //TODO when the turn changes delete playerTurnTiles from pane
     @FXML
     private void initialize() {
         Platform.runLater(this::loadGame);
     }
     private void loadGame()
     {
-        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
-        gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
-        gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
-        gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
-        gsonBuilder.registerTypeAdapter(Resource.class, new ResourceTypeAdapter());
-        gsonBuilder.registerTypeAdapter(Unit.class, new UnitTypeAdapter());
-        gson = gsonBuilder.create();
-
-        // new game or load game?
-        gameController.initGame();
-
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
         hexagonsPane.setLayoutY(45);
-        hexagonsPane.setPrefWidth(gameController.MAP_SIZE * 90);
-        hexagonsPane.setPrefHeight(gameController.MAP_SIZE * 100);
+        hexagonsPane.setPrefWidth(commandHandler.getPlayer().MAP_SIZE * 90);
+        hexagonsPane.setPrefHeight(commandHandler.getPlayer().MAP_SIZE * 100);
         Hex.setPane(hexagonsPane);
-        hexagons = new Hex[GameController.getInstance().MAP_SIZE][GameController.getInstance().MAP_SIZE];
+        hexagons = new Hex[commandHandler.getPlayer().MAP_SIZE][commandHandler.getPlayer().MAP_SIZE];
         updateScreen();
 
         //cheatCode
@@ -222,7 +272,7 @@ public class Game extends Application {
                 isShiftPressed = false;
         });
 
-        setInformationStyles();
+//        setInformationStyles();
         pane.getChildren().get(12).setOnMousePressed(mouseEvent -> {
             showTechnologies();
             audioClip.play();
@@ -241,60 +291,37 @@ public class Game extends Application {
             e.printStackTrace();
         }
 
-        //cheatCode shortcut
-//        new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(44));
-//        new Worker(gameController.getPlayerTurn(), gameController.getMap().get(56));
-        //TODO: do not remove this part :))))
-
-//                ((Settler) gameController.getPlayerTurn().getUnits().get(1)).createCity();
-//                gameController.getPlayerTurn().addTechnology(Technology.AGRICULTURE);
-//                gameController.getPlayerTurn().addTechnology(Technology.ARCHERY);
-//                gameController.getPlayerTurn().addTechnology(Technology.POTTERY);
-//                gameController.getPlayerTurn().setCup(10);
-//                new City(gameController.getMap().get(55), gameController.getPlayerTurn());
-//                new City(gameController.getMap().get(45), gameController.getPlayerTurn());
-//                new City(gameController.getMap().get(78), gameController.getPlayerTurn());
-//                gameController.getPlayerTurn().getCities().get(0).addPopulation(4);
-//                gameController.getPlayerTurn().getCities().get(1).addPopulation(7);
-//                gameController.getPlayerTurn().getCities().get(2).addPopulation(3);
-//                new MidRange(gameController.getPlayerTurn(), MidRangeType.CAVALRY, gameController.getMap().get(44));
-//                new MidRange(gameController.getPlayerTurn(), MidRangeType.HORSEMAN, gameController.getMap().get(23));
-//                new MidRange(gameController.getPlayerTurn(), MidRangeType.LSWORDSMAN, gameController.getMap().get(11));
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be dutchman");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be in zendegi");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar lotfian");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be seyyed");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be SNP");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "lanat be ap");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "dorood bar group 16");
-//                new Notification(gameController.getPlayerTurn(), gameController.getTurnCounter(), "bazam lanat be ap");
-//                gameController.getPlayerTurn().getTechnologies().add(Technology.MILITARY_SCIENCE);
-//                gameController.getPlayerTurn().getTechnologies().add(Technology.BRONZE_WORKING);
-//                gameController.getPlayerTurn().setResearchingTechnology(Technology.THE_WHEEL);
-//                gameController.getPlayerTurn().setCup(100);
-
         animationTimer.start();
     }
 
     public void updateScreen()
     {
-        hexagonsPane.getChildren().clear();
-
-        // update tiles
-        int x = 0;
-        for(int i = 0; i < gameController.MAP_SIZE; i++)
+        final Game tmpGame = this;
+        Runnable updateScreenRunnable = new Runnable()
         {
-            int y = (i % 2 == 0 ? 0 : 45);
-            for(int j = 0; j < gameController.MAP_SIZE ; j++){
-                hexagons[j][i] = new Hex(new Position(x, y), gameController, this);
-                y += 100;
-            }
-            x += 90;
-        }
+            @Override
+            public void run()
+            {
+                hexagonsPane.getChildren().clear();
 
-        generateMapForPlayer(gameController.getPlayerTurn());
-        setInformationStyles();
+                // update tiles
+                int x = 0;
+                for(int i = 0; i < commandHandler.getPlayer().MAP_SIZE; i++)
+                {
+                    int y = (i % 2 == 0 ? 0 : 45);
+                    for(int j = 0; j < commandHandler.getPlayer().MAP_SIZE ; j++){
+                        hexagons[j][i] = new Hex(new Position(x, y), commandHandler.getPlayer(), tmpGame);
+                        y += 100;
+                    }
+                    x += 90;
+                }
+
+                generateMapForPlayer(commandHandler.getPlayer());
+                setInformationStyles();
+            }
+        };
+
+        Platform.runLater(updateScreenRunnable);
     }
 
     private void onKeyPressed(KeyEvent keyEvent)
@@ -321,11 +348,6 @@ public class Game extends Application {
         else if(keyEvent.getCode() == KeyCode.RIGHT)
             Game.movingRight = false;
     }
-    private void onKeyTyped(KeyEvent keyEvent)
-    {
-
-    }
-
     private void handleMovingMap()
     {
         if(Game.movingUP && hexagonsPane.getLayoutY() < 45)
@@ -349,129 +371,33 @@ public class Game extends Application {
         playerTurnTiles.forEach(Hex::addHex);
     }
     public void changeTurn(MouseEvent mouseEvent) {
-        String changeTurnResult = gameController.checkChangeTurn();
-        if (changeTurnResult != null && changeTurnResult.equals("game Ended"))
-        {
-            winPanel(gameController.getPlayers().get(0), gameController.getPlayers().get(0).getScore());
-        }
-        String result = gameController.checkChangeTurn();
+        // here
+        String result = commandHandler.checkChangeTurn();
         if (result != null && result.equals("game Ended"))
-            winPanel(gameController.isGameEnd(), gameController.isGameEnd().getGameScore());
+            winPanel(commandHandler.isGameEnd(), commandHandler.isGameEnd().getGameScore());
 
         //TODO: fix bugs
         updateScreen();
         setInformationStyles();
         pane.getChildren().remove(diplomacyAlert);
         pane.getChildren().remove(techAlert);
-        if (gameController.getPlayerTurn().getResearchingTechnology() != null )
+        if (commandHandler.getPlayer().getResearchingTechnology() != null )
             pane.getChildren().remove(techAlert);
         else if (!pane.getChildren().contains(techAlert)) {
             pane.getChildren().add(techAlert);
             notification.play();
             setCoordinates(pane, 50, 290);
         }
-        if (gameController.getPlayerTurn().getTradeRequests().size() == 0)
+        if (commandHandler.getPlayer().getTradeRequests().size() == 0)
             pane.getChildren().remove(diplomacyAlert);
         else if (!pane.getChildren().contains(diplomacyAlert)){
             pane.getChildren().add(diplomacyAlert);
             notification.play();
             setCoordinates(pane, 1210, 335);
         }
-        if (gameController.getPlayerTurn() == gameController.getPlayers().get(0))
-        {
-            updateTurnNumber();
-            updateYear(); //5 turn == 1 year
-        }
+        // TODO: check for update yearCounter and turnCounter
     }
 
-    private void saveGameToFile(String fileName)
-    {
-        try
-        {
-            URI uri = GameController.class.getClassLoader().getResource("savedGames/" + fileName).toURI();
-            Path path = Paths.get(uri);
-            Files.write(path, gameControllerToJson(gameController).getBytes());
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    private GameController loadGameFromFile(String fileName)
-    {
-        try
-        {
-            URI uri = GameController.class.getClassLoader().getResource("savedGames/" + fileName).toURI();
-            Path path = Paths.get(uri);
-            String json = new String(Files.readAllBytes(path));
-            return jsonToGameController(json);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-	private String gameControllerToJson(GameController gameController)
-	{
-        gameController.playerTurnIndex = gameController.getPlayers().indexOf(gameController.getPlayerTurn());
-		for (Player player : gameController.getPlayers())
-		{
-            for (Unit unit : player.getUnits())
-                unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
-
-			player.mapKeyset.clear();
-			player.mapValueset.clear();
-			for (Tile tile : player.getMap().keySet())
-			{
-				player.mapKeyset.add(tile);
-				player.mapValueset.add(player.getMap().get(tile));
-			}
-		}
-
-		String gameStr = gson.toJson(gameController);
-
-		return gameStr;
-	}
-	private GameController jsonToGameController(String jsonStr)
-	{
-		GameController loadedGameController = gson.fromJson(jsonStr, GameController.class);
-		for (Player player : loadedGameController.getPlayers())
-		{
-			player.setGameController(loadedGameController);
-			// set player map
-			HashMap<Tile, TileState> playerMap = new HashMap<>();
-			for (int i = 0; i < player.mapKeyset.size(); i++)
-            {
-                if(player.mapValueset.get(i).equals(TileState.REVEALED))
-				    playerMap.put(player.mapKeyset.get(i), player.mapValueset.get(i));
-                else
-                    playerMap.put(loadedGameController.getTileByXY(player.mapKeyset.get(i).getPosition().X, player.mapKeyset.get(i).getPosition().Y), player.mapValueset.get(i));
-            }
-			player.setMap(playerMap);
-
-			// set transient fields
-			for (City city : player.getCities())
-			{
-				city.setRulerPlayer(player);
-				for (Citizen citizen : city.getCitizens())
-					citizen.setCity(city);
-			}
-			for (Unit unit : player.getUnits())
-            {
-				unit.setRulerPlayer(player);
-
-                Tile tile = player.getTileByXY(unit.lastPositionForSave.X, unit.lastPositionForSave.Y);
-                unit.setTile(tile);
-                if(unit instanceof CombatUnit)
-                    tile.setCombatUnitInTile((CombatUnit) unit);
-                else
-                    tile.setNonCombatUnitInTile((NonCombatUnit) unit);
-            }
-		}
-        loadedGameController.setPlayerTurn(loadedGameController.getPlayers().get(loadedGameController.playerTurnIndex));
-
-		return loadedGameController;
-	}
     private void VboxStyle(VBox box) {
         box.setStyle("-fx-background-radius: 8;" +
                 "-fx-background-color: #572e2e;" +
@@ -498,10 +424,12 @@ public class Game extends Application {
         return box;
     }
     private void updateYear() {
-        year.setText(String.valueOf(gameController.getYear()));
+        // here
+        year.setText(String.valueOf(commandHandler.getYear()));
     }
     private void updateTurnNumber() {
-        turn.setText(String.valueOf(gameController.getTurnCounter()));
+        // here
+        turn.setText(String.valueOf(commandHandler.getTurnCounter()));
     }
     private VBox scienceInformationStyle() {
         VBox box = new VBox();
@@ -516,7 +444,8 @@ public class Game extends Application {
                 "-fx-border-radius: 5;" +
                 "-fx-pref-width: 600;");
         Label label = new Label();
-        label.setText(gameController.showResearch());
+        // here
+        label.setText(commandHandler.showResearch());
         labelStyle(label);
         box.getChildren().add(label);
         return box;
@@ -538,7 +467,7 @@ public class Game extends Application {
     private VBox updateProductionYield(VBox box) {
         for(int i = box.getChildren().size() - 1; i >= 0; i--)
             box.getChildren().remove(box.getChildren().get(0));
-        if(gameController.getPlayerTurn().getCities().size() == 0) {
+        if(commandHandler.getPlayer().getCities().size() == 0) {
             Label label = new Label();
             label.setText("production.y");
             labelStyle(label);
@@ -553,7 +482,7 @@ public class Game extends Application {
             title.setText("production.y");
             labelStyle(title);
             box.getChildren().add(title);
-            for (City city : gameController.getPlayerTurn().getCities()) {
+            for (City city : commandHandler.getPlayer().getCities()) {
                 Label label = new Label();
                 label.setText(city.getName() + " - " + city.getProductionYield());
                 labelStyle(label);
@@ -567,7 +496,8 @@ public class Game extends Application {
             if(information.getChildren().get(0).getClass() == Label.class &&
                     ((Label) information.getChildren().get(0)).getText().split(" ")[0].equals("Research") && needUpdateScience) {
                 needUpdateScience = false;
-                ((Label) information.getChildren().get(0)).setText(gameController.showResearch());
+                // here
+                ((Label) information.getChildren().get(0)).setText(commandHandler.showResearch());
             }
             if(information.getChildren().get(0).getClass() == Label.class &&
                     ((Label) information.getChildren().get(0)).getText().split(" ")[0].equals("production.y") && needUpdateProduction) {
@@ -591,11 +521,11 @@ public class Game extends Application {
         return ft;
     }
     private void setInformationStyles() {
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(7), informationVbox(String.valueOf(gameController.getPlayerTurn().getGold()), 12));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(7), informationVbox(String.valueOf(commandHandler.getPlayer().getGold()), 12));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(8), productionInformationStyle());
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(9), informationVbox(String.valueOf(gameController.getPlayerTurn().getFood()), 14));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(10), informationVbox(String.valueOf(gameController.getPlayerTurn().getPopulation()), 15));
-        setHoverForInformationTitles((ImageView) pane.getChildren().get(11), informationVbox(String.valueOf(gameController.getPlayerTurn().getHappiness()), 16));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(9), informationVbox(String.valueOf(commandHandler.getPlayer().getFood()), 14));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(10), informationVbox(String.valueOf(commandHandler.getPlayer().getPopulation()), 15));
+        setHoverForInformationTitles((ImageView) pane.getChildren().get(11), informationVbox(String.valueOf(commandHandler.getPlayer().getHappiness()), 16));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(12), scienceInformationStyle());
         setHoverForInformationTitles((ImageView) pane.getChildren().get(14), panelsVbox("cities", 20));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(16), panelsVbox("units", 75));
@@ -606,14 +536,14 @@ public class Game extends Application {
         setHoverForInformationTitles((ImageView) pane.getChildren().get(26), panelsVbox("diplomacy", 350));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(29), informationVbox("menu", 24));
         setHoverForInformationTitles((ImageView) pane.getChildren().get(31), informationVbox("Technology Tree", 18));
-        if (gameController.getPlayerTurn().getHappiness() < 50) {
+        if (commandHandler.getPlayer().getHappiness() < 50) {
             try {
                 ((ImageView) pane.getChildren().get(11)).setImage(new Image(String.valueOf(new URL("photos/gameIcons/Malcontent.png"))));
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
         }
-        if (gameController.getPlayerTurn().getResearchingTechnology() == null && !isAlertTechOn) {
+        if (commandHandler.getPlayer().getResearchingTechnology() == null && !isAlertTechOn) {
             isAlertTechOn = true;
             pane.getChildren().add(techAlert);
             notification.play();
@@ -622,7 +552,7 @@ public class Game extends Application {
         }
         else if (!isAlertTechOn)
             pane.getChildren().remove(techAlert);
-        if (gameController.getPlayerTurn().getTradeRequests().size() != 0 && !isAlertDiplomacyOn) {
+        if (commandHandler.getPlayer().getTradeRequests().size() != 0 && !isAlertDiplomacyOn) {
             isAlertDiplomacyOn = true;
             pane.getChildren().add(diplomacyAlert);
             notification.play();
@@ -639,7 +569,7 @@ public class Game extends Application {
     private void showGainedTechnologies(VBox box)
     {
         addLabelToBox(infoCommands.gained.regex, box);
-        ArrayList<Technology> tmp = gameController.getPlayerTurn().getTechnologies();
+        ArrayList<Technology> tmp = commandHandler.getPlayer().getTechnologies();
         if(tmp.size() == 0)
             addLabelToBox(infoCommands.nothing.regex, box);
         else
@@ -692,7 +622,7 @@ public class Game extends Application {
         setCoordinatesBox(list, box, 15, 35);
         list.getChildren().add(exitButtonStyle());
         setCoordinates(list, 10, 10);
-        addLabelToBox(infoCommands.numberOfCup.regex + gameController.getPlayerTurn().getCup(), box);
+        addLabelToBox(infoCommands.numberOfCup.regex + commandHandler.getPlayer().getCup(), box);
         showGainedTechnologies(box);
         addLabelToBox(infoCommands.chooseTechnology.regex, box);
 
@@ -700,7 +630,7 @@ public class Game extends Application {
         int max = 0;
         int flag = -1;
         AtomicInteger number = new AtomicInteger(-1);
-        Player tmp = gameController.getPlayerTurn();
+        Player tmp = commandHandler.getPlayer();
         ArrayList<Technology> candidateTechs = new ArrayList<>();
         for(int i = 0; i < Technology.values().length; i++)
             if(tmp.getTechnologies().containsAll(Technology.values()[i].requiredTechnologies) &&
@@ -776,11 +706,12 @@ public class Game extends Application {
         setCoordinates(list, -20, -20);
         addLabelToPane(infoCommands.requiredTurns.regex +
                             (technology.cost / 10 - player.getResearchingTechCounter()[i]), box);
-        if(gameController.requiredTechForBuilding(technology) != null)
-            addLabelToBox(infoCommands.willGain.regex + gameController.
+        // here
+        if(commandHandler.requiredTechForBuilding(technology) != null)
+            addLabelToBox(infoCommands.willGain.regex + commandHandler.
                     requiredTechForBuilding(technology).name(), box);
-        if(gameController.requiredTechForImprovement(technology) != null)
-            addLabelToBox(infoCommands.willGain.regex + gameController.
+        if(commandHandler.requiredTechForImprovement(technology) != null)
+            addLabelToBox(infoCommands.willGain.regex + commandHandler.
                     requiredTechForImprovement(technology).name(), box);
         parent.getChildren().add(list);
     }
@@ -883,10 +814,10 @@ public class Game extends Application {
         list.setLayoutX(400);
         box.setLayoutX(200);
         ArrayList<City> tmp = new ArrayList<>();
-        for(City city : gameController.getPlayerTurn().getSeizedCities())
+        for(City city : commandHandler.getPlayer().getSeizedCities())
             if(city.getState() == CityState.ATTACHED)
                 tmp.add(city);
-        box.getChildren().add(printCities(gameController.getPlayerTurn()));
+        box.getChildren().add(printCities(commandHandler.getPlayer()));
         box.getChildren().add(new Label());
         addLabelToBox(infoCommands.searchEconomic.regex.substring(1), box);
         box.getChildren().get(box.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
@@ -905,13 +836,13 @@ public class Game extends Application {
             int finalI = i;
             node.setOnMousePressed(mouseEvent -> {
                 audioClip.play();
-                if (finalI <= gameController.getPlayerTurn().getCities().size()) {
-                    gameController.getPlayerTurn().setSelectedCity(gameController.getPlayerTurn().getCities().get(finalI - 1));
+                if (finalI <= commandHandler.getPlayer().getCities().size()) {
+                    commandHandler.getPlayer().setSelectedCity(commandHandler.getPlayer().getCities().get(finalI - 1));
                     showCity();
-                    gameController.getPlayerTurn().setSelectedCity(null);
+                    commandHandler.getPlayer().setSelectedCity(null);
                 }
                 else {
-                    gameController.getPlayerTurn().setSelectedCity(tmp.get(finalI - gameController.getPlayerTurn().getCities().size() - 1));
+                    commandHandler.getPlayer().setSelectedCity(tmp.get(finalI - commandHandler.getPlayer().getCities().size() - 1));
                     showCity();
                 }
             });
@@ -936,7 +867,8 @@ public class Game extends Application {
         addLabelToBox("civilization: " + player.getCivilization().name(), box);
         addLabelToBox("civilization leader: " + player.getCivilization().leaderName, box);
         addLabelToBox("score: " + score, box);
-        addLabelToBox("win year: " + gameController.getYear(), box);
+        // here
+        addLabelToBox("win year: " + commandHandler.getYear(), box);
         addLabelToBox("you will gain " + score / 10 + " score:)", box);
     }
     public void showEconomics()
@@ -946,7 +878,7 @@ public class Game extends Application {
         panelsPaneStyle(list, 1040, 500, false);
         list.setLayoutX(100);
         list.setLayoutY(110);
-        ArrayList<City> n = gameController.getPlayerTurn().getCities();
+        ArrayList<City> n = commandHandler.getPlayer().getCities();
         VBox names = new VBox(), population = new VBox(), PF = new VBox(),
                 foodY = new VBox(), cupY = new VBox(), goldY = new VBox(),
                 productionY = new VBox(), coordinates = new VBox(),
@@ -957,7 +889,7 @@ public class Game extends Application {
             ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setSpacing(5);
             ((VBox) list.getChildren().get(list.getChildren().size() - 1 - i)).setAlignment(Pos.CENTER);
         }
-        for(City city : gameController.getPlayerTurn().getSeizedCities())
+        for(City city : commandHandler.getPlayer().getSeizedCities())
             if(city.getState() == CityState.ATTACHED)
                 n.add(city);
         if(n.size() != 0) {
@@ -1035,7 +967,7 @@ public class Game extends Application {
         addLabelToPane("notification panel", list);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutX(145);
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(10);
-        ArrayList<Notification> tmp = gameController.getPlayerTurn().getNotifications();
+        ArrayList<Notification> tmp = commandHandler.getPlayer().getNotifications();
         ImageView rightArrow = new ImageView();
         ImageView leftArrow = new ImageView();
         try {
@@ -1052,7 +984,7 @@ public class Game extends Application {
         list.getChildren().get(list.getChildren().indexOf(leftArrow)).setLayoutX(165);
         list.getChildren().get(list.getChildren().indexOf(rightArrow)).setOnMousePressed(mouseEvent -> {
             audioClip.play();
-            if(gameController.getPlayerTurn().getNotifications().size() - listNumber > 4) {
+            if(commandHandler.getPlayer().getNotifications().size() - listNumber > 4) {
                 pane.getChildren().remove(list);
                 showNotifications(listNumber + 4);
             }
@@ -1092,7 +1024,7 @@ public class Game extends Application {
         Pane box = new Pane();
         panelsPaneStyle(box, 600, 500, false);
         box.prefWidth(300);
-        ArrayList<Unit> tmp = gameController.getPlayerTurn().getUnits();
+        ArrayList<Unit> tmp = commandHandler.getPlayer().getUnits();
         VBox names = new VBox(), coordinates = new VBox(), unitState = new VBox();
         names.setSpacing(5);
         coordinates.setSpacing(5);
@@ -1100,7 +1032,7 @@ public class Game extends Application {
         box.getChildren().addAll(names, coordinates, unitState);
         names.setAlignment(Pos.CENTER);
         unitState.setAlignment(Pos.CENTER);
-        int max = gameController.getPlayerTurn().getUnits().size();
+        int max = commandHandler.getPlayer().getUnits().size();
         if(max != 0) {
             Label label = new Label();
             labelStyle(label);
@@ -1115,7 +1047,7 @@ public class Game extends Application {
         }
         for (int i = 0; i < max; i++)
         {
-            Unit unit = gameController.getPlayerTurn().getUnits().get(i);
+            Unit unit = commandHandler.getPlayer().getUnits().get(i);
             addLabelToBox((i + 1) + ": " + unit.toString().toLowerCase(), names);
             addLabelToBox(unit.getTile().getPosition().X + "," + unit.getTile().getPosition().Y, coordinates);
             addLabelToBox(unit.getUnitState().symbol, unitState);
@@ -1152,7 +1084,7 @@ public class Game extends Application {
                     else if (tmpNumber <= max + 1) {
                         if (tmpNumber == max + 1) {
                             pane.getChildren().remove(box);
-                            showMilitary(gameController.getPlayerTurn());
+                            showMilitary(commandHandler.getPlayer());
                         }
                         else {
                             if (tmp.get(tmpNumber - 1).getUnitState().equals(UnitState.ACTIVE))
@@ -1183,9 +1115,9 @@ public class Game extends Application {
                 pane.getChildren().get(i).setDisable(false);
             selectedCoins = number.get();
             if(type.equals("buy"))
-                player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,String.format("%.0f", selectedCoins), selectedResource.getRESOURCE_TYPE().name()));
+                player.getTradeRequests().add(new TradeRequest(commandHandler.getPlayer() ,String.format("%.0f", selectedCoins), selectedResource.getRESOURCE_TYPE().name()));
             else if(type.equals("sell"))
-                player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,selectedResource.getRESOURCE_TYPE().name(), String.format("%.0f", selectedCoins)));
+                player.getTradeRequests().add(new TradeRequest(commandHandler.getPlayer() ,selectedResource.getRESOURCE_TYPE().name(), String.format("%.0f", selectedCoins)));
             selectedResource = null;
             selectedCoins = 0.0;
         });
@@ -1323,11 +1255,10 @@ public class Game extends Application {
         VBox box = new VBox();
         box.setAlignment(Pos.CENTER);
         box.setSpacing(6);
-        Player player = gameController.getPlayerTurn();
-        City tmp = player.getSelectedCity();
+        City tmp = commandHandler.getPlayer().getSelectedCity();
         int flg = -1;
         for(int i = 0; i < Technology.values().length; i++)
-            if(Technology.values()[i] == player.getResearchingTechnology()) flg = i;
+            if(Technology.values()[i] == commandHandler.getPlayer().getResearchingTechnology()) flg = i;
         addLabelToBox(infoCommands.cityName.regex + tmp.getName(), box);
         addLabelToBox(gameEnum.foodYield.regex + tmp.getFoodYield(), box);
         addLabelToBox(gameEnum.production.regex + tmp.getProductionYield(), box);
@@ -1337,17 +1268,17 @@ public class Game extends Application {
         addLabelToBox(gameEnum.population.regex + tmp.getCitizens().size(), box);
         addLabelToBox(gameEnum.power.regex + tmp.getCombatStrength(), box);
         if(flg > -1) {
-            addLabelToBox(infoCommands.currentResearching.regex + gameController.
-                    getPlayerTurn().getResearchingTechnology().name(), box);
-            addLabelToBox(infoCommands.remainingTurns.regex + (player.getResearchingTechnology().
-                    cost - player.getResearchingTechCounter()[flg]), box);
+            addLabelToBox(infoCommands.currentResearching.regex + commandHandler.getPlayer().
+                    getResearchingTechnology().name(), box);
+            addLabelToBox(infoCommands.remainingTurns.regex + (commandHandler.getPlayer().getResearchingTechnology().
+                    cost - commandHandler.getPlayer().getResearchingTechCounter()[flg]), box);
         }
         else {
             addLabelToBox(infoCommands.currentResearching.regex + infoCommands.nothing.regex, box);
             addLabelToBox(infoCommands.remainingTurns.regex + "-", box);
         }
         addLabelToBox(gameEnum.employedCitizens.regex + (tmp.employedCitizens()), box);
-        addLabelToBox(gameEnum.unEmployedCitizens.regex + (gameController.getPlayerTurn().
+        addLabelToBox(gameEnum.unEmployedCitizens.regex + (commandHandler.getPlayer().
                 getTotalPopulation() - tmp.employedCitizens()), box);
         if(tmp.getCurrentConstruction() != null) {
             addLabelToBox(gameEnum.currentConstruction.regex + tmp.getCurrentConstruction().toString(), box);
@@ -1414,8 +1345,9 @@ public class Game extends Application {
         addLabelToBox("you can also see the other players information\nchoose a civilization: ", players);
         int number = 0;
         ArrayList<Player> newArr = new ArrayList<>();
-        for(Player player : gameController.getPlayers())
-            if(player != gameController.getPlayerTurn()) {
+        // here
+        for(Player player : commandHandler.getPlayers())
+            if(!player.getCivilization().equals(commandHandler.getPlayer().getCivilization())) {
                 addLabelToBox((number + 1) + ": " + player.getCivilization().name(), players);
                 players.getChildren().get(players.getChildren().size() - 1).setOnMousePressed(mouseEvent -> {
                     audioClip.play();
@@ -1440,6 +1372,7 @@ public class Game extends Application {
     }
     public Pane showScoreBoard()
     {
+        // here
         Pane list = new Pane();
         panelsPaneStyle(list, 300, 250, false);
         VBox box = new VBox();
@@ -1448,20 +1381,21 @@ public class Game extends Application {
         box.setAlignment(Pos.CENTER);
         setCoordinatesBox(list, box, 75, 10);
         addLabelToBox(infoCommands.scoreBoard.regex, box);
-        gameController.getPlayers().sort((o1, o2) -> {
+        ArrayList<Player> players = commandHandler.getPlayers();
+        players.sort((o1, o2) -> {
             if (o1.getGameScore() == o2.getGameScore())
                 return 0;
             return o1.getGameScore() < o2.getGameScore() ? -1 : 1;
         });
-        int number = gameController.getPlayers().size();
+        int number = players.size();
         for(int i = number - 1; i >= 0; i--)
-            addLabelToBox((number - i) + " - " + gameController.getPlayers().get(i).getCivilization().name().toLowerCase(Locale.ROOT)
-                    + ": " +  gameController.getPlayers().get(i).getGameScore(), box);
+            addLabelToBox((number - i) + " - " + players.get(i).getCivilization().name().toLowerCase(Locale.ROOT)
+                    + ": " +  players.get(i).getGameScore(), box);
         int avg = 0;
-        for(Player player1 : gameController.getPlayers())
+        for(Player player1 : players)
             avg += player1.getGameScore();
         addLabelToBox("----------------------", box);
-        addLabelToBox(infoCommands.averageScore.regex + ((double) avg / gameController.getPlayers().size()), box);
+        addLabelToBox(infoCommands.averageScore.regex + ((double) avg / players.size()), box);
 
         list.getChildren().add(exitButtonStyle());
         setCoordinates(list, 10, 10);
@@ -1469,12 +1403,12 @@ public class Game extends Application {
     }
     public void demographics(MouseEvent mouseEvent) {
         audioClip.play();
-        showDemographic(gameController.getPlayerTurn());
+        showDemographic(commandHandler.getPlayer());
     }
 
     public void military(MouseEvent mouseEvent) {
         audioClip.play();
-        showMilitary(gameController.getPlayerTurn());
+        showMilitary(commandHandler.getPlayer());
     }
     private void addButtonToBox(String text, VBox box) {
         Button button = new Button();
@@ -1513,11 +1447,6 @@ public class Game extends Application {
             Button button = makeButtonLarge("save " + (i + 1));
             box.getChildren().add(button);
         }
-
-        box.getChildren().get(0).setOnMouseClicked(mouseEvent -> save1());
-        box.getChildren().get(1).setOnMouseClicked(mouseEvent -> save2());
-        box.getChildren().get(2).setOnMouseClicked(mouseEvent -> save3());
-        box.getChildren().get(3).setOnMouseClicked(mouseEvent -> save4());
 
         list.getChildren().add(box);
         setCoordinates(list, 100, 45);
@@ -1747,7 +1676,7 @@ public class Game extends Application {
         for(Technology technology : technologies) {
             Label label = new Label();
             label.setText(String.valueOf(technology));
-            if(gameController.getPlayerTurn().getResearchingTechnology() == technology) {
+            if(commandHandler.getPlayer().getResearchingTechnology() == technology) {
                 label.setStyle("-fx-background-color: #00ff3c;" +
                         "-fx-text-fill: #560000;" +
                         "-fx-border-width: 4;" +
@@ -1755,7 +1684,7 @@ public class Game extends Application {
                         "-fx-border-radius: 5;" +
                         "-fx-background-radius: 7");
             }
-            else if(gameController.getPlayerTurn().getTechnologies().contains(technology)) {
+            else if(commandHandler.getPlayer().getTechnologies().contains(technology)) {
                 label.setStyle("-fx-background-color: #ff0032;" +
                         "-fx-text-fill: #560000;" +
                         "-fx-border-width: 4;" +
@@ -1828,8 +1757,9 @@ public class Game extends Application {
         }
 
         ArrayList<Player> players = new ArrayList<>();
-        for (Player player : gameController.getPlayers())
-            if(player != gameController.getPlayerTurn())
+        // here
+        for (Player player : commandHandler.getPlayers())
+            if(!player.getCivilization().equals(commandHandler.getPlayer().getCivilization()))
                 players.add(player);
         //information
         if(players.size() != 0) {
@@ -1851,13 +1781,13 @@ public class Game extends Application {
 
             declareWar.getChildren().add(makeButton("war"));
             declareWar.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
-                player.getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.ENEMY);
-                gameController.getPlayerTurn().getRelationStates().replace(player.getCivilization(), RelationState.ENEMY);
+                player.getRelationStates().replace(commandHandler.getPlayer().getCivilization(), RelationState.ENEMY);
+                commandHandler.getPlayer().getRelationStates().replace(player.getCivilization(), RelationState.ENEMY);
             });
             makePeace.getChildren().add(makeButton("peace"));
-            makePeace.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> player.getTradeRequests().add(new TradeRequest(gameController.getPlayerTurn() ,"peace", "peace")));
+            makePeace.getChildren().get(declareWar.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> player.getTradeRequests().add(new TradeRequest(commandHandler.getPlayer() ,"peace", "peace")));
             addLabelToBox(player.getRelationStates().
-                    get(gameController.getPlayerTurn().getCivilization()).name(), relationState);
+                    get(commandHandler.getPlayer().getCivilization()).name(), relationState);
             trade.getChildren().add(makeButton("trade"));
             trade.getChildren().get(trade.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
                 pane.getChildren().add(tradePanel(player));
@@ -1867,7 +1797,7 @@ public class Game extends Application {
             chat.getChildren().add(makeButton("chat"));
             chat.getChildren().get(chat.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
                 ChatMenu chatMenu = new ChatMenu();
-                //ChatMenu.sender = registerController.getUserByUsername(gameController.getPlayerTurn().getUsername());
+                //ChatMenu.sender = registerController.getUserByUsername(this.player.getUsername());
                 ChatMenu.receiver = player;
                 try {
                     chatMenu.start(new Stage());
@@ -1894,7 +1824,7 @@ public class Game extends Application {
         setCoordinates(list, 15, 250);
         requests.setSpacing(5);
         requests.setAlignment(Pos.TOP_LEFT);
-        for (TradeRequest request : gameController.getPlayerTurn().getTradeRequests()) {
+        for (TradeRequest request : commandHandler.getPlayer().getTradeRequests()) {
             Label label = new Label();
             if (request.getOfferToSell().equals("peace")) {
                 label.setText(request.getSender().getUsername() + " want's to make peace:)");
@@ -1923,15 +1853,15 @@ public class Game extends Application {
                     tradeAccepted.play();
                     pane.getChildren().remove(yesOrNo);
                     requests.getChildren().remove(label);
-                    gameController.getPlayerTurn().getTradeRequests().remove(request);
+                    commandHandler.getPlayer().getTradeRequests().remove(request);
                     list.getChildren().remove(requests);
                     list.getChildren().add(requests);
                     setCoordinates(list, 15, 250);
-                    gameController.getPlayerTurn().checkRequests(request);
+                    commandHandler.getPlayer().checkRequests(request);
                     list.getChildren().remove(relationState);
                     list.getChildren().add(relationState);
                     setCoordinatesBox(list, relationState, 535, 60);
-                    if (gameController.getPlayerTurn().getTradeRequests().size() == 0)
+                    if (commandHandler.getPlayer().getTradeRequests().size() == 0)
                         pane.getChildren().remove(diplomacyAlert);
                     setInformationStyles();
                     pane.requestFocus();
@@ -1948,11 +1878,11 @@ public class Game extends Application {
                 no.setOnMouseClicked(mouseEvent1 -> {
                     pane.getChildren().remove(yesOrNo);
                     requests.getChildren().remove(label);
-                    gameController.getPlayerTurn().getTradeRequests().remove(request);
+                    commandHandler.getPlayer().getTradeRequests().remove(request);
                     list.getChildren().remove(requests);
                     list.getChildren().add(requests);
                     setCoordinates(list, 15, 250);
-                    if (gameController.getPlayerTurn().getTradeRequests().size() == 0)
+                    if (commandHandler.getPlayer().getTradeRequests().size() == 0)
                         pane.getChildren().remove(diplomacyAlert);
                 });
             });
@@ -2034,7 +1964,6 @@ public class Game extends Application {
         return 0;
     }
     private Pane resourcePanel(String type, Player player) {
-        gameController.getPlayers().get(1).getResources().add(new LuxuryResource(ResourceType.IVORY));
         Pane list = new Pane();
         panelsPaneStyle(list, 500, 350, false);
 
@@ -2044,7 +1973,7 @@ public class Game extends Application {
         if (type.equals("buy"))
             resources = player.getResources();
         else
-            resources = gameController.getPlayerTurn().getResources();
+            resources = commandHandler.getPlayer().getResources();
         int flag = 0;
         while (flag < resources.size()){
             VBox names = new VBox();
@@ -2075,7 +2004,7 @@ public class Game extends Application {
     private Pane tradePanel(Player player) {
         Pane list = new Pane();
         panelsPaneStyle(list, 500, 350, false);
-        addLabelToPane("you: " + gameController.getPlayerTurn().getUsername(), list);
+        addLabelToPane("you: " + commandHandler.getPlayer().getUsername(), list);
         setCoordinates(list, 50, 10);
         addLabelToPane("receiver: " + player.getUsername(), list);
         setCoordinates(list, 350, 10);
@@ -2151,17 +2080,5 @@ public class Game extends Application {
     }
     public void showDiplomacy(MouseEvent mouseEvent) {
         showDiplomacy();
-    }
-    private void save1() {
-        saveGameToFile("save1.json");
-    }
-    private void save2() {
-        saveGameToFile("save2.json");
-    }
-    private void save3() {
-        saveGameToFile("save3.json");
-    }
-    private void save4() {
-        saveGameToFile("save4.json");
     }
 }
