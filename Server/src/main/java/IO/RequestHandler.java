@@ -1004,6 +1004,7 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         String username = (String) request.getParams().get("username");
         Menu.loggedInUser.getFriends().add(username);
+        Server.registerController.getUserByUsername(username).getFriends().add(Menu.loggedInUser.getUsername());
         Menu.loggedInUser.getFriendRequests().remove(username);
         Server.registerController.writeDataOnJson();
         return response;
