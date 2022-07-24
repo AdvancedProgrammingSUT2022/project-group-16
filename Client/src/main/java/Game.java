@@ -147,7 +147,7 @@ public class Game extends Application {
                         throw new RuntimeException(e);
                     }
 
-                    if(messageFromServer.getMassage().equals("update screen"))
+                    if(messageFromServer.getMassage().equals("update"))
                     {
                         Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
                         commandHandler.setPlayer(updatedPlayer);
