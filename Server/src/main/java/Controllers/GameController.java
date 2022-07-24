@@ -1400,76 +1400,55 @@ public class GameController implements Serializable
 
 	public String selectCUnit(String command)
 	{
-		for(int i = 0; i < command.length(); i++)
-		{
-			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
-			Matcher matcher2 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewPos);
-			int x = 0, y = 0;
-			if(matcher1 != null)
-			{
-				x = Integer.parseInt(matcher1.group("x"));
-				y = Integer.parseInt(matcher1.group("y"));
-			}
-			else if(matcher2 != null)
-			{
-				x = Integer.parseInt(matcher2.group("x"));
-				y = Integer.parseInt(matcher2.group("y"));
-			}
-			if(matcher1 != null || matcher2 != null)
-			{
-				if(x >= getInstance().MAP_SIZE || x < 0 ||
-						y >= getInstance().MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(Player player : players)
-					for(int j = 0; j < player.getUnits().size(); j++)
-						if(player.getUnits().get(j).getTile().getPosition().X == x &&
-								player.getUnits().get(j).getTile().getPosition().Y == y &&
-								!player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
-						{
-							playerTurn.setSelectedUnit(player.getUnits().get(j));
-							return selectCommands.selected.regex;
-						}
-				return selectCommands.coordinatesDoesntExistCUnit.regex + x + selectCommands.and.regex + y;
-			}
+		int x, y;
+		try{
+			String[] coordinates = command.split(",");
+			coordinates[0] = coordinates[0].trim();
+			coordinates[1] = coordinates[1].trim();
+			x = Integer.parseInt(coordinates[0]);
+			y= Integer.parseInt(coordinates[1]);
+		}catch (Exception e){
+			return selectCommands.invalidCommand.regex;
 		}
-		return selectCommands.invalidCommand.regex;
+		if(x >= getInstance().MAP_SIZE || x < 0 ||
+				y >= getInstance().MAP_SIZE || y < 0)
+			return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
+		for(Player player : players)
+			for(int j = 0; j < player.getUnits().size(); j++)
+				if(player.getUnits().get(j).getTile().getPosition().X == x &&
+						player.getUnits().get(j).getTile().getPosition().Y == y &&
+						!player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				{
+					playerTurn.setSelectedUnit(player.getUnits().get(j));
+					return selectCommands.selected.regex;
+				}
+		return selectCommands.coordinatesDoesntExistCUnit.regex + x + selectCommands.and.regex + y;
 	}
 	public String selectNUnit(String command)
 	{
-		int flag = -1;
-		for(int i = 0; i < command.length(); i++)
-		{
-			Matcher matcher1 = selectCommands.compareRegex(command.substring(i), selectCommands.newPos);
-			Matcher matcher2 = selectCommands.compareRegex(command.substring(i), selectCommands.shortNewPos);
-			int x = 0, y = 0;
-			if(matcher1 != null)
-			{
-				x = Integer.parseInt(matcher1.group("x"));
-				y = Integer.parseInt(matcher1.group("y"));
-			}
-			else if(matcher2 != null)
-			{
-				x = Integer.parseInt(matcher2.group("x"));
-				y = Integer.parseInt(matcher2.group("y"));
-			}
-			if(matcher1 != null || matcher2 != null)
-			{
-				if(x >= getInstance().MAP_SIZE || x < 0 ||
-						y >= getInstance().MAP_SIZE || y < 0)
-					return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
-				for(Player player : players)
-					for(int j = 0; j < player.getUnits().size(); j++)
-						if(player.getUnits().get(j).getTile().getPosition().X == x &&
-								player.getUnits().get(j).getTile().getPosition().Y == y &&
-								player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
-						{
-							playerTurn.setSelectedUnit(player.getUnits().get(j));
-							return selectCommands.selected.regex;
-						}
-				return selectCommands.coordinatesDoesntExistNUnit.regex + x + selectCommands.and.regex + y;
-			}
+		int x, y;
+		try{
+			String[] coordinates = command.split(",");
+			coordinates[0] = coordinates[0].trim();
+			coordinates[1] = coordinates[1].trim();
+			x = Integer.parseInt(coordinates[0]);
+			y= Integer.parseInt(coordinates[1]);
+		}catch (Exception e){
+			return selectCommands.invalidCommand.regex;
 		}
-		return selectCommands.invalidCommand.regex;
+		if(x >= getInstance().MAP_SIZE || x < 0 ||
+				y >= getInstance().MAP_SIZE || y < 0)
+			return selectCommands.invalidRange.regex + (getInstance().MAP_SIZE - 1);
+		for(Player player : players)
+			for(int j = 0; j < player.getUnits().size(); j++)
+				if(player.getUnits().get(j).getTile().getPosition().X == x &&
+						player.getUnits().get(j).getTile().getPosition().Y == y &&
+						player.getUnits().get(j).getClass().getSuperclass().getSimpleName().equals("NonCombatUnit"))
+				{
+					playerTurn.setSelectedUnit(player.getUnits().get(j));
+					return selectCommands.selected.regex;
+				}
+		return selectCommands.coordinatesDoesntExistNUnit.regex + x + selectCommands.and.regex + y;
 	}
 
 	public String selectCity(String command)
@@ -1786,27 +1765,25 @@ public class GameController implements Serializable
 				((LongRange) unit).setSet(1);
 		}
 	}
-	public String setup(Matcher matcher)
+	public String setup(int x, int y)
 	{
-		if (matcher == null)
-			return unitCommands.wrongCoordinates.regex;
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
 				return unitCommands.notYours.regex;
-			else if(isValidCoordinate(matcher) == null)
+			else if(isValidCoordinate(x,y) == null)
 				return unitCommands.rangeError.regex;
 			else if(!playerTurn.getSelectedUnit().getClass().equals(LongRange.class))
 				return unitCommands.isNotLongRange.regex;
 			else if(!isSiege(((LongRange) playerTurn.getSelectedUnit())))
 				return unitCommands.isNotSiege.regex;
-			else if(belongToCity(isValidCoordinate(matcher)) == null)
+			else if(belongToCity(isValidCoordinate(x,y)) == null)
 				return unitCommands.notCityInDestination.regex;
-			else if(belongToPlayerTurn(isValidCoordinate(matcher)))
+			else if(belongToPlayerTurn(isValidCoordinate(x,y)))
 				return unitCommands.playerTurnCity.regex;
 			else
 			{
-				Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+				Tile tile = getTileByXY(x, y);
 				LongRange tmp = ((LongRange) playerTurn.getSelectedUnit());
 				tmp.setUnitState(UnitState.IS_SET);
 				tmp.setTargetCity(belongToCity(tile));
@@ -1870,19 +1847,26 @@ public class GameController implements Serializable
 		return unitCommands.destroyCity.regex;
 	}
 
+	public City getCityByName(String name){
+		for (Player player : GameController.getInstance().getPlayers()) {
+			for (City city : player.getCities()) {
+				if(city.getName().equals(name))
+					return city;
+			}
+		}
+		return null;
+	}
 	public String attachCity(City city)
 	{
 		city.attachCity();
 		playerTurn.setHappiness((int) (playerTurn.getHappiness() * 0.95));
 		return unitCommands.attachCity.regex;
 	}
-	public String attackCity(Matcher matcher)
+	public String attackCity(int x, int y)
 	{
-		if(matcher == null)
+		if(isValidCoordinate(x, y) == null)
 			return unitCommands.wrongCoordinates.regex;
-		if(isValidCoordinate(matcher) == null)
-			return unitCommands.wrongCoordinates.regex;
-		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		Tile tile = getTileByXY(x, y);
 		if(playerTurn.getSelectedUnit() != null)
 		{
 			if(!playerTurn.getUnits().contains(playerTurn.getSelectedUnit()))
@@ -2350,10 +2334,8 @@ public class GameController implements Serializable
 		else
 			return gameEnum.nonSelect.regex;
 	}
-	public Tile isValidCoordinate(Matcher matcher)
+	public Tile isValidCoordinate(int x, int y)
 	{
-		int x = Integer.parseInt(matcher.group("x"));
-		int y = Integer.parseInt(matcher.group("y"));
 		if(x > 9 || x < 0 || y > 9 || y < 0)
 			return null;
 		return getTileByXY(x, y);
@@ -2445,13 +2427,21 @@ public class GameController implements Serializable
 			player.setHappiness(100 - players.size() * 5);
 	}
 
-	public String buyTile(Matcher matcher)
+	public String buyTile(String command)
 	{
-		if (matcher == null)
-			return gameEnum.invalidCoordinate.regex;
-		if(isValidCoordinate(matcher) == null)
+		int x, y;
+		try{
+			String[] coordinates = command.split(",");
+			coordinates[0] = coordinates[0].trim();
+			coordinates[1] = coordinates[1].trim();
+			x = Integer.parseInt(coordinates[0]);
+			y= Integer.parseInt(coordinates[1]);
+		}catch (Exception e){
+			return selectCommands.invalidRange.regex;
+		}
+		if(isValidCoordinate(x,y) == null)
 			return unitCommands.wrongCoordinates.regex;
-		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		Tile tile = getTileByXY(x, y);
 		if(playerTurn.getSelectedCity() != null)
 			return playerTurn.getSelectedCity().purchaseTile(tile);
 		return gameEnum.nonSelect.regex;
@@ -2569,13 +2559,21 @@ public class GameController implements Serializable
 				return citizen;
 		return null;
 	}
-	public String lockCitizenToTile(Matcher matcher)
+	public String lockCitizenToTile(String command)
 	{
-		if(matcher == null)
-			return gameEnum.invalidCommand.regex;
-		if(isValidCoordinate(matcher) == null)
+		int x, y;
+		try{
+			String[] coordinates = command.split(",");
+			coordinates[0] = coordinates[0].trim();
+			coordinates[1] = coordinates[1].trim();
+			x = Integer.parseInt(coordinates[0]);
+			y= Integer.parseInt(coordinates[1]);
+		}catch (Exception e){
+			return selectCommands.invalidRange.regex;
+		}
+		if(isValidCoordinate(x,y) == null)
 			return unitCommands.wrongCoordinates.regex;
-		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		Tile tile = getTileByXY(x, y);
 		if(playerTurn.getSelectedCity() != null)
 		{
 			if(isUnemployed(playerTurn.getSelectedCity()) == null)
@@ -2592,13 +2590,21 @@ public class GameController implements Serializable
 				return citizen;
 		return null;
 	}
-	public String unLockCitizenToTile(Matcher matcher)
+	public String unLockCitizenToTile(String command)
 	{
-		if(matcher == null)
-			return gameEnum.invalidCommand.regex;
-		if(isValidCoordinate(matcher) == null)
+		int x, y;
+		try{
+			String[] coordinates = command.split(",");
+			coordinates[0] = coordinates[0].trim();
+			coordinates[1] = coordinates[1].trim();
+			x = Integer.parseInt(coordinates[0]);
+			y= Integer.parseInt(coordinates[1]);
+		}catch (Exception e){
+			return selectCommands.invalidRange.regex;
+		}
+		if(isValidCoordinate(x,y) == null)
 			return unitCommands.wrongCoordinates.regex;
-		Tile tile = getTileByXY(Integer.parseInt(matcher.group("x")), Integer.parseInt(matcher.group("y")));
+		Tile tile = getTileByXY(x, y);
 		if(playerTurn.getSelectedCity() != null)
 		{
 			if(hasCitizenOnTile(tile) == null)
