@@ -1,5 +1,7 @@
 package IO;
 
+import Models.Player.TileState;
+import Models.Terrain.Tile;
 import Models.User;
 import Models.chat.Message;
 import Models.chat.publicMessage;
@@ -15,6 +17,16 @@ public class Response {
     private ArrayList<User> users = new ArrayList<>();
     private HashMap<String, ArrayList<Message>> privateChats = new HashMap<>();
     private ArrayList<publicMessage> publicChats = new ArrayList<>();
+    private HashMap<Tile, TileState> Map = new HashMap<>();
+    private ArrayList<Tile> GameMap = new ArrayList<>();
+
+    public HashMap<Tile, TileState> getMap() {
+        return Map;
+    }
+
+    public void setMap(HashMap<Tile, TileState> map) {
+        Map = map;
+    }
 
     public ArrayList<publicMessage> getPublicChats() {
         return publicChats;
@@ -74,5 +86,13 @@ public class Response {
 
     public HashMap<String, ArrayList<Message>> getPrivateChats() {
         return privateChats;
+    }
+
+    public void setGameMap(ArrayList<Tile> map) {
+        this.GameMap = map;
+    }
+
+    public ArrayList<Tile> getGameMap() {
+        return GameMap;
     }
 }
