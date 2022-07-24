@@ -3,6 +3,7 @@ package IO;
 import Controllers.GameController;
 import Controllers.ProfileController;
 import Controllers.MainMenuController;
+import Models.City.BuildingType;
 import Models.Menu.Menu;
 import Models.Player.Civilization;
 import Models.Player.Player;
@@ -11,6 +12,9 @@ import com.google.gson.Gson;
 import enums.cheatCode;
 import Models.chat.Message;
 import Models.chat.publicMessage;
+import enums.gameCommands.selectCommands;
+import enums.gameCommands.unitCommands;
+import enums.gameEnum;
 import enums.registerEnum;
 import server.GameRoom;
 import server.chatServer;
@@ -469,22 +473,6 @@ public class RequestHandler  extends Thread{
         return response;
     }
 
-    private Response selectCUnit(Request request){
-        String message = GameController.getInstance().selectCUnit((String) request.getParams().get("command"));
-        Response response = new Response();
-        if(!message.equals(selectCommands.selected.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
-
-    private Response selectNCUnit(Request request)
-    {
-        String message = GameController.getInstance().selectNUnit((String) request.getParams().get("command"));
-        Response response = new Response();
-        if(!message.equals(selectCommands.selected.regex)) response.setStatus(400);
-        response.addMassage(message);
-        return response;
-    }
 
     private Response moveUnit(Request request){
         int destinationX = (int) request.getParams().get("destinationX");
@@ -888,18 +876,6 @@ public class RequestHandler  extends Thread{
         }
     }
 
-    private Response moveUnit(Request request)
-    {
-        int destinationX = (int) request.getParams().get("destinationX");
-        int destinationY = (int) request.getParams().get("destinationY");
-
-        // TODO: move combat unit in THE tile
-        Matcher matcher = Pattern.compile("move CUnit (?<x>\\d+) (?<y>\\d+)").matcher("move CUnit " + destinationX + " " + destinationY);
-        Response response = new Response();
-        response.addMassage(GameController.getInstance().moveUnit(matcher));
-        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
-        return response;
-    }
     private Response cheatCode(Request request)
     {
         Response response = new Response();
