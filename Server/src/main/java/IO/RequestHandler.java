@@ -470,7 +470,7 @@ public class RequestHandler  extends Thread{
     }
     private Response isGameEnd(){
         Response response = new Response();
-        response.addUser(GameController.getInstance().isGameEnd());
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().isGameEnd()));
         return response;
     }
 

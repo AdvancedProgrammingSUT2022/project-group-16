@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 
 public class RegisterController {
 
-	public final URL guestImage = getClass().getResource("photos/profilePhotos/guest.jpg");
+	public final URL guestImage = this.getClass().getResource("/photos/profilePhotos/guest.jpg");
 
 	public void updateDatabase()
 	{
@@ -139,7 +139,8 @@ public class RegisterController {
 			return mainCommands.weakPass.regex;
 		else
 		{
-			Menu.allUsers.add(new User(username, nickname, password, photo));
+			User newUser = new User(username, nickname, password, this.getClass().getResource("/photos/profilePhotos/guest.jpg"));
+			Menu.allUsers.add(newUser);
 			this.writeDataOnJson();
 			return registerEnum.successfulCreate.regex;
 		}

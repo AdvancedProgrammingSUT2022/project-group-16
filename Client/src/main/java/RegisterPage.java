@@ -83,7 +83,7 @@ public class RegisterPage extends Application {
         else {
             if(VBox.getChildren().size() == 9)
                 VBox.getChildren().remove(VBox.getChildren().size() - 1);
-            Client.getInstance().setLoggedInUser((User) response.getParams().get("user"));
+            Client.getInstance().setLoggedInUser(response.getUsers().get(0));
             MainMenu mainMenu = new MainMenu();
             Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             mainMenu.start(stage);

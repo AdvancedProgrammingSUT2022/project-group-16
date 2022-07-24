@@ -1,8 +1,6 @@
 package Controllers;
 
 import Models.Menu.Menu;
-import Views.gameMenuView;
-import Views.profileMenuVeiw;
 import enums.mainCommands;
 import enums.mainMenuEnum;
 import server.GameRoom;
@@ -16,23 +14,6 @@ public class MainMenuController
 {
 	public static ArrayList<GameRoom> gameRooms = new ArrayList<>();
 
-	public String enterMenu(Scanner scanner, Matcher matcher) throws IOException {
-		String menuName = matcher.group("menuName");
-		if(mainCommands.compareRegex(menuName, mainCommands.profileName) != null)
-		{
-			profileMenuVeiw.run(scanner);
-			return "1";
-		}
-		else if(mainCommands.compareRegex(menuName, mainCommands.startNewGame) != null)
-		{
-			gameMenuView.runGameMenu();
-			return "1";
-		}
-		else if(mainCommands.compareRegex(menuName, mainCommands.loginMenu) != null)
-			return mainCommands.navigationError.regex;
-		else
-			return mainCommands.invalidCommand.regex;
-	}
 
 	public String logoutUser()
 	{
