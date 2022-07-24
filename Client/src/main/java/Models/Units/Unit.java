@@ -1,6 +1,5 @@
 package Models.Units;
 
-import Controllers.GameController;
 import Models.City.City;
 import Models.City.Construction;
 import Models.Player.RelationState;

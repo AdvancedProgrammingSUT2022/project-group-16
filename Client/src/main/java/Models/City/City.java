@@ -1,17 +1,13 @@
 package Models.City;
 
-import Controllers.GameController;
 import Models.Player.Player;
-import Models.Player.Technology;
 import Models.Player.TileState;
-import Models.Resources.Resource;
 import Models.Terrain.Tile;
 import Models.Terrain.TileType;
 import Models.Units.CombatUnits.*;
 import Models.Units.NonCombatUnits.*;
 import Models.Units.Unit;
 import Models.Units.UnitState;
-import com.sun.nio.sctp.Notification;
 import enums.gameEnum;
 import enums.mainCommands;
 

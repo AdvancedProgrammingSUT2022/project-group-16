@@ -1,6 +1,5 @@
 package Controllers.Utilities;
 
-import Controllers.GameController;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Player.TileState;

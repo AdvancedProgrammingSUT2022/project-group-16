@@ -1,6 +1,5 @@
 package Models.Units.CombatUnits;
 
-import Controllers.GameController;
 import Models.City.City;
 import Models.Player.Notification;
 import Models.Terrain.BorderType;

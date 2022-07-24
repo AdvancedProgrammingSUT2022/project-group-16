@@ -1,11 +1,9 @@
-import Controllers.GameController;
 import IO.Client;
 import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.User;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

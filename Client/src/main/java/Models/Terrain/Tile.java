@@ -1,6 +1,5 @@
 package Models.Terrain;
 
-import Controllers.GameController;
 import Models.City.City;
 import Models.Player.Player;
 import Models.Resources.Resource;

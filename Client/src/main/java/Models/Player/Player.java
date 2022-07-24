@@ -1,6 +1,5 @@
 package Models.Player;
 
-import Controllers.GameController;
 import Models.City.*;
 import Models.Resources.TradeRequest;
 import Models.Terrain.Position;
@@ -15,8 +14,6 @@ import Models.Units.CombatUnits.MidRange;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import Models.User;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 import java.io.IOException;
 import java.util.*;

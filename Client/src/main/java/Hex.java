@@ -1,9 +1,7 @@
-import Controllers.GameController;
 import Models.City.Building;
 import Models.City.BuildingType;
 import Models.City.City;
 import Models.Player.*;
-import Models.Resources.LuxuryResource;
 import Models.Resources.Resource;
 import Models.Resources.ResourceType;
 import Models.Terrain.*;
@@ -28,7 +26,6 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
