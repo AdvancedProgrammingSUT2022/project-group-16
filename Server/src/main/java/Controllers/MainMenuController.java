@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 
 public class MainMenuController
 {
-	private static ArrayList<GameRoom> gameRooms = new ArrayList<>();
+	public static ArrayList<GameRoom> gameRooms = new ArrayList<>();
 
 	public String enterMenu(Scanner scanner, Matcher matcher) throws IOException {
 		String menuName = matcher.group("menuName");

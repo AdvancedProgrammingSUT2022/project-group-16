@@ -22,7 +22,7 @@ public class Main extends Application
 
 		chatServer server = new chatServer();
 		server.update();
-		audioClip.play();
+//		audioClip.play();
 		WelcomePage welcomePage = new WelcomePage();
 		welcomePage.start(stage);
 	}
