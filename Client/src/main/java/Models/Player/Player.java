@@ -14,13 +14,15 @@ import Models.Units.CombatUnits.MidRange;
 import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import Models.User;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.io.IOException;
 import java.util.*;
 
 public class Player extends User
 {
-	transient GameController gameController;
+//	transient GameController gameController;
 	private boolean isYourTurn = false;
 	transient private Unit selectedUnit = null;
 	transient private City selectedCity = null;
@@ -39,6 +41,7 @@ public class Player extends User
 	private ArrayList<Resource> resources = new ArrayList<>();
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
+	public final int MAP_SIZE;
 	transient private HashMap<Tile, TileState> map;
 	public ArrayList<Tile> mapKeyset = new ArrayList<>();
 	public ArrayList<TileState> mapValueset = new ArrayList<>();
@@ -54,13 +57,13 @@ public class Player extends User
 	private boolean isUnHappy = false;
 	private HashMap<Civilization, RelationState> relationStates = new HashMap<>();
 
-	public Player(Civilization civilization, String username, String nickname, String password, int score) throws IOException {
+	public Player(Civilization civilization, String username, String nickname, String password, int score, int MAP_SIZE) throws IOException {
 		super(username, nickname, password, null);
 		this.civilization = civilization;
 		this.happiness = 100;
-		gameController = GameController.getInstance();
 		this.map = new HashMap<>();
 		this.setScore(score);
+		this.MAP_SIZE = MAP_SIZE;
 	}
 
 	public int getGameScore() {
@@ -189,12 +192,12 @@ public class Player extends User
 	}
 	public void isUnHappy()
 	{
-		isUnHappy = true;
-		for(Unit unit : units) {
-			System.out.println((int) (0.75 * gameController.powerForce(unit)));
-			unit.setPower((int) (0.75 * gameController.powerForce(unit)));
-			System.out.println(unit.getPower());
-		}
+//		isUnHappy = true;
+//		for(Unit unit : units) {
+//			System.out.println((int) (0.75 * gameController.powerForce(unit)));
+//			unit.setPower((int) (0.75 * gameController.powerForce(unit)));
+//			System.out.println(unit.getPower());
+//		}
 	}
 	public void isHappy()
 	{
@@ -247,6 +250,10 @@ public class Player extends User
 
 	public ArrayList<TradeRequest> getTradeRequests() {
 		return tradeRequests;
+	}
+	public void setTradeRequests(ArrayList<TradeRequest> tradeRequests)
+	{
+		this.tradeRequests = tradeRequests;
 	}
 
 	public int getCup()
@@ -431,183 +438,179 @@ public class Player extends User
 			unit.getTile().setNonCombatUnitInTile(null);
 		unit.setTile(null);
 	}
-	private Resource getResourceByName(String name) {
-		for (Resource resource : gameController.getPlayerTurn().getResources())
-			if (resource.getRESOURCE_TYPE().name().equals(name))
-				return resource;
-		return null;
-	}
+//	private Resource getResourceByName(String name) {
+//		for (Resource resource : gameController.getPlayerTurn().getResources())
+//			if (resource.getRESOURCE_TYPE().name().equals(name))
+//				return resource;
+//		return null;
+//	}
 	public void checkRequests(TradeRequest request) {
-		int coins;
-		Resource resource;
-		if(request.getOfferToSell().charAt(0) > 48 && request.getOfferToSell().charAt(0) < 57) {
-			coins = Integer.parseInt(request.getOfferToSell());
-			resource = getResourceByName(request.getWantToBuy());
-			gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() + coins);
-			request.getSender().setGold(request.getSender().getGold() - coins);
-			request.getSender().addResource(resource);
-
-			//after trade, they become friends
-			gameController.getPlayerTurn().getRelationStates().replace(request.getSender().getCivilization(), RelationState.FRIEND);
-			request.getSender().getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.FRIEND);
-		}
-		else if(request.getOfferToSell().equals("peace")) {
-			relationStates.replace(request.getSender().getCivilization(), RelationState.NEUTRAL);
-			request.getSender().getRelationStates().replace(this.getCivilization(), RelationState.NEUTRAL);
-
-		}
-		else {
-			coins = Integer.parseInt(request.getWantToBuy());
-			resource = getResourceByName(request.getOfferToSell());
-			if (coins <= gameController.getPlayerTurn().getGold()) {
-				gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() - coins);
-				gameController.getPlayerTurn().addResource(resource);
-				request.getSender().setGold(request.getSender().getGold() + coins);
-			}
-			//after trade, they become friends
-			gameController.getPlayerTurn().getRelationStates().replace(request.getSender().getCivilization(), RelationState.FRIEND);
-			request.getSender().getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.FRIEND);
-		}
+//		int coins;
+//		Resource resource;
+//		if(request.getOfferToSell().charAt(0) > 48 && request.getOfferToSell().charAt(0) < 57) {
+//			coins = Integer.parseInt(request.getOfferToSell());
+//			resource = getResourceByName(request.getWantToBuy());
+//			gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() + coins);
+//			request.getSender().setGold(request.getSender().getGold() - coins);
+//			request.getSender().addResource(resource);
+//
+//			//after trade, they become friends
+//			gameController.getPlayerTurn().getRelationStates().replace(request.getSender().getCivilization(), RelationState.FRIEND);
+//			request.getSender().getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.FRIEND);
+//		}
+//		else if(request.getOfferToSell().equals("peace")) {
+//			relationStates.replace(request.getSender().getCivilization(), RelationState.NEUTRAL);
+//			request.getSender().getRelationStates().replace(this.getCivilization(), RelationState.NEUTRAL);
+//
+//		}
+//		else {
+//			coins = Integer.parseInt(request.getWantToBuy());
+//			resource = getResourceByName(request.getOfferToSell());
+//			if (coins <= gameController.getPlayerTurn().getGold()) {
+//				gameController.getPlayerTurn().setGold(gameController.getPlayerTurn().getGold() - coins);
+//				gameController.getPlayerTurn().addResource(resource);
+//				request.getSender().setGold(request.getSender().getGold() + coins);
+//			}
+//			//after trade, they become friends
+//			gameController.getPlayerTurn().getRelationStates().replace(request.getSender().getCivilization(), RelationState.FRIEND);
+//			request.getSender().getRelationStates().replace(gameController.getPlayerTurn().getCivilization(), RelationState.FRIEND);
+//		}
 	}
-	public void setGameController(GameController gameController)
-	{
-		this.gameController = gameController;
-	}
-	public void updateTileStates()
-	{
-		//iterate through all tiles and change their state based on their relative position to units and cities
-
-		// this is all tiles that can be seen by the units and cities
-		HashSet<Tile> tilesInSight = new HashSet<>();
-
-		//tiles in sight of units
-		for(Unit unit : units)
-			for(Tile tile : map.keySet())
-			{
-				int distance = tile.distanceTo(unit.getTile());
-
-				if(distance == 0 || distance == 1)
-					tilesInSight.add(tile);
-				else if(distance == 2)
-				{
-						Position unitPosition = unit.getTile().getPosition();
-						Position tilePosition = tile.getPosition();
-
-						if(unitPosition.Q == tilePosition.Q)
-						{
-							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.isBlocker())
-								tilesInSight.add(tile);
-						}
-						else if(unitPosition.R == tilePosition.R)
-						{
-							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
-							if(!tileBetween.isBlocker())
-								tilesInSight.add(tile);
-						}
-						else if(unitPosition.S == tilePosition.S)
-						{
-							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
-							if(!tileBetween.isBlocker())
-								tilesInSight.add(tile);
-						} //----------------
-						if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
-						{
-							Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
-							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							if((northNeighbor != null && !northNeighbor.isBlocker()) ||
-									(northEastNeighbor != null && !northEastNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
-						{
-							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
-							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
-							if((northEastNeighbor != null && !northEastNeighbor.isBlocker()) ||
-									(southEastNeighbor != null && !southEastNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
-						{
-							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
-							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							if((southEastNeighbor != null && !southEastNeighbor.isBlocker()) ||
-									(southNeighbor != null && !southNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
-						{
-							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
-							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
-							if((southNeighbor != null && !southNeighbor.isBlocker()) ||
-									(southWestNeighbor != null && !southWestNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
-						{
-							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
-							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
-							if((southWestNeighbor != null && !southWestNeighbor.isBlocker()) ||
-									(northWestNeighbor != null && !northWestNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
-						{
-							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
-							Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
-							if((northWestNeighbor != null && !northWestNeighbor.isBlocker()) ||
-									(northNeighbor != null && !northNeighbor.isBlocker()))
-								tilesInSight.add(tile);
-						}
-					}
-			}
-		//tiles in sight of cities
-		for(City city : cities)
-			for(Tile tile : city.getTerritory())
-			{
-				tilesInSight.add(tile);
-				tilesInSight.addAll(getAdjacentTiles(tile, 1));
-			}
-
-		/* update tileStates */
-		// tileStates that are in sight
-		HashSet<Tile> tilesToBeVisible = new HashSet<>();
-		for(Tile tile : tilesInSight)
-			if(map.get(tile).equals(TileState.FOG_OF_WAR))
-				map.replace(tile, TileState.VISIBLE);
-			else if(map.get(tile).equals(TileState.REVEALED))
-				tilesToBeVisible.add(tile);
-		for(Tile tile : tilesToBeVisible)
-		{
-			map.remove(tile);
-			tilesInSight.remove(tile);
-			Tile visibleTile = gameController.getTileByXY(tile.getPosition().X, tile.getPosition().Y);
-			map.put(visibleTile, TileState.VISIBLE);
-			tilesInSight.add(visibleTile);
-		}
-
-		// collect all tiles that are not in sight and are not fog of war to make them REVEALED
-		HashSet<Tile> tilesToBeRevealed = new HashSet<Tile>();
-		for(Tile tile : map.keySet())
-		{
-			if(tilesInSight.contains(tile))
-				continue;
-			if(map.get(tile).equals(TileState.VISIBLE))
-				tilesToBeRevealed.add(tile);
-		}
-		for(Tile tile : tilesToBeRevealed)
-		{
-			map.remove(tile);
-			map.put(gameController.getTileByXY(tile.getPosition().X, tile.getPosition().Y).clone(), TileState.REVEALED);
-		}
-	}
+//	public void updateTileStates()
+//	{
+//		//iterate through all tiles and change their state based on their relative position to units and cities
+//
+//		// this is all tiles that can be seen by the units and cities
+//		HashSet<Tile> tilesInSight = new HashSet<>();
+//
+//		//tiles in sight of units
+//		for(Unit unit : units)
+//			for(Tile tile : map.keySet())
+//			{
+//				int distance = tile.distanceTo(unit.getTile());
+//
+//				if(distance == 0 || distance == 1)
+//					tilesInSight.add(tile);
+//				else if(distance == 2)
+//				{
+//						Position unitPosition = unit.getTile().getPosition();
+//						Position tilePosition = tile.getPosition();
+//
+//						if(unitPosition.Q == tilePosition.Q)
+//						{
+//							Tile tileBetween = getTileByQRS(unitPosition.Q, (unitPosition.R + tilePosition.R) / 2, (unitPosition.S + tilePosition.S) / 2);
+//							if(!tileBetween.isBlocker())
+//								tilesInSight.add(tile);
+//						}
+//						else if(unitPosition.R == tilePosition.R)
+//						{
+//							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, unitPosition.R, (unitPosition.S + tilePosition.S) / 2);
+//							if(!tileBetween.isBlocker())
+//								tilesInSight.add(tile);
+//						}
+//						else if(unitPosition.S == tilePosition.S)
+//						{
+//							Tile tileBetween = getTileByQRS((unitPosition.Q + tilePosition.Q) / 2, (unitPosition.R + tilePosition.R) / 2, unitPosition.S);
+//							if(!tileBetween.isBlocker())
+//								tilesInSight.add(tile);
+//						} //----------------
+//						if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == -2)
+//						{
+//							Tile northNeighbor = getTileByQRS(tilePosition.Q, tilePosition.R - 1, tilePosition.S + 1);
+//							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
+//							if((northNeighbor != null && !northNeighbor.isBlocker()) ||
+//									(northEastNeighbor != null && !northEastNeighbor.isBlocker()))
+//								tilesInSight.add(tile);
+//						}
+//						else if(tilePosition.Q - unitPosition.Q == 2 && tilePosition.R - unitPosition.R == -1)
+//						{
+//							Tile northEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R - 1, unitPosition.S);
+//							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+//							if((northEastNeighbor != null && !northEastNeighbor.isBlocker()) ||
+//									(southEastNeighbor != null && !southEastNeighbor.isBlocker()))
+//								tilesInSight.add(tile);
+//						}
+//						else if(tilePosition.Q - unitPosition.Q == 1 && tilePosition.R - unitPosition.R == 1)
+//						{
+//							Tile southEastNeighbor = getTileByQRS(unitPosition.Q + 1, unitPosition.R, unitPosition.S - 1);
+//							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
+//							if((southEastNeighbor != null && !southEastNeighbor.isBlocker()) ||
+//									(southNeighbor != null && !southNeighbor.isBlocker()))
+//								tilesInSight.add(tile);
+//						}
+//						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == 2)
+//						{
+//							Tile southNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R + 1, unitPosition.S - 1);
+//							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
+//							if((southNeighbor != null && !southNeighbor.isBlocker()) ||
+//									(southWestNeighbor != null && !southWestNeighbor.isBlocker()))
+//								tilesInSight.add(tile);
+//						}
+//						else if(tilePosition.Q - unitPosition.Q == -2 && tilePosition.R - unitPosition.R == 1)
+//						{
+//							Tile southWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R + 1, unitPosition.S);
+//							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
+//							if((southWestNeighbor != null && !southWestNeighbor.isBlocker()) ||
+//									(northWestNeighbor != null && !northWestNeighbor.isBlocker()))
+//								tilesInSight.add(tile);
+//						}
+//						else if(tilePosition.Q - unitPosition.Q == -1 && tilePosition.R - unitPosition.R == -1)
+//						{
+//							Tile northWestNeighbor = getTileByQRS(unitPosition.Q - 1, unitPosition.R, unitPosition.S + 1);
+//							Tile northNeighbor = getTileByQRS(unitPosition.Q, unitPosition.R - 1, unitPosition.S + 1);
+//							if((northWestNeighbor != null && !northWestNeighbor.isBlocker()) ||
+//									(northNeighbor != null && !northNeighbor.isBlocker()))
+//								tilesInSight.add(tile);
+//						}
+//					}
+//			}
+//		//tiles in sight of cities
+//		for(City city : cities)
+//			for(Tile tile : city.getTerritory())
+//			{
+//				tilesInSight.add(tile);
+//				tilesInSight.addAll(getAdjacentTiles(tile, 1));
+//			}
+//
+//		/* update tileStates */
+//		// tileStates that are in sight
+//		HashSet<Tile> tilesToBeVisible = new HashSet<>();
+//		for(Tile tile : tilesInSight)
+//			if(map.get(tile).equals(TileState.FOG_OF_WAR))
+//				map.replace(tile, TileState.VISIBLE);
+//			else if(map.get(tile).equals(TileState.REVEALED))
+//				tilesToBeVisible.add(tile);
+//		for(Tile tile : tilesToBeVisible)
+//		{
+//			map.remove(tile);
+//			tilesInSight.remove(tile);
+//			Tile visibleTile = gameController.getTileByXY(tile.getPosition().X, tile.getPosition().Y);
+//			map.put(visibleTile, TileState.VISIBLE);
+//			tilesInSight.add(visibleTile);
+//		}
+//
+//		// collect all tiles that are not in sight and are not fog of war to make them REVEALED
+//		HashSet<Tile> tilesToBeRevealed = new HashSet<Tile>();
+//		for(Tile tile : map.keySet())
+//		{
+//			if(tilesInSight.contains(tile))
+//				continue;
+//			if(map.get(tile).equals(TileState.VISIBLE))
+//				tilesToBeRevealed.add(tile);
+//		}
+//		for(Tile tile : tilesToBeRevealed)
+//		{
+//			map.remove(tile);
+//			map.put(gameController.getTileByXY(tile.getPosition().X, tile.getPosition().Y).clone(), TileState.REVEALED);
+//		}
+//	}
 
 	// gets the ArrayList<Tile> map from gameController and fills the HashMap<Tile, TileState> map
-	public void initMap()
-	{
-		for (Tile tile : gameController.getMap())
-			map.put(tile, TileState.FOG_OF_WAR);
-	}
+//	public void initMap()
+//	{
+//		for (Tile tile : gameController.getMap())
+//			map.put(tile, TileState.FOG_OF_WAR);
+//	}
 }
 
 
