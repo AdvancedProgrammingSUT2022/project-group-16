@@ -1,3 +1,4 @@
+import Controllers.CommandHandler;
 import IO.Client;
 import IO.Request;
 import IO.Response;
@@ -378,20 +379,20 @@ public class MultiplayerMenu extends Application
 
 	private void loadGame()
 	{
-		Runnable runnable = new Runnable()
+		Runnable startGameRunnable = new Runnable()
 		{
 			@Override
 			public void run()
 			{
 				Request request = new Request();
-				request.setAction("get player");
+				request.setAction("getPlayer");
 				Player player;
 				try
 				{
 					dataOutputStream.writeUTF(request.toJson());
 					dataOutputStream.flush();
 					Response response = Response.fromJson(dataInputStream.readUTF());
-					player = (Player) response.getParams().get("player");
+					player = CommandHandler.getInstance().jsonToPlayer((String) response.getParams().get("player"));
 				}
 				catch (IOException e)
 				{
@@ -410,7 +411,7 @@ public class MultiplayerMenu extends Application
 				}
 			}
 		};
-		Platform.runLater(runnable);
+		Platform.runLater(startGameRunnable);
 	}
 
 

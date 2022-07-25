@@ -65,12 +65,43 @@ public class RequestHandler  extends Thread{
                 Response response = handleRequest(request);
                 outputStream.writeUTF(response.toJson());
                 outputStream.flush();
+
+                if(response.getParams().get("player") != null)
+                    updateOtherPlayersScreen();
             }
         }catch (EOFException e){
             System.out.println("client disconnected");
         }
         catch (IOException ignored) {
             ignored.printStackTrace();
+        }
+    }
+
+    private void updateOtherPlayersScreen()
+    {
+        ArrayList<RequestHandler> allPlayersRequestHandler = new ArrayList<>(gameRoom.getJoinedClients());
+        allPlayersRequestHandler.add(gameRoom.getRoomAdmin());
+
+        for (RequestHandler requestHandler : allPlayersRequestHandler)
+        {
+            if(requestHandler.getUser().getUsername().equals(user.getUsername()))
+                continue;
+            requestHandler.updatePlayer();
+        }
+    }
+    private void updatePlayer()
+    {
+        Response response = new Response();
+        response.addMassage("update");
+
+        try
+        {
+            listenerSocketDOS.writeUTF(response.toJson());
+            listenerSocketDOS.flush();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 
@@ -107,12 +138,15 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("find room")) return findRoom(request);
         else if(request.getAction().equals("start game")) return startGame();
 
+        else if(request.getAction().equals("getPlayer")) return getPlayer();
+		else if(request.getAction().equals("getPlayers")) return getPlayers();
         else if(request.getAction().equals("move unit")) return moveUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
         else if(request.getAction().equals("found city")) return foundCity(request);
-        else if(request.getAction().equals("select CUnit")) return selectCUnit(request);
-        else if(request.getAction().equals("select NCUnit")) return selectNCUnit(request);
+        else if(request.getAction().equals("selectCUnit")) return selectCUnit(request);
+        else if(request.getAction().equals("selectNCUnit")) return selectNCUnit(request);
+        else if(request.getAction().equals("selectCity")) return selectCity(request);
         else if(request.getAction().equals("checkChangeTurn")) return checkChangeTurn();
         else if(request.getAction().equals("getMap")) return getMap(request);
         else if(request.getAction().equals("getGameMap")) return getGameMap();
@@ -149,6 +183,7 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("removeRoute")) return removeRoute();
         else if(request.getAction().equals("repair")) return repair();
         else if(request.getAction().equals("buildUnit")) return buildUnit(request);
+        else if(request.getAction().equals("buyBuilding")) return buyBuilding(request);
         else if(request.getAction().equals("buildBuilding")) return buildBuilding(request);
         else if(request.getAction().equals("buyUnit")) return buyUnit(request);
         else if(request.getAction().equals("buyTile")) return buyTile(request);
@@ -177,6 +212,7 @@ public class RequestHandler  extends Thread{
             response.addMassage(message);
             response.setStatus(400);
         }
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
 
         return response;
     }
@@ -203,17 +239,20 @@ public class RequestHandler  extends Thread{
     {
         Response response = new Response();
         response.addParam("turnCounter", GameController.getInstance().getTurnCounter());
+
         return response;
     }
     private Response getYear(){
         Response response = new Response();
         response.addParam("year", GameController.getInstance().getYear());
+
         return response;
     }
 
     private Response showResearch(){
         Response response = new Response();
         response.addParam("research", GameController.getInstance().showResearch());
+
         return response;
     }
 
@@ -223,6 +262,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(gameEnum.slept.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -239,6 +280,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.alerted.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -247,6 +290,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.fortifyActivated)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -255,6 +300,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.fortifyHealActivated.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response garrison(){
@@ -262,16 +309,20 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.garissonSet.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
     private Response setUp(Request request){
-        int x = (int) Math.floor((Double) request.getParams().get("x"));
-        int y = (int) Math.floor((Double) request.getParams().get("y"));
+        int x = Integer.parseInt((String) request.getParams().get("x"));
+        int y = Integer.parseInt((String) request.getParams().get("y"));
         String message = GameController.getInstance().setup(x,y);
         Response response = new Response();
         if(!message.equals(unitCommands.setupSuccessful.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -280,6 +331,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.destroyImprovement.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -291,20 +344,24 @@ public class RequestHandler  extends Thread{
         response.addMassage(message);
         return response;
     }
-    private Response attachCity(Request request){
-        int x = (int) Math.floor((Double) request.getParams().get("x"));
-        int y = (int) Math.floor((Double) request.getParams().get("y"));
+    private Response attackCity(Request request){
+        int x = Integer.parseInt((String) request.getParams().get("x"));
+        int y = Integer.parseInt((String) request.getParams().get("y"));
         String message = GameController.getInstance().attackCity(x, y);
         Response response = new Response();
         if(!message.equals(unitCommands.destroyCity.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
-    private Response attackCity(Request request){
+    private Response attachCity(Request request){
         String name = (String) request.getParams().get("city name");
         String message = GameController.getInstance().attachCity(GameController.getInstance().getCityByName(name)); ;
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -313,6 +370,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.cityBuilt.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -321,6 +380,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.cancelCommand.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -329,6 +390,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(gameEnum.wokeUp.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -336,6 +399,8 @@ public class RequestHandler  extends Thread{
         String message = GameController.getInstance().delete();
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response road(){
@@ -343,6 +408,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.roadBuilt.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response railRoad(){
@@ -350,6 +417,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.railRoadBuilt.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -358,6 +427,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.farmBuild.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -366,6 +437,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.mineBuild.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response tradingPost(){
@@ -373,6 +446,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.tradingPostBuild.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 
@@ -381,6 +456,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.lumberMillBuild.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response pasture(){
@@ -388,6 +465,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.pastureBuild.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response camp(){
@@ -395,6 +474,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.campBuild.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response plantation(){
@@ -402,6 +483,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.plantationBuild.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response quarry(){
@@ -409,6 +492,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals("quarry built successfully")) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response factory(){
@@ -416,6 +501,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals("factory built successfully")) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response removeFeature(){
@@ -423,6 +510,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals("feature removed successfully")) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response removeRoute(){
@@ -430,6 +519,8 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.roadRemoved.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response repair(){
@@ -437,11 +528,22 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         if(!message.equals(unitCommands.repairedSuccessful.regex)) response.setStatus(400);
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response buildUnit(Request request){
         String type = (String) request.getParams().get("type");
         String message = GameController.getInstance().buildUnit(type);
+        Response response = new Response();
+        response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
+        return response;
+    }
+    private Response buyBuilding(Request request) {
+        String type = (String) request.getParams().get("type");
+        String message = GameController.getInstance().buyBuilding(type);
         Response response = new Response();
         response.addMassage(message);
         return response;
@@ -451,6 +553,8 @@ public class RequestHandler  extends Thread{
         String message = GameController.getInstance().buildBuilding(BuildingType.valueOf(type));
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response buyTile(Request request){
@@ -458,6 +562,8 @@ public class RequestHandler  extends Thread{
         String message = GameController.getInstance().buyTile(command);
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response buyUnit(Request request){
@@ -465,6 +571,8 @@ public class RequestHandler  extends Thread{
         String message = GameController.getInstance().buyUnit(type);
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response lockCitizenToTile(Request request){
@@ -472,28 +580,54 @@ public class RequestHandler  extends Thread{
         String message = GameController.getInstance().lockCitizenToTile(coordinates);
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response unlockCitizenToTile(Request request){
         String coordinates = (String) request.getParams().get("coordinates");
-        String message = GameController.getInstance().lockCitizenToTile(coordinates);
+        String message = GameController.getInstance().unLockCitizenToTile(coordinates);
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response isGameEnd(){
         Response response = new Response();
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().isGameEnd()));
+
         return response;
     }
 
 
-    private Response moveUnit(Request request){
-        int destinationX = (int) request.getParams().get("destinationX");
-        int destinationY = (int) request.getParams().get("destinationY");
+    private Response getPlayer()
+    {
+        Response response = new Response();
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerBuUsername(user.getUsername())));
 
-        // TODO: move combat unit in THE tile
+        return response;
+    }
+	private Response getPlayers()
+	{
+		Response response = new Response();
+		ArrayList<String> playersJson = new ArrayList<>();
+        for (Player player : GameController.getInstance().getPlayers())
+            playersJson.add(GameController.getInstance().playerToJson(player));
+		response.addParam("players", playersJson);
+
+        return response;
+	}
+    private Response moveUnit(Request request){
+        String command = (String) request.getParams().get("command");
+        command = command.trim();
+        String[] destinations = command.split("\\s*,\\s*");
+
+        int destinationX = Integer.parseInt(destinations[0]);
+        int destinationY = Integer.parseInt(destinations[1]);
+
         Matcher matcher = Pattern.compile("move CUnit (?<x>\\d+) (?<y>\\d+)").matcher("move CUnit " + destinationX + " " + destinationY);
+        matcher.find();
         Response response = new Response();
         response.addMassage(GameController.getInstance().moveUnit(matcher));
         if(response.getMassage() == null){
@@ -502,6 +636,7 @@ public class RequestHandler  extends Thread{
             response.setStatus(400);
         }
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response notYourTurn()
@@ -854,7 +989,9 @@ public class RequestHandler  extends Thread{
     }
     private Response startGame()
     {
-        GameController.getInstance().addPlayer(new Player(Civilization.values()[0], user.getUsername(), user.getNickname(), user.getPassword(),user.getScore()));
+        Player player = new Player(Civilization.values()[0], user.getUsername(), user.getNickname(), user.getPassword(),user.getScore());
+        player.setIsYourTurn(true);
+        GameController.getInstance().addPlayer(player);
 
         for (int i = 0; i < gameRoom.getJoinedClients().size(); i++)
         {
@@ -923,6 +1060,7 @@ public class RequestHandler  extends Thread{
             response.addMassage(GameController.getInstance().gainStrategicResourceCheat());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainLuxuryResource)) != null)
             response.addMassage(GameController.getInstance().gainLuxuryResourceCheat());
+
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
 
         return response;
@@ -932,6 +1070,7 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         response.addMassage(GameController.getInstance().checkChangeTurn());
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response foundCity(Request request)
@@ -944,22 +1083,39 @@ public class RequestHandler  extends Thread{
     }
     private Response selectCUnit(Request request)
     {
-        int positionX = (int) request.getParams().get("positionX");
-        int positionY = (int) request.getParams().get("positionY");
+        int positionX = Integer.parseInt((String) request.getParams().get("x"));
+        int positionY = Integer.parseInt((String) request.getParams().get("y"));
         GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getCombatUnitInTile());
 
         Response response = new Response();
         response.addMassage("CUnit selected");
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
     private Response selectNCUnit(Request request)
     {
-        int positionX = (int) request.getParams().get("positionX");
-        int positionY = (int) request.getParams().get("positionY");
+        int positionX = Integer.parseInt((String) request.getParams().get("x"));
+        int positionY = Integer.parseInt((String) request.getParams().get("y"));
         GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getNonCombatUnitInTile());
 
         Response response = new Response();
         response.addMassage("NCUnit selected");
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
+        return response;
+    }
+    private Response selectCity(Request request)
+    {
+        int positionX = Integer.parseInt((String) request.getParams().get("x"));
+        int positionY = Integer.parseInt((String) request.getParams().get("y"));
+
+        GameController.getInstance().selectCity(positionX + "," + positionY);
+
+        Response response = new Response();
+        response.addMassage("city selected");
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
         return response;
     }
 

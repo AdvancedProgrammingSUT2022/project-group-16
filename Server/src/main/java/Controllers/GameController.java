@@ -164,8 +164,10 @@ public class GameController implements Serializable
 			registerController.writeDataOnJson();
 		}
 
+		playerTurn.setIsYourTurn(false);
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+		playerTurn.setIsYourTurn(true);
 	}
 
 	private void addBuildingBenefits() {
@@ -347,6 +349,8 @@ public class GameController implements Serializable
 	}
 	public String playerToJson(Player player)
 	{
+		player.updateTileStates();
+
 		// set map
 		player.mapKeyset.clear();
 		player.mapValueset.clear();
@@ -1031,6 +1035,14 @@ public class GameController implements Serializable
 		return false;
 	}
 
+	public Player getPlayerBuUsername(String username)
+	{
+		for (Player player : players)
+			if(player.getUsername().equals(username))
+				return player;
+
+		return null;
+	}
 	public Player getPlayerTurn()
 	{
 		return playerTurn;

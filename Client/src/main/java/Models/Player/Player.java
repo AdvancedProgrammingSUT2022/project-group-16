@@ -24,8 +24,8 @@ public class Player extends User
 {
 //	transient GameController gameController;
 	private boolean isYourTurn = false;
-	transient private Unit selectedUnit = null;
-	transient private City selectedCity = null;
+	private Unit selectedUnit = null;
+	private City selectedCity = null;
 	private final Civilization civilization;
 	private int food = 100;
 	private int cup = 0;
