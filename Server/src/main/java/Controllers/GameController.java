@@ -76,7 +76,7 @@ public class GameController implements Serializable
 		gson = gsonBuilder.create();
 	}
 	// this method is called to get the GameController singleton instance
-	public static GameController getInstance()
+	public static synchronized GameController getInstance()
 	{
 		if(instance == null)
 			instance = new GameController();

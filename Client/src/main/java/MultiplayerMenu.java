@@ -270,6 +270,7 @@ public class MultiplayerMenu extends Application
 				try
 				{
 					dataOutputStream.writeUTF(request.toJson());
+					dataOutputStream.flush();
 					Response response = Response.fromJson(dataInputStream.readUTF());
 					ArrayList<String> joinRequests = (ArrayList<String>) response.getParams().get("joinRequests");
 
@@ -377,45 +378,36 @@ public class MultiplayerMenu extends Application
 		}
 	}
 
+
 	private void loadGame()
 	{
-		Runnable startGameRunnable = new Runnable()
+		Request request = new Request();
+		request.setAction("getPlayer");
+		Player player;
+		try
 		{
-			@Override
-			public void run()
-			{
-				Request request = new Request();
-				request.setAction("getPlayer");
-				Player player;
-				try
-				{
-					dataOutputStream.writeUTF(request.toJson());
-					dataOutputStream.flush();
-					Response response = Response.fromJson(dataInputStream.readUTF());
+			dataOutputStream.writeUTF(request.toJson());
+			dataOutputStream.flush();
+			Response response = Response.fromJson(dataInputStream.readUTF());
+			player = CommandHandler.getInstance().jsonToPlayer((String) response.getParams().get("player"));
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 
-					System.out.println("this is response params size: " + response.getParams().size());
-
-					player = CommandHandler.getInstance().jsonToPlayer((String) response.getParams().get("player"));
-				}
-				catch (IOException e)
-				{
-					throw new RuntimeException(e);
-				}
-
-				Game game = new Game(player, Client.socket, Client.listenerSocket);
-				Main.audioClip.stop();
-				try
-				{
-					game.start((Stage) pane.getScene().getWindow());
-				}
-				catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
-			}
-		};
-		Platform.runLater(startGameRunnable);
+		Game game = new Game(player, Client.socket, Client.listenerSocket);
+		Main.audioClip.stop();
+		try
+		{
+			game.start((Stage) refreshImage.getScene().getWindow());
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
+
 
 
 	//panels

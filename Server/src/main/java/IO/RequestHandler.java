@@ -62,6 +62,10 @@ public class RequestHandler  extends Thread{
         try {
             while (true) {
                 Request request = Request.fromJson(inputStream.readUTF());
+
+                if(this.user != null)
+                    System.out.println(request.getAction() + ", from: " + user.getUsername());
+
                 Response response = handleRequest(request);
                 outputStream.writeUTF(response.toJson());
                 outputStream.flush();
@@ -106,7 +110,7 @@ public class RequestHandler  extends Thread{
     }
 
     private Response handleRequest(Request request) throws MalformedURLException {
-        if(GameController.getInstance().getPlayerTurn() != null && !GameController.getInstance().getPlayerTurn().getUsername().equals(user.getUsername())) return notYourTurn();
+//        if(GameController.getInstance().getPlayerTurn() != null && !GameController.getInstance().getPlayerTurn().getUsername().equals(user.getUsername())) return notYourTurn();
         if(request.getAction().equals("update public chats")) return updatePublicChats();
         else if(request.getAction().equals("login")) return login(request);
         else if(request.getAction().equals("register")) return register(request);
@@ -607,7 +611,7 @@ public class RequestHandler  extends Thread{
 
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerBuUsername(user.getUsername())));
 
-        System.out.println("response player param: " + response.getParams().get("player"));
+        System.out.println( user.getUsername() +  ": response player param: " + response.getParams().get("player"));
 
         return response;
     }
