@@ -14,6 +14,13 @@ public class MainMenuController
 {
 	public static ArrayList<GameRoom> gameRooms = new ArrayList<>();
 
+
+	public String logoutUser()
+	{
+		Menu.loggedInUser = null;
+		return mainMenuEnum.successfulLogout.regex;
+	}
+
 	public static GameRoom getRoomByRoomID(String roomID)
 	{
 		for (GameRoom gameRoom : gameRooms)

@@ -154,7 +154,7 @@ public class ProfileMenu extends Application {
         rectangle1.setX(585);
         rectangle1.setY(60);
         list.getChildren().add(1, rectangle1);
-        list.getChildren().add(2, new ImageView(new Image(String.valueOf(Client.getInstance().getLoggedInUser().getPhoto()))));
+        list.getChildren().add(2, new ImageView(new Image(Client.getInstance().getLoggedInUser().getPhoto().toExternalForm())));
         ((ImageView) list.getChildren().get(2)).setFitWidth(100);
         ((ImageView) list.getChildren().get(2)).setFitHeight(100);
         ((ImageView) list.getChildren().get(2)).setX(590);

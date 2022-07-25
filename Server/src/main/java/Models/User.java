@@ -18,6 +18,8 @@ public class User
 	private String lastLogin;
 	private int score = 0;
 	private  HashMap<String, ArrayList<Message>> privateChats;
+	private ArrayList<String> friends = new ArrayList<>();
+	private ArrayList<String> friendRequests = new ArrayList<>();
 
 	public User(String username, String nickname, String password, URL photo) {
 		this.username = username;
@@ -27,6 +29,12 @@ public class User
 		this.privateChats = new HashMap<>();
 	}
 
+	public ArrayList<String> getFriendRequests() {
+		return friendRequests;
+	}
+	public ArrayList<String> getFriends() {
+		return friends;
+	}
 	public String getUsername()
 	{
 		return username;

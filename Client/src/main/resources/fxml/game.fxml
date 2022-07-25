@@ -11,7 +11,7 @@
       fx:id="pane"
       prefHeight="720" prefWidth="1280"
       stylesheets="@../styles/game.css" styleClass="background">
-    <Pane />
+<!--    <Pane />-->
     <Circle layoutX="35" layoutY="35" radius="23" styleClass="Circle"/>
     <Circle layoutX="35" layoutY="90" radius="23" styleClass="Circle"/>
     <Circle layoutX="35" layoutY="145" radius="23" styleClass="Circle"/>

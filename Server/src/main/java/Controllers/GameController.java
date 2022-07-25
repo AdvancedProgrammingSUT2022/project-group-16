@@ -67,7 +67,7 @@ public class GameController implements Serializable
 	{
 		initGrid();
 
-		GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
 		gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
 		gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
@@ -76,7 +76,7 @@ public class GameController implements Serializable
 		gson = gsonBuilder.create();
 	}
 	// this method is called to get the GameController singleton instance
-	public static GameController getInstance()
+	public static synchronized GameController getInstance()
 	{
 		if(instance == null)
 			instance = new GameController();
@@ -97,7 +97,7 @@ public class GameController implements Serializable
 		if (isGameEnd() != null)
 			return "game Ended";
 		changeTurn();
-		return null; //TODO: return: "turn changed successfully"
+		return "turn changed"; //TODO: return: "turn changed successfully"
 	}
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
@@ -164,8 +164,10 @@ public class GameController implements Serializable
 			registerController.writeDataOnJson();
 		}
 
+		playerTurn.setIsYourTurn(false);
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+		playerTurn.setIsYourTurn(true);
 	}
 
 	private void addBuildingBenefits() {
@@ -345,8 +347,10 @@ public class GameController implements Serializable
 
 		return loadedGameController;
 	}
-	public String playerToJson(Player player)
+	public synchronized String playerToJson(Player player)
 	{
+		player.updateTileStates();
+
 		// set map
 		player.mapKeyset.clear();
 		player.mapValueset.clear();
@@ -1031,6 +1035,14 @@ public class GameController implements Serializable
 		return false;
 	}
 
+	public synchronized Player getPlayerBuUsername(String username)
+	{
+		for (Player player : players)
+			if(player.getUsername().equals(username))
+				return player;
+
+		return null;
+	}
 	public Player getPlayerTurn()
 	{
 		return playerTurn;

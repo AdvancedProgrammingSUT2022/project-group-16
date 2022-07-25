@@ -32,6 +32,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -112,53 +113,53 @@ public class Game extends Application {
 
     public Game(Player player, Socket socket, Socket listenerSocket)
     {
-        this.socket = socket;
-        this.listenerSocket = listenerSocket;
-        try
-        {
-            socketDIS = new DataInputStream(socket.getInputStream());
-            socketDOS = new DataOutputStream(socket.getOutputStream());
-            listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
-        commandHandler.setSocket(socket);
-        commandHandler.setPlayer(player);
-
-        // run listener
-        Runnable listenerRunnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                Response messageFromServer;
-
-                while (true)
-                {
-                    try
-                    {
-                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
-                    }
-                    catch (IOException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-
-                    if(messageFromServer.getMassage().equals("update"))
-                    {
-                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
-                        commandHandler.setPlayer(updatedPlayer);
-                        updateScreen();
-                    }
-                }
-            }
-        };
-        Thread listenerThread = new Thread(listenerRunnable);
-        listenerThread.setDaemon(true);
-        listenerThread.start();
+//        this.socket = socket;
+//        this.listenerSocket = listenerSocket;
+//        try
+//        {
+//            socketDIS = new DataInputStream(socket.getInputStream());
+//            socketDOS = new DataOutputStream(socket.getOutputStream());
+//            listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
+//        }
+//        catch (IOException e)
+//        {
+//            throw new RuntimeException(e);
+//        }
+//
+//        commandHandler.setSocket(socket);
+//        commandHandler.setPlayer(player);
+//
+//        // run listener
+//        Runnable listenerRunnable = new Runnable()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                Response messageFromServer;
+//
+//                while (true)
+//                {
+//                    try
+//                    {
+//                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
+//                    }
+//                    catch (IOException e)
+//                    {
+//                        throw new RuntimeException(e);
+//                    }
+//
+//                    if(messageFromServer.getMassage().equals("update"))
+//                    {
+//                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
+//                        commandHandler.setPlayer(updatedPlayer);
+//                        updateScreen();
+//                    }
+//                }
+//            }
+//        };
+//        Thread listenerThread = new Thread(listenerRunnable);
+//        listenerThread.setDaemon(true);
+//        listenerThread.start();
     }
 
     @Override
@@ -188,13 +189,12 @@ public class Game extends Application {
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
-                // here
                 Matcher matcher;
                 String command = textField.getText();
                 if((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
-                    commandHandler.increaseGold(matcher);
+                    commandHandler.increaseGold(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) {
-                    commandHandler.increaseTurns(matcher);
+                    commandHandler.increaseTurns(command);
                     if (commandHandler.isGameEnd() != null) {
                         winPanel(commandHandler.isGameEnd(), commandHandler.isGameEnd().getGameScore());
                     }
@@ -204,29 +204,29 @@ public class Game extends Application {
                     updateScreen();
                 }
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
-                    commandHandler.increaseFood(matcher);
+                    commandHandler.increaseFood(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
-                    commandHandler.addTechnology(matcher);
+                    commandHandler.addTechnology(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHappiness)) != null)
-                    commandHandler.increaseHappiness(matcher);
+                    commandHandler.increaseHappiness(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.killEnemyUnit)) != null)
-                    commandHandler.killEnemyUnit(matcher);
-                else if((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
-                    commandHandler.moveUnit(matcher);
+                    commandHandler.killEnemyUnit(command);
+//                else if((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
+//                    commandHandler.moveUnit(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHealth)) != null)
-                    commandHandler.increaseHealth(matcher);
+                    commandHandler.increaseHealth(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseScore)) != null)
-                    commandHandler.increaseScore(matcher);
+                    commandHandler.increaseScore(command);
                 else if(cheatCode.compareRegex(command, cheatCode.winGame) != null) {
                     commandHandler.winGame();
                     winPanel(commandHandler.getPlayer(), 5);
                 }
                 else if(cheatCode.compareRegex(command, cheatCode.gainBonusResource) != null)
-                    commandHandler.gainBonusResourceCheat();
+                    commandHandler.gainBonusResourceCheat(command);
                 else if(cheatCode.compareRegex(command, cheatCode.gainStrategicResource) != null)
-                    commandHandler.gainStrategicResourceCheat();
+                    commandHandler.gainStrategicResourceCheat(command);
                 else if(cheatCode.compareRegex(command, cheatCode.gainLuxuryResource) != null)
-                    commandHandler.gainLuxuryResourceCheat();
+                    commandHandler.gainLuxuryResourceCheat(command);
                 else if(command.equals("a")) {
                     ((Settler) commandHandler.getPlayer().getUnits().get(1)).createCity();
                     commandHandler.getPlayer().getCities().get(0).addPopulation(4);
@@ -237,6 +237,8 @@ public class Game extends Application {
                 pane.getChildren().remove(textField);
                 setInformationStyles();
                 pane.requestFocus();
+
+                updateScreen();
             }
         });
     }

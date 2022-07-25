@@ -51,6 +51,11 @@ public class MainMenu extends Application {
         profileMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
+    public void newGame(MouseEvent mouseEvent) throws Exception {
+//        NewGame newGame = new NewGame();
+//        newGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+    }
+
     public void multiplayer(MouseEvent mouseEvent) throws Exception
     {
         MultiplayerMenu multiplayerMenu = new MultiplayerMenu();
@@ -59,5 +64,15 @@ public class MainMenu extends Application {
     public void scoreBoard(MouseEvent mouseEvent) throws Exception {
         ScoreBoard scoreBoard = new ScoreBoard();
         scoreBoard.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+    }
+
+    public void loadGame(MouseEvent mouseEvent) throws Exception {
+//        LoadGame loadGame = new LoadGame();
+//        loadGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+    }
+
+    public void friendsMenu(MouseEvent mouseEvent) throws Exception {
+        FriendShipMenu friendShipMenu = new FriendShipMenu();
+        friendShipMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 }

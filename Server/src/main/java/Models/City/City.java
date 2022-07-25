@@ -36,7 +36,6 @@ public class City
 	transient private Player rulerPlayer;
 	private final String name;
 	private CityState state = CityState.NONE;
-	private final GameController gameController = GameController.getInstance();
 
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
@@ -244,13 +243,13 @@ public class City
 	}
 
 	public String purchaseTile(Tile tile){
-		for (Player player : gameController.getPlayers())
+		for (Player player : GameController.getInstance().getPlayers())
 			for (City city : player.getCities())
 				if (city.getTerritory().contains(tile))
 					return gameEnum.belongToCivilization.regex;
 		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
 			return gameEnum.notEnoughGold.regex;
-		else if (gameController.getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR))
+		else if (GameController.getInstance().getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR))
 			return gameEnum.fogOfWar.regex;
 		else if(isTileNeighbor(tile)) {
 			this.territory.add(tile);
@@ -445,17 +444,28 @@ public class City
 		if(construction.getTurnTillBuild() == 0)
 		{
 			Tile destination;
-			if(gameController.containTypeMid(currentConstruction.toString()) != null) {
+			try {
+				MidRangeType midRangeType = MidRangeType.valueOf(currentConstruction.toString());
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
-				new MidRange(rulerPlayer, MidRangeType.valueOf(currentConstruction.toString()), destination);
+				new MidRange(rulerPlayer, midRangeType, destination);
+				construction.setTurnTillBuild(4);
+				currentConstruction = null;
+				return null;
+			}catch (IllegalArgumentException e){
 			}
-			else if(gameController.containTypeLong(currentConstruction.toString()) != null) {
+			try {
+				LongRangeType longRangeType = LongRangeType.valueOf(currentConstruction.toString());
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
-				new LongRange(rulerPlayer, LongRangeType.valueOf(currentConstruction.toString()), destination);
+				new LongRange(rulerPlayer, longRangeType, destination);
+				construction.setTurnTillBuild(4);
+				currentConstruction = null;
+				return null;
+			}catch (IllegalArgumentException e){
+
 			}
-			else if(currentConstruction.toString().equals("SETTLER")) {
+			if(currentConstruction.toString().equals("SETTLER")) {
 				if((destination = findTileWithNoCUnit()) == null)
 					return "no tile empty";
 				new Settler(rulerPlayer, destination);
