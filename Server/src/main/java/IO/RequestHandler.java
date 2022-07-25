@@ -66,8 +66,8 @@ public class RequestHandler  extends Thread{
                 outputStream.writeUTF(response.toJson());
                 outputStream.flush();
 
-                if(response.getParams().get("player") != null)
-                    updateOtherPlayersScreen();
+//                if(response.getParams().get("player") != null)
+//                    updateOtherPlayersScreen();
             }
         }catch (EOFException e){
             System.out.println("client disconnected");
@@ -604,7 +604,10 @@ public class RequestHandler  extends Thread{
     private Response getPlayer()
     {
         Response response = new Response();
+
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerBuUsername(user.getUsername())));
+
+        System.out.println("response player param: " + response.getParams().get("player"));
 
         return response;
     }
@@ -996,6 +999,7 @@ public class RequestHandler  extends Thread{
         for (int i = 0; i < gameRoom.getJoinedClients().size(); i++)
         {
             RequestHandler joinedClient = gameRoom.getJoinedClients().get(i);
+            System.out.println("joined clients: " + joinedClient.getUser().getUsername());
             GameController.getInstance().addPlayer(new Player(Civilization.values()[i + 1], joinedClient.getUser().getUsername(), joinedClient.getUser().getNickname(), joinedClient.getUser().getPassword(), joinedClient.getUser().getScore()));
         }
 
@@ -1004,8 +1008,12 @@ public class RequestHandler  extends Thread{
         try
         {
             listenerSocketDOS.writeUTF("game started");
+            listenerSocketDOS.flush();
             for (RequestHandler joinedClient : gameRoom.getJoinedClients())
+            {
                 joinedClient.listenerSocketDOS.writeUTF("game started");
+                listenerSocketDOS.flush();
+            }
         }
         catch (Exception e)
         {

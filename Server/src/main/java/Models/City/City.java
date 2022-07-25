@@ -36,7 +36,6 @@ public class City
 	transient private Player rulerPlayer;
 	private final String name;
 	private CityState state = CityState.NONE;
-	private final GameController gameController = GameController.getInstance();
 
 	public City(Tile capitalTile, Player rulerPlayer)
 	{
@@ -244,13 +243,13 @@ public class City
 	}
 
 	public String purchaseTile(Tile tile){
-		for (Player player : gameController.getPlayers())
+		for (Player player : GameController.getInstance().getPlayers())
 			for (City city : player.getCities())
 				if (city.getTerritory().contains(tile))
 					return gameEnum.belongToCivilization.regex;
 		if(getRulerPlayer().getGold() < getRulerPlayer().getTilePurchaseCost())
 			return gameEnum.notEnoughGold.regex;
-		else if (gameController.getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR))
+		else if (GameController.getInstance().getPlayerTurn().getMap().get(tile).equals(TileState.FOG_OF_WAR))
 			return gameEnum.fogOfWar.regex;
 		else if(isTileNeighbor(tile)) {
 			this.territory.add(tile);

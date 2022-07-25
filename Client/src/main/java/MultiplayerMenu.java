@@ -392,6 +392,9 @@ public class MultiplayerMenu extends Application
 					dataOutputStream.writeUTF(request.toJson());
 					dataOutputStream.flush();
 					Response response = Response.fromJson(dataInputStream.readUTF());
+
+					System.out.println("this is response params size: " + response.getParams().size());
+
 					player = CommandHandler.getInstance().jsonToPlayer((String) response.getParams().get("player"));
 				}
 				catch (IOException e)

@@ -52,8 +52,8 @@ public class MainMenu extends Application {
     }
 
     public void newGame(MouseEvent mouseEvent) throws Exception {
-        NewGame newGame = new NewGame();
-        newGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+//        NewGame newGame = new NewGame();
+//        newGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
     public void multiplayer(MouseEvent mouseEvent) throws Exception
@@ -67,8 +67,8 @@ public class MainMenu extends Application {
     }
 
     public void loadGame(MouseEvent mouseEvent) throws Exception {
-        LoadGame loadGame = new LoadGame();
-        loadGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
+//        LoadGame loadGame = new LoadGame();
+//        loadGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
     public void friendsMenu(MouseEvent mouseEvent) throws Exception {

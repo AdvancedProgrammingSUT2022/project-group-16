@@ -22,7 +22,6 @@ import java.util.*;
 
 public class Player extends User
 {
-//	transient GameController gameController;
 	private boolean isYourTurn = false;
 	private Unit selectedUnit = null;
 	private City selectedCity = null;

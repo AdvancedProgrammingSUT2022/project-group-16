@@ -8,9 +8,11 @@ import Models.City.City;
 import Models.City.Construction;
 import Models.Player.Player;
 import Models.Player.Technology;
+import Models.Player.TileState;
 import Models.Resources.Resource;
 import Models.Resources.TradeRequest;
 import Models.Terrain.Improvement;
+import Models.Terrain.Tile;
 import Models.TypeAdapters.*;
 import Models.Units.CombatUnits.CombatUnit;
 import Models.Units.NonCombatUnits.NonCombatUnit;
@@ -25,6 +27,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 
 public class CommandHandler
@@ -40,7 +43,7 @@ public class CommandHandler
 
 	private CommandHandler()
 	{
-		GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
 		gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
 		gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
@@ -79,7 +82,15 @@ public class CommandHandler
 
 	public Player jsonToPlayer(String playerJson)
 	{
+		System.out.println(playerJson);
+
 		Player player = gson.fromJson(playerJson, Player.class);
+
+		// set map
+		HashMap<Tile, TileState> map = new HashMap<>();
+		for (int i = 0; i < player.mapKeyset.size(); i++)
+			map.put(player.mapKeyset.get(i), player.mapValueset.get(i));
+		player.setMap(map);
 
 		// set units
 		for (Unit unit : player.getUnits())
@@ -90,7 +101,8 @@ public class CommandHandler
 				unit.getTile().setCombatUnitInTile((CombatUnit) unit);
 			else
 				unit.getTile().setNonCombatUnitInTile((NonCombatUnit) unit);
-			unit.setDestination(player.getTileByXY(unit.getDestination().getPosition().X, unit.getDestination().getPosition().Y));
+			if(unit.getDestination() != null)
+				unit.setDestination(player.getTileByXY(unit.getDestination().getPosition().X, unit.getDestination().getPosition().Y));
 		}
 		if(player.getSelectedUnit() != null && player.getSelectedUnit() instanceof CombatUnit)
 			player.setSelectedUnit(player.getTileByXY(player.getSelectedUnit().getTile().getPosition().X, player.getSelectedUnit().getTile().getPosition().Y).getCombatUnitInTile());

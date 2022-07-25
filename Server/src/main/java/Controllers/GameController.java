@@ -67,7 +67,7 @@ public class GameController implements Serializable
 	{
 		initGrid();
 
-		GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
 		gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
 		gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
@@ -347,7 +347,7 @@ public class GameController implements Serializable
 
 		return loadedGameController;
 	}
-	public String playerToJson(Player player)
+	public synchronized String playerToJson(Player player)
 	{
 		player.updateTileStates();
 
@@ -1035,7 +1035,7 @@ public class GameController implements Serializable
 		return false;
 	}
 
-	public Player getPlayerBuUsername(String username)
+	public synchronized Player getPlayerBuUsername(String username)
 	{
 		for (Player player : players)
 			if(player.getUsername().equals(username))
