@@ -42,6 +42,7 @@ public class Player extends User
 	private ArrayList<Resource> resources = new ArrayList<>();
 	private final ArrayList<ResourceType> acquiredLuxuryResources = new ArrayList<>(); // this is for checking to increase happiness when acquiring luxury resources
 	private final ArrayList<Improvement> improvements = new ArrayList<>();
+	public int MAP_SIZE;
 	transient private HashMap<Tile, TileState> map;
 	public ArrayList<Tile> mapKeyset = new ArrayList<>();
 	public ArrayList<TileState> mapValueset = new ArrayList<>();

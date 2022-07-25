@@ -396,18 +396,26 @@ public class MultiplayerMenu extends Application
 			throw new RuntimeException(e);
 		}
 
-		Game game = new Game();
-		game.setPlayer(player);
-		game.setSockets(Client.socket, Client.listenerSocket);
-		Main.audioClip.stop();
-		try
+		Runnable startGameRunnable = new Runnable()
 		{
-			game.start((Stage) refreshImage.getScene().getWindow());
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+			@Override
+			public void run()
+			{
+				Game game = new Game();
+				game.setPlayer(player);
+				game.setSockets(Client.socket, Client.listenerSocket);
+				Main.audioClip.stop();
+				try
+				{
+					game.start((Stage) refreshImage.getScene().getWindow());
+				}
+				catch (Exception e)
+				{
+					throw new RuntimeException(e);
+				}
+			}
+		};
+		Platform.runLater(startGameRunnable);
 	}
 
 

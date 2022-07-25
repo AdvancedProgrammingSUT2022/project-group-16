@@ -62,10 +62,6 @@ public class RequestHandler  extends Thread{
         try {
             while (true) {
                 Request request = Request.fromJson(inputStream.readUTF());
-
-                if(this.user != null)
-                    System.out.println(request.getAction() + ", from: " + user.getUsername());
-
                 Response response = handleRequest(request);
                 outputStream.writeUTF(response.toJson());
                 outputStream.flush();
@@ -143,7 +139,8 @@ public class RequestHandler  extends Thread{
         else if(request.getAction().equals("start game")) return startGame();
 
         else if(request.getAction().equals("getPlayer")) return getPlayer();
-		else if(request.getAction().equals("getPlayers")) return getPlayers();
+        else if(request.getAction().equals("getNumberOfPlayers")) return getNumberOfPlayers();
+        else if(request.getAction().equals("getPlayerByIndex")) return getPlayerByIndex(request);
         else if(request.getAction().equals("move unit")) return moveUnit(request);
         else if(request.getAction().equals("cheat code")) return cheatCode(request);
         else if(request.getAction().equals("next turn")) return nextTurn();
@@ -611,20 +608,24 @@ public class RequestHandler  extends Thread{
 
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerBuUsername(user.getUsername())));
 
-        System.out.println( user.getUsername() +  ": response player param: " + response.getParams().get("player"));
 
         return response;
     }
-	private Response getPlayers()
-	{
-		Response response = new Response();
-		ArrayList<String> playersJson = new ArrayList<>();
-        for (Player player : GameController.getInstance().getPlayers())
-            playersJson.add(GameController.getInstance().playerToJson(player));
-		response.addParam("players", playersJson);
+    private Response getNumberOfPlayers()
+    {
+        Response response = new Response();
+        response.addParam("numberOfPlayers", String.valueOf(GameController.getInstance().getPlayers().size()));
 
         return response;
-	}
+    }
+    private Response getPlayerByIndex(Request request)
+    {
+        int index = Integer.parseInt((String) request.getParams().get("index"));
+
+        Response response = new Response();
+        response.addParam("playerByIndex", GameController.getInstance().playerToJson(GameController.getInstance().getPlayers().get(index)));
+        return response;
+    }
     private Response moveUnit(Request request){
         String command = (String) request.getParams().get("command");
         command = command.trim();
@@ -877,7 +878,6 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         ArrayList<RequestHandler> joinedClients = gameRoom.getJoinedClients();
 
-        System.out.println(joinedClients);
 
         ArrayList<String> joinedClientsUsernames = new ArrayList<>();
         ArrayList<String> joinedClientsNicknames = new ArrayList<>();
@@ -1003,11 +1003,11 @@ public class RequestHandler  extends Thread{
         for (int i = 0; i < gameRoom.getJoinedClients().size(); i++)
         {
             RequestHandler joinedClient = gameRoom.getJoinedClients().get(i);
-            System.out.println("joined clients: " + joinedClient.getUser().getUsername());
             GameController.getInstance().addPlayer(new Player(Civilization.values()[i + 1], joinedClient.getUser().getUsername(), joinedClient.getUser().getNickname(), joinedClient.getUser().getPassword(), joinedClient.getUser().getScore()));
         }
 
         GameController.getInstance().initGame();
+
 
         try
         {
@@ -1081,7 +1081,7 @@ public class RequestHandler  extends Thread{
     {
         Response response = new Response();
         response.addMassage(GameController.getInstance().checkChangeTurn());
-        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerBuUsername(user.getUsername())));
 
         return response;
     }
@@ -1095,25 +1095,39 @@ public class RequestHandler  extends Thread{
     }
     private Response selectCUnit(Request request)
     {
-        int positionX = Integer.parseInt((String) request.getParams().get("x"));
-        int positionY = Integer.parseInt((String) request.getParams().get("y"));
-        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getCombatUnitInTile());
-
         Response response = new Response();
-        response.addMassage("CUnit selected");
-        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
+        if(((String)request.getParams().get("x")).isEmpty())
+        {
+            GameController.getInstance().getPlayerTurn().setSelectedUnit(null);
+            response.addMassage("CUnit deselected");
+        }
+        else
+        {
+            int positionX = Integer.parseInt((String) request.getParams().get("x"));
+            int positionY = Integer.parseInt((String) request.getParams().get("y"));
+            GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getCombatUnitInTile());
+            response.addMassage("CUnit selected");
+        }
 
         return response;
     }
     private Response selectNCUnit(Request request)
     {
-        int positionX = Integer.parseInt((String) request.getParams().get("x"));
-        int positionY = Integer.parseInt((String) request.getParams().get("y"));
-        GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getNonCombatUnitInTile());
-
         Response response = new Response();
-        response.addMassage("NCUnit selected");
-        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
+
+        if(((String)request.getParams().get("x")).isEmpty())
+        {
+            GameController.getInstance().getPlayerTurn().setSelectedUnit(null);
+            response.addMassage("NCUnit deselected");
+        }
+        else
+        {
+            int positionX = Integer.parseInt((String) request.getParams().get("x"));
+            int positionY = Integer.parseInt((String) request.getParams().get("y"));
+            GameController.getInstance().getPlayerTurn().setSelectedUnit(GameController.getInstance().getPlayerTurn().getTileByXY(positionX, positionY).getNonCombatUnitInTile());
+            response.addMassage("NCUnit selected");
+        }
 
         return response;
     }

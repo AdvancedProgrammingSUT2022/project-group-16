@@ -349,6 +349,7 @@ public class GameController implements Serializable
 	}
 	public synchronized String playerToJson(Player player)
 	{
+		player.MAP_SIZE = MAP_SIZE;
 		player.updateTileStates();
 
 		// set map
@@ -1055,7 +1056,7 @@ public class GameController implements Serializable
 	{
 		return turnCounter;
 	}
-	public ArrayList<Player> getPlayers()
+	public synchronized ArrayList<Player> getPlayers()
 	{
 		return players;
 	}
@@ -1580,7 +1581,7 @@ public class GameController implements Serializable
 			return unitCommands.wrongCoordinates.regex;
 		int newX = Integer.parseInt(matcher.group("x"));
 		int newY = Integer.parseInt(matcher.group("y"));
-		if(newX < 0 || newX > 9 || newY < 0 || newY > 9)
+		if(newX < 0 || newX > MAP_SIZE - 1 || newY < 0 || newY > MAP_SIZE - 1)
 			return unitCommands.wrongCoordinates.regex;
 		if(playerTurn.getMap().get(getTileByXY(newX,newY)).equals(TileState.FOG_OF_WAR)) return "tile is in fog of war";
 		if(playerTurn.getSelectedUnit() != null)

@@ -82,8 +82,6 @@ public class CommandHandler
 
 	public Player jsonToPlayer(String playerJson)
 	{
-		System.out.println(playerJson);
-
 		Player player = gson.fromJson(playerJson, Player.class);
 
 		// set map
@@ -104,9 +102,9 @@ public class CommandHandler
 			if(unit.getDestination() != null)
 				unit.setDestination(player.getTileByXY(unit.getDestination().getPosition().X, unit.getDestination().getPosition().Y));
 		}
-		if(player.getSelectedUnit() != null && player.getSelectedUnit() instanceof CombatUnit)
+		if(player.getSelectedUnit() != null && player.getSelectedUnit() instanceof CombatUnit && player.getSelectedUnit().getTile() != null)
 			player.setSelectedUnit(player.getTileByXY(player.getSelectedUnit().getTile().getPosition().X, player.getSelectedUnit().getTile().getPosition().Y).getCombatUnitInTile());
-		else if(player.getSelectedUnit() != null && player.getSelectedUnit() instanceof NonCombatUnit)
+		else if(player.getSelectedUnit() != null && player.getSelectedUnit() instanceof NonCombatUnit && player.getSelectedUnit().getTile() != null)
 			player.setSelectedUnit(player.getTileByXY(player.getSelectedUnit().getTile().getPosition().X, player.getSelectedUnit().getTile().getPosition().Y).getNonCombatUnitInTile());
 
 		// set city tiles
@@ -168,7 +166,9 @@ public class CommandHandler
 		if (response.getParams().get("player") == null)
 			return;
 		String playerJson = (String) response.getParams().get("player");
-		Player updatedPlayer = gson.fromJson(playerJson, Player.class);
+		Player updatedPlayer = jsonToPlayer(playerJson);
+
+		setPlayer(updatedPlayer);
 	}
 
 	private Response sendRequestAndGetResponse(Request request)
@@ -325,9 +325,16 @@ public class CommandHandler
 	}
 	public ArrayList<Player> getPlayers()
 	{
-		Request request = new Request();
-		request.setAction("getPlayers");
-		ArrayList<String> playersJson = (ArrayList<String>) sendRequestAndGetResponse(request).getParams().get("players");
+		ArrayList<String> playersJson = new ArrayList<>();
+		for (int i = 0; i < getNumberOfPlayers(); i++)
+		{
+			Request request = new Request();
+			request.setAction("getPlayerByIndex");
+			request.addParam("index", String.valueOf(i));
+			Response response = sendRequestAndGetResponse(request);
+			playersJson.add((String) response.getParams().get("playerByIndex"));
+		}
+
 		ArrayList<Player> players = new ArrayList<>();
 		for (String s : playersJson)
 			players.add(jsonToPlayer(s));
@@ -340,6 +347,14 @@ public class CommandHandler
 			}
 
 		return players;
+	}
+	public int getNumberOfPlayers()
+	{
+		Request request = new Request();
+		request.setAction("getNumberOfPlayers");
+
+		Response response = sendRequestAndGetResponse(request);
+		return Integer.parseInt((String) response.getParams().get("numberOfPlayers"));
 	}
 	public Player isGameEnd()
 	{
