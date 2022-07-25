@@ -19,14 +19,11 @@ public class Main extends Application
 
 	@Override
 	public void start(Stage stage) throws Exception {
-
-//		chatServer server = new chatServer();
-//		server.update();
-////		audioClip.play();
-//		WelcomePage welcomePage = new WelcomePage();
-//		welcomePage.start(stage);
-		Game game = new Game(null,null, null);
-		game.start(stage);
+		chatServer server = new chatServer();
+		server.update();
+//		audioClip.play();
+		WelcomePage welcomePage = new WelcomePage();
+		welcomePage.start(stage);
 	}
 	public static void main(String[] args) {
 		launch(args);

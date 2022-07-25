@@ -86,7 +86,7 @@ public class Game extends Application {
     private final ImageView techAlert = new ImageView();
     private final ImageView diplomacyAlert = new ImageView();
     @FXML
-    public Pane pane;
+    private Pane pane;
     private Pane hexagonsPane;
     private AnimationTimer animationTimer = new AnimationTimer()
     {
@@ -110,58 +110,6 @@ public class Game extends Application {
     private DataOutputStream socketDOS;
     private DataInputStream listenerSocketDIS;
 
-
-    public Game(Player player, Socket socket, Socket listenerSocket)
-    {
-//        this.socket = socket;
-//        this.listenerSocket = listenerSocket;
-//        try
-//        {
-//            socketDIS = new DataInputStream(socket.getInputStream());
-//            socketDOS = new DataOutputStream(socket.getOutputStream());
-//            listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
-//        }
-//        catch (IOException e)
-//        {
-//            throw new RuntimeException(e);
-//        }
-//
-//        commandHandler.setSocket(socket);
-//        commandHandler.setPlayer(player);
-//
-//        // run listener
-//        Runnable listenerRunnable = new Runnable()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                Response messageFromServer;
-//
-//                while (true)
-//                {
-//                    try
-//                    {
-//                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
-//                    }
-//                    catch (IOException e)
-//                    {
-//                        throw new RuntimeException(e);
-//                    }
-//
-//                    if(messageFromServer.getMassage().equals("update"))
-//                    {
-//                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
-//                        commandHandler.setPlayer(updatedPlayer);
-//                        updateScreen();
-//                    }
-//                }
-//            }
-//        };
-//        Thread listenerThread = new Thread(listenerRunnable);
-//        listenerThread.setDaemon(true);
-//        listenerThread.start();
-    }
-
     @Override
     public void start(Stage stage) throws Exception {
         ChatMenu.isGameStarted = true;
@@ -174,6 +122,61 @@ public class Game extends Application {
         stage.show();
         audioClip.play();
     }
+
+    public void setPlayer(Player player)
+    {
+        commandHandler.setPlayer(player);
+    }
+    public void setSockets(Socket socket, Socket listenerSocket)
+    {
+        this.socket = socket;
+        this.listenerSocket = listenerSocket;
+        try
+        {
+            socketDIS = new DataInputStream(socket.getInputStream());
+            socketDOS = new DataOutputStream(socket.getOutputStream());
+            listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        commandHandler.setSocket(socket);
+
+        // run listener
+        Runnable listenerRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Response messageFromServer;
+
+                while (true)
+                {
+                    try
+                    {
+                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+
+                    if(messageFromServer.getMassage().equals("update"))
+                    {
+                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
+                        commandHandler.setPlayer(updatedPlayer);
+                        updateScreen();
+                    }
+                }
+            }
+        };
+        Thread listenerThread = new Thread(listenerRunnable);
+        listenerThread.setDaemon(true);
+        listenerThread.start();
+    }
+
     private void cheatCode() {
         TextField textField = new TextField();
         textField.setStyle("-fx-background-color: black;" +

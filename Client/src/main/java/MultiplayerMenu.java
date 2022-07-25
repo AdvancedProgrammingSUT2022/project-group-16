@@ -396,7 +396,9 @@ public class MultiplayerMenu extends Application
 			throw new RuntimeException(e);
 		}
 
-		Game game = new Game(player, Client.socket, Client.listenerSocket);
+		Game game = new Game();
+		game.setPlayer(player);
+		game.setSockets(Client.socket, Client.listenerSocket);
 		Main.audioClip.stop();
 		try
 		{
