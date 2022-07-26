@@ -1210,6 +1210,16 @@ public class GameController implements Serializable
 			}
 		return mainCommands.invalidCommand.regex;
 	}
+	public String gainAllTechnologies()
+	{
+		for (Technology value : Technology.values())
+		{
+			playerTurn.addTechnology(value);
+			playerTurn.setGameScore(playerTurn.getGameScore() + 3);
+		}
+
+		return "now you have access to all technologies";
+	}
 	public String killEnemyUnit(Matcher matcher) //TODO: change to killUnit. with this cheat code, we can kill any opponent unit.
 	{ //TODO: check for bugs
 		int x = Integer.parseInt(matcher.group("positionX"));

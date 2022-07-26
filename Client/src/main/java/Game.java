@@ -194,6 +194,8 @@ public class Game extends Application {
                     commandHandler.increaseFood(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
                     commandHandler.addTechnology(command);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.gainAllTechnologies)) != null)
+                    commandHandler.gainAllTechnologies(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHappiness)) != null)
                     commandHandler.increaseHappiness(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.killEnemyUnit)) != null)

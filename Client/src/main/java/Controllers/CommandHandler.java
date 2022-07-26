@@ -144,8 +144,8 @@ public class CommandHandler
 		// set city tiles
 		for (City city : player.getCities())
 		{
-			if(player.getSelectedCity().getCapitalTile().getPosition().equals(city.getCapitalTile().getPosition()))
-				player.setSelectedCity(city);
+//			if(player.getSelectedCity().getCapitalTile().getPosition().equals(city.getCapitalTile().getPosition()))
+//				player.setSelectedCity(city);
 
 			for (int i = 0; i < city.getTerritory().size(); i++)
 				city.getTerritory().set(i, player.getTileByXY(city.getTerritory().get(i).getPosition().X, city.getTerritory().get(i).getPosition().Y));
@@ -160,25 +160,32 @@ public class CommandHandler
 			for (int i = 0; i < city.getCitizens().size(); i++)
 			{
 				city.getCitizens().get(i).setCity(city);
+				if(city.getCitizens().get(i).getWorkingTile() == null)
+					continue;
 				city.getCitizens().get(i).setWorkingTile(player.getTileByXY(city.getCitizens().get(i).getWorkingTile().getPosition().X, city.getCitizens().get(i).getWorkingTile().getPosition().Y));
 			}
 
-			if(city.getCurrentConstruction() instanceof CombatUnit)
-				city.setCurrentConstruction((player.getTileByXY(((CombatUnit) city.getCurrentConstruction()).getTile().getPosition().X, ((CombatUnit) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
-			else if(city.getCurrentConstruction() instanceof NonCombatUnit)
-				city.setCurrentConstruction((player.getTileByXY(((NonCombatUnit) city.getCurrentConstruction()).getTile().getPosition().X, ((NonCombatUnit) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
-			else if(city.getCurrentConstruction() instanceof Building)
-				city.setCurrentConstruction((player.getTileByXY(((Building) city.getCurrentConstruction()).getTile().getPosition().X, ((Building) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
+			if(city.getCurrentConstruction() != null)
+			{
+				if(city.getCurrentConstruction() instanceof CombatUnit && ((CombatUnit) city.getCurrentConstruction()).getTile() != null)
+					city.setCurrentConstruction((player.getTileByXY(((CombatUnit) city.getCurrentConstruction()).getTile().getPosition().X, ((CombatUnit) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
+				else if(city.getCurrentConstruction() instanceof NonCombatUnit && ((NonCombatUnit) city.getCurrentConstruction()).getTile() != null)
+					city.setCurrentConstruction((player.getTileByXY(((NonCombatUnit) city.getCurrentConstruction()).getTile().getPosition().X, ((NonCombatUnit) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
+				else if(city.getCurrentConstruction() instanceof Building)
+					city.setCurrentConstruction((player.getTileByXY(((Building) city.getCurrentConstruction()).getTile().getPosition().X, ((Building) city.getCurrentConstruction()).getTile().getPosition().Y)).getCombatUnitInTile());
+			}
 
-			city.setGarrison(player.getTileByXY(city.getGarrison().getTile().getPosition().X, city.getGarrison().getTile().getPosition().Y).getCombatUnitInTile());
-			city.setNonCombatUnit(player.getTileByXY(city.getNonCombatUnit().getTile().getPosition().X, city.getNonCombatUnit().getTile().getPosition().Y).getNonCombatUnitInTile());
+			if(city.getGarrison() != null)
+				city.setGarrison(player.getTileByXY(city.getGarrison().getTile().getPosition().X, city.getGarrison().getTile().getPosition().Y).getCombatUnitInTile());
+			if(city.getNonCombatUnit() != null)
+				city.setNonCombatUnit(player.getTileByXY(city.getNonCombatUnit().getTile().getPosition().X, city.getNonCombatUnit().getTile().getPosition().Y).getNonCombatUnitInTile());
 
 			city.setRulerPlayer(player);
 
-			if(city.getCapitalTile().getPosition().equals(player.getInitialCapitalCity().getCapitalTile().getPosition()))
-				player.setInitialCapitalCity(city);
-			if(city.getCapitalTile().getPosition().equals(player.getCurrentCapitalCity().getCapitalTile().getPosition()))
-				player.setCurrentCapitalCity(city);
+//			if(city.getCapitalTile().getPosition().equals(player.getInitialCapitalCity().getCapitalTile().getPosition()))
+//				player.setInitialCapitalCity(city);
+//			if(city.getCapitalTile().getPosition().equals(player.getCurrentCapitalCity().getCapitalTile().getPosition()))
+//				player.setCurrentCapitalCity(city);
 
 		}
 
@@ -250,6 +257,14 @@ public class CommandHandler
 		sendRequestAndGetResponse(request);
 	}
 	public void addTechnology(String command)
+	{
+		Request request = new Request();
+		request.setAction("cheat code");
+		request.addParam("description", command);
+
+		sendRequestAndGetResponse(request);
+	}
+	public void gainAllTechnologies(String command)
 	{
 		Request request = new Request();
 		request.setAction("cheat code");
@@ -678,7 +693,7 @@ public class CommandHandler
 		request.addParam("x", positionX);
 		request.addParam("y", positionY);
 
-		sendRequestAndGetResponse(request);
+		System.out.println("result of selecting city: " + sendRequestAndGetResponse(request).getMassage());
 	}
 }
 

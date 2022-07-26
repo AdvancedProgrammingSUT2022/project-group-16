@@ -113,17 +113,6 @@ public class RequestHandler  extends Thread{
     }
 
     private Response handleRequest(Request request) throws MalformedURLException {
-
-        if(this.user != null && GameController.getInstance().getPlayerBuUsername(this.getUser().getUsername()) != null)
-        {
-            System.out.println("units: ");
-            for (Tile tile : GameController.getInstance().getPlayerBuUsername(user.getUsername()).getMap().keySet())
-            {
-                if(tile.getCombatUnitInTile() != null)
-                    System.out.println(tile.getPosition().X + "," + tile.getPosition().Y);
-            }
-        }
-
         if(request.getAction().equals("update public chats")) return updatePublicChats();
         else if(request.getAction().equals("login")) return login(request);
         else if(request.getAction().equals("register")) return register(request);
@@ -1069,6 +1058,8 @@ public class RequestHandler  extends Thread{
             response.addMassage(GameController.getInstance().increaseFood(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainTechnology)) != null)
             response.addMassage(GameController.getInstance().addTechnology(matcher));
+        else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.gainAllTechnologies)) != null)
+            response.addMassage(GameController.getInstance().gainAllTechnologies());
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseHappiness)) != null)
             response.addMassage(GameController.getInstance().increaseHappiness(matcher));
         else if((matcher = cheatCode.compareRegex(cheatCodeDescription, cheatCode.increaseScore)) != null)
@@ -1143,10 +1134,8 @@ public class RequestHandler  extends Thread{
         int positionX = Integer.parseInt((String) request.getParams().get("x"));
         int positionY = Integer.parseInt((String) request.getParams().get("y"));
 
-        GameController.getInstance().selectCity(positionX + "," + positionY);
-
         Response response = new Response();
-        response.addMassage("city selected");
+        response.addMassage(GameController.getInstance().selectCity(" --coordinates " + positionX + "," + positionY));
         response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
 
         return response;
