@@ -97,8 +97,6 @@ public class CommandHandler
 
 	public Player jsonToPlayer(String playerJson)
 	{
-		System.out.println(playerJson);
-
 		Player player = gson.fromJson(playerJson, Player.class);
 
 		// set map
@@ -695,7 +693,7 @@ public class CommandHandler
 		request.addParam("x", positionX);
 		request.addParam("y", positionY);
 
-		System.out.println("result of selecting city: " + sendRequestAndGetResponse(request).getMassage());
+		sendRequestAndGetResponse(request);
 	}
 }
 

@@ -562,6 +562,7 @@ public class RequestHandler  extends Thread{
         String message = GameController.getInstance().buyBuilding(type);
         Response response = new Response();
         response.addMassage(message);
+        response.addParam("player", GameController.getInstance().playerToJson(GameController.getInstance().getPlayerTurn()));
         response.addParam("updateOthers", true);
 
 		System.out.println(GameController.getInstance().getPlayerTurn().getCities().get(0).getBuildings());
