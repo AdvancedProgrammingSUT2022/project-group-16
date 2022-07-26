@@ -22,10 +22,9 @@ import java.util.*;
 
 public class Player extends User
 {
-//	transient GameController gameController;
 	private boolean isYourTurn = false;
-	transient private Unit selectedUnit = null;
-	transient private City selectedCity = null;
+	private Unit selectedUnit = null;
+	private City selectedCity = null;
 	private final Civilization civilization;
 	private int food = 100;
 	private int cup = 0;
@@ -53,6 +52,7 @@ public class Player extends User
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
 	private final ArrayList<Unit> units = new ArrayList<>();
+	public ArrayList<Unit> enemyUnits = new ArrayList<>();
 	private int tilePurchaseCost = 10; //increases every time the player purchases a tile
 	private boolean isUnHappy = false;
 	private HashMap<Civilization, RelationState> relationStates = new HashMap<>();

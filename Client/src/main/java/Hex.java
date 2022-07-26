@@ -285,6 +285,8 @@ public class Hex extends Application {
 
     private void setBuildings()
     {
+        System.out.println("setting building...");
+
         if(tileState.equals(TileState.FOG_OF_WAR))
             return;
 
@@ -530,7 +532,7 @@ public class Hex extends Application {
             parent.getChildren().remove(parent.getChildren().size() - 1);
 
             isNCUnitPanelOpen = false;
-            player.setSelectedUnit(null);
+            commandHandler.selectCUnit("", "");
         }
         else {
             if(hasCity() != null) {
@@ -612,7 +614,7 @@ public class Hex extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
 
         //actions
-        player.setSelectedUnit(unit);
+        commandHandler.selectCUnit(String.valueOf(unit.getTile().getPosition().X), String.valueOf(unit.getTile().getPosition().Y));
         addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/Shield.png", "fortify");
         actions.getChildren().get(0).setOnMousePressed(mouseEvent -> {
             // here
@@ -677,7 +679,7 @@ public class Hex extends Application {
                         matcher = null;
                     else
                         matcher = unitCommands.compareRegex(textField.getText(), unitCommands.moveTo);
-                    String result = commandHandler.moveUnit(matcher);
+                    String result = commandHandler.moveUnit(textField.getText());
                     if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                         list.getChildren().remove(list.getChildren().size() - 1);
                     addLabelToPane(list, 300, 200, null, result);
@@ -705,6 +707,8 @@ public class Hex extends Application {
                             list.getChildren().remove(list.getChildren().size() - 1);
                     }
                     textField.setText(null);
+
+                    game.updateScreen();
                 }
             });
         });
@@ -876,7 +880,7 @@ public class Hex extends Application {
         list.getChildren().get(list.getChildren().size() - 1).setLayoutY(2);
 
         //actions
-        player.setSelectedUnit(unit);
+        commandHandler.selectNCUNit(String.valueOf(unit.getTile().getPosition().X), String.valueOf(unit.getTile().getPosition().Y));
         addPhotoToPane(actions, 10, 10, "photos/gameIcons/unitActions/wakeUp.png", "wake up");
         actions.getChildren().get(0).setOnMousePressed(mouseEvent -> {
             String result = commandHandler.wake();
@@ -917,7 +921,7 @@ public class Hex extends Application {
                         matcher = null;
                     else
                         matcher = unitCommands.compareRegex(textField.getText(), unitCommands.moveTo);
-                    String result = commandHandler.moveUnit(matcher);
+                    String result = commandHandler.moveUnit(textField.getText());
                     if(list.getChildren().get(list.getChildren().size() - 1).getClass() == Label.class)
                         list.getChildren().remove(list.getChildren().size() - 1);
                     addLabelToPane(list, 300, 200, null, result);
@@ -1050,7 +1054,7 @@ public class Hex extends Application {
     }
     private void cityPanel(City city)
     {
-        player.setSelectedCity(city);
+        commandHandler.selectCity(String.valueOf(city.getCapitalTile().getPosition().X), String.valueOf(city.getCapitalTile().getPosition().Y));
         Pane list = new Pane();
         panelsPaneStyle2(list);
         VBox box = new VBox(), photos = new VBox();
@@ -1169,7 +1173,7 @@ public class Hex extends Application {
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
-                player.setSelectedCity(city);
+                commandHandler.selectCity(String.valueOf(city.getCapitalTile().getPosition().X), String.valueOf(city.getCapitalTile().getPosition().Y));
                 // here
                 String result = commandHandler.buyUnit(textField.getText());
                 if(box.getChildren().size() == 5)
@@ -1254,7 +1258,7 @@ public class Hex extends Application {
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
-                player.setSelectedCity(city);
+                commandHandler.selectCity(String.valueOf(city.getCapitalTile().getPosition().X), String.valueOf(city.getCapitalTile().getPosition().Y));
                 // here
                 String result = commandHandler.buyBuilding(textField.getText());
                 if(box.getChildren().size() == 5)
@@ -1293,9 +1297,9 @@ public class Hex extends Application {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
                 Matcher matcher = selectCommands.compareRegex(textField.getText(), selectCommands.buyTile);
-                player.setSelectedCity(city);
+                commandHandler.selectCity(String.valueOf(city.getCapitalTile().getPosition().X), String.valueOf(city.getCapitalTile().getPosition().Y));
                 // here
-                String result = commandHandler.buyTile(matcher);
+                String result = commandHandler.buyTile(textField.getText());
                 if(box.getChildren().size() == 4)
                     addLabelToBox(result, box);
                 else {
@@ -1527,9 +1531,9 @@ public class Hex extends Application {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
                 Matcher matcher = gameEnum.compareRegex(textField.getText(), gameEnum.lockCitizenToTile);
-                player.setSelectedCity(city);
+                commandHandler.selectCity(String.valueOf(city.getCapitalTile().getPosition().X), String.valueOf(city.getCapitalTile().getPosition().Y));
                 // here
-                String result = commandHandler.unLockCitizenToTile(matcher);
+                String result = commandHandler.unLockCitizenToTile(textField.getText());
                 if(box.getChildren().size() == 3)
                     addLabelToBox(result, box);
                 else {
@@ -1569,9 +1573,9 @@ public class Hex extends Application {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
                 Matcher matcher = gameEnum.compareRegex(textField.getText(), gameEnum.lockCitizenToTile);
-                player.setSelectedCity(city);
+                commandHandler.selectCity(String.valueOf(city.getCapitalTile().getPosition().X), String.valueOf(city.getCapitalTile().getPosition().Y));
                 // here
-                String result = commandHandler.lockCitizenToTile(matcher);
+                String result = commandHandler.lockCitizenToTile(textField.getText());
                 if(box.getChildren().size() == 3)
                     addLabelToBox(result, box);
                 else {
@@ -1609,7 +1613,7 @@ public class Hex extends Application {
             isCityPanelOpen = false;
             isCUnitPanelOpen = false;
             isNCUnitPanelOpen = false;
-            player.setSelectedUnit(null);
+            commandHandler.selectCUnit("", "");
             for (int i = 0; i < parent.getChildren().size() - 1; i++)
                 parent.getChildren().get(i).setDisable(false);
             parent.getChildren().remove(list);

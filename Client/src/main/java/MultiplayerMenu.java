@@ -1,3 +1,4 @@
+import Controllers.CommandHandler;
 import IO.Client;
 import IO.Request;
 import IO.Response;
@@ -34,6 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MultiplayerMenu extends Application
 {
+	public static Player player;
 	private boolean isMakingRoomPrivate = false;
 	private int capacity;
 
@@ -74,7 +76,7 @@ public class MultiplayerMenu extends Application
 	Socket socket;
 	DataInputStream dataInputStream;
 	DataOutputStream dataOutputStream;
-
+	Thread listenerThread;
 
 	@Override
 	public void start(Stage stage) throws Exception
@@ -125,9 +127,9 @@ public class MultiplayerMenu extends Application
 				}
 			}
 		};
-		Thread listenereThread = new Thread(runnable);
-		listenereThread.setDaemon(true);
-		listenereThread.start();
+		listenerThread = new Thread(runnable);
+		listenerThread.setDaemon(true);
+		listenerThread.start();
 	}
 
 	@FXML
@@ -269,6 +271,7 @@ public class MultiplayerMenu extends Application
 				try
 				{
 					dataOutputStream.writeUTF(request.toJson());
+					dataOutputStream.flush();
 					Response response = Response.fromJson(dataInputStream.readUTF());
 					ArrayList<String> joinRequests = (ArrayList<String>) response.getParams().get("joinRequests");
 
@@ -376,33 +379,36 @@ public class MultiplayerMenu extends Application
 		}
 	}
 
+
 	private void loadGame()
 	{
-		Runnable runnable = new Runnable()
+		listenerThread.interrupt();
+		Request request = new Request();
+		request.setAction("getPlayer");
+		Player player;
+		try
+		{
+			dataOutputStream.writeUTF(request.toJson());
+			dataOutputStream.flush();
+			Response response = Response.fromJson(dataInputStream.readUTF());
+			player = CommandHandler.getInstance().jsonToPlayer((String) response.getParams().get("player"));
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+
+		Runnable startGameRunnable = new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				Request request = new Request();
-				request.setAction("get player");
-				Player player;
-				try
-				{
-					dataOutputStream.writeUTF(request.toJson());
-					dataOutputStream.flush();
-					Response response = Response.fromJson(dataInputStream.readUTF());
-					player = (Player) response.getParams().get("player");
-				}
-				catch (IOException e)
-				{
-					throw new RuntimeException(e);
-				}
-
-				Game game = new Game(player, Client.socket, Client.listenerSocket);
+				Game game = new Game();
+				MultiplayerMenu.player  = player;
 				Main.audioClip.stop();
 				try
 				{
-					game.start((Stage) pane.getScene().getWindow());
+					game.start((Stage) refreshImage.getScene().getWindow());
 				}
 				catch (Exception e)
 				{
@@ -410,9 +416,8 @@ public class MultiplayerMenu extends Application
 				}
 			}
 		};
-		Platform.runLater(runnable);
+		Platform.runLater(startGameRunnable);
 	}
-
 
 	//panels
 	private void createRoomResultPanel(String text, boolean isSuccessful) {

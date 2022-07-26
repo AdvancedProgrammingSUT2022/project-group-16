@@ -1,4 +1,5 @@
 import Controllers.CommandHandler;
+import IO.Client;
 import IO.Response;
 import Models.City.Citizen;
 import Models.City.City;
@@ -32,6 +33,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -85,7 +87,7 @@ public class Game extends Application {
     private final ImageView techAlert = new ImageView();
     private final ImageView diplomacyAlert = new ImageView();
     @FXML
-    public Pane pane;
+    private Pane pane;
     private Pane hexagonsPane;
     private AnimationTimer animationTimer = new AnimationTimer()
     {
@@ -103,14 +105,45 @@ public class Game extends Application {
     private static boolean movingRight;
 
 	private Gson gson;
-    private Socket socket;
-    private Socket listenerSocket;
+    private Socket socket = Client.socket;
+    private Socket listenerSocket = Client.listenerSocket;
     private DataInputStream socketDIS;
     private DataOutputStream socketDOS;
     private DataInputStream listenerSocketDIS;
 
+    {
+        try
+        {
+            socketDIS = new DataInputStream(socket.getInputStream());
+            socketDOS = new DataOutputStream(socket.getOutputStream());
+            listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
-    public Game(Player player, Socket socket, Socket listenerSocket)
+
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        ChatMenu.isGameStarted = true;
+        Pane root = FXMLLoader.load(new URL(getClass().getResource("fxml/game.fxml").toExternalForm()));
+        Scene scene = new Scene(root);
+        scene.setOnKeyPressed(this::onKeyPressed);
+        scene.setOnKeyReleased(this::onKeyReleased);
+        stage.setScene(scene);
+        root.requestFocus();
+        stage.show();
+        audioClip.play();
+    }
+
+    public void setPlayer(Player player)
+    {
+        commandHandler.setPlayer(player);
+    }
+    public void setSockets(Socket socket, Socket listenerSocket)
     {
         this.socket = socket;
         this.listenerSocket = listenerSocket;
@@ -126,53 +159,8 @@ public class Game extends Application {
         }
 
         commandHandler.setSocket(socket);
-        commandHandler.setPlayer(player);
-
-        // run listener
-        Runnable listenerRunnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                Response messageFromServer;
-
-                while (true)
-                {
-                    try
-                    {
-                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
-                    }
-                    catch (IOException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-
-                    if(messageFromServer.getMassage().equals("update"))
-                    {
-                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
-                        commandHandler.setPlayer(updatedPlayer);
-                        updateScreen();
-                    }
-                }
-            }
-        };
-        Thread listenerThread = new Thread(listenerRunnable);
-        listenerThread.setDaemon(true);
-        listenerThread.start();
     }
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        ChatMenu.isGameStarted = true;
-        Pane root = FXMLLoader.load(new URL(getClass().getResource("fxml/game.fxml").toExternalForm()));
-        Scene scene = new Scene(root);
-        scene.setOnKeyPressed(this::onKeyPressed);
-        scene.setOnKeyReleased(this::onKeyReleased);
-        stage.setScene(scene);
-        root.requestFocus();
-        stage.show();
-        audioClip.play();
-    }
     private void cheatCode() {
         TextField textField = new TextField();
         textField.setStyle("-fx-background-color: black;" +
@@ -188,13 +176,12 @@ public class Game extends Application {
         textField.setOnKeyPressed(keyEvent -> {
             String keyName = keyEvent.getCode().getName();
             if(keyName.equals("Enter")) {
-                // here
                 Matcher matcher;
                 String command = textField.getText();
                 if((matcher = cheatCode.compareRegex(command, cheatCode.increaseGold)) != null)
-                    commandHandler.increaseGold(matcher);
+                    commandHandler.increaseGold(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseTurns)) != null) {
-                    commandHandler.increaseTurns(matcher);
+                    commandHandler.increaseTurns(command);
                     if (commandHandler.isGameEnd() != null) {
                         winPanel(commandHandler.isGameEnd(), commandHandler.isGameEnd().getGameScore());
                     }
@@ -204,29 +191,31 @@ public class Game extends Application {
                     updateScreen();
                 }
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainFood)) != null)
-                    commandHandler.increaseFood(matcher);
+                    commandHandler.increaseFood(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.gainTechnology)) != null)
-                    commandHandler.addTechnology(matcher);
+                    commandHandler.addTechnology(command);
+                else if((matcher = cheatCode.compareRegex(command, cheatCode.gainAllTechnologies)) != null)
+                    commandHandler.gainAllTechnologies(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHappiness)) != null)
-                    commandHandler.increaseHappiness(matcher);
+                    commandHandler.increaseHappiness(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.killEnemyUnit)) != null)
-                    commandHandler.killEnemyUnit(matcher);
-                else if((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
-                    commandHandler.moveUnit(matcher);
+                    commandHandler.killEnemyUnit(command);
+//                else if((matcher = cheatCode.compareRegex(command, cheatCode.moveUnit)) != null)
+//                    commandHandler.moveUnit(matcher);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseHealth)) != null)
-                    commandHandler.increaseHealth(matcher);
+                    commandHandler.increaseHealth(command);
                 else if((matcher = cheatCode.compareRegex(command, cheatCode.increaseScore)) != null)
-                    commandHandler.increaseScore(matcher);
+                    commandHandler.increaseScore(command);
                 else if(cheatCode.compareRegex(command, cheatCode.winGame) != null) {
                     commandHandler.winGame();
                     winPanel(commandHandler.getPlayer(), 5);
                 }
                 else if(cheatCode.compareRegex(command, cheatCode.gainBonusResource) != null)
-                    commandHandler.gainBonusResourceCheat();
+                    commandHandler.gainBonusResourceCheat(command);
                 else if(cheatCode.compareRegex(command, cheatCode.gainStrategicResource) != null)
-                    commandHandler.gainStrategicResourceCheat();
+                    commandHandler.gainStrategicResourceCheat(command);
                 else if(cheatCode.compareRegex(command, cheatCode.gainLuxuryResource) != null)
-                    commandHandler.gainLuxuryResourceCheat();
+                    commandHandler.gainLuxuryResourceCheat(command);
                 else if(command.equals("a")) {
                     ((Settler) commandHandler.getPlayer().getUnits().get(1)).createCity();
                     commandHandler.getPlayer().getCities().get(0).addPopulation(4);
@@ -237,6 +226,8 @@ public class Game extends Application {
                 pane.getChildren().remove(textField);
                 setInformationStyles();
                 pane.requestFocus();
+
+                updateScreen();
             }
         });
     }
@@ -246,10 +237,14 @@ public class Game extends Application {
     }
     private void loadGame()
     {
+        setPlayer(MultiplayerMenu.player);
+        setSockets(Client.socket, Client.listenerSocket);
+
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
         hexagonsPane.setLayoutY(45);
         hexagonsPane.setPrefWidth(commandHandler.getPlayer().MAP_SIZE * 90);
+
         hexagonsPane.setPrefHeight(commandHandler.getPlayer().MAP_SIZE * 100);
         Hex.setPane(hexagonsPane);
         hexagons = new Hex[commandHandler.getPlayer().MAP_SIZE][commandHandler.getPlayer().MAP_SIZE];
@@ -292,16 +287,58 @@ public class Game extends Application {
         }
 
         animationTimer.start();
+
+        // run listener
+        Runnable listenerRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Response messageFromServer;
+
+                while (true)
+                {
+                    try
+                    {
+                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+
+                    if(messageFromServer.getMassage().equals("update"))
+                    {
+                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
+                        commandHandler.setPlayer(updatedPlayer);
+                        updateScreen();
+                    }
+                }
+            }
+        };
+        Thread listenerThread = new Thread(listenerRunnable);
+        listenerThread.setDaemon(true);
+        listenerThread.start();
     }
 
     public void updateScreen()
     {
+//        System.out.println(commandHandler.getPlayer().getUsername() + ":\n");
+//        for (Tile tile : commandHandler.getPlayer().getMap().keySet())
+//            if(tile.getCombatUnitInTile() != null)
+//                System.out.println(tile.getPosition().X + "," + tile.getPosition().Y);
+
         final Game tmpGame = this;
         Runnable updateScreenRunnable = new Runnable()
         {
             @Override
             public void run()
             {
+                if(commandHandler.getPlayer().getIsYourTurn() == false)
+                    pane.setDisable(true);
+                else
+                    pane.setDisable(false);
+
                 hexagonsPane.getChildren().clear();
 
                 // update tiles

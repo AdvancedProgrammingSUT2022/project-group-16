@@ -10,6 +10,7 @@ public enum cheatCode {
     killEnemyUnit("^\\s*kill\\s+enemy\\s+unit\\s+in\\s+-c\\s+(?<positionX>[0-9]+)\\s*,\\s*(?<positionY>[0-9]+)\\s*$"),
     gainFood("^\\s*increase\\s+food\\s+(?<amount>[0-9]+)\\s*$"),
     gainTechnology("^\\s*add\\s+technology\\s+(?<name>\\S+)\\s*$"),
+    gainAllTechnologies("^\\s*gain\\s*all\\s*technologies\\s*$"),
     increaseHappiness("^\\s*increase\\s+happiness\\s+(?<amount>[0-9]+)\\s*$"),
     increaseScore("^\\s*increase\\s+score\\s+(?<amount>[0-9]+)\\s*$"),
     increaseHealth("hesoyam\\s+-c\\s+(?<x>[0-9]+)\\s*,\\s*(?<y>[0-9]+)\\s*"),

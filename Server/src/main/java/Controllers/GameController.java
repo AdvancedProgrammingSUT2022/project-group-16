@@ -59,7 +59,7 @@ public class GameController implements Serializable
 		return grid;
 	}
 
-	private Gson gson;
+	public Gson gson;
 
 
 	// private constructor to prevent instantiation
@@ -67,7 +67,7 @@ public class GameController implements Serializable
 	{
 		initGrid();
 
-		GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Construction.class, new ConstructionTypeAdapter());
 		gsonBuilder.registerTypeAdapter(CombatUnit.class, new CUnitTypeAdapter());
 		gsonBuilder.registerTypeAdapter(NonCombatUnit.class, new NCUnitTypeAdapter());
@@ -76,7 +76,7 @@ public class GameController implements Serializable
 		gson = gsonBuilder.create();
 	}
 	// this method is called to get the GameController singleton instance
-	public static GameController getInstance()
+	public static synchronized GameController getInstance()
 	{
 		if(instance == null)
 			instance = new GameController();
@@ -97,7 +97,7 @@ public class GameController implements Serializable
 		if (isGameEnd() != null)
 			return "game Ended";
 		changeTurn();
-		return null; //TODO: return: "turn changed successfully"
+		return "turn changed"; //TODO: return: "turn changed successfully"
 	}
 	// this updates changes turn to the next player (i.e. reset all units turns and decrement researching technology turns)
 	private void changeTurn()
@@ -164,8 +164,10 @@ public class GameController implements Serializable
 			registerController.writeDataOnJson();
 		}
 
+		playerTurn.setIsYourTurn(false);
 		// change playerTurn
 		playerTurn = players.get((players.indexOf(playerTurn) + 1) % players.size());
+		playerTurn.setIsYourTurn(true);
 	}
 
 	private void addBuildingBenefits() {
@@ -345,19 +347,36 @@ public class GameController implements Serializable
 
 		return loadedGameController;
 	}
-	public String playerToJson(Player player)
+	public synchronized String playerToJson(Player player)
 	{
+		player.MAP_SIZE = MAP_SIZE;
+		player.updateTileStates();
+
+		player.enemyUnits.clear();
 		// set map
 		player.mapKeyset.clear();
 		player.mapValueset.clear();
 		for (Tile tile : player.getMap().keySet())
 		{
+			if(tile.getCombatUnitInTile() != null && !tile.getCombatUnitInTile().getRulerPlayer().getCivilization().equals(player.getCivilization()))
+			{
+				tile.getCombatUnitInTile().lastPositionForSave = new Position(tile.getPosition().X, tile.getPosition().Y);
+				player.enemyUnits.add(tile.getCombatUnitInTile());
+			}
+			if(tile.getNonCombatUnitInTile() != null && !tile.getNonCombatUnitInTile().getRulerPlayer().getCivilization().equals(player.getCivilization()))
+			{
+				tile.getNonCombatUnitInTile().lastPositionForSave = new Position(tile.getPosition().X, tile.getPosition().Y);
+				player.enemyUnits.add(tile.getNonCombatUnitInTile());
+			}
+
 			player.mapKeyset.add(tile);
 			player.mapValueset.add(player.getMap().get(tile));
 		}
 		// set units last position
 		for (Unit unit : player.getUnits())
 			unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
+
+
 		// set trade requests
 		for (TradeRequest tradeRequest : player.getTradeRequests())
 			tradeRequest.senderCivilization = tradeRequest.getSender().getCivilization();
@@ -1031,6 +1050,14 @@ public class GameController implements Serializable
 		return false;
 	}
 
+	public synchronized Player getPlayerBuUsername(String username)
+	{
+		for (Player player : players)
+			if(player.getUsername().equals(username))
+				return player;
+
+		return null;
+	}
 	public Player getPlayerTurn()
 	{
 		return playerTurn;
@@ -1043,7 +1070,7 @@ public class GameController implements Serializable
 	{
 		return turnCounter;
 	}
-	public ArrayList<Player> getPlayers()
+	public synchronized ArrayList<Player> getPlayers()
 	{
 		return players;
 	}
@@ -1182,6 +1209,16 @@ public class GameController implements Serializable
 				return matcher.group("name") + cheatCode.addSuccessful.regex;
 			}
 		return mainCommands.invalidCommand.regex;
+	}
+	public String gainAllTechnologies()
+	{
+		for (Technology value : Technology.values())
+		{
+			playerTurn.addTechnology(value);
+			playerTurn.setGameScore(playerTurn.getGameScore() + 3);
+		}
+
+		return "now you have access to all technologies";
 	}
 	public String killEnemyUnit(Matcher matcher) //TODO: change to killUnit. with this cheat code, we can kill any opponent unit.
 	{ //TODO: check for bugs
@@ -1568,7 +1605,7 @@ public class GameController implements Serializable
 			return unitCommands.wrongCoordinates.regex;
 		int newX = Integer.parseInt(matcher.group("x"));
 		int newY = Integer.parseInt(matcher.group("y"));
-		if(newX < 0 || newX > 9 || newY < 0 || newY > 9)
+		if(newX < 0 || newX > MAP_SIZE - 1 || newY < 0 || newY > MAP_SIZE - 1)
 			return unitCommands.wrongCoordinates.regex;
 		if(playerTurn.getMap().get(getTileByXY(newX,newY)).equals(TileState.FOG_OF_WAR)) return "tile is in fog of war";
 		if(playerTurn.getSelectedUnit() != null)
