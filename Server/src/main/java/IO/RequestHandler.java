@@ -563,6 +563,8 @@ public class RequestHandler  extends Thread{
         response.addMassage(message);
         response.addParam("updateOthers", true);
 
+		System.out.println(GameController.getInstance().getPlayerTurn().getCities().get(0).getBuildings());
+
         return response;
     }
     private Response buildBuilding(Request request){

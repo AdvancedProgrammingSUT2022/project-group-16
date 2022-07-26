@@ -285,6 +285,8 @@ public class Hex extends Application {
 
     private void setBuildings()
     {
+        System.out.println("setting building...");
+
         if(tileState.equals(TileState.FOG_OF_WAR))
             return;
 

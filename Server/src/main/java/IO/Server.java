@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class Server
 {
-	static final int SERVER_PORT = 4444;
+	static final int SERVER_PORT = 8569;
 	static ServerSocket serverSocket;
 	private static ArrayList<RequestHandler> requestHandlers = new ArrayList<>();
 	public static chatServer chatServer = new chatServer();

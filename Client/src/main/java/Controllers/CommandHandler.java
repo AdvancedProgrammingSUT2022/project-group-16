@@ -97,6 +97,8 @@ public class CommandHandler
 
 	public Player jsonToPlayer(String playerJson)
 	{
+		System.out.println(playerJson);
+
 		Player player = gson.fromJson(playerJson, Player.class);
 
 		// set map
