@@ -35,6 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MultiplayerMenu extends Application
 {
+	public static Player player;
 	private boolean isMakingRoomPrivate = false;
 	private int capacity;
 
@@ -75,7 +76,7 @@ public class MultiplayerMenu extends Application
 	Socket socket;
 	DataInputStream dataInputStream;
 	DataOutputStream dataOutputStream;
-
+	Thread listenerThread;
 
 	@Override
 	public void start(Stage stage) throws Exception
@@ -126,9 +127,9 @@ public class MultiplayerMenu extends Application
 				}
 			}
 		};
-		Thread listenereThread = new Thread(runnable);
-		listenereThread.setDaemon(true);
-		listenereThread.start();
+		listenerThread = new Thread(runnable);
+		listenerThread.setDaemon(true);
+		listenerThread.start();
 	}
 
 	@FXML
@@ -381,6 +382,7 @@ public class MultiplayerMenu extends Application
 
 	private void loadGame()
 	{
+		listenerThread.interrupt();
 		Request request = new Request();
 		request.setAction("getPlayer");
 		Player player;
@@ -402,8 +404,7 @@ public class MultiplayerMenu extends Application
 			public void run()
 			{
 				Game game = new Game();
-				game.setPlayer(player);
-				game.setSockets(Client.socket, Client.listenerSocket);
+				MultiplayerMenu.player  = player;
 				Main.audioClip.stop();
 				try
 				{
@@ -417,8 +418,6 @@ public class MultiplayerMenu extends Application
 		};
 		Platform.runLater(startGameRunnable);
 	}
-
-
 
 	//panels
 	private void createRoomResultPanel(String text, boolean isSuccessful) {

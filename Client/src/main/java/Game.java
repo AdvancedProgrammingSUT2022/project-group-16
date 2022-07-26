@@ -1,4 +1,5 @@
 import Controllers.CommandHandler;
+import IO.Client;
 import IO.Response;
 import Models.City.Citizen;
 import Models.City.City;
@@ -104,11 +105,26 @@ public class Game extends Application {
     private static boolean movingRight;
 
 	private Gson gson;
-    private Socket socket;
-    private Socket listenerSocket;
+    private Socket socket = Client.socket;
+    private Socket listenerSocket = Client.listenerSocket;
     private DataInputStream socketDIS;
     private DataOutputStream socketDOS;
     private DataInputStream listenerSocketDIS;
+
+    {
+        try
+        {
+            socketDIS = new DataInputStream(socket.getInputStream());
+            socketDOS = new DataOutputStream(socket.getOutputStream());
+            listenerSocketDIS = new DataInputStream(listenerSocket.getInputStream());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -143,38 +159,6 @@ public class Game extends Application {
         }
 
         commandHandler.setSocket(socket);
-
-        // run listener
-        Runnable listenerRunnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                Response messageFromServer;
-
-                while (true)
-                {
-                    try
-                    {
-                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
-                    }
-                    catch (IOException e)
-                    {
-                        throw new RuntimeException(e);
-                    }
-
-                    if(messageFromServer.getMassage().equals("update"))
-                    {
-                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
-                        commandHandler.setPlayer(updatedPlayer);
-                        updateScreen();
-                    }
-                }
-            }
-        };
-        Thread listenerThread = new Thread(listenerRunnable);
-        listenerThread.setDaemon(true);
-        listenerThread.start();
     }
 
     private void cheatCode() {
@@ -251,10 +235,14 @@ public class Game extends Application {
     }
     private void loadGame()
     {
+        setPlayer(MultiplayerMenu.player);
+        setSockets(Client.socket, Client.listenerSocket);
+
         hexagonsPane = (Pane) pane.getChildren().get(0);
         hexagonsPane.setLayoutX(100);
         hexagonsPane.setLayoutY(45);
         hexagonsPane.setPrefWidth(commandHandler.getPlayer().MAP_SIZE * 90);
+
         hexagonsPane.setPrefHeight(commandHandler.getPlayer().MAP_SIZE * 100);
         Hex.setPane(hexagonsPane);
         hexagons = new Hex[commandHandler.getPlayer().MAP_SIZE][commandHandler.getPlayer().MAP_SIZE];
@@ -297,16 +285,58 @@ public class Game extends Application {
         }
 
         animationTimer.start();
+
+        // run listener
+        Runnable listenerRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Response messageFromServer;
+
+                while (true)
+                {
+                    try
+                    {
+                        messageFromServer = Response.fromJson(listenerSocketDIS.readUTF());
+                    }
+                    catch (IOException e)
+                    {
+                        throw new RuntimeException(e);
+                    }
+
+                    if(messageFromServer.getMassage().equals("update"))
+                    {
+                        Player updatedPlayer = commandHandler.jsonToPlayer((String) messageFromServer.getParams().get("player"));
+                        commandHandler.setPlayer(updatedPlayer);
+                        updateScreen();
+                    }
+                }
+            }
+        };
+        Thread listenerThread = new Thread(listenerRunnable);
+        listenerThread.setDaemon(true);
+        listenerThread.start();
     }
 
     public void updateScreen()
     {
+//        System.out.println(commandHandler.getPlayer().getUsername() + ":\n");
+//        for (Tile tile : commandHandler.getPlayer().getMap().keySet())
+//            if(tile.getCombatUnitInTile() != null)
+//                System.out.println(tile.getPosition().X + "," + tile.getPosition().Y);
+
         final Game tmpGame = this;
         Runnable updateScreenRunnable = new Runnable()
         {
             @Override
             public void run()
             {
+                if(commandHandler.getPlayer().getIsYourTurn() == false)
+                    pane.setDisable(true);
+                else
+                    pane.setDisable(false);
+
                 hexagonsPane.getChildren().clear();
 
                 // update tiles

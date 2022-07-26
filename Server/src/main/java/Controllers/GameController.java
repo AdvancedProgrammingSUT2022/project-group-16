@@ -59,7 +59,7 @@ public class GameController implements Serializable
 		return grid;
 	}
 
-	private Gson gson;
+	public Gson gson;
 
 
 	// private constructor to prevent instantiation
@@ -352,17 +352,31 @@ public class GameController implements Serializable
 		player.MAP_SIZE = MAP_SIZE;
 		player.updateTileStates();
 
+		player.enemyUnits.clear();
 		// set map
 		player.mapKeyset.clear();
 		player.mapValueset.clear();
 		for (Tile tile : player.getMap().keySet())
 		{
+			if(tile.getCombatUnitInTile() != null && !tile.getCombatUnitInTile().getRulerPlayer().getCivilization().equals(player.getCivilization()))
+			{
+				tile.getCombatUnitInTile().lastPositionForSave = new Position(tile.getPosition().X, tile.getPosition().Y);
+				player.enemyUnits.add(tile.getCombatUnitInTile());
+			}
+			if(tile.getNonCombatUnitInTile() != null && !tile.getNonCombatUnitInTile().getRulerPlayer().getCivilization().equals(player.getCivilization()))
+			{
+				tile.getNonCombatUnitInTile().lastPositionForSave = new Position(tile.getPosition().X, tile.getPosition().Y);
+				player.enemyUnits.add(tile.getNonCombatUnitInTile());
+			}
+
 			player.mapKeyset.add(tile);
 			player.mapValueset.add(player.getMap().get(tile));
 		}
 		// set units last position
 		for (Unit unit : player.getUnits())
 			unit.lastPositionForSave = new Position(unit.getTile().getPosition().X, unit.getTile().getPosition().Y);
+
+
 		// set trade requests
 		for (TradeRequest tradeRequest : player.getTradeRequests())
 			tradeRequest.senderCivilization = tradeRequest.getSender().getCivilization();

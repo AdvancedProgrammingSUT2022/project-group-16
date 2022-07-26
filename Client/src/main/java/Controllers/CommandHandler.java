@@ -1,11 +1,13 @@
 package Controllers;
 
+import IO.Client;
 import IO.Request;
 import IO.Response;
 import Models.City.Building;
 import Models.City.BuildingType;
 import Models.City.City;
 import Models.City.Construction;
+import Models.Player.Civilization;
 import Models.Player.Player;
 import Models.Player.Technology;
 import Models.Player.TileState;
@@ -19,6 +21,7 @@ import Models.Units.NonCombatUnits.NonCombatUnit;
 import Models.Units.Unit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import javafx.css.Match;
 
@@ -35,9 +38,21 @@ public class CommandHandler
 	private static CommandHandler instance;
 
 	private Gson gson;
-	private Socket socket;
+	private Socket socket = Client.socket;
 	private DataInputStream socketDIS;
 	private DataOutputStream socketDOS;
+	{
+		try
+		{
+			socketDIS = new DataInputStream(socket.getInputStream());
+			socketDOS = new DataOutputStream(socket.getOutputStream());
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
 	private Player player;
 
 
@@ -106,6 +121,25 @@ public class CommandHandler
 			player.setSelectedUnit(player.getTileByXY(player.getSelectedUnit().getTile().getPosition().X, player.getSelectedUnit().getTile().getPosition().Y).getCombatUnitInTile());
 		else if(player.getSelectedUnit() != null && player.getSelectedUnit() instanceof NonCombatUnit && player.getSelectedUnit().getTile() != null)
 			player.setSelectedUnit(player.getTileByXY(player.getSelectedUnit().getTile().getPosition().X, player.getSelectedUnit().getTile().getPosition().Y).getNonCombatUnitInTile());
+		// set enemy units
+		for (Unit enemyUnit : player.enemyUnits)
+		{
+			Player enemyPlayer;
+			try
+			{
+				enemyPlayer = new Player(Civilization.OTTOMAN, "enemy", "enemy", "enemy", 0, 0);
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+			enemyUnit.setRulerPlayer(enemyPlayer);
+			enemyUnit.setTile(player.getTileByXY(enemyUnit.lastPositionForSave.X, enemyUnit.lastPositionForSave.Y));
+			if(enemyUnit instanceof CombatUnit)
+				player.getTileByXY(enemyUnit.getTile().getPosition().X, enemyUnit.getTile().getPosition().Y).setCombatUnitInTile((CombatUnit) enemyUnit);
+			else
+				player.getTileByXY(enemyUnit.getTile().getPosition().X, enemyUnit.getTile().getPosition().Y).setNonCombatUnitInTile((NonCombatUnit) enemyUnit);
+		}
 
 		// set city tiles
 		for (City city : player.getCities())

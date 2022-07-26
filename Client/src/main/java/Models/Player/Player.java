@@ -52,6 +52,7 @@ public class Player extends User
 	private City currentCapitalCity;    //??TODO
 	private final ArrayList<Notification> notifications = new ArrayList<>();
 	private final ArrayList<Unit> units = new ArrayList<>();
+	public ArrayList<Unit> enemyUnits = new ArrayList<>();
 	private int tilePurchaseCost = 10; //increases every time the player purchases a tile
 	private boolean isUnHappy = false;
 	private HashMap<Civilization, RelationState> relationStates = new HashMap<>();
