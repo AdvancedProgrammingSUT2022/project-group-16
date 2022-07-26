@@ -107,7 +107,7 @@ public class Client {
         Request request = new Request();
         request.setAction("make new chat");
         request.addParam("username", username);
-        request.addParam("sender", sender);
+        request.addParam("sender", sender.getUsername());
         return sendRequest(request);
     }
     public HashMap<String, ArrayList<Message>> getUserPrivateChats(String username){

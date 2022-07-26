@@ -94,7 +94,7 @@ public class ChatMenu extends Application {
                     search.setText(null);
                     Response response = Client.getInstance().makeNewChat(username, sender);
                         if(response.getStatus() == 200) {
-                            User user = (User) response.getParams().get("receiver");
+                            User user =  response.getUsers().get(0);
                             while (list.getChildren().size() > 6) {
                                 if(list.getChildren().get(list.getChildren().size() - 1).getClass() == ImageView.class)
                                     list.getChildren().remove(list.getChildren().size() - 1);
@@ -104,6 +104,7 @@ public class ChatMenu extends Application {
                             makeChat(sender, user);
                             receiver = user;
                         }
+                    search.setText(null);
                 }
             }
         });

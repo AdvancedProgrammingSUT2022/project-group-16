@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,6 +32,8 @@ public class FriendShipMenu extends Application {
     public VBox friendRequestBox;
     public TextField searchTextField;
     public VBox searchNameFounded;
+    public Pane friendsNamesBox;
+    public Group friendsName;
 
 
     Socket socket;
@@ -44,6 +47,10 @@ public class FriendShipMenu extends Application {
         stage.setScene(new Scene(FXMLLoader.load(new
                 URL(getClass().getResource("fxml/friendShipMenu.fxml").toExternalForm()))));
         stage.show();
+    }
+    public void backToProfileMenu(MouseEvent mouseEvent) throws Exception {
+        ProfileMenu profileMenu = new ProfileMenu();
+        profileMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
     public void initialize() throws IOException {
@@ -145,6 +152,9 @@ public class FriendShipMenu extends Application {
             pane.getChildren().add(noButtons);
             pane.getChildren().get(pane.getChildren().size() - 1).setLayoutX(1000);
             pane.getChildren().get(pane.getChildren().size() - 1).setLayoutY(360);
+
+            //friends panel
+            friendsNamesPanel();
         }
         catch (IOException e)
         {
@@ -165,13 +175,16 @@ public class FriendShipMenu extends Application {
             dataOutputStream.flush();
 
             Response response = Response.fromJson(dataInputStream.readUTF());
-            ArrayList<String> names = (ArrayList<String>) response.getParams().get("usersFound");
+            ArrayList<String> names = (ArrayList<String>) response.getParams().get("usernames");
+            ArrayList<String> scores = (ArrayList<String>) response.getParams().get("scores");
 
             searchNameFounded.getChildren().clear();
 
-            for (String name : names)
+            for (int i = 0; i < names.size(); i++)
             {
-                addLabelToBox(name, searchNameFounded);
+                String name = names.get(i);
+                String score = scores.get(i);
+                addLabelToBox("name: " + name + " - score: " + score, searchNameFounded);
                 searchNameFounded.getChildren().get(searchNameFounded.getChildren().size() - 1).setOnMouseClicked(mouseEvent -> {
                     Request sendFriendRequest = new Request();
                     sendFriendRequest.setAction("send friendShip");
@@ -205,6 +218,42 @@ public class FriendShipMenu extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //panels
+    private void friendsNamesPanel() {
+        Request request = new Request();
+        request.setAction("get all friends");
+
+        try {
+            dataOutputStream.writeUTF(request.toJson());
+            dataOutputStream.flush();
+
+            Response response = Response.fromJson(dataInputStream.readUTF());
+            ArrayList<String> friends = (ArrayList<String>) response.getParams().get("friends");
+
+            System.out.println(friends);
+            int counter = 0;
+            while (counter < friends.size()) {
+                VBox box = new VBox();
+                addLabelToBox(friends.get(counter), box);
+                counter++;
+                if (counter < friends.size())
+                    addLabelToBox(friends.get(counter), box);
+                counter++;
+                if (counter < friends.size())
+                    addLabelToBox(friends.get(counter), box);
+                counter++;
+                friendsNamesBox.getChildren().add(box);
+                friendsNamesBox.getChildren().get(friendsNamesBox.getChildren().size() - 1).setLayoutX(150 * ((counter - 1) / 2.0));
+            }
+            pane.getChildren().remove(friendsNamesBox);
+            pane.getChildren().add(friendsNamesBox);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     //this method adds a line to Vbox

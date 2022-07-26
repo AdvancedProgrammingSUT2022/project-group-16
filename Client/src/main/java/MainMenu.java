@@ -66,13 +66,4 @@ public class MainMenu extends Application {
         scoreBoard.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
     }
 
-    public void loadGame(MouseEvent mouseEvent) throws Exception {
-        LoadGame loadGame = new LoadGame();
-        loadGame.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
-    }
-
-    public void friendsMenu(MouseEvent mouseEvent) throws Exception {
-        FriendShipMenu friendShipMenu = new FriendShipMenu();
-        friendShipMenu.start((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow());
-    }
 }

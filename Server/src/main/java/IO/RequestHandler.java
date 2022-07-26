@@ -163,6 +163,7 @@ public class RequestHandler  extends Thread{
         else if (request.getAction().equals("friend requests")) return friendRequests(request);
         else if ((request.getAction().equals("accept friend"))) return acceptFriend(request);
         else if ((request.getAction().equals("reject friend"))) return rejectFriend(request);
+        else if ((request.getAction().equals("get all friends"))) return getAllFriends(request);
 
         return null;
     }
@@ -616,7 +617,7 @@ public class RequestHandler  extends Thread{
     private Response makeNewChat(Request request) {
         Response response = new Response();
         response.setStatus(400);
-        User sender = (User) request.getParams().get("sender");
+        User sender = Server.registerController.getUserByUsername((String) request.getParams().get("sender"));
         User receiver = null;
         String username = (String) request.getParams().get("username");
         for(User user : Menu.allUsers) {
@@ -626,10 +627,14 @@ public class RequestHandler  extends Thread{
                 sender.getPrivateChats().put(username, new ArrayList<>());
                 user.getPrivateChats().put(sender.getUsername(), new ArrayList<>());
                 response.setStatus(200);
-                response.addParam("receiver", user);
+                response.addUser( user);
                 receiver = user;
                 break;
             }
+        }
+        if(receiver == null){
+            response.addMassage("there is no user with this username");
+            return response;
         }
         sender.getPrivateChats().put(receiver.getUsername(), new ArrayList<>());
         receiver.getPrivateChats().put(sender.getUsername(), new ArrayList<>());
@@ -965,12 +970,16 @@ public class RequestHandler  extends Thread{
         int length = searchedText.length();
 
         ArrayList<String> acceptedUsernames = new ArrayList<>();
+        ArrayList<String> acceptedScores = new ArrayList<>();
 
         for (User user : Menu.allUsers)
-            if ((user.getUsername().length() > length && searchedText.equals(user.getUsername().substring(0, length))))
+            if ((user.getUsername().length() > length && searchedText.equals(user.getUsername().substring(0, length)))) {
                 acceptedUsernames.add(user.getUsername());
+                acceptedScores.add(String.valueOf(user.getScore()));
+            }
 
-        response.getParams().put("usersFound", acceptedUsernames);
+        response.getParams().put("usernames", acceptedUsernames);
+        response.getParams().put("scores", acceptedScores);
         return response;
     }
 
@@ -981,6 +990,7 @@ public class RequestHandler  extends Thread{
 
         User receiver = Server.registerController.getUserByUsername(receiverUsername);
         if (!receiver.getFriendRequests().contains(Menu.loggedInUser.getUsername()) &&
+                !receiver.getFriends().contains(Menu.loggedInUser.getUsername()) &&
                 !receiver.getUsername().equals(Menu.loggedInUser.getUsername())) {
             receiver.getFriendRequests().add(Menu.loggedInUser.getUsername());
             Server.registerController.writeDataOnJson();
@@ -1004,6 +1014,7 @@ public class RequestHandler  extends Thread{
         Response response = new Response();
         String username = (String) request.getParams().get("username");
         Menu.loggedInUser.getFriends().add(username);
+        Server.registerController.getUserByUsername(username).getFriends().add(Menu.loggedInUser.getUsername());
         Menu.loggedInUser.getFriendRequests().remove(username);
         Server.registerController.writeDataOnJson();
         return response;
@@ -1014,6 +1025,13 @@ public class RequestHandler  extends Thread{
         String username = (String) request.getParams().get("username");
         Menu.loggedInUser.getFriendRequests().remove(username);
         Server.registerController.writeDataOnJson();
+        return response;
+    }
+
+    private Response getAllFriends(Request request) {
+        Response response = new Response();
+        ArrayList<String> friends = Menu.loggedInUser.getFriends();
+        response.getParams().put("friends", friends);
         return response;
     }
 }
