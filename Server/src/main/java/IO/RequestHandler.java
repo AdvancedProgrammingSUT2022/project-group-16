@@ -75,6 +75,7 @@ public class RequestHandler  extends Thread{
             }
         }catch (EOFException e){
             System.out.println("client disconnected");
+            Server.chatServer.removeOnlineUser(this.user);
         }
         catch (IOException ignored) {
             ignored.printStackTrace();
