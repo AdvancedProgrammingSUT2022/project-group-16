@@ -1,7 +1,12 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import server.chatServer;
 
@@ -20,7 +25,6 @@ public class Main extends Application
 	public void start(Stage stage) throws Exception {
 		chatServer server = new chatServer();
 		server.update();
-//		audioClip.play();
 		WelcomePage welcomePage = new WelcomePage();
 		welcomePage.start(stage);
 	}

@@ -16,7 +16,7 @@ import java.util.HashMap;
 public class Client {
     private User loggedInUser;
     public static ArrayList<User> allUsers = new ArrayList<>();
-    static final int SERVER_PORT = 8569;
+    static final int SERVER_PORT = 1131;
     static DataInputStream dataInputStream;
     static DataOutputStream dataOutputStream;
     public static Socket socket;

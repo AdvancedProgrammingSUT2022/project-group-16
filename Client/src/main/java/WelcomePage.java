@@ -5,7 +5,12 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
+
+import java.io.File;
 import java.net.URL;
 
 public class WelcomePage extends Application {
@@ -18,9 +23,22 @@ public class WelcomePage extends Application {
     }
     @Override
     public void start(Stage stage) throws Exception {
-        stage.setScene(new Scene(FXMLLoader.load(new
-                URL(getClass().getResource("fxml/welcomePage.fxml").toExternalForm()))));
+        Media media = new Media(getClass().getResource("trailer/trailer.mp4").toExternalForm());
+        MediaPlayer player = new MediaPlayer(media);
+        MediaView mediaView = new MediaView(player);
+
+        Pane root = FXMLLoader.load(new
+                URL(getClass().getResource("fxml/welcomePage.fxml").toExternalForm()));
+        root.getChildren().add(mediaView);
+
+        stage.setScene(new Scene(root));
         stage.show();
+
+        player.play();
+        player.setOnEndOfMedia(() -> {
+            root.getChildren().remove(mediaView);
+            Main.audioClip.play();
+        });
     }
 
     public static void main(String[] args) {
