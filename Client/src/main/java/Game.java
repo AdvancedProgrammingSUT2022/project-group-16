@@ -355,6 +355,8 @@ public class Game extends Application {
 
                 generateMapForPlayer(commandHandler.getPlayer());
                 setInformationStyles();
+                updateTurnNumber();
+                updateYear();
             }
         };
 

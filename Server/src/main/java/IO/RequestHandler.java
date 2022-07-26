@@ -233,13 +233,13 @@ public class RequestHandler  extends Thread{
     private Response getTurnCounter()
     {
         Response response = new Response();
-        response.addParam("turnCounter", GameController.getInstance().getTurnCounter());
+        response.addParam("turnCounter", String.valueOf(GameController.getInstance().getTurnCounter()));
 
         return response;
     }
     private Response getYear(){
         Response response = new Response();
-        response.addParam("year", GameController.getInstance().getYear());
+        response.addParam("year", String.valueOf(GameController.getInstance().getYear()));
 
         return response;
     }
